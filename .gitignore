@@ -1,2 +1,33 @@
-.env
 node_modules
+# DOCKER
+*_data/
+volumes/
+
+# ENVIRONMENT FILES
+.env
+.env.*
+*.env
+
+# IDE (Algemeen)
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS FILES
+.DS_Store
+Thumbs.db
+
+# LOGS
+*.log
+logs/
+
+# TEMP & BACKUP FILES
+*.bak
+*.backup
+*.tmp
+*.temp
+*~
+.cache/
