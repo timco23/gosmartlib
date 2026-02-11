@@ -1,0 +1,31 @@
+services:
+  frontend:
+    build: ./frontend/my-app
+    ports:
+      - "80:80"
+    networks:
+      - frontend
+  backend:
+    build: ./backend/spring-backend
+    ports: 
+      - "8080:8080"
+    networks:
+      - frontend
+      - backend
+  database:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
+      - MYSQL_DATABASE=helloworlddb
+    networks:
+      - backend
+    volumes:
+      - databasedata:/var/lib/mysql
+      - ./sqlinit:/docker-entrypoint-initdb.d
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  databasedata:
