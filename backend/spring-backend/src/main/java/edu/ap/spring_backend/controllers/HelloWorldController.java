@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = {"http://app.traefik.me"}) 
+@CrossOrigin(origins = {"http://app.195.201.32.74.traefik.me"}) 
 public class HelloWorldController {
     // test controller
 
