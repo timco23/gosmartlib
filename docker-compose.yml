@@ -19,6 +19,7 @@ services:
   frontend:
     build: ./frontend/my-app
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`app.195.201.32.74.traefik.me`)"
       - "traefik.docker.network=traefik"
       - "traefik.http.routers.frontend.entrypoints=web"
@@ -31,12 +32,13 @@ services:
   backend:
     build: ./backend/spring-backend
     labels:
+      - "traefik.enable=true"
       - "traefik.docker.network=traefik"
-      - "traefik.http.routers.backend.rule=Host(`api.195.201.32.74.traefik.me`)" 
+      - "traefik.http.routers.backend.rule=Host(`api.195.201.32.74.traefik.me`)"
       - "traefik.http.routers.backend.entrypoints=web"
     depends_on:
       database:
-        condition: service_healthy  
+        condition: service_healthy
     networks:
       - frontend
       - backend
@@ -47,8 +49,18 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
       - MYSQL_DATABASE=helloworlddb
-    healthcheck: 
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${sqlrootpwd}"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${sqlrootpwd}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
