@@ -9,7 +9,7 @@ Full-stack applicatie met Angular, Spring Boot, MySQL en Traefik.
 ### 1. Environment file aanmaken
 Maak `.env` bestand in root met:
 ```bash
-sqlrootpwd=ROOT
+sqlrootpwd=ROOTROOT
 ```
 
 ### 2. Start de applicatie
