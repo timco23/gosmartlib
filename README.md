@@ -16,6 +16,12 @@ sqlrootpwd=ROOT
 ```bash
 docker compose up -d
 ```
+##### Als de frontend niet correct de backend aanspreekt
+```bash
+docker compose down
+docker compose build --no-cache frontend
+docker compose up
+```
 
 ### 2. URLs
 ```bash
