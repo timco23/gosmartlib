@@ -25,7 +25,19 @@ docker compose up
 
 ### 2. URLs
 ```bash
-Frontend: http://localhost/
-Backend: http://localhost/api/hello
+Frontend: http://app.traefik.me/
+Backend: http://api.traefik.me/hello
 Traefik Dashboard: http://localhost:8081/dashboard/
+```
+
+### Voor te runnen op een externe server
+Verander urls in docker-compose.yml om ip adres te gebruiken (app.195.201.32.74.traefik.me/api.195.201.32.74.traefik.me)
+Verander url in environment.ts van frontend naar nieuwe url van backend.
+Verander url van origin in controller van backend naar nieuwe url van frontend.
+
+De nieuw nieuwe URLs zijn dan het volgende:
+```bash
+Frontend: http://app.195.201.32.74.traefik.me/
+Backend: http://api.195.201.32.74.traefik.me/hello
+Traefik Dashboard: http://195.201.32.74:8081/dashboard/
 ```
