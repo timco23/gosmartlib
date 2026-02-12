@@ -1,0 +1,13 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  script:
+    - cd /home/student/gosmartlib
+    - git pull origin main
+    - docker compose down
+    - docker compose up -d
+  only:
+    - main
+
