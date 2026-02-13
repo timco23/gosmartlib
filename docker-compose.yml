@@ -1,3 +1,4 @@
+version: "3.5"
 services:
   traefik:
     image: traefik:v3.6.7
@@ -5,11 +6,8 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--providers.docker.network=traefik"
     ports:
       - "80:80"
-      - "443:443"
       - "8081:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -18,11 +16,14 @@ services:
 
   frontend:
     build: ./frontend/my-app
+    volumes:
+      - "./frontend/nginx.conf:/etc/nginx/conf.d/default.conf"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`app.195.201.32.74.traefik.me`)"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
       - "traefik.docker.network=traefik"
-      - "traefik.http.routers.frontend.entrypoints=web"
     depends_on:
       - backend
     networks:
@@ -33,9 +34,13 @@ services:
     build: ./backend/spring-backend
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.priority=10"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik"
-      - "traefik.http.routers.backend.rule=Host(`api.195.201.32.74.traefik.me`)"
-      - "traefik.http.routers.backend.entrypoints=web"
+
+      - "traefik.http.routers.backend.middlewares=backend-stripprefix"
+      - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
     depends_on:
       database:
         condition: service_healthy
@@ -49,18 +54,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
       - MYSQL_DATABASE=helloworlddb
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "-p${sqlrootpwd}",
-        ]
+    healthcheck: 
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${sqlrootpwd}"]
       interval: 5s
       timeout: 5s
       retries: 10

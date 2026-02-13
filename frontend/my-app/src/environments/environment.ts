@@ -1,4 +1,10 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://api.195.201.32.74.traefik.me'
+  get apiUrl() {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname.startsWith('192.168')) {
+      return '/api';
+    }
+    return `http://${hostname.replace('app.', 'api.')}`; 
+  }
 };
