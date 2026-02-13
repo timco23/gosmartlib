@@ -33,7 +33,6 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```bash
 Frontend: http://app.195.201.32.74.traefik.me/
 Backend: http://api.195.201.32.74.traefik.me/hello
-Traefik Dashboard: http://195.201.32.74:8081/dashboard/
 ```
 
 De URL's bij het lokaal runnen:
