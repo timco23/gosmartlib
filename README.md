@@ -7,20 +7,26 @@ Full-stack applicatie met Angular, Spring Boot, MySQL en Traefik.
 ## Snel starten
 
 ### 1. Environment file aanmaken
-Maak `.env` bestand in root met:
+Maak een `.env` bestand in root met:
 ```bash
 sqlrootpwd=ROOTROOT
 ```
 
-### 2. Start de applicatie
+### 2. Start de applicatie (lokaal)
 ```bash
 docker compose up -d
 ```
-##### Als de frontend niet correct de backend aanspreekt
+Als de frontend niet correct de backend aanspreekt
 ```bash
 docker compose down
 docker compose build --no-cache frontend
 docker compose up
+```
+
+Als het nodig is om op de server de production versie te restarten gebruik:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
 ### 2. URLs
@@ -30,14 +36,9 @@ Backend: http://api.195.201.32.74.traefik.me/hello
 Traefik Dashboard: http://195.201.32.74:8081/dashboard/
 ```
 
-### Voor te runnen op je eigen machine
-Verander urls in docker-compose.yml om ip adres eruit te halen (app.traefik.me/api.traefik.me)
-Verander url in environment.ts van frontend naar nieuwe url van backend.
-Verander url van origin in controller van backend naar nieuwe url van frontend.
-
-De nieuw nieuwe URLs zijn dan het volgende:
+De URL's bij het lokaal runnen:
 ```bash
-Frontend: http://app.traefik.me/
-Backend: http://api.traefik.me/hello
+Frontend: http://localhost/
+Backend: http://localhost/hello
 Traefik Dashboard: http://localhost:8081/dashboard/
 ```
