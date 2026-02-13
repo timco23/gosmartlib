@@ -32,6 +32,8 @@ services:
 
   backend:
     build: ./backend/spring-backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
