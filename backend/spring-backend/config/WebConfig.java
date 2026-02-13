@@ -12,8 +12,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns(
                     "http://localhost",
                     "http://192.168.*",
-                    "http://*.traefik.me",
-                    "https://*.traefik.me"
+                    "http://app.195.201.32.74.traefik.me",
+                    "https://app.195.201.32.74.traefik.me"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
