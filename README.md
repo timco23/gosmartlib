@@ -33,7 +33,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 Productie (server)
 ```bash
 Frontend: http://gsmartlib.tech
-Backend: http://api.gsmartlib.tech
+Backend: http://api.gsmartlib.tech/hello
 ```
 
 Lokaal:

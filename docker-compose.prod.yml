@@ -25,6 +25,7 @@ services:
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik"
+      - "traefik.http.routers.backend.middlewares=cors"
     networks:
     - frontend
     - backend
