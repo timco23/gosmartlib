@@ -1,6 +1,6 @@
 # GoSmartLib
 
-Full-stack applicatie met Angular, Spring Boot, MySQL en Traefik.
+Full-stack applicatie met Angular, Spring Boot, MySQL, Traefik en custom domein via get.tech.
 
 ---
 
@@ -29,15 +29,16 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
-### 2. URLs
+### 3. URL's
+Productie (server)
 ```bash
-Frontend: http://app.195.201.32.74.traefik.me/
-Backend: http://api.195.201.32.74.traefik.me/hello
+Frontend: http://gsmartlib.tech
+Backend: http://api.gsmartlib.tech
 ```
 
-De URL's bij het lokaal runnen:
+Lokaal:
 ```bash
 Frontend: http://localhost/
-Backend: http://localhost/hello
+Backend: http://localhost/api/hello
 Traefik Dashboard: http://localhost:8081/dashboard/
 ```

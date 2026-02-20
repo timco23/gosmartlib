@@ -13,7 +13,7 @@ services:
   frontend:
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`app.195.201.32.74.traefik.me`)"
+      - "traefik.http.routers.frontend.rule=Host(`gsmartlib.tech`)"
       - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
       - "traefik.docker.network=traefik"
@@ -21,7 +21,7 @@ services:
   backend:
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.195.201.32.74.traefik.me`)"
+      - "traefik.http.routers.backend.rule=Host(`api.gsmartlib.tech`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik"
