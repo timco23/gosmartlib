@@ -6,24 +6,35 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--entryPoints.websecure.http.tls=true"
+      - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entryPoints.web.http.redirections.entryPoint.permanent=true"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${email}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json"
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - traefik-certs:/certs
       
   frontend:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`gsmartlib.tech`) || Host(`www.gsmartlib.tech`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frontend.entrypoints=web,websecure"
       - "traefik.docker.network=traefik"
       
   backend:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.gsmartlib.tech`)"
-      - "traefik.http.routers.backend.entrypoints=web"
-      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+      - "traefik.http.routers.backend.entrypoints=web,websecure"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.docker.network=traefik"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolalloworiginlist=http://gsmartlib.tech,http://www.gsmartlib.tech"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
@@ -39,3 +50,7 @@ services:
     volumes:
       - "/opt/docker-data/mysql:/var/lib/mysql"
       - ./sqlinit:/docker-entrypoint-initdb.d
+
+volumes:
+  traefik-certs:
+    name: traefik-certs
