@@ -8,7 +8,6 @@ export const environment = {
     if (hostname.startsWith('app.')) {
       return `http://${hostname.replace('app.', 'api.')}`;
     }
-    // Voor gsmartlib.tech → api.gsmartlib.tech
     return `http://api.${hostname}`;
   }
 };
