@@ -13,7 +13,7 @@ services:
   frontend:
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`gsmartlib.tech`)"
+      - "traefik.http.routers.frontend.rule=Host(`gsmartlib.tech`) || Host(`www.gsmartlib.tech`)"
       - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
       - "traefik.docker.network=traefik"

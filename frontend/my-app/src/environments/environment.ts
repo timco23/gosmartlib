@@ -5,6 +5,10 @@ export const environment = {
     if (hostname === 'localhost' || hostname.startsWith('192.168')) {
       return '/api';
     }
-    return `http://${hostname.replace('app.', 'api.')}`; 
+    if (hostname.startsWith('app.')) {
+      return `http://${hostname.replace('app.', 'api.')}`;
+    }
+    // Voor gsmartlib.tech → api.gsmartlib.tech
+    return `http://api.${hostname}`;
   }
 };
