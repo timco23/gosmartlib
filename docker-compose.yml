@@ -44,7 +44,7 @@ services:
       - "traefik.http.routers.backend.middlewares=backend-stripprefix"
       - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
 
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=http://gsmartlib.tech,http://www.gsmartlib.tech,http://api.gsmartlib.tech"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=https://gsmartlib.tech,https://www.gsmartlib.tech,https://api.gsmartlib.tech"
       - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=http://app.195.201.32.74.traefik.me"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"

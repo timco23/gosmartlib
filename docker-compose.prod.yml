@@ -36,7 +36,7 @@ services:
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.docker.network=traefik"
-      - "traefik.http.middlewares.cors-prod.headers.accesscontrolalloworiginlist=http://gsmartlib.tech,http://www.gsmartlib.tech"
+      - "traefik.http.middlewares.cors-prod.headers.accesscontrolalloworiginlist=https://gsmartlib.tech,https://www.gsmartlib.tech"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowheaders=*"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowcredentials=true"
