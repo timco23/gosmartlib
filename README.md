@@ -10,6 +10,7 @@ Full-stack applicatie met Angular, Spring Boot, MySQL, Traefik en custom domein 
 Maak een `.env` bestand in root met:
 ```bash
 sqlrootpwd=ROOTROOT
+email=yourownemail@gmail.com
 ```
 
 ### 2. Start de applicatie (lokaal)
@@ -32,8 +33,8 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ### 3. URL's
 Productie (server)
 ```bash
-Frontend: http://gsmartlib.tech
-Backend: http://api.gsmartlib.tech/hello
+Frontend: https://gsmartlib.tech
+Backend: https://api.gsmartlib.tech/hello
 ```
 
 Lokaal:
