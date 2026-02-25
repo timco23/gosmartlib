@@ -9,8 +9,9 @@ Full-stack applicatie met Angular, Spring Boot, MySQL, Traefik en custom domein 
 ### 1. Environment file aanmaken
 Maak een `.env` bestand in root met:
 ```bash
-sqlrootpwd=ROOTROOT
+sqlrootpwd=passwordhere
 email=yourownemail@gmail.com
+sqlrootuser=rootusernamehere
 ```
 
 ### 2. Start de applicatie (lokaal)
@@ -34,12 +35,12 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 Productie (server)
 ```bash
 Frontend: https://gsmartlib.tech
-Backend: https://api.gsmartlib.tech/hello
+Backend: https://api.gsmartlib.tech/
 ```
 
 Lokaal:
 ```bash
 Frontend: http://localhost/
-Backend: http://localhost/api/hello
+Backend: http://localhost/api/
 Traefik Dashboard: http://localhost:8081/dashboard/
 ```

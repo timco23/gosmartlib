@@ -33,7 +33,9 @@ services:
   backend:
     build: ./backend/spring-backend
     environment:
-      - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
+      - SPRING_DATASOURCE_PASSWORD=${sqlrootpwd}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/LibraryDB
+      - SPRING_DATASOURCE_USERNAME=${sqlrootuser}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
@@ -62,7 +64,7 @@ services:
     image: mysql:8.0
     environment:
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
-      - MYSQL_DATABASE=helloworlddb
+      - MYSQL_DATABASE=LibraryDB
     healthcheck: 
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${sqlrootpwd}"]
       interval: 5s
