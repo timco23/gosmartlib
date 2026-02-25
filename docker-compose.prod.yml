@@ -48,7 +48,6 @@ services:
       
   database:
     volumes:
-      - "/opt/docker-data/mysql:/var/lib/mysql"
       - ./sqlinit:/docker-entrypoint-initdb.d
 
 volumes:
