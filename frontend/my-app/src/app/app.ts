@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { environment } from '../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from './auth.service';
+import { LoginResponse } from '../types/types';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -11,12 +12,22 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-
-export class App {
-  message: string = '';
+export class App implements OnInit {
+  currentUser: LoginResponse | null = null;
 
   constructor(
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private router: Router,
   ) {}
+
+  ngOnInit() {
+    this.authService.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

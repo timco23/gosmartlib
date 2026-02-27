@@ -1,1 +1,8 @@
+<div class="navbar" *ngIf="currentUser">
+  <div class="user-info">
+    Ingelogd als: <strong>{{ currentUser.name }}</strong> ({{ currentUser.role }})
+  </div>
+  <button (click)="logout()" class="btn-logout">Uitloggen</button>
+</div>
+
 <router-outlet></router-outlet>
