@@ -1,8 +1,23 @@
 <div class="navbar" *ngIf="currentUser">
-  <div class="user-info">
-    Ingelogd als: <strong>{{ currentUser.name }}</strong> ({{ currentUser.role }})
+  <div class="nav-left">
+    <a routerLink="/home" class="nav-link">Home</a>
   </div>
-  <button (click)="logout()" class="btn-logout">Uitloggen</button>
+  
+  <div class="user-menu">
+    <div class="user-info" (click)="toggleDropdown()">
+      <strong>{{ currentUser.name }}</strong> ({{ currentUser.role }})
+      <span class="dropdown-arrow">▼</span>
+    </div>
+    
+    <div class="dropdown-menu" *ngIf="dropdownOpen">
+      <a routerLink="/profile" (click)="closeDropdown()" class="dropdown-item">
+        Mijn Gegevens
+      </a>
+      <button (click)="logout()" class="dropdown-item btn-logout">
+        Uitloggen
+      </button>
+    </div>
+  </div>
 </div>
 
 <router-outlet></router-outlet>

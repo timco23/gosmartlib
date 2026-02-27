@@ -41,6 +41,6 @@ public class AuthService {
             throw new RuntimeException("Wrong password.");
         }
         
-        return new LoginResponse(user.getName(), user.getRole().name());
+        return new LoginResponse(user.getName(), user.getRole().name(), user.getEmail());
     }
 }
