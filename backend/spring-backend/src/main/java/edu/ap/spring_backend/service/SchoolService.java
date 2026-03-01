@@ -1,8 +1,9 @@
 // ...existing code...
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.entity.School;
 import edu.ap.spring_backend.DAO.SchoolRepository;
+import edu.ap.spring_backend.jpa.School;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
 

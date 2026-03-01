@@ -1,6 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
-import edu.ap.spring_backend.entity.School;
+import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.service.SchoolService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;

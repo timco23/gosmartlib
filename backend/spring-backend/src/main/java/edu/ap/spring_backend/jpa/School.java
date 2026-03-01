@@ -1,4 +1,4 @@
-package edu.ap.spring_backend.entity;
+package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
 import lombok.Getter;
