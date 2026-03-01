@@ -1,0 +1,43 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <img src="assets/default-avatar.png" alt="Profile" />
+    </div>
+    <h2>Gegevens van {{ profile?.name || '...' }}</h2>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading">
+    <p>Profiel laden...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error && !loading" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Success state! -->
+  <div *ngIf="!loading && !error && profile" class="profile-details">
+    <div class="detail-row">
+      <label>Naam:</label>
+      <span>{{ profile.name }}</span>
+    </div>
+
+    <div class="detail-row">
+      <label>Email:</label>
+      <span>{{ profile.email }}</span>
+    </div>
+
+    <div class="detail-row">
+      <label>Rol:</label>
+      <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
+        {{ profile.role }}
+      </span>
+    </div>
+
+    <div class="detail-row">
+      <label>Actief sinds:</label>
+      <span>{{ formatDate(profile.actiefSinceDate) }}</span>
+    </div>
+  </div>
+</div>

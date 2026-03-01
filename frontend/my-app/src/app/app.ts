@@ -1,22 +1,56 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { environment } from '../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { RouterOutlet, Router, RouterLink } from '@angular/router';
+import { AuthService } from './auth.service';
+import { LoginResponse } from '../types/types';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
+  imports: [CommonModule, RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-
-export class App {
-  message: string = '';
+export class App implements OnInit {
+  currentUser: LoginResponse | null = null;
+  dropdownOpen = false;
 
   constructor(
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private router: Router
   ) {}
+
+  ngOnInit() {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      if (!user) {
+        this.router.navigate(['/login']);
+      } else {
+        this.router.navigate(['/home']);
+      }
+    });
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  closeDropdown() {
+    this.dropdownOpen = false;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.dropdownOpen = false;
+    this.router.navigate(['/login']);
+  }
+
+  // Sluit dropdown als je buiten klikt
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-menu')) {
+      this.dropdownOpen = false;
+    }
+  }
 }
