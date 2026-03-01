@@ -1,4 +1,4 @@
-package edu.ap.spring_backend.config;
+package edu.ap.spring_backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

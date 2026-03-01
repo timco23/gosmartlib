@@ -25,8 +25,6 @@ export class App implements OnInit {
       this.currentUser = user;
       if (!user) {
         this.router.navigate(['/login']);
-      } else {
-        this.router.navigate(['/home']);
       }
     });
   }

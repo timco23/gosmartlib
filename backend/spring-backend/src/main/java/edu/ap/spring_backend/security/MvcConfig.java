@@ -1,4 +1,4 @@
-package edu.ap.spring.security;
+package edu.ap.spring_backend.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
