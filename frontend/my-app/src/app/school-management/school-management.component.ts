@@ -94,7 +94,7 @@ export interface School {
   lenderNotificationPeriod: number;
   lenderLateNotificationPeriod: number;
   librarianNotificationNotReturned: number;
-  librarianRequestNotification: number;
+  librarianRequestNotification: boolean;
   externalVisibility: boolean;
   externalLending: boolean;
   reviews: boolean;

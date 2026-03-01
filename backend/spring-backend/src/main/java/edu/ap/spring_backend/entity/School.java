@@ -21,8 +21,8 @@ public class School {
     private int lenderNotificationPeriod;
     private int lenderLateNotificationPeriod;
     private int librarianNotificationNotReturned;
-    private int librarianRequestNotification;
-
+    
+    private boolean librarianRequestNotification;
     private boolean externalVisibility;
     private boolean externalLending;
     private boolean reviews;
@@ -72,7 +72,7 @@ public class School {
         return librarianNotificationNotReturned;
     }
 
-    public int getLibrarianRequestNotification() {
+    public boolean getLibrarianRequestNotification() {
         return librarianRequestNotification;
     }
 
@@ -104,7 +104,7 @@ public class School {
             int lenderNotificationPeriod,
             int lenderLateNotificationPeriod,
             int librarianNotificationNotReturned,
-            int librarianRequestNotification,
+            boolean librarianRequestNotification,
             boolean externalVisibility,
             boolean externalLending,
             boolean reviews,

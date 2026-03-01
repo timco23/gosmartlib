@@ -1,59 +1,87 @@
 <div class="school-list">
-  <h2>Scholen</h2>
 
-  <ul *ngIf="schools">
-    <li *ngFor="let school of schools" class="SchoolItem">
-      {{ school.name}}
-      <button class="DeleteButton" (click)="deleteSchool(school)">School verwijderen</button>
-    </li>
-  </ul>
+  <div *ngIf="!addingSchool">
+    <h2>Scholen</h2>
 
-  <button *ngIf="!addingSchool" (click)="addingSchool = true">
-    School toevoegen
-  </button>
+    <button (click)="addingSchool = true">
+      School toevoegen
+    </button>
+
+    <ul *ngIf="schools">
+      <li *ngFor="let school of schools" class="SchoolItem">
+        {{ school.name }}
+        <button class="DeleteButton" (click)="deleteSchool(school)">School verwijderen</button>
+      </li>
+    </ul>
+  </div>
 
   <div *ngIf="addingSchool">
-
     <h2>School toevoegen</h2>
-
     <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
 
+      <label>Naam</label>
       <input placeholder="Naam" formControlName="name">
+
+      <label>Adres</label>
       <input placeholder="Adres" formControlName="address">
 
+      <label>Uitleenperiode (dagen)</label>
       <input type="number" formControlName="lendingPeriodDays">
+
+      <label>Verlengperiode (dagen)</label>
       <input type="number" formControlName="extendPeriodDays">
+
+      <label>Maximum aantal verlengingen</label>
       <input type="number" formControlName="maxExtends">
+
+      <label>Maximum aantal uitleningen per leerling</label>
       <input type="number" formControlName="maxLendsStudent">
+
+      <label>Maximum aantal uitleningen per leerkracht</label>
       <input type="number" formControlName="maxLendTeacher">
 
+      <label>Herinnering lener (dagen voor inleverdatum)</label>
       <input type="number" formControlName="lenderNotificationPeriod">
+
+      <label>Te-laat melding lener (dagen na inleverdatum)</label>
       <input type="number" formControlName="lenderLateNotificationPeriod">
+
+      <label>Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen na inleverdatum)</label>
       <input type="number" formControlName="librarianNotificationNotReturned">
-      <input type="number" formControlName="librarianRequestNotification">
+
+      <label>
+        <input type="checkbox" formControlName="librarianRequestNotification">
+        Melding voor bibliotheekbeheerder bij verzoek
+      </label>
 
       <label>
         <input type="checkbox" formControlName="externalVisibility">
-        External visibility
+        Collectie zichtbaar voor externen
       </label>
 
       <label>
         <input type="checkbox" formControlName="externalLending">
-        External lending
+        Uitlenen aan externen toegestaan
       </label>
 
       <label>
         <input type="checkbox" formControlName="reviews">
-        Reviews
+        Recensies inschakelen
       </label>
 
       <label>
         <input type="checkbox" formControlName="reviewModeration">
-        Review moderation
+        Recensies modereren
       </label>
 
-      <button type="submit">Opslaan</button>
+      <div class="button-row">
+        <button type="button" class="cancel-button" (click)="addingSchool = false">Annuleren</button>
+        <button type="submit">Opslaan</button>
+      </div>
 
     </form>
   </div>
-  
+
+
+
+</div>
