@@ -17,4 +17,8 @@ public class SchoolService {
     public List<School> getAllSchools() {
         return schoolRepository.findAll();
     }
+
+    public School createSchool(School school) {
+        return schoolRepository.save(school);
+    }
 }
