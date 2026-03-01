@@ -18,8 +18,6 @@ import java.util.List;
 public class SchoolController {
 
     private final SchoolService schoolService;
-    private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-
 
     public SchoolController(SchoolService schoolService) {
         this.schoolService = schoolService;
@@ -29,10 +27,9 @@ public class SchoolController {
     public List<School> getAllSchools() {
         return schoolService.getAllSchools();
     }
-    
+
     @PostMapping
-    public School createSchool(@RequestBody String school) {
-        School schoolObject = gson.fromJson(school, School.class);
-        return schoolService.createSchool(schoolObject);
+    public School createSchool(@RequestBody School school) {
+        return schoolService.createSchool(school);
     }
 }
