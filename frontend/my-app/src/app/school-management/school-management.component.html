@@ -2,8 +2,9 @@
   <h2>Scholen</h2>
 
   <ul *ngIf="schools">
-    <li *ngFor="let school of schools">
+    <li *ngFor="let school of schools" class="SchoolItem">
       {{ school.name}}
+      <button class="DeleteButton">School verwijderen</button>
     </li>
   </ul>
 

@@ -86,3 +86,24 @@ button:active {
 .form-wrapper {
   margin-top: 20px;
 }
+
+.DeleteButton {
+  margin-right: 0px;
+  margin-left: auto;
+  padding: 6px 10px;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-block;
+  width: 20%;
+}
+
+.SchoolItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
