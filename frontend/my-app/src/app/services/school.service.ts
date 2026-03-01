@@ -18,4 +18,8 @@ export class SchoolService {
   create(school: School): Observable<School> {
     return this.http.post<School>(this.apiUrl, school);
   }
+
+  delete(school: School): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${school.id}`);
+  }
 }

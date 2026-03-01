@@ -21,4 +21,8 @@ public class SchoolService {
     public School createSchool(School school) {
         return schoolRepository.save(school);
     }
+
+    public void deleteSchool(Long id) {
+        schoolRepository.deleteById(id);
+    }
 }

@@ -2,7 +2,10 @@ package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.entity.School;
 import edu.ap.spring_backend.service.SchoolService;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,4 +32,9 @@ public class SchoolController {
     public School createSchool(@RequestBody School school) {
         return schoolService.createSchool(school);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteSchool(@PathVariable Long id) {
+        schoolService.deleteSchool(id);
+}
 }

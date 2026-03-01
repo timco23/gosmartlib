@@ -66,6 +66,20 @@ export class SchoolManagementComponent {
         }
       });
   }
+
+  deleteSchool(school: School) {
+    if (school.id) {
+      this.schoolService.delete(school)
+        .subscribe({
+          next: (response) => {
+            this.loadSchools();
+          },
+          error: (err) => {
+            console.error("error:", err);
+          }
+        });
+    }
+  }
 }
 
 export interface School {
