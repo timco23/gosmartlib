@@ -3,9 +3,9 @@
     <h2>Scholen</h2>
     <button (click)="addingSchool = true">School toevoegen</button>
     <ul *ngIf="schools">
-      <li *ngFor="let school of schools" class="SchoolItem" (click)="selectSchool(school)" style="cursor:pointer">
+      <li *ngFor="let school of schools" class="SchoolItem" style="cursor:pointer">
         {{ school.name }}
-        <button class="DeleteButton" (click)="$event.stopPropagation(); deleteSchool(school)">School verwijderen</button>
+        <button class="EditButton" (click)="selectSchool(school)">School bewerken</button>
       </li>
     </ul>
   </div>
@@ -57,6 +57,17 @@
         <button type="button" class="cancel-button" (click)="cancelForm()">Annuleren</button>
         <button type="submit">Opslaan</button>
       </div>
+      <button type="button" class="DeleteButton" style="width:100%; margin-top: 8px;" (click)="confirmDelete()">School verwijderen</button>
     </form>
+  </div>
+
+  <div *ngIf="showDeleteConfirm" class="overlay">
+    <div class="confirm-dialog">
+      <p>Bent u zeker dat u <strong>{{ editingSchool?.name }}</strong> wil verwijderen?</p>
+      <div class="button-row">
+        <button type="button" class="cancel-button" (click)="showDeleteConfirm = false">Annuleren</button>
+        <button type="button" class="confirm-delete-btn" (click)="confirmDeleteSchool()">Verwijderen</button>
+      </div>
+    </div>
   </div>
 </div>

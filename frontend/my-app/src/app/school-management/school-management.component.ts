@@ -16,6 +16,8 @@ export class SchoolManagementComponent {
   editingSchool: School | null = null;
   schools: School[] = [];
 
+  showDeleteConfirm: boolean = false;
+
   constructor(
     private fb: FormBuilder,
     private schoolService: SchoolService,
@@ -91,6 +93,18 @@ export class SchoolManagementComponent {
         next: () => this.loadSchools(),
         error: (err) => console.error('error:', err)
       });
+    }
+  }
+
+  confirmDelete() {
+    this.showDeleteConfirm = true;
+  }
+
+  confirmDeleteSchool() {
+    if (this.editingSchool) {
+      this.deleteSchool(this.editingSchool);
+      this.showDeleteConfirm = false;
+      this.cancelForm();
     }
   }
 }
