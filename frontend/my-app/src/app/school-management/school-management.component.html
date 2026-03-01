@@ -1,24 +1,58 @@
-<form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
+<div class="school-list">
+  <h2>Scholen</h2>
 
-  <input placeholder="Naam" formControlName="name">
-  <input placeholder="Adres" formControlName="address">
+  <ul *ngIf="schools">
+    <li *ngFor="let school of schools">
+      {{ school.name}}
+    </li>
+  </ul>
 
-  <input type="number" formControlName="lendingPeriodDays">
-  <input type="number" formControlName="extendPeriodDays">
-  <input type="number" formControlName="maxExtends">
-  <input type="number" formControlName="maxLendsStudent">
-  <input type="number" formControlName="maxLendTeacher">
+  <button *ngIf="!addingSchool" (click)="addingSchool = true">
+    School toevoegen
+  </button>
 
-  <input type="number" formControlName="lenderNotificationPeriod">
-  <input type="number" formControlName="lenderLateNotificationPeriod">
-  <input type="number" formControlName="librarianNotificationNotReturned">
-  <input type="number" formControlName="librarianRequestNotification">
+  <div *ngIf="addingSchool">
 
-  <label><input type="checkbox" formControlName="externalVisibility"> External visibility</label>
-  <label><input type="checkbox" formControlName="externalLending"> External lending</label>
-  <label><input type="checkbox" formControlName="reviews"> Reviews</label>
-  <label><input type="checkbox" formControlName="reviewModeration"> Review moderation</label>
+    <h2>School toevoegen</h2>
 
-  <button type="submit">Opslaan</button>
+    <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
 
-</form>
+      <input placeholder="Naam" formControlName="name">
+      <input placeholder="Adres" formControlName="address">
+
+      <input type="number" formControlName="lendingPeriodDays">
+      <input type="number" formControlName="extendPeriodDays">
+      <input type="number" formControlName="maxExtends">
+      <input type="number" formControlName="maxLendsStudent">
+      <input type="number" formControlName="maxLendTeacher">
+
+      <input type="number" formControlName="lenderNotificationPeriod">
+      <input type="number" formControlName="lenderLateNotificationPeriod">
+      <input type="number" formControlName="librarianNotificationNotReturned">
+      <input type="number" formControlName="librarianRequestNotification">
+
+      <label>
+        <input type="checkbox" formControlName="externalVisibility">
+        External visibility
+      </label>
+
+      <label>
+        <input type="checkbox" formControlName="externalLending">
+        External lending
+      </label>
+
+      <label>
+        <input type="checkbox" formControlName="reviews">
+        Reviews
+      </label>
+
+      <label>
+        <input type="checkbox" formControlName="reviewModeration">
+        Review moderation
+      </label>
+
+      <button type="submit">Opslaan</button>
+
+    </form>
+  </div>
+  
