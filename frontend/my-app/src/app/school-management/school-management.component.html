@@ -1,87 +1,62 @@
 <div class="school-list">
-
-  <div *ngIf="!addingSchool">
+  <div *ngIf="!addingSchool && !editingSchool">
     <h2>Scholen</h2>
-
-    <button (click)="addingSchool = true">
-      School toevoegen
-    </button>
-
+    <button (click)="addingSchool = true">School toevoegen</button>
     <ul *ngIf="schools">
-      <li *ngFor="let school of schools" class="SchoolItem">
+      <li *ngFor="let school of schools" class="SchoolItem" (click)="selectSchool(school)" style="cursor:pointer">
         {{ school.name }}
-        <button class="DeleteButton" (click)="deleteSchool(school)">School verwijderen</button>
+        <button class="DeleteButton" (click)="$event.stopPropagation(); deleteSchool(school)">School verwijderen</button>
       </li>
     </ul>
   </div>
 
-  <div *ngIf="addingSchool">
-    <h2>School toevoegen</h2>
+  <div *ngIf="addingSchool || editingSchool">
+    <h2>{{ editingSchool ? 'School bewerken' : 'School toevoegen' }}</h2>
     <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
-
       <label>Naam</label>
       <input placeholder="Naam" formControlName="name">
-
       <label>Adres</label>
       <input placeholder="Adres" formControlName="address">
-
       <label>Uitleenperiode (dagen)</label>
-      <input type="number" formControlName="lendingPeriodDays">
-
+      <input type="number" min="0" formControlName="lendingPeriodDays">
       <label>Verlengperiode (dagen)</label>
-      <input type="number" formControlName="extendPeriodDays">
-
+      <input type="number" min="0" formControlName="extendPeriodDays">
       <label>Maximum aantal verlengingen</label>
-      <input type="number" formControlName="maxExtends">
-
+      <input type="number" min="0" formControlName="maxExtends">
       <label>Maximum aantal uitleningen per leerling</label>
-      <input type="number" formControlName="maxLendsStudent">
-
+      <input type="number" min="0" formControlName="maxLendsStudent">
       <label>Maximum aantal uitleningen per leerkracht</label>
-      <input type="number" formControlName="maxLendTeacher">
-
+      <input type="number" min="0" formControlName="maxLendTeacher">
       <label>Herinnering lener (dagen voor inleverdatum)</label>
-      <input type="number" formControlName="lenderNotificationPeriod">
-
+      <input type="number" min="0" formControlName="lenderNotificationPeriod">
       <label>Te-laat melding lener (dagen na inleverdatum)</label>
-      <input type="number" formControlName="lenderLateNotificationPeriod">
-
+      <input type="number" min="0" formControlName="lenderLateNotificationPeriod">
       <label>Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen na inleverdatum)</label>
-      <input type="number" formControlName="librarianNotificationNotReturned">
-
+      <input type="number" min="0" formControlName="librarianNotificationNotReturned">
       <label>
         <input type="checkbox" formControlName="librarianRequestNotification">
         Melding voor bibliotheekbeheerder bij verzoek
       </label>
-
       <label>
         <input type="checkbox" formControlName="externalVisibility">
         Collectie zichtbaar voor externen
       </label>
-
       <label>
         <input type="checkbox" formControlName="externalLending">
         Uitlenen aan externen toegestaan
       </label>
-
       <label>
         <input type="checkbox" formControlName="reviews">
         Recensies inschakelen
       </label>
-
       <label>
         <input type="checkbox" formControlName="reviewModeration">
         Recensies modereren
       </label>
-
       <div class="button-row">
-        <button type="button" class="cancel-button" (click)="addingSchool = false">Annuleren</button>
+        <button type="button" class="cancel-button" (click)="cancelForm()">Annuleren</button>
         <button type="submit">Opslaan</button>
       </div>
-
     </form>
   </div>
-
-
-
 </div>

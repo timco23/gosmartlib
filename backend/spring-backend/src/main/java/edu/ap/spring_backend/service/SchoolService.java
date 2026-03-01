@@ -25,4 +25,26 @@ public class SchoolService {
     public void deleteSchool(Long id) {
         schoolRepository.deleteById(id);
     }
+
+    public School updateSchool(Long id, School updatedSchool) {
+        School existingSchool = schoolRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
+
+        existingSchool.setName(updatedSchool.getName());
+        existingSchool.setAddress(updatedSchool.getAddress());
+        existingSchool.setLendingPeriodDays(updatedSchool.getLendingPeriodDays());
+        existingSchool.setExtendPeriodDays(updatedSchool.getExtendPeriodDays());
+        existingSchool.setMaxExtends(updatedSchool.getMaxExtends());
+        existingSchool.setMaxLendsStudent(updatedSchool.getMaxLendsStudent());
+        existingSchool.setMaxLendTeacher(updatedSchool.getMaxLendTeacher());
+        existingSchool.setLenderNotificationPeriod(updatedSchool.getLenderNotificationPeriod());
+        existingSchool.setLenderLateNotificationPeriod(updatedSchool.getLenderLateNotificationPeriod());
+        existingSchool.setLibrarianNotificationNotReturned(updatedSchool.getLibrarianNotificationNotReturned());
+        existingSchool.setLibrarianRequestNotification(updatedSchool.getLibrarianRequestNotification());
+        existingSchool.setExternalVisibility(updatedSchool.isExternalVisibility());
+        existingSchool.setExternalLending(updatedSchool.isExternalLending());
+        existingSchool.setReviews(updatedSchool.isReviews());
+
+        return schoolRepository.save(existingSchool); 
+    }
 }

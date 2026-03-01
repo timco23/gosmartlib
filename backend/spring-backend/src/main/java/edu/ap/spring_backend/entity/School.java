@@ -1,8 +1,12 @@
 package edu.ap.spring_backend.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "school")
 public class School {
 

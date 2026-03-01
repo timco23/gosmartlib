@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SchoolService } from '../services/school.service';
 import { CommonModule } from '@angular/common';
 
@@ -12,8 +12,8 @@ import { CommonModule } from '@angular/common';
 })
 export class SchoolManagementComponent {
   schoolForm: FormGroup;
-
   addingSchool: boolean = false;
+  editingSchool: School | null = null;
   schools: School[] = [];
 
   constructor(
@@ -22,17 +22,17 @@ export class SchoolManagementComponent {
     private cdr: ChangeDetectorRef
   ) {
     this.schoolForm = this.fb.group({
-      name: [''],
-      address: [''],
-      lendingPeriodDays: [0],
-      extendPeriodDays: [0],
-      maxExtends: [0],
-      maxLendsStudent: [0],
-      maxLendTeacher: [0],
-      lenderNotificationPeriod: [0],
-      lenderLateNotificationPeriod: [0],
-      librarianNotificationNotReturned: [0],
-      librarianRequestNotification: [0],
+      name: ['', [Validators.required]],
+      address: ['', [Validators.required]],
+      lendingPeriodDays: [0, [Validators.required, Validators.min(0)]],
+      extendPeriodDays: [0, [Validators.required, Validators.min(0)]],
+      maxExtends: [0, [Validators.required, Validators.min(0)]],
+      maxLendsStudent: [0, [Validators.required, Validators.min(0)]],
+      maxLendTeacher: [0, [Validators.required, Validators.min(0)]],
+      lenderNotificationPeriod: [0, [Validators.required, Validators.min(0)]],
+      lenderLateNotificationPeriod: [0, [Validators.required, Validators.min(0)]],
+      librarianNotificationNotReturned: [0, [Validators.required, Validators.min(0)]],
+      librarianRequestNotification: [false],
       externalVisibility: [false],
       externalLending: [false],
       reviews: [false],
@@ -51,33 +51,46 @@ export class SchoolManagementComponent {
     });
   }
 
-  onSubmit() {
-    const school: School = this.schoolForm.value;
+  selectSchool(school: School) {
+    this.editingSchool = school;
+    this.schoolForm.patchValue(school);
+  }
 
-    this.schoolService.create(school)
-      .subscribe({
-        next: (response) => {
-          this.schoolForm.reset();
-          this.addingSchool = false;
+  cancelForm() {
+    this.addingSchool = false;
+    this.editingSchool = null;
+    this.schoolForm.reset();
+  }
+
+  onSubmit() {
+    if (this.schoolForm.invalid) return;
+    if (this.editingSchool) {
+      const updated: School = { ...this.editingSchool, ...this.schoolForm.value };
+      this.schoolService.update(updated).subscribe({
+        next: () => {
+          this.cancelForm();
           this.loadSchools();
         },
-        error: (err) => {
-          console.error("error:", err);
-        }
+        error: (err) => console.error('error:', err)
       });
+    } else {
+      const school: School = this.schoolForm.value;
+      this.schoolService.create(school).subscribe({
+        next: () => {
+          this.cancelForm();
+          this.loadSchools();
+        },
+        error: (err) => console.error('error:', err)
+      });
+    }
   }
 
   deleteSchool(school: School) {
     if (school.id) {
-      this.schoolService.delete(school)
-        .subscribe({
-          next: (response) => {
-            this.loadSchools();
-          },
-          error: (err) => {
-            console.error("error:", err);
-          }
-        });
+      this.schoolService.delete(school).subscribe({
+        next: () => this.loadSchools(),
+        error: (err) => console.error('error:', err)
+      });
     }
   }
 }

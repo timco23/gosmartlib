@@ -116,3 +116,14 @@ button:active {
 .cancel-button:hover {
   background-color: #f5f5f5;
 }
+
+input[type="number"].ng-invalid.ng-touched {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.15);
+}
+
+input.ng-invalid.ng-touched,
+input.ng-invalid.ng-dirty {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.15);
+}
