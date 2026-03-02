@@ -2,9 +2,14 @@
 
 <div class="add-row">
   <input
+    [ngModel]="filterInput()"
+    (ngModelChange)="filterInput.set($event)"
+    placeholder="Zoeken op naam"
+  />
+  <input
     [ngModel]="newTagName()"
     (ngModelChange)="newTagName.set($event)"
-    placeholder="New tag..."
+    placeholder="Nieuwe tag..."
   />
   <button (click)="addTag()">Add</button>
 </div>
@@ -13,7 +18,7 @@
 }
 
 <ul>
-  @for (tag of tags(); track tag.id) {
+  @for (tag of filteredTags(); track tag.id) {
     <li>
       @if (editingId() === tag.id) {
         <input [ngModel]="editName()" (ngModelChange)="editName.set($event)" />

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Tag } from '../../types/types';
 import { TagService } from '../tag.service';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,14 @@ export class TagManagement {
   editingId = signal<number | null>(null);
   editName = signal('');
   errorMessage = signal('');
+
+  filterInput = signal('');
+  filteredTags = computed(() => {
+    const filter = this.filterInput().toLowerCase();
+    return this.tags()
+      .filter((tag) => tag.name.toLowerCase().includes(filter))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   ngOnInit() {
     this.loadTags();
