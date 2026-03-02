@@ -53,3 +53,16 @@ INSERT INTO school (
   true, true,
   true, false
 );
+
+CREATE TABLE IF NOT EXISTS tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    is_default BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+-- Default non-editable tags
+INSERT INTO tag (name, is_default) VALUES ('Pedagogisch', true);
+INSERT INTO tag (name, is_default) VALUES ('12-14j', true);
+INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
+INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
+-- ...

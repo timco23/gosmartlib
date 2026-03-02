@@ -1,7 +1,11 @@
 <h1>Tag Management</h1>
 
 <div class="add-row">
-  <input [(ngModel)]="newTagName" placeholder="New tag..." />
+  <input
+    [ngModel]="newTagName()"
+    (ngModelChange)="newTagName.set($event)"
+    placeholder="New tag..."
+  />
   <button (click)="addTag()">Add</button>
 </div>
 @if (errorMessage()) {
@@ -12,13 +16,17 @@
   @for (tag of tags(); track tag.id) {
     <li>
       @if (editingId() === tag.id) {
-        <input [(ngModel)]="editName" />
+        <input [ngModel]="editName()" (ngModelChange)="editName.set($event)" />
         <button (click)="saveEdit(tag.id)">Save</button>
       } @else {
         <span>{{ tag.name }}</span>
-        <button (click)="startEdit(tag)">Edit</button>
+        @if (!tag.default) {
+          <button (click)="startEdit(tag)">Edit</button>
+        }
       }
-      <button (click)="deleteTag(tag.id)">Delete</button>
+      @if (!tag.default) {
+        <button (click)="deleteTag(tag.id)">Delete</button>
+      }
     </li>
   } @empty {
     <li>Geen tags gevonden.</li>

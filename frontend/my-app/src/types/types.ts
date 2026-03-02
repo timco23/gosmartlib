@@ -20,4 +20,5 @@ export interface UserProfile {
 export interface Tag {
   id: number;
   name: string;
+  default: boolean;
 }
