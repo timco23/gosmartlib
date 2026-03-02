@@ -17,15 +17,15 @@ export class App implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
-      if (!user) {
-        this.router.navigate(['/login']);
-      }
+      // if (!user) {
+      //   this.router.navigate(['/login']);
+      // }
     });
   }
 

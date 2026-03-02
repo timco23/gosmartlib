@@ -16,3 +16,8 @@ export interface UserProfile {
   role: string;
   actiefSinceDate: string;
 }
+
+export interface Tag {
+  id: number;
+  name: string;
+}

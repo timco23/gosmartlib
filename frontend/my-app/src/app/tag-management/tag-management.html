@@ -1,0 +1,26 @@
+<h1>Tag Management</h1>
+
+<div class="add-row">
+  <input [(ngModel)]="newTagName" placeholder="New tag..." />
+  <button (click)="addTag()">Add</button>
+</div>
+@if (errorMessage()) {
+  <p class="error">{{ errorMessage() }}</p>
+}
+
+<ul>
+  @for (tag of tags(); track tag.id) {
+    <li>
+      @if (editingId() === tag.id) {
+        <input [(ngModel)]="editName" />
+        <button (click)="saveEdit(tag.id)">Save</button>
+      } @else {
+        <span>{{ tag.name }}</span>
+        <button (click)="startEdit(tag)">Edit</button>
+      }
+      <button (click)="deleteTag(tag.id)">Delete</button>
+    </li>
+  } @empty {
+    <li>Geen tags gevonden.</li>
+  }
+</ul>
