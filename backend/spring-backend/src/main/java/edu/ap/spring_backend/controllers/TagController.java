@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tags")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/tags")
 public class TagController {
     private final TagService tagService;
 

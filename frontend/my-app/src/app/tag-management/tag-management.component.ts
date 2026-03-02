@@ -1,13 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Tag } from '../../types/types';
-import { TagService } from '../tag.service';
+import { TagService } from '../services/tag.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-tag-management',
   imports: [FormsModule],
-  templateUrl: './tag-management.html',
-  styleUrl: './tag-management.css',
+  templateUrl: './tag-management.component.html',
+  styleUrl: './tag-management.component.css',
 })
 export class TagManagement {
   private tagService = inject(TagService);
@@ -17,8 +17,8 @@ export class TagManagement {
   editingId = signal<number | null>(null);
   editName = signal('');
   errorMessage = signal('');
-
   filterInput = signal('');
+
   filteredTags = computed(() => {
     const filter = this.filterInput().toLowerCase();
     return this.tags()
@@ -37,11 +37,11 @@ export class TagManagement {
   addTag() {
     const name = this.newTagName().trim();
     if (!name) return;
+    this.errorMessage.set('');
 
     this.tagService.addTag(name).subscribe({
       next: (tag) => {
         this.tags.update((tags) => [...tags, tag]);
-        this.newTagName.set('');
         this.errorMessage.set('');
       },
       error: (err) => {
@@ -57,9 +57,15 @@ export class TagManagement {
     this.editName.set(tag.name);
   }
 
+  cancelEdit() {
+    this.editingId.set(null);
+    this.errorMessage.set('');
+  }
+
   saveEdit(id: number) {
+    this.errorMessage.set('');
     this.tagService.updateTag(id, this.editName()).subscribe({
-      next: (tag) => {
+      next: () => {
         this.loadTags();
         this.editingId.set(null);
       },

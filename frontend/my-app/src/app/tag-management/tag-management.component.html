@@ -1,5 +1,6 @@
-<h1>Tag Management</h1>
+<h1>Tag Beheer</h1>
 
+<!-- Input fields -->
 <div class="add-row">
   <input
     [ngModel]="filterInput()"
@@ -11,26 +12,28 @@
     (ngModelChange)="newTagName.set($event)"
     placeholder="Nieuwe tag..."
   />
-  <button (click)="addTag()">Add</button>
+  <button (click)="addTag()">Toevoegen</button>
 </div>
 @if (errorMessage()) {
   <p class="error">{{ errorMessage() }}</p>
 }
 
+<!-- Display and edit tags -->
 <ul>
   @for (tag of filteredTags(); track tag.id) {
     <li>
       @if (editingId() === tag.id) {
         <input [ngModel]="editName()" (ngModelChange)="editName.set($event)" />
-        <button (click)="saveEdit(tag.id)">Save</button>
+        <button (click)="saveEdit(tag.id)">Opslaan</button>
+        <button (click)="cancelEdit()">Annuleren</button>
       } @else {
         <span>{{ tag.name }}</span>
         @if (!tag.default) {
-          <button (click)="startEdit(tag)">Edit</button>
+          <button (click)="startEdit(tag)">Wijzigen</button>
         }
       }
       @if (!tag.default) {
-        <button (click)="deleteTag(tag.id)">Delete</button>
+        <button (click)="deleteTag(tag.id)">Verwijderen</button>
       }
     </li>
   } @empty {

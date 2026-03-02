@@ -4,7 +4,7 @@ import { Login } from './login/login';
 import { authGuard } from './guards/auth-guard';
 import { Profile } from './pages/profile/profile';
 import { SchoolManagementComponent } from './school-management/school-management.component';
-import { TagManagement } from './tag-management/tag-management';
+import { TagManagement } from './tag-management/tag-management.component';
 
 export const routes: Routes = [
   { path: 'login', component: Login },

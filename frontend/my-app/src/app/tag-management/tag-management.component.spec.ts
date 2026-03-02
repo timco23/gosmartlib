@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TagManagement } from './tag-management';
+import { TagManagement } from './tag-management.component';
 
 describe('TagManagement', () => {
   let component: TagManagement;
@@ -8,9 +8,8 @@ describe('TagManagement', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TagManagement]
-    })
-    .compileComponents();
+      imports: [TagManagement],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TagManagement);
     component = fixture.componentInstance;
