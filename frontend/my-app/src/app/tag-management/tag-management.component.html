@@ -1,5 +1,19 @@
 <h1>Tag Beheer</h1>
 
+<!-- Mockup book selection -->
+<div class="book-select">
+  <label>Boek:</label>
+  <select
+    [ngModel]="selectedBookId()"
+    (ngModelChange)="selectedBookId.set($event ? +$event : null)"
+  >
+    <option [ngValue]="null">-- Selecteer een boek --</option>
+    @for (book of books(); track book.id) {
+      <option [ngValue]="book.id">{{ book.title }}</option>
+    }
+  </select>
+</div>
+
 <!-- Input fields -->
 <div class="add-row">
   <input
@@ -22,6 +36,14 @@
 <ul>
   @for (tag of filteredTags(); track tag.id) {
     <li>
+      <!-- checkbox for the selected book -->
+      @if (selectedBook()) {
+        <input
+          type="checkbox"
+          [ngModel]="isTagSelected(tag.id)"
+          (ngModelChange)="toggleTag(tag.id)"
+        />
+      }
       @if (editingId() === tag.id) {
         <input [ngModel]="editName()" (ngModelChange)="editName.set($event)" />
         <button (click)="saveEdit(tag.id)">Opslaan</button>

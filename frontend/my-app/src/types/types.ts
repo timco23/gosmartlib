@@ -22,3 +22,10 @@ export interface Tag {
   name: string;
   default: boolean;
 }
+
+//mockups
+export interface Book {
+  id: number;
+  title: string;
+  tagIds: number[];
+}

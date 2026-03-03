@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Tag } from '../../types/types';
 import { TagService } from '../services/tag.service';
 import { FormsModule } from '@angular/forms';
+import { BookService } from '../book.service';
 
 @Component({
   selector: 'app-tag-management',
@@ -11,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class TagManagement {
   private tagService = inject(TagService);
+  private bookService = inject(BookService);
 
   tags = signal<Tag[]>([]);
   newTagName = signal('');
@@ -18,6 +20,10 @@ export class TagManagement {
   editName = signal('');
   errorMessage = signal('');
   filterInput = signal('');
+
+  books = this.bookService.getBooks();
+  selectedBookId = signal<number | null>(null);
+  selectedBook = computed(() => this.bookService.getBookById(this.selectedBookId()));
 
   filteredTags = computed(() => {
     const filter = this.filterInput().toLowerCase();
@@ -42,6 +48,7 @@ export class TagManagement {
     this.tagService.addTag(name).subscribe({
       next: (tag) => {
         this.tags.update((tags) => [...tags, tag]);
+        this.newTagName.set('');
         this.errorMessage.set('');
       },
       error: (err) => {
@@ -81,5 +88,15 @@ export class TagManagement {
     this.tagService
       .deleteTag(id)
       .subscribe(() => this.tags.update((tags) => tags.filter((t) => t.id !== id)));
+  }
+
+  isTagSelected(tagId: number): boolean {
+    const id = this.selectedBookId();
+    return id ? this.bookService.isTagSelected(id, tagId) : false;
+  }
+
+  toggleTag(tagId: number) {
+    const id = this.selectedBookId();
+    if (id) this.bookService.toggleTag(id, tagId);
   }
 }
