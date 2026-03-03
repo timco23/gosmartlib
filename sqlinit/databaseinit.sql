@@ -53,3 +53,11 @@ INSERT INTO school (
   true, true,
   true, false
 );
+
+CREATE TABLE IF NOT EXISTS campus (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    school_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
+);

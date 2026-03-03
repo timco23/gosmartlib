@@ -6,9 +6,9 @@ import { Profile } from './pages/profile/profile';
 import { SchoolManagementComponent } from './school-management/school-management.component';
 
 export const routes: Routes = [
-    { path: 'login', component: Login },
-    { path: 'profile', component: Profile, canActivate: [authGuard] },
-    { path: '', redirectTo: '/login', pathMatch: 'full' },
-    { path: 'home', component: HomeComponent },
-    { path: 'schoolbeheer', component: SchoolManagementComponent}
+  { path: 'login', component: Login },
+  { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
+  { path: 'schools', component: SchoolManagementComponent },
 ];

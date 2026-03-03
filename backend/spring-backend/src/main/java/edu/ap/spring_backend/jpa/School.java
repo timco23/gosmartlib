@@ -3,6 +3,9 @@ package edu.ap.spring_backend.jpa;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Getter
@@ -31,6 +34,47 @@ public class School {
     private boolean externalLending;
     private boolean reviews;
     private boolean reviewModeration;
+
+    // Campussen lijst
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Campus> campuses = new ArrayList<>();
+
+
+    protected School() {
+    }
+
+    public School(String name, String address,
+            int lendingPeriodDays,
+            int extendPeriodDays,
+            int maxExtends,
+            int maxLendsStudent,
+            int maxLendTeacher,
+            int lenderNotificationPeriod,
+            int lenderLateNotificationPeriod,
+            int librarianNotificationNotReturned,
+            boolean librarianRequestNotification,
+            boolean externalVisibility,
+            boolean externalLending,
+            boolean reviews,
+            boolean reviewModeration) {
+
+        this.name = name;
+        this.address = address;
+        this.lendingPeriodDays = lendingPeriodDays;
+        this.extendPeriodDays = extendPeriodDays;
+        this.maxExtends = maxExtends;
+        this.maxLendsStudent = maxLendsStudent;
+        this.maxLendTeacher = maxLendTeacher;
+        this.lenderNotificationPeriod = lenderNotificationPeriod;
+        this.lenderLateNotificationPeriod = lenderLateNotificationPeriod;
+        this.librarianNotificationNotReturned = librarianNotificationNotReturned;
+        this.librarianRequestNotification = librarianRequestNotification;
+        this.externalVisibility = externalVisibility;
+        this.externalLending = externalLending;
+        this.reviews = reviews;
+        this.reviewModeration = reviewModeration;
+    }
 
     public Long getId() {
         return id;
@@ -96,38 +140,14 @@ public class School {
         return reviewModeration;
     }
 
-    protected School() {
+    // Methods voor campussen
+    public void addCampus(Campus campus) {
+        campuses.add(campus);
+        campus.setSchool(this);
     }
 
-    public School(String name, String address,
-            int lendingPeriodDays,
-            int extendPeriodDays,
-            int maxExtends,
-            int maxLendsStudent,
-            int maxLendTeacher,
-            int lenderNotificationPeriod,
-            int lenderLateNotificationPeriod,
-            int librarianNotificationNotReturned,
-            boolean librarianRequestNotification,
-            boolean externalVisibility,
-            boolean externalLending,
-            boolean reviews,
-            boolean reviewModeration) {
-
-        this.name = name;
-        this.address = address;
-        this.lendingPeriodDays = lendingPeriodDays;
-        this.extendPeriodDays = extendPeriodDays;
-        this.maxExtends = maxExtends;
-        this.maxLendsStudent = maxLendsStudent;
-        this.maxLendTeacher = maxLendTeacher;
-        this.lenderNotificationPeriod = lenderNotificationPeriod;
-        this.lenderLateNotificationPeriod = lenderLateNotificationPeriod;
-        this.librarianNotificationNotReturned = librarianNotificationNotReturned;
-        this.librarianRequestNotification = librarianRequestNotification;
-        this.externalVisibility = externalVisibility;
-        this.externalLending = externalLending;
-        this.reviews = reviews;
-        this.reviewModeration = reviewModeration;
+    public void removeCampus(Campus campus) {
+        campuses.remove(campus);
+        campus.setSchool(null);
     }
 }

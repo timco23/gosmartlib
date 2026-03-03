@@ -2,7 +2,7 @@ package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.jpa.User;
-import edu.ap.spring_backend.jpa.UserRepository;
+import edu.ap.spring_backend.dao.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
