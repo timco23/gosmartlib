@@ -2,6 +2,8 @@ package edu.ap.spring_backend.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "item")
 public class Item {
@@ -18,6 +20,9 @@ public class Item {
     private String cover;
     private double reviewScore;
     private int reviewCount;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name="school_item")
+    private List<SchoolItem> schoolItems;
 
     public Item() {}
 

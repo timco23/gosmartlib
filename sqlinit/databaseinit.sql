@@ -25,5 +25,6 @@ create table if not exists School_Item
     Tags varchar(100) not null, -- Zal later vervangen worden met fatsoenlijke relatie met Tags uit tags tabel
     Beschrijving varchar(1000) null,
     Uitgelicht boolean not null,
-    foreign key (ItemId) references Item(Id)
+    foreign key (ItemId) references Item(Id),
+    unique (ItemId) -- Zodat een school niet 2 keer hetzelfde boek kan hebben
 );
