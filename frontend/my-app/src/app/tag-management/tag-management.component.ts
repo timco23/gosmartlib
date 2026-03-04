@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Tag } from '../../types/types';
 import { TagService } from '../services/tag.service';
 import { FormsModule } from '@angular/forms';
-import { BookService } from '../book.service';
 
 @Component({
   selector: 'app-tag-management',
@@ -12,19 +11,16 @@ import { BookService } from '../book.service';
 })
 export class TagManagement {
   private tagService = inject(TagService);
-  private bookService = inject(BookService);
 
   tags = signal<Tag[]>([]);
   newTagName = signal('');
-  editingId = signal<number | null>(null);
+  editingId = signal<number | null>(null); //id of the tag currently being edited
   editName = signal('');
-  errorMessage = signal('');
+  addErrorMessage = signal('');
+  editErrorMessage = signal('');
   filterInput = signal('');
 
-  books = this.bookService.getBooks();
-  selectedBookId = signal<number | null>(null);
-  selectedBook = computed(() => this.bookService.getBookById(this.selectedBookId()));
-
+  //case-insensitive keyword filtering
   filteredTags = computed(() => {
     const filter = this.filterInput().toLowerCase();
     return this.tags()
@@ -43,17 +39,17 @@ export class TagManagement {
   addTag() {
     const name = this.newTagName().trim();
     if (!name) return;
-    this.errorMessage.set('');
+    this.addErrorMessage.set('');
 
     this.tagService.addTag(name).subscribe({
       next: (tag) => {
         this.tags.update((tags) => [...tags, tag]);
         this.newTagName.set('');
-        this.errorMessage.set('');
+        this.addErrorMessage.set('');
       },
       error: (err) => {
         if (err.status === 409) {
-          this.errorMessage.set('Een tag met deze naam bestaat al.');
+          this.addErrorMessage.set('Een tag met deze naam bestaat al.');
         }
       },
     });
@@ -66,19 +62,20 @@ export class TagManagement {
 
   cancelEdit() {
     this.editingId.set(null);
-    this.errorMessage.set('');
+    this.editErrorMessage.set('');
   }
 
   saveEdit(id: number) {
-    this.errorMessage.set('');
+    this.editErrorMessage.set('');
     this.tagService.updateTag(id, this.editName()).subscribe({
       next: () => {
+        //reload
         this.loadTags();
         this.editingId.set(null);
       },
       error: (err) => {
         if (err.status === 409) {
-          this.errorMessage.set('Een tag met deze naam bestaat al');
+          this.editErrorMessage.set('Een tag met deze naam bestaat al');
         }
       },
     });
@@ -88,15 +85,5 @@ export class TagManagement {
     this.tagService
       .deleteTag(id)
       .subscribe(() => this.tags.update((tags) => tags.filter((t) => t.id !== id)));
-  }
-
-  isTagSelected(tagId: number): boolean {
-    const id = this.selectedBookId();
-    return id ? this.bookService.isTagSelected(id, tagId) : false;
-  }
-
-  toggleTag(tagId: number) {
-    const id = this.selectedBookId();
-    if (id) this.bookService.toggleTag(id, tagId);
   }
 }

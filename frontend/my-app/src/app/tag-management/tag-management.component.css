@@ -1,197 +1,184 @@
+:host {
+  display: block;
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
 h1 {
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
-  color: #1e1b4b;
-  margin-bottom: 24px;
+  color: #1f2937;
 }
 
-/* Boek selectie */
-.book-select {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.book-select label {
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #4b5563;
-  white-space: nowrap;
-}
-
-.book-select select {
-  flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-family: 'Segoe UI', sans-serif;
-  background: white;
-  color: #1e1b4b;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c63ff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-}
-
-.book-select select:focus {
-  outline: none;
-  border-color: #6c63ff;
-  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
-}
-
-/* Input row */
+/* Add + filter row */
 .add-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-input[type='text'],
-input:not([type='checkbox']) {
+.add-row input {
   flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
+  padding: 0.6rem 0.75rem;
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-family: 'Segoe UI', sans-serif;
-  color: #1e1b4b;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
   transition:
-    border-color 0.2s,
+    border 0.2s,
     box-shadow 0.2s;
 }
 
-input:not([type='checkbox']):focus {
+.add-row input:focus {
   outline: none;
-  border-color: #6c63ff;
-  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background: #fff;
 }
 
-button {
-  padding: 10px 18px;
-  border: none;
+.add-row button {
+  padding: 0.6rem 1rem;
   border-radius: 8px;
-  cursor: pointer;
-  background: #6c63ff;
-  color: white;
-  font-size: 0.9rem;
-  font-family: 'Segoe UI', sans-serif;
+  border: none;
   font-weight: 500;
+  background: #6366f1;
+  color: white;
+  cursor: pointer;
   transition:
     background 0.2s,
-    transform 0.1s;
-  white-space: nowrap;
+    transform 0.05s;
 }
 
-button:hover {
-  background: #574fd6;
+.add-row button:hover {
+  background: #4f46e5;
 }
 
-button:active {
-  transform: scale(0.97);
+.add-row button:active {
+  transform: translateY(1px);
 }
 
-button.btn-secondary {
-  background: #f3f4f6;
-  color: #4b5563;
+/* Error messages */
+.error {
+  margin: 0.75rem 0 1rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.875rem;
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
 }
 
-button.btn-secondary:hover {
-  background: #e5e7eb;
-}
-
-button.btn-danger {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-button.btn-danger:hover {
-  background: #fecaca;
-}
-
-/* Tag lijst */
+/* Tag list */
 ul {
   list-style: none;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin: 0;
 }
 
 li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  background: white;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  transition: background 0.15s ease;
 }
 
 li:hover {
-  border-color: #c7d2fe;
-  box-shadow: 0 2px 8px rgba(108, 99, 255, 0.07);
+  background: #f9fafb;
+}
+
+/* Left side content wrapper */
+.tag-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Right side buttons */
+.tag-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 li span {
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Inline edit input */
+li input {
   flex: 1;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 0.95rem;
-  color: #1e1b4b;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
 }
 
-/* Custom checkbox */
-input[type='checkbox'] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
-  border: 2px solid #c7d2fe;
+li input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background: #fff;
+}
+
+/* Action buttons */
+li button {
+  padding: 0.35rem 0.75rem;
   border-radius: 6px;
-  background: white;
+  border: none;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.15s;
-  position: relative;
-  flex: unset;
+  transition:
+    background 0.2s,
+    transform 0.05s;
 }
 
-input[type='checkbox']:checked {
-  background: #6c63ff;
-  border-color: #6c63ff;
+li button:hover {
+  transform: translateY(1px);
 }
 
-input[type='checkbox']:checked::after {
-  content: '';
-  position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 8px;
-  height: 12px;
-  border: 2px solid white;
-  border-top: none;
-  border-left: none;
-  transform: rotate(45deg);
+/* Primary (save/edit) */
+li button:first-of-type {
+  background: #6366f1;
+  color: white;
 }
 
-input[type='checkbox']:hover {
-  border-color: #6c63ff;
-  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+li button:first-of-type:hover {
+  background: #4f46e5;
 }
 
-.error {
-  color: #dc2626;
-  font-size: 0.85rem;
-  font-family: 'Segoe UI', sans-serif;
-  margin-bottom: 12px;
-  padding: 8px 12px;
-  background: #fee2e2;
-  border-radius: 6px;
+/* Secondary (cancel/delete) */
+li button:last-of-type {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+li button:last-of-type:hover {
+  background: #d1d5db;
+}
+
+/* Default badge */
+.badge-default {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 999px;
+  white-space: nowrap;
 }

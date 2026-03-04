@@ -1,16 +1,16 @@
 import { Injectable, signal } from '@angular/core';
-import { MOCK_BOOKS } from './app';
-import { Book } from '../types/types';
+import { MOCK_BOOKS } from '../app';
+import { Book } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookService {
-  //makes use of book mockups, replace with the corresponding HTTP/Observable calls
+  // Uses book mockups from app.ts, replace with the corresponding HTTP/Observable calls when the backend is available
   private books = signal<Book[]>(MOCK_BOOKS);
 
   getBooks() {
-    return this.books;
+    return this.books.asReadonly();
   }
 
   getBookById(id: number | null) {
@@ -18,15 +18,14 @@ export class BookService {
   }
 
   /**
-   * Enable or disable a tag for a specific book.
+   * Enable or disable a tag for the selected book.
    *
-   * - tag exists? → delete.
-   * - tag exists? → add
+   * - tag assigned -> delete.
+   * - otherwise -> add
    */
   toggleTag(bookId: number, tagId: number) {
     this.books.update((currentBooks) => {
       return currentBooks.map((book) => {
-        //modify only the selected book
         if (book.id !== bookId) {
           return book;
         }

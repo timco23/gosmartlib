@@ -24,9 +24,9 @@ export class App implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
-      // if (!user) {
-      //   this.router.navigate(['/login']);
-      // }
+      if (!user) {
+        this.router.navigate(['/login']);
+      }
     });
   }
 

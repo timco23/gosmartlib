@@ -1,7 +1,7 @@
 package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.DAO.TagRepository;
-import edu.ap.spring_backend.controllers.TagDTO;
+import edu.ap.spring_backend.dto.TagDTO;
 import edu.ap.spring_backend.jpa.Tag;
 import org.springframework.stereotype.Service;
 
@@ -38,10 +38,8 @@ public class TagService {
         if (tagRepository.existsByNameIgnoreCaseAndIdNot(newTag.name(), id)) {
             throw new IllegalArgumentException("Tag bestaat reeds");
         }
-        Tag tag = new Tag();
-        tag.setId(id);
-        tag.setName(newTag.name());
-        return tagRepository.save(tag);
+        existing.setName(newTag.name());
+        return tagRepository.save(existing);
     }
 
     public void delete(Long id) {
@@ -51,6 +49,6 @@ public class TagService {
         if (existing.isDefault()) {
             throw new IllegalArgumentException("Standaard tags kunnen niet verwijderd worden");
         }
-        tagRepository.deleteById(id);
+        tagRepository.delete(existing);
     }
 }

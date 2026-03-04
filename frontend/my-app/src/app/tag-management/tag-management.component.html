@@ -1,20 +1,6 @@
 <h1>Tag Beheer</h1>
 
-<!-- Mockup book selection -->
-<div class="book-select">
-  <label>Boek:</label>
-  <select
-    [ngModel]="selectedBookId()"
-    (ngModelChange)="selectedBookId.set($event ? +$event : null)"
-  >
-    <option [ngValue]="null">-- Selecteer een boek --</option>
-    @for (book of books(); track book.id) {
-      <option [ngValue]="book.id">{{ book.title }}</option>
-    }
-  </select>
-</div>
-
-<!-- Input fields -->
+<!-- Filter & toevoegen -->
 <div class="add-row">
   <input
     [ngModel]="filterInput()"
@@ -25,37 +11,51 @@
     [ngModel]="newTagName()"
     (ngModelChange)="newTagName.set($event)"
     placeholder="Nieuwe tag..."
+    (keyup.enter)="addTag()"
   />
   <button (click)="addTag()">Toevoegen</button>
 </div>
-@if (errorMessage()) {
-  <p class="error">{{ errorMessage() }}</p>
+
+@if (addErrorMessage()) {
+  <p class="error">{{ addErrorMessage() }}</p>
 }
 
-<!-- Display and edit tags -->
+<!-- Tag list -->
 <ul>
   @for (tag of filteredTags(); track tag.id) {
     <li>
-      <!-- checkbox for the selected book -->
-      @if (selectedBook()) {
-        <input
-          type="checkbox"
-          [ngModel]="isTagSelected(tag.id)"
-          (ngModelChange)="toggleTag(tag.id)"
-        />
-      }
       @if (editingId() === tag.id) {
-        <input [ngModel]="editName()" (ngModelChange)="editName.set($event)" />
-        <button (click)="saveEdit(tag.id)">Opslaan</button>
-        <button (click)="cancelEdit()">Annuleren</button>
-      } @else {
-        <span>{{ tag.name }}</span>
-        @if (!tag.default) {
-          <button (click)="startEdit(tag)">Wijzigen</button>
+        <div class="tag-content">
+          <input
+            [ngModel]="editName()"
+            (ngModelChange)="editName.set($event)"
+            (keyup.enter)="saveEdit(tag.id)"
+            (keyup.escape)="cancelEdit()"
+          />
+        </div>
+
+        <div class="tag-actions">
+          <button (click)="saveEdit(tag.id)">Opslaan</button>
+          <button (click)="cancelEdit()">Annuleren</button>
+        </div>
+
+        @if (editErrorMessage()) {
+          <span class="error">{{ editErrorMessage() }}</span>
         }
-      }
-      @if (!tag.default) {
-        <button (click)="deleteTag(tag.id)">Verwijderen</button>
+      } @else {
+        <div class="tag-content">
+          <span>{{ tag.name }}</span>
+        </div>
+
+        <div class="tag-actions">
+          @if (tag.default) {
+            <span class="badge-default">Standaard</span>
+          }
+          @if (!tag.default) {
+            <button (click)="startEdit(tag)">Wijzigen</button>
+            <button (click)="deleteTag(tag.id)">Verwijderen</button>
+          }
+        </div>
       }
     </li>
   } @empty {

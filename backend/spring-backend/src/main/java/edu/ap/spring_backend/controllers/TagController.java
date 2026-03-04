@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dto.TagDTO;
 import edu.ap.spring_backend.jpa.Tag;
 import edu.ap.spring_backend.service.TagService;
 import org.springframework.web.bind.annotation.*;

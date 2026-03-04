@@ -5,6 +5,7 @@ import { authGuard } from './guards/auth-guard';
 import { Profile } from './pages/profile/profile';
 import { SchoolManagementComponent } from './school-management/school-management.component';
 import { TagManagement } from './tag-management/tag-management.component';
+import { TagSelectionMenu } from './tag-selection-menu/tag-selection-menu';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -13,4 +14,5 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'schoolbeheer', component: SchoolManagementComponent },
   { path: 'tags', component: TagManagement },
+  { path: 'tagmenu', component: TagSelectionMenu },
 ];

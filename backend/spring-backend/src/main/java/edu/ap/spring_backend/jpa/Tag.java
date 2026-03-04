@@ -12,6 +12,8 @@ public class Tag {
     @Column(unique = true)
     private String name;
 
+    //decides whether a tag is standard or user created
+    //true -> tag is not editable
     @Column(nullable = false)
     private boolean isDefault = false;
 
