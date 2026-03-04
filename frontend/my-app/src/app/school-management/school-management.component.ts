@@ -2,21 +2,26 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SchoolService } from '../services/school.service';
 import { CommonModule } from '@angular/common';
+import { Campus, School } from '../../types/types';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-school-management',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule],
   standalone: true,
   templateUrl: './school-management.component.html',
   styleUrl: './school-management.component.css'
 })
+
 export class SchoolManagementComponent {
   schoolForm: FormGroup;
   addingSchool: boolean = false;
   editingSchool: School | null = null;
+  viewingSchool: School | null = null;
   schools: School[] = [];
-
   showDeleteConfirm: boolean = false;
+  campusInput: string = '';
+  campuses: Campus[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +51,14 @@ export class SchoolManagementComponent {
     this.loadSchools();
   }
 
+  viewSchool(school: School) {
+    this.viewingSchool = school;
+  }
+
+  closeDetails() {
+    this.viewingSchool = null;
+  }
+
   loadSchools() {
     this.schoolService.getAll().subscribe(data => {
       this.schools = [...data];
@@ -54,20 +67,41 @@ export class SchoolManagementComponent {
   }
 
   selectSchool(school: School) {
+    this.viewingSchool = null;
     this.editingSchool = school;
     this.schoolForm.patchValue(school);
+    this.campuses = school.campuses ? [...school.campuses] : [];
   }
 
   cancelForm() {
     this.addingSchool = false;
     this.editingSchool = null;
+    this.viewingSchool = null;
     this.schoolForm.reset();
+    this.campuses = [];
+    this.campusInput = '';
+  }
+
+  // Campus toevoegen
+  addCampus() {
+    if (this.campusInput.trim()) {
+      this.campuses.push({ name: this.campusInput.trim() });
+      this.campusInput = '';
+    }
+  }
+
+  // Campus verwijderen
+  removeCampus(index: number) {
+    this.campuses.splice(index, 1);
   }
 
   onSubmit() {
     if (this.schoolForm.invalid) return;
+    
+    const schoolData = { ...this.schoolForm.value, campuses: this.campuses };
+
     if (this.editingSchool) {
-      const updated: School = { ...this.editingSchool, ...this.schoolForm.value };
+      const updated: School = { ...this.editingSchool, ...schoolData };
       this.schoolService.update(updated).subscribe({
         next: () => {
           this.cancelForm();
@@ -76,8 +110,7 @@ export class SchoolManagementComponent {
         error: (err) => console.error('error:', err)
       });
     } else {
-      const school: School = this.schoolForm.value;
-      this.schoolService.create(school).subscribe({
+      this.schoolService.create(schoolData).subscribe({
         next: () => {
           this.cancelForm();
           this.loadSchools();
@@ -107,23 +140,4 @@ export class SchoolManagementComponent {
       this.cancelForm();
     }
   }
-}
-
-export interface School {
-  id?: number;
-  name: string;
-  address: string;
-  lendingPeriodDays: number;
-  extendPeriodDays: number;
-  maxExtends: number;
-  maxLendsStudent: number;
-  maxLendTeacher: number;
-  lenderNotificationPeriod: number;
-  lenderLateNotificationPeriod: number;
-  librarianNotificationNotReturned: number;
-  librarianRequestNotification: boolean;
-  externalVisibility: boolean;
-  externalLending: boolean;
-  reviews: boolean;
-  reviewModeration: boolean;
 }

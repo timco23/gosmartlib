@@ -12,7 +12,7 @@ export const routes: Routes = [
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
-  { path: 'schoolbeheer', component: SchoolManagementComponent },
+  { path: 'schools', component: SchoolManagementComponent },
   { path: 'tags', component: TagManagement },
   { path: 'tagmenu', component: TagSelectionMenu },
 ];

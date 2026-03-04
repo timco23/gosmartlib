@@ -54,6 +54,14 @@ INSERT INTO school (
   true, false
 );
 
+CREATE TABLE IF NOT EXISTS campus (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    school_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS tag (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
@@ -66,3 +74,4 @@ INSERT INTO tag (name, is_default) VALUES ('12-14j', true);
 INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
 INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
 -- ...
+

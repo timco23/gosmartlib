@@ -1,9 +1,9 @@
 // ...existing code...
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.DAO.SchoolRepository;
+import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.jpa.School;
-
+import edu.ap.spring_backend.jpa.Campus;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -45,6 +45,13 @@ public class SchoolService {
         existingSchool.setExternalVisibility(updatedSchool.isExternalVisibility());
         existingSchool.setExternalLending(updatedSchool.isExternalLending());
         existingSchool.setReviews(updatedSchool.isReviews());
+        existingSchool.setReviewModeration(updatedSchool.isReviewModeration());
+
+        // Update campussen
+        existingSchool.getCampuses().clear();
+        for (Campus campus : updatedSchool.getCampuses()) {
+            existingSchool.addCampus(new Campus(campus.getName(), existingSchool));
+        }
 
         return schoolRepository.save(existingSchool); 
     }
