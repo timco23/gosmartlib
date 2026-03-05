@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "item")
+@Table(name = "Item")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +20,7 @@ public class Item {
     private String cover;
     private double reviewScore;
     private int reviewCount;
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="school_item")
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
     private List<SchoolItem> schoolItems;
 
     public Item() {}

@@ -1,0 +1,44 @@
+<h1>Boek wijzigen</h1>
+
+@if(error) {
+    <p>Er was een probleem met het ophalen van de boekgegevens. Error bericht: {{errorMessage}}</p>
+    <button (click) = "loadData()">Opnieuw proberen</button>
+}
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <label for="title">Titel</label>
+    <input id="title" type="text" formControlName="title">
+
+    <label for="author">Auteur</label>
+    <input id="author" type="text" formControlName="author">
+
+    <label for="description">Beschrijving</label>
+    <textarea id="description" type="text" formControlName="description"></textarea>
+
+    <label for="publisher">Uitgeverij</label>
+    <input id="publisher" type="text" formControlName="publisher">
+
+    <label for="releaseYear">Uitgavejaar</label>
+    <input id="releaseYear" type="number" formControlName="releaseYear">
+
+    <label for="language">Taal</label>
+    <input id="language" type="text" formControlName="language">
+
+    <label for="pageCount">Aantal paginas</label>
+    <input id="pageCount" type="number" formControlName="pageCount">
+
+    <label for="cover">Cover</label>
+    <input id="cover" type="text" formControlName="cover">
+
+    <label for="tags">Tags</label> <!--Will be replaced by a proper tag selection system later on-->
+    <input id="tags" type="text" formControlName="tags">
+
+    <label for="featured">Uitgelicht</label>
+    <input id="featured" type="checkbox" formControlName="featured">
+
+    <div>
+        <button type="submit">Voeg boek toe</button>
+        <button type="button" (click)="backToList()">Cancel</button>
+    </div>
+</form>

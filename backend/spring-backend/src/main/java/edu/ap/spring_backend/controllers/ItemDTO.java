@@ -3,6 +3,8 @@ package edu.ap.spring_backend.controllers;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ItemDTO(
+        @JsonProperty("id")
+        int id,
         @JsonProperty("title")
         String title,
         @JsonProperty("publisher")
@@ -22,15 +24,5 @@ public record ItemDTO(
         @JsonProperty("reviewScore")
         double reviewScore,
         @JsonProperty("reviewCount")
-        int reviewCount,
-        @JsonProperty("itemId")
-        int itemId,
-        @JsonProperty(value = "schoolId", required = true)
-        int schoolId,
-        @JsonProperty(value = "tags", required = true)
-        String tags,
-        @JsonProperty(value = "description", required = true)
-        String description,
-        @JsonProperty(value = "featured", required = true)
-        boolean featured
+        int reviewCount
 ) { }

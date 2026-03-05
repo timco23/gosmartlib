@@ -1,0 +1,64 @@
+<h1>Boek toevoegen</h1>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label for="itemId">Selecteer een boek (optioneel, vul zelf de onderstaande velden in als je hem niet vindt)</label>
+    <select id="itemId" (change)="loadBookDetails()" formControlName="itemId">
+        <option default value="0">Geen</option>
+        @for(globalBook of (globalBookList | async); track $index) {
+        <option value="{{globalBook.id}}">{{globalBook.title}}</option>
+        }
+    </select>
+    
+    @if(error) {
+    <p>Er was een probleem met het ophalen van de boekgegevens. Error bericht: {{errorMessage}}</p>
+    }
+
+    <label for="title">Titel</label>
+    <input [readonly]="isReadOnly" id="title" type="text" formControlName="title">
+
+    <label for="author">Auteur</label>
+    <input [readonly]="isReadOnly" id="author" type="text" formControlName="author">
+
+    <label for="description">Beschrijving</label>
+    <textarea id="description" type="text" formControlName="description"></textarea>
+
+    <label for="publisher">Uitgeverij</label>
+    <input [readonly]="isReadOnly" id="publisher" type="text" formControlName="publisher">
+
+    <label for="isbn">ISBN (optioneel)</label> <!--Will properly be used to fetch book info later on-->
+    <input [readonly]="isReadOnly" id="isbn" type="text" formControlName="isbn">
+
+    <label for="releaseYear">Uitgavejaar</label>
+    <input [readonly]="isReadOnly" id="releaseYear" type="number" formControlName="releaseYear">
+
+    <label for="language">Taal</label>
+    <input [readonly]="isReadOnly" id="language" type="text" formControlName="language">
+
+    <label for="pageCount">Aantal paginas</label>
+    <input [readonly]="isReadOnly" id="pageCount" type="number" formControlName="pageCount">
+
+    <label for="cover">Cover (optioneel)</label>
+    <input [readonly]="isReadOnly" id="cover" type="text" formControlName="cover">
+
+    <label for="reviewScore">Review score</label>
+    <input [readonly]="isReadOnly" id="reviewScore" type="number" formControlName="reviewScore">
+
+    <label for="reviewCount">Aantal reviews</label>
+    <input [readonly]="isReadOnly" id="reviewCount" type="number" formControlName="reviewCount">
+
+    <label for="schoolId">School id</label>
+    <!--Will automatically get filled in by the id of the current school later on-->
+    <input id="schoolId" type="number" formControlName="schoolId">
+
+    <label for="tags">Tags</label> <!--Will be replaced by a proper tag selection system later on-->
+    <input id="tags" type="text" formControlName="tags">
+
+    <div>
+        <button type="submit">Voeg boek toe</button>
+        <button type="button" (click)="backToList()">Cancel</button>
+    </div>
+
+    @if(bookAlreadyExists) {
+    <p>Er bestaat al een boek met deze titel in de database.</p>
+    }
+</form>

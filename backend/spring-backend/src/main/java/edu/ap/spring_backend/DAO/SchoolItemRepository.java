@@ -4,7 +4,10 @@ import edu.ap.spring_backend.entity.SchoolItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface SchoolItemRepository extends JpaRepository<SchoolItem,Integer> {
     Boolean existsByItemTitle(String itemTitle);
+    Optional<SchoolItem> findByItemTitle(String itemTitle);
 }

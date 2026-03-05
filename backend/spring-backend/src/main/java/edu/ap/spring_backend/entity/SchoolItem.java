@@ -8,11 +8,12 @@ public class SchoolItem {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;
-    private int schoolId;
+    private int schoolId; //Will become a foreign key connected to a school entity later on
     private String tags;
+    @Column(name = "BookDescription")
     private String description;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "itemId", unique = true)
+    @JoinColumn(name = "ItemId", unique = true)
     private Item item;
     private boolean featured;
 
