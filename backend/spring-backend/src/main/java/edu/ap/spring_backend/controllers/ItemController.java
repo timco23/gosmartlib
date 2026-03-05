@@ -43,7 +43,7 @@ public class ItemController {
 
     @PostMapping("/books")
     public ResponseEntity<SchoolItemDTO> addItem(@RequestBody CreateSchoolItemDTO schoolItemDTO) {
-        return ResponseEntity.ok(itemService.addItem(schoolItemDTO));
+        return ResponseEntity.ok(itemService.addSchoolItem(schoolItemDTO));
     }
 
     @DeleteMapping("/books/{id}")

@@ -23,7 +23,7 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    // Gets all items that a school has
+    // Gets all SchoolItems
     public List<SchoolItemDTO> getAllSchoolItems(){
         List<SchoolItem> schoolItems = schoolItemRepository.findAll();
         List<SchoolItemDTO> schoolItemDTOS = schoolItems.stream().map(item -> mapToSchoolItemDTO(item)).toList();
@@ -31,8 +31,8 @@ public class ItemService {
         return schoolItemDTOS;
     }
 
-    //Adds item under a school. Checks first if school already has this item, if not then if the item isn't already in the database, adds it there first before linking it to a school.
-    public SchoolItemDTO addItem(CreateSchoolItemDTO itemDTO) throws EntityNotFoundException, EntityAlreadyExistsException {
+    //Adds a SchoolItem. Checks first if school already has this SchoolItem, if not then if the Item isn't already in the database, adds it there first before linking it to a school.
+    public SchoolItemDTO addSchoolItem(CreateSchoolItemDTO itemDTO) throws EntityNotFoundException, EntityAlreadyExistsException {
         if (!schoolItemRepository.existsByItemTitle(itemDTO.title())) {
             Item newItem;
 
@@ -54,14 +54,14 @@ public class ItemService {
         throw new EntityAlreadyExistsException();
     }
 
-    //Checks if given id has an item that's linked to the school attached. If so deletes it
+    //Checks if given id has a SchoolItem that's linked to the school attached. If so deletes it
     public SchoolItemDTO deleteSchoolItem(int id) throws EntityNotFoundException {
         SchoolItem schoolItem = schoolItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         schoolItemRepository.delete(schoolItem);
         return mapToSchoolItemDTO(schoolItem);
     }
 
-    //Gets all items in the database
+    //Gets all Items
     public List<ItemDTO> getAllItems() {
         List<Item> items =  itemRepository.findAll();
         List<ItemDTO> itemDTOS = items.stream().map(item -> mapToItemDTO(item)).toList();
