@@ -8,9 +8,9 @@
         <option value="{{globalBook.id}}">{{globalBook.title}}</option>
         }
     </select>
-    
+
     @if(error) {
-    <p>Er was een probleem met het ophalen van de boekgegevens. Error bericht: {{errorMessage}}</p>
+    <p id="warning">Er was een probleem met het ophalen van de boekgegevens. Error bericht: {{errorMessage}}</p>
     }
 
     <label for="title">Titel</label>
@@ -37,8 +37,8 @@
     <label for="pageCount">Aantal paginas</label>
     <input [readonly]="isReadOnly" id="pageCount" type="number" formControlName="pageCount">
 
-    <label for="cover">Cover (optioneel)</label>
-    <input [readonly]="isReadOnly" id="cover" type="text" formControlName="cover">
+    <label for="cover">Cover URL(optioneel)</label>
+    <input [readonly]="isReadOnly" id="cover" type="url" [(ngModel)]="previewUrl" formControlName="cover">
 
     <label for="reviewScore">Review score</label>
     <input [readonly]="isReadOnly" id="reviewScore" type="number" formControlName="reviewScore">
@@ -59,6 +59,14 @@
     </div>
 
     @if(bookAlreadyExists) {
-    <p>Er bestaat al een boek met deze titel in de database.</p>
+    <p id="warning">Er bestaat al een boek met deze titel in de database.</p>
     }
 </form>
+
+<div>
+    <p>Preview van coverafbeelding:</p>
+    @if(previewUrl == "" ) {
+        Voer een juiste url in
+    }
+    <img src="{{previewUrl}}" alt="">
+</div>

@@ -1,4 +1,4 @@
-package edu.ap.spring_backend.exceptions;
+package edu.ap.spring_backend.exception;
 
 public class EntityNotFoundException extends RuntimeException {
     public EntityNotFoundException() {

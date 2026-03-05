@@ -1,9 +1,9 @@
-package edu.ap.spring_backend.entity;
+package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="School_Item")
+@Table(name="school_item")
 public class SchoolItem {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

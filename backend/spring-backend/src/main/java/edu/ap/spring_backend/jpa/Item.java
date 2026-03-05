@@ -1,11 +1,11 @@
-package edu.ap.spring_backend.entity;
+package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
 
 import java.util.List;
 
 @Entity
-@Table(name = "Item")
+@Table(name = "item")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

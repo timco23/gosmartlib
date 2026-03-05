@@ -2,12 +2,12 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.DAO.ItemRepository;
 import edu.ap.spring_backend.DAO.SchoolItemRepository;
-import edu.ap.spring_backend.controllers.CreateSchoolItemDTO;
-import edu.ap.spring_backend.controllers.UpdateSchoolItemDTO;
-import edu.ap.spring_backend.entity.Item;
-import edu.ap.spring_backend.entity.SchoolItem;
-import edu.ap.spring_backend.exceptions.EntityAlreadyExistsException;
-import edu.ap.spring_backend.exceptions.EntityNotFoundException;
+import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
+import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
+import edu.ap.spring_backend.jpa.Item;
+import edu.ap.spring_backend.jpa.SchoolItem;
+import edu.ap.spring_backend.exception.EntityAlreadyExistsException;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

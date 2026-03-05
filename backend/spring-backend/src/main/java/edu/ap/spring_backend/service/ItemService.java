@@ -2,14 +2,14 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.DAO.ItemRepository;
 import edu.ap.spring_backend.DAO.SchoolItemRepository;
-import edu.ap.spring_backend.controllers.CreateSchoolItemDTO;
-import edu.ap.spring_backend.controllers.ItemDTO;
-import edu.ap.spring_backend.controllers.SchoolItemDTO;
-import edu.ap.spring_backend.controllers.UpdateSchoolItemDTO;
-import edu.ap.spring_backend.entity.Item;
-import edu.ap.spring_backend.entity.SchoolItem;
-import edu.ap.spring_backend.exceptions.EntityAlreadyExistsException;
-import edu.ap.spring_backend.exceptions.EntityNotFoundException;
+import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
+import edu.ap.spring_backend.dto.ItemDTO;
+import edu.ap.spring_backend.dto.SchoolItemDTO;
+import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
+import edu.ap.spring_backend.jpa.Item;
+import edu.ap.spring_backend.jpa.SchoolItem;
+import edu.ap.spring_backend.exception.EntityAlreadyExistsException;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -94,9 +94,12 @@ public class ItemService {
     }
 
     //Gets a SchoolItem by its title
-    public SchoolItemDTO getSchoolItemByTitle(String title) throws EntityNotFoundException {
-        SchoolItem schoolItem = schoolItemRepository.findByItemTitle(title).orElseThrow(EntityNotFoundException::new);
-        return mapToSchoolItemDTO(schoolItem);
+    public SchoolItemDTO getSchoolItemByTitle(String title){
+        SchoolItem schoolItem = schoolItemRepository.findByItemTitle(title).orElse(null);
+        if (schoolItem != null){
+            return mapToSchoolItemDTO(schoolItem);
+        }
+        return null;
     }
 
     //Converts a SchoolItem to an SchoolItemDTO

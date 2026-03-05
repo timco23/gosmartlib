@@ -1,25 +1,27 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BookService } from '../services/book-service';
+import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
 import { CreateBookPayload, GlobalBook } from '../models/book-model';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
 export class AddBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   form: FormGroup;
   error: boolean = false;
   isReadOnly: boolean = false;
   errorMessage: string = "";
   bookAlreadyExists: boolean = false;
+  previewUrl: string = "";
 
   globalBookList: Observable<GlobalBook[]> | null = null;
 
@@ -73,18 +75,20 @@ export class AddBookPage implements OnInit {
       next: (data) => {
         if (data != null) {
           this.bookAlreadyExists = true;
+          this.cdr.detectChanges();
+        }
+
+        if (!this.bookAlreadyExists) {
+          this.bookAlreadyExists = false;
+          this.api.addBook(newBook).subscribe({
+            next: (data) => {
+              this.router.navigate(["/books", data.id])
+            }
+          })
         }
       }
     })
 
-    if (!this.bookAlreadyExists) {
-      this.bookAlreadyExists = false;
-      this.api.addBook(newBook).subscribe({
-        next: (data) => {
-          this.router.navigate(["/books", data.id])
-        }
-      })
-    }
 
   }
 
@@ -93,6 +97,8 @@ export class AddBookPage implements OnInit {
 
     if (id != 0) {
       this.error = false;
+      this.cdr.detectChanges();
+
       this.api.getGlobalBookById(id).subscribe({
         next: (data) => {
           this.form.patchValue({
@@ -108,7 +114,7 @@ export class AddBookPage implements OnInit {
             reviewCount: data.reviewCount
           })
         }
-        , error: (err) => { this.error = true; this.errorMessage = err }
+        , error: (err) => { this.error = true; this.errorMessage = err; this.cdr.detectChanges(); }
       })
       this.isReadOnly = true;
     }

@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Book, GlobalBook } from '../models/book-model';
-import { BookService } from '../services/book-service';
+import { BookService } from '../../services/book-service';
 import { AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 

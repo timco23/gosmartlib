@@ -1,8 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Book, UpdateBookPayload } from '../models/book-model';
-import { BookService } from '../services/book-service';
+import { BookService } from '../../services/book-service';
 
 @Component({
   selector: 'app-update-book-page',
@@ -14,6 +14,8 @@ export class UpdateBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   route = inject(ActivatedRoute)
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  
   form: FormGroup;
   error: boolean = false;
   errorMessage: string = "";
@@ -55,7 +57,7 @@ export class UpdateBookPage implements OnInit {
       cover: raw.cover
     }
 
-    this.api.updateBook(newBook).subscribe({
+    this.api.updateBook(newBook, this.book!.id).subscribe({
       next: (data) => {
         this.router.navigate(["/books", data.id])
       }
@@ -69,8 +71,8 @@ export class UpdateBookPage implements OnInit {
   getBook(id: string) {
     const data = this.api.getBookById(parseInt(id));
     data.subscribe({
-      next: (data) => (this.book = data),
-      error: (err) => { this.errorMessage = err; this.error = true }
+      next: (data) => {this.book = data; this.cdr.detectChanges(); this.fillForm()},
+      error: (err) => { this.errorMessage = err; this.error = true; this.cdr.detectChanges(); }
     })
   }
 
@@ -82,7 +84,9 @@ export class UpdateBookPage implements OnInit {
         this.getBook(id);
       }
     })
+  }
 
+  fillForm() {
     if (!this.error) {
       this.form.patchValue({
         title: this.book!.title,

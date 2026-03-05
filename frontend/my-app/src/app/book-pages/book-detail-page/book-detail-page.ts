@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Book } from '../models/book-model';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BookService } from '../services/book-service';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { BookService } from '../../services/book-service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-book-detail-page',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './book-detail-page.html',
   styleUrl: './book-detail-page.css',
 })
@@ -15,27 +15,29 @@ export class BookDetailPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   route = inject(ActivatedRoute);
-
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(p => {
       const id = p.get("id")
-        if (id) {
-          this.getBook(id);
-        }
+      if (id) {
+        this.getBook(id);
+      }
     })
   }
 
   getBook(id: string) {
     const data = this.api.getBookById(parseInt(id));
     data.subscribe({
-      next: (data) => (this.book= data)
+      next: (data) => {
+        this.book = data;
+        this.cdr.detectChanges();
+      }
     })
   }
 
   deleteBook(id: number) {
-    this.api.deleteBook(id).subscribe();
-    this.backToList();
+    this.api.deleteBook(id).subscribe({next: () => this.backToList()});
   }
 
   backToList() {

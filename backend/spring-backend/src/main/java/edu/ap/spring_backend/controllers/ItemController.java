@@ -1,7 +1,9 @@
 package edu.ap.spring_backend.controllers;
 
-import edu.ap.spring_backend.entity.Item;
-import edu.ap.spring_backend.entity.SchoolItem;
+import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
+import edu.ap.spring_backend.dto.ItemDTO;
+import edu.ap.spring_backend.dto.SchoolItemDTO;
+import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
 import edu.ap.spring_backend.service.ItemService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
 public class ItemController {
     private final ItemService itemService;
     public ItemController(ItemService itemService) {

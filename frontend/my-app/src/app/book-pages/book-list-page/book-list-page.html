@@ -1,13 +1,16 @@
 <a href="/">Terug naar home</a>
+<a href="/books/add">Boek toevoegen</a>
 
+<p>Boeken in database:</p>
 <ul>
     @for(book of (globalBookList | async); track $index) {
         <li>{{book.title}}</li>
     }
 </ul>
 
+<p>Boeken in school:</p>
 <ul>
     @for(book of (bookList | async); track $index) {
-        <li (click) = "checkDetails(book.id!)">{{book.title}}</li>
+        <li><a (click) = "checkDetails(book.id!)">{{book.title}}</a></li>
     }
 </ul>

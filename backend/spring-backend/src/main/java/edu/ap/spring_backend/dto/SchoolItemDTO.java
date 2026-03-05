@@ -1,14 +1,18 @@
-package edu.ap.spring_backend.controllers;
+package edu.ap.spring_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record UpdateSchoolItemDTO(
+public record SchoolItemDTO(
+        @JsonProperty("id")
+        int id,
         @JsonProperty("title")
         String title,
         @JsonProperty("publisher")
         String publisher,
         @JsonProperty("author")
         String author,
+        @JsonProperty("isbn")
+        String isbn,
         @JsonProperty("releaseYear")
         int releaseYear,
         @JsonProperty("language")
@@ -17,11 +21,18 @@ public record UpdateSchoolItemDTO(
         int pageCount,
         @JsonProperty("cover")
         String cover,
+        @JsonProperty("reviewScore")
+        double reviewScore,
+        @JsonProperty("reviewCount")
+        int reviewCount,
+        @JsonProperty("itemId")
+        int itemId,
+        @JsonProperty("schoolId")
+        int schoolId,
         @JsonProperty("tags")
         String tags,
         @JsonProperty("description")
         String description,
         @JsonProperty("featured")
         boolean featured
-) {
-}
+) { }
