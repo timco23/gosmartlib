@@ -3,6 +3,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { RouterOutlet, Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
+import { Book } from '../types/types';
 import { filter } from 'rxjs'
 
 @Component({
@@ -18,7 +19,7 @@ export class App implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -68,3 +69,12 @@ export class App implements OnInit {
     }
   }
 }
+
+//book mockups, delete when replaced with Book database
+export const MOCK_BOOKS: Book[] = [
+  { id: 1, title: 'De Ontdekking van de Hemel', tagIds: [] },
+  { id: 2, title: 'Het Diner', tagIds: [] },
+  { id: 3, title: 'Oorlogswinter', tagIds: [] },
+  { id: 4, title: 'De Aanslag', tagIds: [] },
+  { id: 5, title: 'Turks Fruit', tagIds: [] },
+];

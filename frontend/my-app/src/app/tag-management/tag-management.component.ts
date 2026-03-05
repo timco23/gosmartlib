@@ -1,0 +1,89 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { Tag } from '../../types/types';
+import { TagService } from '../services/tag.service';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-tag-management',
+  imports: [FormsModule],
+  templateUrl: './tag-management.component.html',
+  styleUrl: './tag-management.component.css',
+})
+export class TagManagement {
+  private tagService = inject(TagService);
+
+  tags = signal<Tag[]>([]);
+  newTagName = signal('');
+  editingId = signal<number | null>(null); //id of the tag currently being edited
+  editName = signal('');
+  addErrorMessage = signal('');
+  editErrorMessage = signal('');
+  filterInput = signal('');
+
+  //case-insensitive keyword filtering
+  filteredTags = computed(() => {
+    const filter = this.filterInput().toLowerCase();
+    return this.tags()
+      .filter((tag) => tag.name.toLowerCase().includes(filter))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  ngOnInit() {
+    this.loadTags();
+  }
+
+  loadTags() {
+    this.tagService.getTags().subscribe((tags) => this.tags.set(tags));
+  }
+
+  addTag() {
+    const name = this.newTagName().trim();
+    if (!name) return;
+    this.addErrorMessage.set('');
+
+    this.tagService.addTag(name).subscribe({
+      next: (tag) => {
+        this.tags.update((tags) => [...tags, tag]);
+        this.newTagName.set('');
+        this.addErrorMessage.set('');
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.addErrorMessage.set('Een tag met deze naam bestaat al.');
+        }
+      },
+    });
+  }
+
+  startEdit(tag: Tag) {
+    this.editingId.set(tag.id);
+    this.editName.set(tag.name);
+  }
+
+  cancelEdit() {
+    this.editingId.set(null);
+    this.editErrorMessage.set('');
+  }
+
+  saveEdit(id: number) {
+    this.editErrorMessage.set('');
+    this.tagService.updateTag(id, this.editName()).subscribe({
+      next: () => {
+        //reload
+        this.loadTags();
+        this.editingId.set(null);
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.editErrorMessage.set('Een tag met deze naam bestaat al');
+        }
+      },
+    });
+  }
+
+  deleteTag(id: number) {
+    this.tagService
+      .deleteTag(id)
+      .subscribe(() => this.tags.update((tags) => tags.filter((t) => t.id !== id)));
+  }
+}

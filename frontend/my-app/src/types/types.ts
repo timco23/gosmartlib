@@ -21,6 +21,19 @@ export interface UserProfile {
   actiefSinceDate: string;
 }
 
+export interface Tag {
+  id: number;
+  name: string;
+  default: boolean;
+}
+
+//mockup
+export interface Book {
+  id: number;
+  title: string;
+  tagIds: number[];
+}
+
 export interface CreateUserRequest {
   firstName: string;
   name: string;
