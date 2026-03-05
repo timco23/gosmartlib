@@ -2,13 +2,13 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
-import { CreateBookPayload, GlobalBook } from '../models/book-model';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
+import { GlobalBook, CreateBookPayload } from '../../../types/types';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
@@ -22,6 +22,9 @@ export class AddBookPage implements OnInit {
   errorMessage: string = "";
   bookAlreadyExists: boolean = false;
   previewUrl: string = "";
+  selectedOption: string = "0";
+  incompleteForm: boolean = false;
+
 
   globalBookList: Observable<GlobalBook[]> | null = null;
 
@@ -47,8 +50,11 @@ export class AddBookPage implements OnInit {
 
   onSubmit(): void {
     this.bookAlreadyExists = false;
+    this.incompleteForm = false;
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.incompleteForm = true;
       return;
     }
 
@@ -93,7 +99,7 @@ export class AddBookPage implements OnInit {
   }
 
   loadBookDetails() {
-    const id = this.form.get('itemId')?.value
+    const id = parseInt(this.selectedOption)
 
     if (id != 0) {
       this.error = false;
@@ -120,6 +126,9 @@ export class AddBookPage implements OnInit {
     }
     else {
       this.isReadOnly = false;
+      this.form.reset();
+      this.previewUrl = "";
+      this.selectedOption = "0";
     }
 
   }

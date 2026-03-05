@@ -23,17 +23,17 @@ create table if not exists school_item
 		school_id int unsigned not null,
 		item_id int unsigned not null,
 		tags varchar(100) not null, -- Will get replaced later on by a proper relation with Tag entities from a Tags table
-		book_description varchar(1000) null,
+		book_description text null,
 		featured boolean not null,
 		foreign key (item_id) references item(id),
 		unique (item_id) -- So that a school can't have the same book twice
 );
 
 -- Testbook
-insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count) values ('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9789492478092-L.jpg',4.2,1250)
+insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count) values ('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9789492478092-L.jpg',4.2,1250);
 
 CREATE TABLE IF NOT EXISTS school (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(255) NOT NULL,
     address VARCHAR(500) NOT NULL,
     lending_period_days INT NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS user (
     role ENUM('ADMIN', 'LEERLING') NOT NULL,
     student_number VARCHAR(50),
     class VARCHAR(50), 
-    school_id INT, 
+    school_id BIGINT, 
     actief_since_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     must_change_password BOOLEAN DEFAULT FALSE,
     refresh_token VARCHAR(512),
@@ -94,7 +94,7 @@ VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96R
 CREATE TABLE IF NOT EXISTS campus (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
-    school_id INT NOT NULL,
+    school_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );

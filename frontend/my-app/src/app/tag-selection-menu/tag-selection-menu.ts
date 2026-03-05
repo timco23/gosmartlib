@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Book, Tag } from '../../types/types';
+import { MockBook, Tag } from '../../types/types';
 import { TagService } from '../services/tag.service';
 import { BookService } from '../services/book.service';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +28,7 @@ export class TagSelectionMenu {
   filterInput = signal('');
   books = this.bookService.getBooks();
   selectedBookId = signal<number | null>(null);
-  selectedBook = computed<Book | null>(() => this.bookService.getBookById(this.selectedBookId()));
+  selectedBook = computed<MockBook | null>(() => this.bookService.getBookById(this.selectedBookId()));
 
   //case-insensitive keyword filtering
   filteredTags = computed(() => {

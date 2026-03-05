@@ -1,16 +1,35 @@
-<a href="/">Terug naar home</a>
-<a href="/books/add">Boek toevoegen</a>
+<body class="books-container">
 
-<p>Boeken in database:</p>
-<ul>
-    @for(book of (globalBookList | async); track $index) {
-        <li>{{book.title}}</li>
-    }
-</ul>
+    <header class="books-header">
+        <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
 
-<p>Boeken in school:</p>
-<ul>
-    @for(book of (bookList | async); track $index) {
-        <li><a (click) = "checkDetails(book.id!)">{{book.title}}</a></li>
-    }
-</ul>
+        <div class="header-actions">
+            <h2>Boeken</h2>
+            <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
+        </div>
+    </header>
+
+    <main class="books-card">
+        @if((bookList | async)!.length > 0) {
+        <h3>Huidige boeken</h3>
+
+        <ul class="book-list">
+            @for(book of (bookList | async); track $index) {
+            <li class="book-item">
+                <span class="book-title">{{book.title}}</span>
+
+                <div class="book-actions">
+                    <button class="details-button" (click)="checkDetails(book.id!)">
+                        Details
+                    </button>
+                </div>
+            </li>
+            }
+        </ul>
+        }
+        @else {
+            <h3>Geen boeken gevonden</h3>
+        }
+
+    </main>
+</body>

@@ -1,72 +1,103 @@
-<h1>Boek toevoegen</h1>
+<body class="form-container">
 
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <label for="itemId">Selecteer een boek (optioneel, vul zelf de onderstaande velden in als je hem niet vindt)</label>
-    <select id="itemId" (change)="loadBookDetails()" formControlName="itemId">
-        <option default value="0">Geen</option>
-        @for(globalBook of (globalBookList | async); track $index) {
-        <option value="{{globalBook.id}}">{{globalBook.title}}</option>
-        }
-    </select>
+    <h1>Boek toevoegen</h1>
 
-    @if(error) {
-    <p id="warning">Er was een probleem met het ophalen van de boekgegevens. Error bericht: {{errorMessage}}</p>
-    }
+    <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
 
-    <label for="title">Titel</label>
-    <input [readonly]="isReadOnly" id="title" type="text" formControlName="title">
+        <main class="form-left">
 
-    <label for="author">Auteur</label>
-    <input [readonly]="isReadOnly" id="author" type="text" formControlName="author">
+            <label for="itemId">Selecteer een boek (optioneel)</label>
+            <select id="itemId" [(ngModel)]="selectedOption" (change)="loadBookDetails()" formControlName="itemId">
+                <option value="0">Geen</option>
+                @for(globalBook of (globalBookList | async); track $index) {
+                <option [value]="globalBook.id">{{globalBook.title}}</option>
+                }
+            </select>
 
-    <label for="description">Beschrijving</label>
-    <textarea id="description" type="text" formControlName="description"></textarea>
+            @if(error) {
+            <p id="warning">
+                Er was een probleem met het ophalen van de boekgegevens.
+                Error bericht: {{errorMessage}}
+            </p>
+            }
 
-    <label for="publisher">Uitgeverij</label>
-    <input [readonly]="isReadOnly" id="publisher" type="text" formControlName="publisher">
+            <label for="title">Titel</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="title" type="text"
+                formControlName="title">
 
-    <label for="isbn">ISBN (optioneel)</label> <!--Will properly be used to fetch book info later on-->
-    <input [readonly]="isReadOnly" id="isbn" type="text" formControlName="isbn">
+            <label for="author">Auteur</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="author" type="text"
+                formControlName="author">
 
-    <label for="releaseYear">Uitgavejaar</label>
-    <input [readonly]="isReadOnly" id="releaseYear" type="number" formControlName="releaseYear">
+            <label for="description">Beschrijving</label>
+            <textarea id="description" formControlName="description"></textarea>
 
-    <label for="language">Taal</label>
-    <input [readonly]="isReadOnly" id="language" type="text" formControlName="language">
+            <label for="publisher">Uitgeverij</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="publisher" type="text"
+                formControlName="publisher">
 
-    <label for="pageCount">Aantal paginas</label>
-    <input [readonly]="isReadOnly" id="pageCount" type="number" formControlName="pageCount">
+            <label for="isbn">ISBN (optioneel)</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="isbn" type="text"
+                formControlName="isbn">
 
-    <label for="cover">Cover URL(optioneel)</label>
-    <input [readonly]="isReadOnly" id="cover" type="url" [(ngModel)]="previewUrl" formControlName="cover">
+            <label for="releaseYear">Uitgavejaar</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="releaseYear" type="number"
+                formControlName="releaseYear">
 
-    <label for="reviewScore">Review score</label>
-    <input [readonly]="isReadOnly" id="reviewScore" type="number" formControlName="reviewScore">
+            <label for="language">Taal</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="language" type="text"
+                formControlName="language">
 
-    <label for="reviewCount">Aantal reviews</label>
-    <input [readonly]="isReadOnly" id="reviewCount" type="number" formControlName="reviewCount">
+            <label for="pageCount">Aantal paginas</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="pageCount" type="number"
+                formControlName="pageCount">
 
-    <label for="schoolId">School id</label>
-    <!--Will automatically get filled in by the id of the current school later on-->
-    <input id="schoolId" type="number" formControlName="schoolId">
+            <label for="cover">Cover URL (optioneel)</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="cover" type="url"
+                [(ngModel)]="previewUrl" formControlName="cover">
 
-    <label for="tags">Tags</label> <!--Will be replaced by a proper tag selection system later on-->
-    <input id="tags" type="text" formControlName="tags">
+            <label for="reviewScore">Review score</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="reviewScore" type="number"
+                formControlName="reviewScore">
 
-    <div>
-        <button type="submit">Voeg boek toe</button>
-        <button type="button" (click)="backToList()">Cancel</button>
-    </div>
+            <label for="reviewCount">Aantal reviews</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="reviewCount" type="number"
+                formControlName="reviewCount">
 
-    @if(bookAlreadyExists) {
-    <p id="warning">Er bestaat al een boek met deze titel in de database.</p>
-    }
-</form>
+            <label for="schoolId">School id</label>
+            <input id="schoolId" type="number" formControlName="schoolId">
 
-<div>
-    <p>Preview van coverafbeelding:</p>
-    @if(previewUrl == "" ) {
-        Voer een juiste url in
-    }
-    <img src="{{previewUrl}}" alt="">
-</div>
+            <label for="tags">Tags</label>
+            <input id="tags" type="text" formControlName="tags">
+
+            <div class="form-buttons">
+                <button type="submit" class="primary-btn">Voeg boek toe</button>
+                <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
+            </div>
+
+            @if(bookAlreadyExists) {
+            <p id="warning">Er bestaat al een boek met deze titel in de database.</p>
+            }
+
+            @if(incompleteForm) {
+            <p id="warning">Vul alle niet optionele velden juists in.</p>
+            }
+
+        </main>
+
+        <div class="form-right">
+
+            <p class="preview-title">Preview van coverafbeelding</p>
+
+            @if(previewUrl == "") {
+            <div class="no-cover">Voer een juiste URL in</div>
+            }
+            @else {
+            <img [src]="previewUrl">
+            }
+
+        </div>
+
+    </form>
+
+</body>

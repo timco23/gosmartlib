@@ -1,13 +1,13 @@
 import { Injectable, signal } from '@angular/core';
 import { MOCK_BOOKS } from '../app';
-import { Book } from '../../types/types';
+import { MockBook } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookService {
   // Uses book mockups from app.ts, replace with the corresponding HTTP/Observable calls when the backend is available
-  private books = signal<Book[]>(MOCK_BOOKS);
+  private books = signal<MockBook[]>(MOCK_BOOKS);
 
   getBooks() {
     return this.books.asReadonly();

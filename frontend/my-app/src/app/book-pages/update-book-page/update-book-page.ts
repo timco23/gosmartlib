@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Book, UpdateBookPayload } from '../models/book-model';
 import { BookService } from '../../services/book-service';
+import { Book, UpdateBookPayload } from '../../../types/types';
 
 @Component({
   selector: 'app-update-book-page',
@@ -15,6 +15,8 @@ export class UpdateBookPage implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  previewUrl: string = "";
+  incompleteForm: boolean = false;
   
   form: FormGroup;
   error: boolean = false;
@@ -38,8 +40,11 @@ export class UpdateBookPage implements OnInit {
   }
 
   onSubmit(): void {
+    this.incompleteForm = false;
+    
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.incompleteForm = true;
       return;
     }
 

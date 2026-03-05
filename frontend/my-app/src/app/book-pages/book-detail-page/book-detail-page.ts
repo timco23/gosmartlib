@@ -1,8 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { Book } from '../models/book-model';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { FormsModule } from '@angular/forms';
+import { Book } from '../../../types/types';
 
 @Component({
   selector: 'app-book-detail-page',

@@ -1,0 +1,101 @@
+.books-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.books-header {
+  margin-bottom: 20px;
+}
+
+.back-link {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  color: #d6822b;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.header-actions h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.add-button {
+  background-color: #d6822b;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.add-button:hover {
+  background-color: #b86c20;
+}
+
+.books-card {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+.books-card h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.book-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.book-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+
+  background: #f6f6f6;
+  transition: 0.2s;
+}
+
+.book-item:hover {
+  background: #ececec;
+}
+
+.book-title {
+  font-weight: 500;
+}
+
+.book-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.details-button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.details-button:hover {
+  background-color: black;
+}

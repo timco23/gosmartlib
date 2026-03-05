@@ -10,7 +10,7 @@ public class SchoolItem {
     private int id;
     private int schoolId; //Will become a foreign key connected to a school entity later on
     private String tags;
-    @Column(name = "BookDescription")
+    @Column(name = "book_description", columnDefinition = "TEXT")
     private String description;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ItemId", unique = true)

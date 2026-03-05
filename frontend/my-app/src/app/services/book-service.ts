@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
-import { Book, CreateBookPayload, GlobalBook, UpdateBookPayload } from '../book-pages/models/book-model';
+import { Book, GlobalBook, CreateBookPayload, UpdateBookPayload } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
