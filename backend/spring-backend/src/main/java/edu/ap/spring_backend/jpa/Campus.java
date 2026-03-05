@@ -17,6 +17,7 @@ public class Campus {
     
     private String name;
     
+    //Only load on-demand. Load only the needed school when the method getSchool() is called.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id", nullable = false)
     @JsonBackReference

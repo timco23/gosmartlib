@@ -1,0 +1,53 @@
+<div class="profile-container">
+  <h2>Mijn gegevens</h2>
+
+  <div *ngIf="loading" class="loading">Laden...</div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="profile && !loading" class="profile-content">
+    <div class="profile-item" *ngIf="profile.firstName">
+      <label>Voornaam:</label>
+      <span>{{ profile.firstName }}</span>
+    </div>
+
+    <div class="profile-item">
+      <label>Naam:</label>
+      <span>{{ profile.name }}</span>
+    </div>
+
+    <div class="profile-item" *ngIf="profile.className">
+      <label>Klas:</label>
+      <span>{{ profile.className }}</span>
+    </div>
+
+    <div class="profile-item" *ngIf="profile.schoolName">
+      <label>School:</label>
+      <span>{{ profile.schoolName }}</span>
+    </div>
+
+    <div class="profile-item" *ngIf="profile.studentNumber">
+      <label>Studentnummer:</label>
+      <span>{{ profile.studentNumber }}</span>
+    </div>
+
+    <div class="profile-item">
+      <label>Email:</label>
+      <span>{{ profile.email }}</span>
+    </div>
+
+    <div class="profile-item">
+      <label>Rol:</label>
+      <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
+        {{ profile.role }}
+      </span>
+    </div>
+
+    <div class="profile-item">
+      <label>Actief sinds:</label>
+      <span>{{ formatDate(profile.actiefSinceDate) }}</span>
+    </div>
+  </div>
+</div>

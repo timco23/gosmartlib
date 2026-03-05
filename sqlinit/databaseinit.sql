@@ -1,20 +1,6 @@
 CREATE DATABASE IF NOT EXISTS LibraryDB;
 USE LibraryDB;
 
-CREATE TABLE IF NOT EXISTS user (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('ADMIN', 'LEERLING') NOT NULL,
-    actief_since_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    refresh_token VARCHAR(512)
-);
-
--- Admin user (wachtwoord: admin321)
-INSERT INTO user (name, email, password, role) 
-VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN');
-
 CREATE TABLE IF NOT EXISTS school (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -53,6 +39,26 @@ INSERT INTO school (
   true, true,
   true, false
 );
+
+CREATE TABLE IF NOT EXISTS user (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('ADMIN', 'LEERLING') NOT NULL,
+    student_number VARCHAR(50),
+    class VARCHAR(50), 
+    school_id INT, 
+    actief_since_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    must_change_password BOOLEAN DEFAULT FALSE,
+    refresh_token VARCHAR(512),
+    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL
+);
+
+-- Admin user (wachtwoord: admin321) of admin123 als dat veranderd is
+INSERT INTO user (name, email, password, role, must_change_password) 
+VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', FALSE);
 
 CREATE TABLE IF NOT EXISTS campus (
     id INT PRIMARY KEY AUTO_INCREMENT,

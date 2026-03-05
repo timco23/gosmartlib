@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, HostListener } from '@angular/core';
-import { RouterOutlet, Router, RouterLink } from '@angular/router';
+import { RouterOutlet, Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
+import { filter } from 'rxjs'
 
 @Component({
   selector: 'app-root',
@@ -21,9 +22,24 @@ export class App implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Subscribe to user changes
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      if (!user) {
+    });
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      const currentUrl = this.router.url;
+      const isLoggedIn = this.authService.isLoggedIn();
+
+      // Als ingelogd en op login pagina → redirect naar home
+      if (isLoggedIn && currentUrl === '/login') {
+        this.router.navigate(['/home']);
+      }
+      
+      // Als niet ingelogd en NIET op login → redirect naar login
+      if (!isLoggedIn && currentUrl !== '/login') {
         this.router.navigate(['/login']);
       }
     });

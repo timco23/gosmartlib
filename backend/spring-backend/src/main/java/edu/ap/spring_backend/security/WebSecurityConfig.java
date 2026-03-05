@@ -4,9 +4,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -18,8 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     /**
-     * Configures HTTP security rules.
-     * Disables CSRF and allows public access to authentication endpoints.
+     * Configures HTTP security rules for REST API.
+     * Disables CSRF, form login, and uses stateless sessions for SPA.
      * @param http HttpSecurity object to configure
      * @return configured SecurityFilterChain
      * @throws Exception if configuration fails
@@ -27,22 +27,18 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for REST API
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .anyRequest().permitAll()
-            );
+                .requestMatchers("/auth/**", "/api/**").permitAll()
+                .anyRequest().permitAll() 
+            )
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
+            )
+            .formLogin(form -> form.disable()) 
+            .httpBasic(basic -> basic.disable()); 
+        
         return http.build();
-    }
-    
-    /**
-     * Creates an in-memory user details manager.
-     * Allows adding new users without restarting the application.
-     * @return InMemoryUserDetailsManager instance
-     */
-    @Bean
-    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
-        return new InMemoryUserDetailsManager(); 
     }
 
     /**

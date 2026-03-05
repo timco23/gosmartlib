@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
@@ -11,24 +11,34 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
-  email = '';
-  password = '';
-  error = '';
+export class Login implements OnInit {
+  email: string = '';
+  password: string = '';
+  errorMessage: string = '';
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
 
-  onSubmit(): void {
-    this.error = '';
+  ngOnInit() {
+    // Check of user al ingelogd is
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/home']);
+    }
+  }
+
+  onSubmit() {
+    this.errorMessage = '';
+    
     this.authService.login(this.email, this.password).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Login successful', response);
         this.router.navigate(['/home']);
       },
-      error: () => {
-        this.error = 'Wrong email or password.';
+      error: (error) => {
+        console.error('Login failed', error);
+        this.errorMessage = 'Ongeldige email of wachtwoord';
       }
     });
   }

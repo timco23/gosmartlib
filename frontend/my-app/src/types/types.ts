@@ -12,9 +12,21 @@ export interface LoginResponse {
 export interface UserProfile {
   id: number;
   name: string;
+  firstName: string;
   email: string;
   role: string;
+  studentNumber?: string;
+  className?: string;
+  schoolName?: string;
   actiefSinceDate: string;
+}
+
+export interface CreateUserRequest {
+  firstName: string;
+  name: string;
+  studentNumber: string;
+  className: string;
+  schoolId: number;
 }
 
 export interface School {
@@ -34,10 +46,16 @@ export interface School {
   externalLending: boolean;
   reviews: boolean;
   reviewModeration: boolean;
-  campuses: Campus[]; 
+  campuses: Campus[];
 }
 
 export interface Campus {
   id?: number;
   name: string;
+}
+
+export interface ChangePasswordRequest {
+  email: string;
+  oldPassword: string;
+  newPassword: string;
 }
