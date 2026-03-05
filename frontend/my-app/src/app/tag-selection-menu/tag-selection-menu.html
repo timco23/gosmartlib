@@ -1,0 +1,52 @@
+<h1>Boektags Toewijzen</h1>
+
+<!-- Mockup book selection -->
+<div class="book-select">
+  <label for="book-dropdown">Boek:</label>
+  <select
+    id="book-dropdown"
+    [ngModel]="selectedBookId()"
+    (ngModelChange)="selectedBookId.set($event ? +$event : null)"
+  >
+    <option [ngValue]="null">-- Selecteer een boek --</option>
+    @for (book of books(); track book.id) {
+      <option [ngValue]="book.id">{{ book.title }}</option>
+    }
+  </select>
+</div>
+
+@if (selectedBook()) {
+  <div class="book-info">
+    <span class="book-title">{{ selectedBook()!.title }}</span>
+    <span class="tag-count">{{ selectedTagCount() }} tag(s) geselecteerd</span>
+  </div>
+  <div class="filter-row">
+    <input
+      [ngModel]="filterInput()"
+      (ngModelChange)="filterInput.set($event)"
+      placeholder="Zoeken op tagnaam..."
+    />
+  </div>
+
+  <ul class="tag-list">
+    @for (tag of filteredTags(); track tag.id) {
+      <li class="tag-item">
+        <label>
+          <input
+            type="checkbox"
+            [ngModel]="isTagSelected(tag.id)"
+            (ngModelChange)="toggleTag(tag.id)"
+          />
+          <span>{{ tag.name }}</span>
+          @if (tag.default) {
+            <span class="badge-default">Standaard</span>
+          }
+        </label>
+      </li>
+    } @empty {
+      <li>Geen tags gevonden.</li>
+    }
+  </ul>
+} @else {
+  <p class="placeholder">Selecteer een boek om tags toe te wijzen.</p>
+}

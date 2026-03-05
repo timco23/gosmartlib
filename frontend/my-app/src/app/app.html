@@ -1,1 +1,42 @@
+<div class="navbar" *ngIf="currentUser">
+  <div class="nav-left">
+    <a routerLink="/home" class="nav-link" routerLinkActive="active">Home</a>
+    <a
+      routerLink="/schools"
+      class="nav-link"
+      routerLinkActive="active"
+      *ngIf="currentUser.role === 'ADMIN'"
+      >Schoolbeheer</a
+    >
+    <a
+      routerLink="/books"
+      class="nav-link"
+      >Schoolbeheer</a
+    >
+  </div>
+
+  <div class="user-menu">
+    <div class="user-info" (click)="toggleDropdown()">
+      <strong>{{ currentUser.name }}</strong> ({{ currentUser.role }})
+      <span class="dropdown-arrow">▼</span>
+    </div>
+
+    <div class="dropdown-menu" *ngIf="dropdownOpen">
+      <a routerLink="/profile" (click)="closeDropdown()" class="dropdown-item"> Mijn Gegevens </a>
+      <a routerLink="/change-password" (click)="closeDropdown()" class="dropdown-item">
+        Wachtwoord wijzigen
+      </a>
+      <a
+        routerLink="/create-user"
+        (click)="closeDropdown()"
+        class="dropdown-item"
+        *ngIf="currentUser.role === 'ADMIN'"
+      >
+        Gebruiker aanmaken
+      </a>
+      <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
+    </div>
+  </div>
+</div>
+
 <router-outlet></router-outlet>

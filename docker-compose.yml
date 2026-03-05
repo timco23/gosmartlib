@@ -1,4 +1,3 @@
-version: "3.5"
 services:
   traefik:
     image: traefik:v3.6.7
@@ -32,29 +31,27 @@ services:
 
   backend:
     build: ./backend/spring-backend
+    restart: on-failure
     environment:
-      - SPRING_DATASOURCE_PASSWORD=${sqlrootpwd}
-      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/LibraryDB
-      - SPRING_DATASOURCE_USERNAME=${sqlrootuser}
+      - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.routers.backend.priority=10"
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik"
-
-      - "traefik.http.routers.backend.middlewares=backend-stripprefix"
       - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
-
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=https://gsmartlib.tech,https://www.gsmartlib.tech,https://api.gsmartlib.tech"
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=http://app.195.201.32.74.traefik.me"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=http://localhost,http://gsmartlib.tech,http://www.gsmartlib.tech,http://api.gsmartlib.tech,http://app.195.201.32.74.traefik.me"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowcredentials=true"
-      - "traefik.http.routers.backend.middlewares=backend-stripprefix,cors"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.routers.backend.middlewares=cors,backend-stripprefix"
     depends_on:
       database:
         condition: service_healthy
+        restart: true
     networks:
       - frontend
       - backend
@@ -67,10 +64,10 @@ services:
       - MYSQL_DATABASE=LibraryDB
     healthcheck: 
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${sqlrootpwd}"]
-      interval: 5s
+      interval: 3s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 20
+      start_period: 60s
     networks:
       - backend
     volumes:

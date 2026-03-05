@@ -1,1 +1,7 @@
-<a href="/books">Boeken bekijken</a>
+<div class="container">  
+  <h1>Welkom bij GoSmartLib</h1>
+  <div *ngIf="currentUser" class="user-card">
+    <h2>Welkom, {{ currentUser.name }}!</h2>
+    <p>Rol: {{ currentUser.role }}</p>
+  </div>
+</div>
