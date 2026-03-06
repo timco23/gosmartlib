@@ -16,7 +16,15 @@ public class SchoolItemCopyService {
         this.schoolItemCopyRepository = schoolItemCopyRepository;
     }
 
-    public List<SchoolItemCopyDTO> getCopiesBySchoolItemId(int schoolItemId) {
+    public List<SchoolItemCopy> getCopiesBySchoolItemId(int schoolItemId) {
         return schoolItemCopyRepository.findBySchoolItemId(schoolItemId);
+    }
+
+    public SchoolItemCopy addCopy(SchoolItemCopyDTO copyDTO) {
+        SchoolItemCopy copy = new SchoolItemCopy();
+        copy.setSchoolItemId(copyDTO.schoolItemId());
+        copy.setCondition(copyDTO.condition());
+        copy.setBarcode(copyDTO.barcode());
+        return schoolItemCopyRepository.save(copy);
     }
 }

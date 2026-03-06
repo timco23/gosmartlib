@@ -137,3 +137,9 @@ export interface GlobalBook  {
     reviewCount: number
 }
 
+export interface SchoolItemCopy {
+  id?: number;
+  schoolItemId: number;
+  condition: string;
+  barcode: string;
+}

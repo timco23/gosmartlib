@@ -47,4 +47,8 @@ export class BookService {
   loadCopies(id: number) {
     return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`);
   }
+
+  addCopy(copy: any) {
+    return this.http.post(`${this.apiBaseUrl}/books/copies`, copy);
+  }
 }

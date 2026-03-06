@@ -118,8 +118,9 @@
 
                 <thead>
                     <tr>
-                        <th>Status</th>
+                        <th>Id</th>
                         <th>Conditie</th>
+                        <th>Barcode</th>
                     </tr>
                 </thead>
 
@@ -127,8 +128,9 @@
 
                     @for (copy of copies; track copy.id) {
                     <tr>
-                        <td>{{copy.status}}</td>
+                        <td>{{copy.id}}</td>
                         <td>{{copy.condition}}</td>
+                        <td>{{copy.barcode}}</td>
                     </tr>
                     }
 
@@ -140,6 +142,41 @@
             @else {
             <p>Geen exemplaren gevonden.</p>
             }
+
+            <button (click)="showAddCopyForm()" *ngIf="!addingCopy">Exemplaar toevoegen</button>
+
+            <section class="add-copy" *ngIf="addingCopy">
+
+                <h4>Nieuw exemplaar toevoegen</h4>
+
+                <form (ngSubmit)="addCopy()" #copyForm="ngForm">
+
+                    <div class="form-row">
+                        <label for="condition">Conditie</label>
+                        <select id="condition" [(ngModel)]="newCopy.condition" name="condition" required>
+                            <option value="">-- Kies conditie --</option>
+                            <option value="Nieuw">Nieuw</option>
+                            <option value="Goed">Goed</option>
+                            <option value="Gebruikt">Gebruikt</option>
+                            <option value="Beschadigd">Beschadigd</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="barcode">Barcode</label>
+                        <input id="barcode" type="text" [(ngModel)]="newCopy.barcode" name="barcode" required>
+                    </div>
+
+                    <button type="submit" class="add-button" [disabled]="copyForm.invalid">
+                        Toevoegen
+                    </button>
+
+                </form>
+                <button (click)="cancelAddCopy()">
+                    Annuleren
+                </button>
+
+            </section>
 
         </section>
 

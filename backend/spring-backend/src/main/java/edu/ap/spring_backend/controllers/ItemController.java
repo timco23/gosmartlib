@@ -5,6 +5,7 @@ import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.SchoolItemCopyDTO;
 import edu.ap.spring_backend.dto.SchoolItemDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
+import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.service.ItemService;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
 
@@ -63,7 +64,12 @@ public class ItemController {
     }
 
     @GetMapping("/books/copies/{schoolItemId}")
-    public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesBySchoolItemId(@PathVariable int schoolItemId) {
+    public ResponseEntity<List<SchoolItemCopy>> getCopiesBySchoolItemId(@PathVariable int schoolItemId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopiesBySchoolItemId(schoolItemId));
+    }
+
+    @PostMapping("/books/copies")
+    public ResponseEntity<SchoolItemCopy> addCopy(@RequestBody SchoolItemCopyDTO copyDTO) {
+        return ResponseEntity.ok(schoolItemCopyService.addCopy(copyDTO));
     }
 }
