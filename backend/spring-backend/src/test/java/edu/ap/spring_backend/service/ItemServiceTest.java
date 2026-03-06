@@ -1,7 +1,7 @@
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.DAO.ItemRepository;
-import edu.ap.spring_backend.DAO.SchoolItemRepository;
+import edu.ap.spring_backend.dao.ItemRepository;
+import edu.ap.spring_backend.dao.SchoolItemRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
 import edu.ap.spring_backend.jpa.Item;
