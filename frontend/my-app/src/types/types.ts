@@ -136,3 +136,4 @@ export interface GlobalBook  {
     reviewScore: number,
     reviewCount: number
 }
+

@@ -43,4 +43,8 @@ export class BookService {
   deleteBook(id: number): Observable<Book> {
     return this.http.delete<Book>(`${this.apiBaseUrl}/books/${id}`);
   }
+
+  loadCopies(id: number) {
+    return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`);
+  }
 }

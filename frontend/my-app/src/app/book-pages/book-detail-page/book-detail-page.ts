@@ -16,6 +16,8 @@ export class BookDetailPage implements OnInit {
   route = inject(ActivatedRoute);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
+  copies: any[] = [];
+
   ngOnInit(): void {
     this.route.paramMap.subscribe(p => {
       const id = p.get("id")
@@ -30,6 +32,7 @@ export class BookDetailPage implements OnInit {
     data.subscribe({
       next: (data) => {
         this.book = data;
+        this.api.loadCopies(this.book.id);
         this.cdr.detectChanges();
       }
     })

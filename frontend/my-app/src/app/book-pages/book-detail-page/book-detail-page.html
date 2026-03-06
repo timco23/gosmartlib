@@ -108,6 +108,41 @@
 
         </div>
 
+        <section class="copies-section">
+
+            <h3>Exemplaren</h3>
+
+            @if (copies.length > 0) {
+
+            <table class="copies-table">
+
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Conditie</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @for (copy of copies; track copy.id) {
+                    <tr>
+                        <td>{{copy.status}}</td>
+                        <td>{{copy.condition}}</td>
+                    </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+            }
+            @else {
+            <p>Geen exemplaren gevonden.</p>
+            }
+
+        </section>
+
     </main>
 
     }
