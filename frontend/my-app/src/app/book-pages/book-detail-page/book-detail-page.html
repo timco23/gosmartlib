@@ -114,29 +114,40 @@
 
             @if (copies.length > 0) {
 
-            <table class="copies-table">
+            <tbody>
+                @for (copy of copies; track copy.id) {
+                <tr *ngIf="editingCopyId !== copy.id">
+                    <td>{{copy.id}}</td>
+                    <td>{{copy.condition}}</td>
+                    <td>{{copy.barcode}}</td>
+                    <td>
+                        <button type="button" class="EditButton" (click)="startEdit(copy)">Wijzigen</button>
+                    </td>
+                    <td>
+                        <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">Verwijderen</button>
+                    </td>
+                </tr>
 
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Conditie</th>
-                        <th>Barcode</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @for (copy of copies; track copy.id) {
-                    <tr>
-                        <td>{{copy.id}}</td>
-                        <td>{{copy.condition}}</td>
-                        <td>{{copy.barcode}}</td>
-                    </tr>
-                    }
-
-                </tbody>
-
-            </table>
+                <tr *ngIf="editingCopyId === copy.id">
+                    <td>{{copy.id}}</td>
+                    <td>
+                        <select [(ngModel)]="editedCopy.condition">
+                            <option value="Nieuw">Nieuw</option>
+                            <option value="Goed">Goed</option>
+                            <option value="Gebruikt">Gebruikt</option>
+                            <option value="Beschadigd">Beschadigd</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" [(ngModel)]="editedCopy.barcode" />
+                    </td>
+                    <td colspan="2">
+                        <button (click)="saveEdit()">Opslaan</button>
+                        <button (click)="cancelEdit()">Annuleren</button>
+                    </td>
+                </tr>
+                }
+            </tbody>
 
             }
             @else {

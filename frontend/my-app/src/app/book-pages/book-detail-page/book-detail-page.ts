@@ -21,6 +21,9 @@ export class BookDetailPage implements OnInit {
   copies: any[] = [];
   addingCopy: boolean = false;
 
+  editingCopyId: number | null = null;
+  editedCopy: SchoolItemCopy = { schoolItemId: 0, condition: '', barcode: '' };
+
   newCopy: SchoolItemCopy = {
     schoolItemId: 0,
     condition: '',
@@ -92,4 +95,44 @@ export class BookDetailPage implements OnInit {
     this.addingCopy = true;
   }
 
+  deleteCopy(copy: any) {
+    this.api.deleteCopy(copy!).subscribe({
+      next: () => {
+        this.copies = []
+        this.api.loadCopies(this.book!.id).subscribe({
+          next: (copies) => {
+            this.copies = copies;
+            this.cdr.detectChanges();
+          }
+        });
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  startEdit(copy: SchoolItemCopy) {
+  this.editingCopyId = copy.id!;
+  this.editedCopy = { ...copy }; // kopieer waarden
+}
+
+cancelEdit() {
+  this.editingCopyId = null;
+  this.editedCopy = { schoolItemId: 0, condition: '', barcode: '' };
+}
+
+saveEdit() {
+  if (!this.book) return;
+
+  this.api.addCopy(this.editedCopy).subscribe({
+    next: (updatedCopy) => {
+      const index = this.copies.findIndex(c => c.id === this.editingCopyId);
+      if (index > -1) {
+        this.copies[index] = updatedCopy; // vervang de copy met de nieuwe waarden
+      }
+      this.editingCopyId = null;
+      this.editedCopy = { schoolItemId: 0, condition: '', barcode: '' };
+      this.cdr.detectChanges();
+    }
+  });
+}
 }

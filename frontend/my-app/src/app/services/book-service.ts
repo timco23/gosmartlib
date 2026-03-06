@@ -51,4 +51,8 @@ export class BookService {
   addCopy(copy: any) {
     return this.http.post(`${this.apiBaseUrl}/books/copies`, copy);
   }
+
+  deleteCopy(id: number) {
+    return this.http.delete(`${this.apiBaseUrl}/books/copies/${id}`);
+  }
 }

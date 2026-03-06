@@ -27,4 +27,11 @@ public class SchoolItemCopyService {
         copy.setBarcode(copyDTO.barcode());
         return schoolItemCopyRepository.save(copy);
     }
+
+    public SchoolItemCopy deleteCopy(int id) {
+        SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+        schoolItemCopyRepository.delete(copy);
+        return copy;
+    }
 }

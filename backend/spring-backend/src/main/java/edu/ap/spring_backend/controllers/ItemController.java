@@ -72,4 +72,14 @@ public class ItemController {
     public ResponseEntity<SchoolItemCopy> addCopy(@RequestBody SchoolItemCopyDTO copyDTO) {
         return ResponseEntity.ok(schoolItemCopyService.addCopy(copyDTO));
     }
+
+    @DeleteMapping("/books/copies/{id}")
+    public ResponseEntity<SchoolItemCopy> deleteCopy(@PathVariable int id) {
+        return ResponseEntity.ok(schoolItemCopyService.deleteCopy(id));
+    }
+
+    @PutMapping("/books/copies/{id}")
+    public ResponseEntity<SchoolItemCopy> updateCopy(@RequestBody SchoolItemCopyDTO copyDTO, @PathVariable int id) {
+        return ResponseEntity.ok(schoolItemCopyService.updateCopy(id, copyDTO));
+    }
 }
