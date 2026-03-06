@@ -30,8 +30,6 @@ export class BookDetailPage implements OnInit {
     barcode: ''
   };
 
-  editingCopyId: number | null = null;
-
   ngOnInit(): void {
     this.route.paramMap.subscribe(p => {
       const id = p.get("id")
@@ -112,7 +110,7 @@ export class BookDetailPage implements OnInit {
 
   startEdit(copy: SchoolItemCopy) {
   this.editingCopyId = copy.id!;
-  this.editedCopy = { ...copy }; // kopieer waarden
+  this.editedCopy = { ...copy };
 }
 
 cancelEdit() {
@@ -127,7 +125,7 @@ saveEdit() {
     next: (updatedCopy) => {
       const index = this.copies.findIndex(c => c.id === this.editingCopyId);
       if (index > -1) {
-        this.copies[index] = updatedCopy; // vervang de copy met de nieuwe waarden
+        this.copies[index] = updatedCopy;
       }
       this.editingCopyId = null;
       this.editedCopy = { schoolItemId: 0, condition: '', barcode: '' };

@@ -34,4 +34,12 @@ public class SchoolItemCopyService {
         schoolItemCopyRepository.delete(copy);
         return copy;
     }
+
+    public SchoolItemCopy updateCopy(int id, SchoolItemCopyDTO copyDTO) {
+        SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+        copy.setCondition(copyDTO.condition());
+        copy.setBarcode(copyDTO.barcode());
+        return schoolItemCopyRepository.save(copy);
+    }
 }

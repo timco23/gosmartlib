@@ -257,3 +257,14 @@ button[type='submit']:hover {
   background-color: #c0392b;
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
+
+.copy-actions {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.copy-actions button {
+  padding: 4px 8px;
+  font-size: 13px;
+}

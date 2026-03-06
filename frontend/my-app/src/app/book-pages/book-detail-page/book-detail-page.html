@@ -114,49 +114,72 @@
 
             @if (copies.length > 0) {
 
-            <tbody>
-                @for (copy of copies; track copy.id) {
-                <tr *ngIf="editingCopyId !== copy.id">
-                    <td>{{copy.id}}</td>
-                    <td>{{copy.condition}}</td>
-                    <td>{{copy.barcode}}</td>
-                    <td>
-                        <button type="button" class="EditButton" (click)="startEdit(copy)">Wijzigen</button>
-                    </td>
-                    <td>
-                        <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">Verwijderen</button>
-                    </td>
-                </tr>
+            <table class="copies-table">
+                <div *ngIf="!editingCopyId">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Conditie</th>
+                            <th>Barcode</th>
+                        </tr>
+                    </thead>
 
-                <tr *ngIf="editingCopyId === copy.id">
-                    <td>{{copy.id}}</td>
-                    <td>
-                        <select [(ngModel)]="editedCopy.condition">
-                            <option value="Nieuw">Nieuw</option>
-                            <option value="Goed">Goed</option>
-                            <option value="Gebruikt">Gebruikt</option>
-                            <option value="Beschadigd">Beschadigd</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text" [(ngModel)]="editedCopy.barcode" />
-                    </td>
-                    <td colspan="2">
-                        <button (click)="saveEdit()">Opslaan</button>
-                        <button (click)="cancelEdit()">Annuleren</button>
-                    </td>
-                </tr>
-                }
-            </tbody>
+                    <tbody>
+                        @for (copy of copies; track copy.id) {
+                        <tr>
+                            <td>{{copy.id}}</td>
+                            <td>{{copy.condition}}</td>
+                            <td>{{copy.barcode}}</td>
+                            <td class="copy-actions">
+                                <button type="button" class="DeleteButton"
+                                    (click)="deleteCopy(copy.id)">Verwijderen</button>
+                                <button type="button" class="EditButton"
+                                    (click)="editingCopyId = copy.id">Wijzigen</button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </div>
+
+                <div *ngIf="editingCopyId">
+                    <form (ngSubmit)="saveEdit()">
+                        <div class="form-row">
+                            <label for="edit-condition">Conditie</label>
+                            <select id="edit-condition" [(ngModel)]="editedCopy.condition" name="editCondition"
+                                required>
+                                <option value="">-- Kies conditie --</option>
+                                <option value="Nieuw">Nieuw</option>
+                                <option value="Goed">Goed</option>
+                                <option value="Gebruikt">Gebruikt</option>
+                                <option value="Beschadigd">Beschadigd</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <label for="edit-barcode">Barcode</label>
+                            <input id="edit-barcode" type="text" [(ngModel)]="editedCopy.barcode" name="editBarcode"
+                                required>
+                        </div>
+
+                        <button type="submit" class="save-button">
+                            Opslaan
+                        </button>
+                        <button type="button" (click)="cancelEdit()">
+                            Annuleren
+                        </button>
+                    </form>
+                </div>
+
+            </table>
 
             }
             @else {
             <p>Geen exemplaren gevonden.</p>
             }
 
-            <button (click)="showAddCopyForm()" *ngIf="!addingCopy">Exemplaar toevoegen</button>
+            <button (click)="showAddCopyForm()" *ngIf="!addingCopy && !editingCopyId">Exemplaar toevoegen</button>
 
-            <section class="add-copy" *ngIf="addingCopy">
+            <section class="add-copy" *ngIf="addingCopy && !editingCopyId">
 
                 <h4>Nieuw exemplaar toevoegen</h4>
 
