@@ -5,12 +5,24 @@
     <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <main class="form-left">
-            
+
             <label for="isbn">ISBN (optioneel)</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="isbn" type="text"
                 formControlName="isbn">
-            <p>Gebruik deze knop om te proberen de bovenstaande ISBN te gebruiken om onderstaande velden automatisch in te vullen.</p>
-            <button (click)="loadDetailsViaISBN()">Haal gegevens op</button>
+            <p>Gebruik deze knop om te proberen de bovenstaande ISBN te gebruiken om onderstaande velden automatisch in
+                te vullen.</p>
+            <button type="button" (click)="loadDetailsViaISBN()" class="primary-btn" [disabled]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" >Haal gegevens op</button>
+
+            @if(nothingFound){
+            <p id="warning">Geen boek met deze ISBN gevonden</p>
+            }
+
+            @if(missingFields.length > 0){
+            <p id="warning">
+                De volgende velden konden niet automatisch ingevuld worden, vul deze zelf in om het boek toe te voegen:
+                {{ missingFields.join(", ") }}
+            </p>
+            }
 
             <label for="itemId">Selecteer een boek (optioneel)</label>
             <select id="itemId" [(ngModel)]="selectedOption" (change)="loadBookDetails()" formControlName="itemId">
@@ -29,30 +41,30 @@
 
             <label for="title">Titel</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="title" type="text"
-                formControlName="title">
+                formControlName="titel">
 
             <label for="author">Auteur(s)</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="author" type="text"
-                formControlName="author">
+                formControlName="auteur">
 
             <label for="description">Beschrijving</label>
-            <textarea id="description" formControlName="description"></textarea>
+            <textarea id="description" formControlName="beschrijving"></textarea>
 
             <label for="publisher">Uitgeverij</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="publisher" type="text"
-                formControlName="publisher">
+                formControlName="uitgeverij">
 
             <label for="releaseYear">Uitgavejaar</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="releaseYear" type="number"
-                formControlName="releaseYear">
+                formControlName="uitgaveJaar">
 
             <label for="language">Taal</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="language" type="text"
-                formControlName="language">
+                formControlName="taal">
 
             <label for="pageCount">Aantal paginas</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="pageCount" type="number"
-                formControlName="pageCount">
+                formControlName="paginaAantal">
 
             <label for="cover">Cover URL (optioneel)</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="cover" type="url"
@@ -82,7 +94,7 @@
             }
 
             @if(incompleteForm) {
-            <p id="warning">Vul alle niet optionele velden juists in.</p>
+            <p id="warning">Vul alle niet optionele velden juist in.</p>
             }
 
         </main>

@@ -24,21 +24,22 @@ export class AddBookPage implements OnInit {
   previewUrl: string = "";
   selectedOption: string = "0";
   incompleteForm: boolean = false;
-
+  nothingFound: boolean = false;
+  missingFields: string[] = [];
 
   globalBookList: Observable<GlobalBook[]> | null = null;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       itemId: ['', [Validators.required]],
-      title: ['', [Validators.required]],
-      author: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      publisher: ['', [Validators.required]],
-      isbn: [''],
-      releaseYear: [0, [Validators.required, Validators.min(0)]],
-      language: ['', [Validators.required]],
-      pageCount: [0, [Validators.required, Validators.min(0)]],
+      titel: ['', [Validators.required]],
+      auteur: ['', [Validators.required]],
+      beschrijving: ['', [Validators.required]],
+      uitgeverij: ['', [Validators.required]],
+      isbn: ['', [Validators.pattern("^[0-9]*$")]],
+      uitgaveJaar: [0, [Validators.required, Validators.min(0)]],
+      taal: ['', [Validators.required]],
+      paginaAantal: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
       reviewScore: [0, [Validators.required]],
       reviewCount: [0, [Validators.required]],
@@ -62,16 +63,16 @@ export class AddBookPage implements OnInit {
     const newBook: CreateBookPayload = {
       schoolId: raw.schoolId,
       tags: raw.tags,
-      description: raw.description,
+      description: raw.beschrijving,
       featured: false,
       itemId: parseInt(raw.itemId),
-      title: raw.title,
-      publisher: raw.publisher,
-      author: raw.author,
+      title: raw.titel,
+      publisher: raw.uitgeverij,
+      author: raw.auteur,
       isbn: raw.isbn,
-      releaseYear: raw.releaseYear,
-      language: raw.language,
-      pageCount: raw.pageCount,
+      releaseYear: raw.uitgaveJaar,
+      language: raw.taal,
+      pageCount: raw.paginaAantal,
       cover: raw.cover,
       reviewScore: raw.reviewScore,
       reviewCount: raw.reviewCount
@@ -108,13 +109,13 @@ export class AddBookPage implements OnInit {
       this.api.getGlobalBookById(id).subscribe({
         next: (data) => {
           this.form.patchValue({
-            title: data.title,
-            publisher: data.publisher,
-            author: data.author,
+            titel: data.title,
+            uitgeverij: data.publisher,
+            auteur: data.author,
             isbn: data.isbn,
-            releaseYear: data.releaseYear,
-            language: data.language,
-            pageCount: data.pageCount,
+            uitgaveJaar: data.releaseYear,
+            taal: data.language,
+            paginaAantal: data.pageCount,
             cover: data.cover,
             reviewScore: data.reviewScore,
             reviewCount: data.reviewCount
@@ -135,22 +136,46 @@ export class AddBookPage implements OnInit {
 
   loadDetailsViaISBN() {
     const isbn: string = this.form.controls["isbn"].value;
-    this.api.getBookByISBN(isbn).subscribe({
-      next: (data) => {
-        if (data.totalItems > 0) {
-          this.form.patchValue({
-            title: data.items![0].volumeInfo.title,
-            publisher: data.items![0].volumeInfo.publisher,
-            author: data.items![0].volumeInfo.authors?.join(", "),
-            description: data.items![0].volumeInfo.description,
-            releaseYear: data.items![0].volumeInfo.publishedDate?.substring(0,4),
-            language: data.items![0].volumeInfo.language,
-            pageCount: data.items![0].volumeInfo.pageCount,
-            cover: data.items![0].volumeInfo.imageLinks?.thumbnail
-        }) 
+    this.nothingFound = false;
+    this.missingFields = [];
+    this.cdr.detectChanges();
+
+    if (isbn.length > 0) {
+      this.api.getBookByISBN(isbn).subscribe({
+        next: (data) => {
+          if (data.totalItems > 0) {
+            const book = data.items![0].volumeInfo;
+            const patch: any = {};
+
+            const fetchedBook = {
+              titel: book.title,
+              uitgeverij: book.publisher,
+              auteur: book.authors?.join(", "),
+              beschrijving: book.description,
+              uitgaveJaar: book.publishedDate?.substring(0, 4),
+              taal: book.language,
+              paginaAantal: book.pageCount,
+              cover: book.imageLinks?.thumbnail
+            };
+
+            Object.entries(fetchedBook).forEach(([key, value]) => {
+              if (value) {
+                patch[key] = value;
+              } else {
+                this.missingFields.push(key);
+              }
+            });
+
+            this.cdr.detectChanges();
+            this.form.patchValue(patch);
+          }
+          else {
+            this.nothingFound = true
+            this.cdr.detectChanges();
+          }
         }
-      }
-    })
+      })
+    }
   }
 
   backToList() {
