@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
-import { Book, GlobalBook, CreateBookPayload, UpdateBookPayload } from '../../types/types';
+import { Book, GlobalBook, CreateBookPayload, UpdateBookPayload, GoogleBook } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +22,10 @@ export class BookService {
 
   getBookById(id: number): Observable<Book> {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/${id}`);
+  }
+
+  getBookByISBN(isbn: string): Observable<GoogleBook> {
+    return this.http.get<GoogleBook>(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
   }
 
   getBookByTitle(bookTitle: string): Observable<Book> {
