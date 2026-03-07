@@ -47,7 +47,7 @@
   background: white;
   border-radius: 10px;
   padding: 25px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
 .books-card h3 {
@@ -98,4 +98,38 @@
 
 .details-button:hover {
   background-color: black;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.page-button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.page-button:hover:not([disabled]) {
+  background-color: black;
+}
+
+.page-button[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 14px;
+  color: #666;
 }

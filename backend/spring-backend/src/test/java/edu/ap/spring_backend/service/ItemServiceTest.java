@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -66,25 +69,27 @@ class ItemServiceTest {
 
     @Test
     void givenSchoolItems_whenGetAllSchoolItems_thenReturnSchoolDTOList() {
+        Page<SchoolItem> page = new PageImpl<>(List.of(schoolItem));
 
-        when(schoolItemRepository.findAll()).thenReturn(List.of(schoolItem));
+        when(schoolItemRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var result = itemService.getAllSchoolItems();
+        var result = itemService.getAllSchoolItems(0, 20);
 
         assertEquals(1, result.size());
-        assertEquals("Clean Code", result.get(0).title());
+        assertEquals("Clean Code", result.content().getFirst().title());
 
-        verify(schoolItemRepository).findAll();
+        verify(schoolItemRepository).findAll(any(Pageable.class));
     }
 
     @Test
     void givenNoSchoolItems_whenGetAllSchoolItems_thenReturnEmptyList() {
+        Page<SchoolItem> page = new PageImpl<>(List.of());
 
-        when(schoolItemRepository.findAll()).thenReturn(List.of());
+        when(schoolItemRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var result = itemService.getAllSchoolItems();
+        var result = itemService.getAllSchoolItems(0, 20);
 
-        assertTrue(result.isEmpty());
+        assertTrue(result.content().isEmpty());
     }
 
     // ---------------- GET ALL ITEMS ----------------

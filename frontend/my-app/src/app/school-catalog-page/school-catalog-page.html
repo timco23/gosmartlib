@@ -1,0 +1,144 @@
+<body class="books-container">
+  <header class="books-header">
+    <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+
+    <div class="header-actions">
+      <h2>Schoolcatalogus</h2>
+    </div>
+  </header>
+
+  <div class="catalog-layout">
+    <!-- FILTER SIDEBAR -->
+    <aside class="filter-panel">
+      <h3 class="filter-title">Filteren & Sorteren</h3>
+
+      <!-- Search by name -->
+      <div class="filter-group">
+        <label class="filter-label" for="search">Zoeken op titel</label>
+        <input class="filter-input" id="search" type="text" placeholder="Bijv. Harry Potter…" />
+      </div>
+
+      <!-- Sorting -->
+      <div class="filter-group">
+        <label class="filter-label" for="sort">Sorteren op</label>
+        <select class="filter-select" id="sort">
+          <option value="title-asc">Titel (A → Z)</option>
+          <option value="title-desc">Titel (Z → A)</option>
+          <option value="author-asc">Auteur (A → Z)</option>
+          <option value="year-desc">Jaar (nieuwste eerst)</option>
+          <option value="year-asc">Jaar (oudste eerst)</option>
+          <option value="score-desc">Beoordeling (hoog → laag)</option>
+          <option value="pages-asc">Pagina's (min → max)</option>
+        </select>
+      </div>
+
+      <!-- Taal -->
+      <div class="filter-group">
+        <label class="filter-label">Taal</label>
+        <div class="toggle-group">
+          <label class="toggle-item"> <input type="checkbox" checked /> Nederlands </label>
+          <label class="toggle-item"> <input type="checkbox" checked /> Engels </label>
+          <label class="toggle-item"> <input type="checkbox" checked /> Frans </label>
+          <label class="toggle-item"> <input type="checkbox" checked /> Duits </label>
+        </div>
+      </div>
+
+      <!-- Aantal pagina's -->
+      <div class="filter-group">
+        <label class="filter-label">Aantal pagina's</label>
+        <div class="range-labels">
+          <span id="pages-min-label">0</span>
+          <span id="pages-max-label">1000</span>
+        </div>
+        <div class="range-track">
+          <input class="range-slider" id="pages-min" type="range" min="0" max="1000" value="0" />
+          <input class="range-slider" id="pages-max" type="range" min="0" max="1000" value="1000" />
+        </div>
+      </div>
+
+      <!-- Uitgavejaar -->
+      <div class="filter-group">
+        <label class="filter-label">Uitgavejaar</label>
+        <div class="range-labels">
+          <span id="year-min-label">1900</span>
+          <span id="year-max-label">2025</span>
+        </div>
+        <div class="range-track">
+          <input
+            class="range-slider"
+            id="year-min"
+            type="range"
+            min="1900"
+            max="2025"
+            value="1900"
+          />
+          <input
+            class="range-slider"
+            id="year-max"
+            type="range"
+            min="1900"
+            max="2025"
+            value="2025"
+          />
+        </div>
+      </div>
+
+      <!-- Minimale beoordeling -->
+      <div class="filter-group">
+        <label class="filter-label">Minimale beoordeling</label>
+        <div class="range-labels">
+          <span id="score-label">0.0</span>
+          <span>5.0</span>
+        </div>
+        <input
+          class="range-slider full-width"
+          id="score-min"
+          type="range"
+          min="0"
+          max="5"
+          step="0.1"
+          value="0"
+        />
+      </div>
+
+      <button class="reset-button">Filters wissen</button>
+    </aside>
+
+    <!-- BOOK LIST -->
+    <main class="books-card">
+      @if (books.length > 0) {
+        <h3>Huidige boeken</h3>
+
+        <ul class="book-list">
+          @for (book of books; track $index) {
+            <li class="book-item">
+              <div class="book-info">
+                <span class="book-title">{{ book.title }}</span>
+                <span class="book-meta">{{ book.author }} · {{ book.releaseYear }}</span>
+              </div>
+
+              <div class="book-actions">
+                <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
+              </div>
+            </li>
+          }
+        </ul>
+        <div class="pagination">
+          <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
+            ← Vorige
+          </button>
+          <span class="page-indicator">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
+          <button
+            class="page-button"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages - 1"
+          >
+            Volgende →
+          </button>
+        </div>
+      } @else {
+        <h3>Geen boeken gevonden</h3>
+      }
+    </main>
+  </div>
+</body>

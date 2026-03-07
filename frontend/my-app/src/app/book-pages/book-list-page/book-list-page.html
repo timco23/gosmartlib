@@ -1,35 +1,43 @@
 <body class="books-container">
+  <header class="books-header">
+    <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
 
-    <header class="books-header">
-        <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+    <div class="header-actions">
+      <h2>Boeken</h2>
+      <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
+    </div>
+  </header>
 
-        <div class="header-actions">
-            <h2>Boeken</h2>
-            <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
-        </div>
-    </header>
+  <main class="books-card">
+    @if (books.length > 0) {
+      <h3>Huidige boeken</h3>
 
-    <main class="books-card">
-        @if((bookList | async)!.length > 0) {
-        <h3>Huidige boeken</h3>
-
-        <ul class="book-list">
-            @for(book of (bookList | async); track $index) {
-            <li class="book-item">
-                <span class="book-title">{{book.title}}</span>
-
-                <div class="book-actions">
-                    <button class="details-button" (click)="checkDetails(book.id!)">
-                        Details
-                    </button>
-                </div>
-            </li>
-            }
-        </ul>
+      <ul class="book-list">
+        @for (book of books; track book.id) {
+          <li class="book-item">
+            <span class="book-title">{{ book.title }}</span>
+            <div class="book-actions">
+              <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
+            </div>
+          </li>
         }
-        @else {
-            <h3>Geen boeken gevonden</h3>
-        }
+      </ul>
 
-    </main>
+      <div class="pagination">
+        <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
+          ← Vorige
+        </button>
+        <span class="page-indicator">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
+        <button
+          class="page-button"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages - 1"
+        >
+          Volgende →
+        </button>
+      </div>
+    } @else {
+      <h3>Geen boeken gevonden</h3>
+    }
+  </main>
 </body>

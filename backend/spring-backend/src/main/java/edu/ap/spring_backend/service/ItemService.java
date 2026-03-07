@@ -2,14 +2,15 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.DAO.ItemRepository;
 import edu.ap.spring_backend.DAO.SchoolItemRepository;
-import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
-import edu.ap.spring_backend.dto.ItemDTO;
-import edu.ap.spring_backend.dto.SchoolItemDTO;
-import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
+import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.SchoolItem;
 import edu.ap.spring_backend.exception.EntityAlreadyExistsException;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,11 +25,10 @@ public class ItemService {
     }
 
     // Gets all SchoolItems
-    public List<SchoolItemDTO> getAllSchoolItems(){
-        List<SchoolItem> schoolItems = schoolItemRepository.findAll();
-        List<SchoolItemDTO> schoolItemDTOS = schoolItems.stream().map(item -> mapToSchoolItemDTO(item)).toList();
-
-        return schoolItemDTOS;
+    public PageResponseDTO<SchoolItemDTO> getAllSchoolItems(int page, int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("item.title").ascending());
+        Page<SchoolItem> schoolItems = schoolItemRepository.findAll(pageable);
+        return new PageResponseDTO<>(schoolItems.map(this::mapToSchoolItemDTO));
     }
 
     //Adds a SchoolItem. Checks first if school already has this SchoolItem, if not then if the Item isn't already in the database, adds it there first before linking it to a school.

@@ -12,22 +12,25 @@ import { TagManagement } from './tag-management/tag-management.component';
 import { TagSelectionMenu } from './tag-selection-menu/tag-selection-menu';
 import { CreateUser } from './create-user/create-user';
 import { ChangePassword } from './change-password/change-password';
+import { SchoolCatalogPage } from './school-catalog-page/school-catalog-page';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent },
-    { path: 'books', component: BookListPage },
-    { path: 'books/add', component: AddBookPage },
-    { path: 'books/:id', component: BookDetailPage },
-    { path: 'books/:id/edit', component: UpdateBookPage },
-    { path: 'login', component: Login },
-    { path: 'home', component: HomeComponent, canActivate: [authGuard] },
-    { path: 'profile', component: Profile, canActivate: [authGuard] },
-    { path: '', redirectTo: '/login', pathMatch: 'full' },
-    { path: 'home', component: HomeComponent },
-    { path: 'schools', component: SchoolManagementComponent },
-    { path: 'tags', component: TagManagement },
-    { path: 'tagmenu', component: TagSelectionMenu },
-    { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
-    { path: 'create-user', component: CreateUser, canActivate: [authGuard] },
-    { path: 'change-password', component: ChangePassword, canActivate: [authGuard] },
-    { path: '**', redirectTo: '/login' }]
+  { path: '', component: HomeComponent },
+  { path: 'books', component: BookListPage },
+  { path: 'books/add', component: AddBookPage },
+  { path: 'books/:id', component: BookDetailPage },
+  { path: 'books/:id/edit', component: UpdateBookPage },
+  { path: 'catalog', component: SchoolCatalogPage },
+  { path: 'login', component: Login },
+  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
+  { path: 'profile', component: Profile, canActivate: [authGuard] },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
+  { path: 'schools', component: SchoolManagementComponent },
+  { path: 'tags', component: TagManagement },
+  { path: 'tagmenu', component: TagSelectionMenu },
+  { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
+  { path: 'create-user', component: CreateUser, canActivate: [authGuard] },
+  { path: 'change-password', component: ChangePassword, canActivate: [authGuard] },
+  { path: '**', redirectTo: '/login' },
+];

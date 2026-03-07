@@ -1,15 +1,16 @@
 package edu.ap.spring_backend.controllers;
 
-import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
-import edu.ap.spring_backend.dto.ItemDTO;
-import edu.ap.spring_backend.dto.SchoolItemDTO;
-import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
+import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.service.ItemService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import java.util.List;
 
+@Validated
 @RestController
 public class ItemController {
     private final ItemService itemService;
@@ -28,8 +29,11 @@ public class ItemController {
     }
 
     @GetMapping("/books")
-    public ResponseEntity<List<SchoolItemDTO>> getAllSchoolItems() {
-        return ResponseEntity.ok(itemService.getAllSchoolItems());
+    public ResponseEntity<PageResponseDTO<SchoolItemDTO>> getAllSchoolItems(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(20) int size
+    ) {
+        return ResponseEntity.ok(itemService.getAllSchoolItems(page, size));
     }
 
     @GetMapping("/books/{id}")

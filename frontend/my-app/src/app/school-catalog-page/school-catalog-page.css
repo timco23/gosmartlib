@@ -1,0 +1,263 @@
+.books-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.books-header {
+  margin-bottom: 20px;
+}
+
+.back-link {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  color: #d6822b;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.header-actions h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+/* ── Twee-kolom layout ── */
+.catalog-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Filter sidebar ── */
+.filter-panel {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 20px;
+}
+
+.filter-title {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.filter-input,
+.filter-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background: #fafafa;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #d6822b;
+}
+
+/* Taal checkboxes */
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+}
+
+.toggle-item input[type='checkbox'] {
+  accent-color: #d6822b;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Range sliders */
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.range-track {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.range-slider {
+  width: 100%;
+  accent-color: #d6822b;
+  cursor: pointer;
+}
+
+.range-slider.full-width {
+  display: block;
+  width: 100%;
+}
+
+.reset-button {
+  width: 100%;
+  padding: 9px;
+  margin-top: 4px;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-button:hover {
+  border-color: #d6822b;
+  color: #d6822b;
+}
+
+/* ── Boeklijst ── */
+.books-card {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.books-card h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.book-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.book-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #f6f6f6;
+  transition: background 0.2s;
+}
+
+.book-item:hover {
+  background: #ececec;
+}
+
+.book-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.book-title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #222;
+}
+
+.book-meta {
+  font-size: 13px;
+  color: #888;
+}
+
+.book-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.details-button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.details-button:hover {
+  background-color: black;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.page-button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.page-button:hover:not([disabled]) {
+  background-color: black;
+}
+
+.page-button[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 14px;
+  color: #666;
+}
