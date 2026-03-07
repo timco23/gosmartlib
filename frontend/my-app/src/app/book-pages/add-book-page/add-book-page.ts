@@ -133,6 +133,26 @@ export class AddBookPage implements OnInit {
 
   }
 
+  loadDetailsViaISBN() {
+    const isbn: string = this.form.controls["isbn"].value;
+    this.api.getBookByISBN(isbn).subscribe({
+      next: (data) => {
+        if (data.totalItems > 0) {
+          this.form.patchValue({
+            title: data.items![0].volumeInfo.title,
+            publisher: data.items![0].volumeInfo.publisher,
+            author: data.items![0].volumeInfo.authors?.join(", "),
+            description: data.items![0].volumeInfo.description,
+            releaseYear: data.items![0].volumeInfo.publishedDate?.substring(0,4),
+            language: data.items![0].volumeInfo.language,
+            pageCount: data.items![0].volumeInfo.pageCount,
+            cover: data.items![0].volumeInfo.imageLinks?.thumbnail
+        }) 
+        }
+      }
+    })
+  }
+
   backToList() {
     this.router.navigate(["/books"]);
   }

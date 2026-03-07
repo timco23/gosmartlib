@@ -5,6 +5,12 @@
     <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <main class="form-left">
+            
+            <label for="isbn">ISBN (optioneel)</label>
+            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="isbn" type="text"
+                formControlName="isbn">
+            <p>Gebruik deze knop om te proberen de bovenstaande ISBN te gebruiken om onderstaande velden automatisch in te vullen.</p>
+            <button (click)="loadDetailsViaISBN()">Haal gegevens op</button>
 
             <label for="itemId">Selecteer een boek (optioneel)</label>
             <select id="itemId" [(ngModel)]="selectedOption" (change)="loadBookDetails()" formControlName="itemId">
@@ -25,7 +31,7 @@
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="title" type="text"
                 formControlName="title">
 
-            <label for="author">Auteur</label>
+            <label for="author">Auteur(s)</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="author" type="text"
                 formControlName="author">
 
@@ -35,10 +41,6 @@
             <label for="publisher">Uitgeverij</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="publisher" type="text"
                 formControlName="publisher">
-
-            <label for="isbn">ISBN (optioneel)</label>
-            <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="isbn" type="text"
-                formControlName="isbn">
 
             <label for="releaseYear">Uitgavejaar</label>
             <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="releaseYear" type="number"
