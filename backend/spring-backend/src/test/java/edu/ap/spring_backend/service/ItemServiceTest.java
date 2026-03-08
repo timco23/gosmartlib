@@ -72,7 +72,7 @@ class ItemServiceTest {
     void givenSchoolItems_whenGetSchoolItems_thenReturnSchoolDTOList() {
         Page<SchoolItem> page = new PageImpl<>(List.of(schoolItem));
 
-        when(schoolItemRepository.findAll(any(Pageable.class))).thenReturn(page);
+        when(schoolItemRepository.findWithFilters(any(), any(), any(), any(), any(), any(), any(), any(Pageable.class))).thenReturn(page);
 
         SchoolItemRequestDTO request = new SchoolItemRequestDTO(
                 0, 20, "title", "asc", "", List.of(), null, null, null, null, null
@@ -82,14 +82,14 @@ class ItemServiceTest {
         assertEquals(1, result.size());
         assertEquals("Clean Code", result.content().getFirst().title());
 
-        verify(schoolItemRepository).findAll(any(Pageable.class));
+        verify(schoolItemRepository).findWithFilters(any(), any(), any(), any(), any(), any(), any(), any(Pageable.class));
     }
 
     @Test
     void givenNoSchoolItems_whenGetSchoolItems_thenReturnEmptyList() {
         Page<SchoolItem> page = new PageImpl<>(List.of());
 
-        when(schoolItemRepository.findAll(any(Pageable.class))).thenReturn(page);
+        when(schoolItemRepository.findWithFilters(any(), any(), any(), any(), any(), any(), any(), any(Pageable.class))).thenReturn(page);
 
         SchoolItemRequestDTO request = new SchoolItemRequestDTO(
                 0, 20, "title", "asc", "", List.of(), null, null, null, null, null
@@ -97,6 +97,41 @@ class ItemServiceTest {
         var result = itemService.getSchoolItems(request);
 
         assertTrue(result.content().isEmpty());
+    }
+
+    @Test
+    void givenMinPagesGreaterThanMaxPages_whenGetSchoolItems_thenThrowException() {
+        SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                0, 10, "title", "asc", null, List.of(), 100, 50, null, null, null
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> itemService.getSchoolItems(request));
+    }
+
+    @Test
+    void givenMinYearGreaterThanMaxYear_whenGetSchoolItems_thenThrowException() {
+        SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                0, 10, "title", "asc", null, List.of(), null, null, 2020, 2000, null
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> itemService.getSchoolItems(request));
+    }
+
+    @Test
+    void givenSearchTerm_whenGetSchoolItems_thenSearchParamIsUsed() {
+        Page<SchoolItem> page = new PageImpl<>(List.of(schoolItem));
+
+        when(schoolItemRepository.findWithFilters(any(), any(), any(), any(), any(), any(), any(), any(Pageable.class))).thenReturn(page);
+
+        SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                0, 10, "title", "asc", "Clean Code", List.of(), null, null, null, null, null
+        );
+
+        var result = itemService.getSchoolItems(request);
+
+        assertEquals(1, result.content().size());
     }
 
     // ---------------- GET ALL ITEMS ----------------

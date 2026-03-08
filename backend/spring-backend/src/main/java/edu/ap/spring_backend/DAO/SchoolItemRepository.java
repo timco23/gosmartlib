@@ -21,7 +21,7 @@ public interface SchoolItemRepository extends JpaRepository<SchoolItem,Integer> 
 
     // Optional filtered and sorted page based on user selection
     // - search: filters on title or author (case-insensitive, partial match)
-    // - languages: filters on book language, ignored if empty, never NULL
+    // - languages: filters on book language, ignored if empty
     // - minPages/maxPages: filters on page count range
     // - minYear/maxYear: filters on release year range
     // - minScore: filters on minimum review score

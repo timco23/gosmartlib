@@ -26,8 +26,11 @@ public class ItemService {
 
     // Gets SchoolItems in page format
     public PageResponseDTO<SchoolItemDTO> getSchoolItems(SchoolItemRequestDTO request) {
+        validateRequest(request);
+
         Sort sort = createSort(request.sortBy(), request.sortDirection());
         Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
+
         String searchParam = null;
         if (request.search() != null && !request.search().isBlank()) {
             searchParam = request.search();
@@ -39,18 +42,29 @@ public class ItemService {
         return new PageResponseDTO<>(schoolItems.map(this::mapToSchoolItemDTO));
     }
 
-    private Sort createSort(String sortBy, String sortDirection) {
-        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ?
-                Sort.Direction.DESC : Sort.Direction.ASC;
+        // Stop illogical requests
+        private void validateRequest(SchoolItemRequestDTO request) {
+            if (request.minPages() != null && request.maxPages() != null
+                    && request.minPages() > request.maxPages()) {
+                throw new IllegalArgumentException("minPages cannot be greater than maxPages");
+            }
+            if (request.minYear() != null && request.maxYear() != null
+                    && request.minYear() > request.maxYear()) {
+                throw new IllegalArgumentException("minYear cannot be greater maxYear");
+            }
+        }
+        private Sort createSort(String sortBy, String sortDirection) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ?
+                    Sort.Direction.DESC : Sort.Direction.ASC;
 
-        return switch (sortBy) {
-            case "author" -> Sort.by(direction, "item.author");
-            case "year" -> Sort.by(direction, "item.releaseYear");
-            case "score" -> Sort.by(direction, "item.reviewScore");
-            case "pages" -> Sort.by(direction, "item.pageCount");
-            default -> Sort.by(direction, "item.title");
-        };
-    }
+            return switch (sortBy) {
+                case "author" -> Sort.by(direction, "item.author");
+                case "year" -> Sort.by(direction, "item.releaseYear");
+                case "score" -> Sort.by(direction, "item.reviewScore");
+                case "pages" -> Sort.by(direction, "item.pageCount");
+                default -> Sort.by(direction, "item.title");
+            };
+        }
 
     //Adds a SchoolItem. Checks first if school already has this SchoolItem, if not then if the Item isn't already in the database, adds it there first before linking it to a school.
     public SchoolItemDTO addSchoolItem(CreateSchoolItemDTO itemDTO) throws EntityNotFoundException, EntityAlreadyExistsException {
@@ -116,7 +130,7 @@ public class ItemService {
 
     //Gets a SchoolItem by its title
     public SchoolItemDTO getSchoolItemByTitle(String title){
-        SchoolItem schoolItem = schoolItemRepository.findByItemTitle(title).orElse(null);
+        SchoolItem schoolItem = schoolItemRepository.findByItemTitle(title).orElseThrow(EntityNotFoundException::new);
         if (schoolItem != null){
             return mapToSchoolItemDTO(schoolItem);
         }

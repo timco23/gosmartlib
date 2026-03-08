@@ -14,12 +14,4 @@ public record SchoolItemRequestDTO(
         Integer minYear,
         Integer maxYear,
         Double minScore
-) {
-    public SchoolItemRequestDTO {
-        if (sortBy == null) sortBy = "title";
-        if (sortDirection == null) sortDirection = "ASC";
-        if (page < 0) page = 0;
-        if (size < 1 || size > 10) size = 10;
-        if (languages == null) languages = List.of();
-    }
-}
+) {}

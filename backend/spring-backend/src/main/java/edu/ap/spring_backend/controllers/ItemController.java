@@ -2,11 +2,10 @@ package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.service.ItemService;
+import jakarta.validation.constraints.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 
 import java.util.List;
 
@@ -30,17 +29,17 @@ public class ItemController {
 
     @GetMapping("/books")
     public ResponseEntity<PageResponseDTO<SchoolItemDTO>> getAllSchoolItems(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(1) @Max(10) int size,
-            @RequestParam(defaultValue= "title") String sortBy,
-            @RequestParam(defaultValue = "ASC") String sortDirection,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) List<String> languages,
-            @RequestParam(required = false) Integer minPages,
-            @RequestParam(required = false) Integer maxPages,
-            @RequestParam(required = false) Integer minYear,
-            @RequestParam(required = false) Integer maxYear,
-            @RequestParam(required = false) Double minScore
+            @RequestParam(defaultValue= "title") @Pattern(regexp = "title|author|year|score|pages") String sortBy,
+            @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE) String sortDirection,
+            @RequestParam(required = false) @Size(max = 100) String search,
+            @RequestParam(required = false) @Size(max = 10) List<String> languages,
+            @RequestParam(required = false) @Min(0) Integer minPages,
+            @RequestParam(required = false) @Min(0) Integer maxPages,
+            @RequestParam(required = false) @Min(1500) @Max(2050) Integer minYear,
+            @RequestParam(required = false) @Min(1500) @Max(2050) Integer maxYear,
+            @RequestParam(required = false) @DecimalMin("0.0") @DecimalMax("5.0") Double minScore
     ) {
         SchoolItemRequestDTO request = new SchoolItemRequestDTO(
                 page, size, sortBy, sortDirection,

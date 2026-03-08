@@ -112,27 +112,27 @@ INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
 
 -- Testbooks
 insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count) values
-('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,null,4.2,1250),
-('De donkere kamer van Damokles','Em. Querido','Willem Frederik Hermans','9789023413110',1958,'Nederlands',352,null,4.4,876),
-('De aanslag','De Bezige Bij','Harry Mulisch','9789023442448',1982,'Nederlands',256,null,4.3,1543),
-('Turks fruit','Bezige Bij','Jan Wolkers','9789023403975',1969,'Nederlands',192,null,3.9,654),
-('De ontdekking van de hemel','De Bezige Bij','Harry Mulisch','9789023430988',1992,'Nederlands',944,null,4.5,2103),
-('Oorlogswinter','Leopold','Jan Terlouw','9789025861124',1972,'Nederlands',208,null,4.1,3871),
-('The Great Gatsby','Scribner','F. Scott Fitzgerald','9780743273565',1925,'Engels',180,null,4.0,52340),
-('To Kill a Mockingbird','HarperCollins','Harper Lee','9780061935466',1960,'Engels',336,null,4.6,89421),
-('1984','Secker & Warburg','George Orwell','9780451524935',1949,'Engels',328,null,4.7,112453),
-('The Catcher in the Rye','Little Brown','J.D. Salinger','9780316769174',1951,'Engels',224,null,3.8,44217),
-('Brave New World','Chatto & Windus','Aldous Huxley','9780060850524',1932,'Engels',311,null,4.3,61892),
-('Sapiens','Harper','Yuval Noah Harari','9780062316097',2011,'Engels',443,null,4.5,203451),
-('Een kleine geschiedenis van de wereld','Lemniscaat','Ernst Gombrich','9789047700975',1935,'Nederlands',284,null,4.4,1234),
-('Het korte geheugen','Prometheus','Maarten van Rossem','9789044628180',2019,'Nederlands',256,null,3.7,423),
-('Le Petit Prince','Gallimard','Antoine de Saint-Exupéry','9782070408504',1943,'Frans',96,null,4.8,178932),
-('L''Étranger','Gallimard','Albert Camus','9782070360024',1942,'Frans',186,null,4.3,88321),
-('Der Vorleser','Diogenes','Bernhard Schlink','9783257229530',1995,'Duits',208,null,4.1,32109),
-('Die Verwandlung','Kurt Wolff Verlag','Franz Kafka','9783150090299',1915,'Duits',96,null,4.2,45678),
-('Het dagboek van een muts','Van Goor','Jeff Kinney','9789047514527',2007,'Nederlands',224,null,4.0,9823),
-('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,null,4.8,154320),
-('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,null,4.3,67891);
+('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9082410613-M.jpg',4.2,1250),
+('De donkere kamer van Damokles','Em. Querido','Willem Frederik Hermans','9789023413110',1958,'Nederlands',352,'https://covers.openlibrary.org/b/isbn/9023413113-M.jpg',4.4,876),
+('De aanslag','De Bezige Bij','Harry Mulisch','9789023442448',1982,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/902344244X-M.jpg',4.3,1543),
+('Turks fruit','Bezige Bij','Jan Wolkers','9789023403975',1969,'Nederlands',192,'https://covers.openlibrary.org/b/isbn/9023403975-M.jpg',3.9,654),
+('De ontdekking van de hemel','De Bezige Bij','Harry Mulisch','9789023430988',1992,'Nederlands',944,'https://covers.openlibrary.org/b/isbn/9023430980-M.jpg',4.5,2103),
+('Oorlogswinter','Leopold','Jan Terlouw','9789025861124',1972,'Nederlands',208,'https://covers.openlibrary.org/b/isbn/9025861121-M.jpg',4.1,3871),
+('The Great Gatsby','Scribner','F. Scott Fitzgerald','9780743273565',1925,'Engels',180,'https://covers.openlibrary.org/b/isbn/0743273567-M.jpg',4.0,52340),
+('To Kill a Mockingbird','HarperCollins','Harper Lee','9780061935466',1960,'Engels',336,'https://covers.openlibrary.org/b/isbn/0061935468-M.jpg',4.6,89421),
+('1984','Secker & Warburg','George Orwell','9780451524935',1949,'Engels',328,'https://covers.openlibrary.org/b/isbn/0451524934-M.jpg',4.7,112453),
+('The Catcher in the Rye','Little Brown','J.D. Salinger','9780316769174',1951,'Engels',224,'https://covers.openlibrary.org/b/isbn/0316769177-M.jpg',3.8,44217),
+('Brave New World','Chatto & Windus','Aldous Huxley','9780060850524',1932,'Engels',311,'https://covers.openlibrary.org/b/isbn/0060850523-M.jpg',4.3,61892),
+('Sapiens','Harper','Yuval Noah Harari','9780062316097',2011,'Engels',443,'https://covers.openlibrary.org/b/isbn/0062316095-M.jpg',4.5,203451),
+('Een kleine geschiedenis van de wereld','Lemniscaat','Ernst Gombrich','9789047700975',1935,'Nederlands',284,'https://covers.openlibrary.org/b/isbn/904770097X-M.jpg',4.4,1234),
+('Het korte geheugen','Prometheus','Maarten van Rossem','9789044628180',2019,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/9044628186-M.jpg',3.7,423),
+('Le Petit Prince','Gallimard','Antoine de Saint-Exupéry','9782070408504',1943,'Frans',96,'https://covers.openlibrary.org/b/isbn/2070408507-M.jpg',4.8,178932),
+('L''Étranger','Gallimard','Albert Camus','9782070360024',1942,'Frans',186,'https://covers.openlibrary.org/b/isbn/2070360024-M.jpg',4.3,88321),
+('Der Vorleser','Diogenes','Bernhard Schlink','9783257229530',1995,'Duits',208,'https://covers.openlibrary.org/b/isbn/3257229534-M.jpg',4.1,32109),
+('Die Verwandlung','Kurt Wolff Verlag','Franz Kafka','9783150090299',1915,'Duits',96,'https://covers.openlibrary.org/b/isbn/3150090296-M.jpg',4.2,45678),
+('Het dagboek van een muts','Van Goor','Jeff Kinney','9789047514527',2007,'Nederlands',224,'https://covers.openlibrary.org/b/isbn/9047514521-M.jpg',4.0,9823),
+('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',4.8,154320),
+('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',4.3,67891);
 
 -- Voeg alle testbook items toe aan de schoolcatalogus van school 1
 INSERT INTO school_item (school_id, item_id, tags, book_description, featured)
