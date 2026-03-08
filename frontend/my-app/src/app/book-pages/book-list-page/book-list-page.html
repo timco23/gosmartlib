@@ -4,6 +4,7 @@
 
     <div class="header-actions">
       <h2>Boeken</h2>
+      <a class="secondary-button" [routerLink]="['/tags']">Tags beheren</a>
       <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
     </div>
   </header>
@@ -176,6 +177,9 @@
               <div class="book-badges">
                 <span class="badge badge-language">{{ book.language }}</span>
                 <span class="badge badge-pages">{{ book.pageCount }} blz.</span>
+                @for (tag of book.tags.split(','); track tag) {
+                  <span class="badge badge-tag">{{ tag.trim() }}</span>
+                }
               </div>
 
               <div class="book-score">

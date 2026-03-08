@@ -1,15 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { MockBook, Tag } from '../../types/types';
+import { Component, inject, input, output, SimpleChanges } from '@angular/core';
+import { Tag } from '../../types/types';
 import { TagService } from '../services/tag.service';
-import { BookService } from '../services/book.service';
 import { FormsModule } from '@angular/forms';
 
 /**
  * Displays all available tags and lets the user toggle which tags
  * are assigned to a specific book
- *
- * When `bookId` is provided as input the book-selector dropdown is hidden
- * When no `bookId` is provided the user can pick a book from the dropdown
  */
 @Component({
   selector: 'app-tag-selection-menu',
@@ -19,46 +15,48 @@ import { FormsModule } from '@angular/forms';
 })
 export class TagSelectionMenu {
   private tagService = inject(TagService);
-  private bookService = inject(BookService);
 
-  // TODO: When the books are available, add a `bookId` input property
-  // so this component is accessed without a dropdown
+  bookId = input<number | null>(null);
+  initialTags = input<string[]>([]);
+  tagsChanged = output<string[]>();
 
-  tags = signal<Tag[]>([]);
-  filterInput = signal('');
-  books = this.bookService.getBooks();
-  selectedBookId = signal<number | null>(null);
-  selectedBook = computed<MockBook | null>(() => this.bookService.getBookById(this.selectedBookId()));
+  tags: Tag[] = [];
+  filterInput: string = '';
+  selectedTagNames: string[] = [];
 
-  //case-insensitive keyword filtering
-  filteredTags = computed(() => {
-    const filter = this.filterInput().toLowerCase();
-    return this.tags()
-      .filter((tag) => tag.name.toLowerCase().includes(filter))
+  get filteredTags(): Tag[] {
+    return this.tags
+      .filter((tag) => tag.name.toLowerCase().includes(this.filterInput.toLowerCase()))
       .sort((a, b) => a.name.localeCompare(b.name));
-  });
+  }
 
-  // Amount of tags added to the selected book
-  selectedTagCount = computed(() => {
-    const bookId = this.selectedBookId();
-    if (bookId === null) return 0;
-    return this.tags().filter((tag) => this.bookService.isTagSelected(bookId, tag.id)).length;
-  });
+  get selectedTagCount(): number {
+    return this.selectedTagNames.length;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialTags'] && this.tags.length > 0) {
+      this.selectedTagNames = [...this.initialTags()];
+    }
+  }
 
   ngOnInit(): void {
-    this.tagService.getTags().subscribe((tags) => this.tags.set(tags));
+    this.tagService.getTags().subscribe((tags) => {
+      this.tags = tags;
+      this.selectedTagNames = [...this.initialTags()];
+    });
   }
 
-  isTagSelected(tagId: number): boolean {
-    const id = this.selectedBookId();
-    return id ? this.bookService.isTagSelected(id, tagId) : false;
+  isTagSelected(tagName: string): boolean {
+    return this.selectedTagNames.includes(tagName);
   }
 
-  // enable/disable a tag for a book
-  toggleTag(tagId: number): void {
-    const id = this.selectedBookId();
-    if (id) {
-      this.bookService.toggleTag(id, tagId);
+  toggleTag(tagName: string): void {
+    if (this.selectedTagNames.includes(tagName)) {
+      this.selectedTagNames = this.selectedTagNames.filter((n) => n !== tagName);
+    } else {
+      this.selectedTagNames = [...this.selectedTagNames, tagName];
     }
+    this.tagsChanged.emit(this.selectedTagNames);
   }
 }

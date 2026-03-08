@@ -1,99 +1,35 @@
 :host {
   display: block;
-  max-width: 720px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-}
-
-h1 {
-  margin-bottom: 1.5rem;
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-/* Book select */
-.book-select {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.book-select label {
-  font-weight: 500;
-  color: #374151;
-}
-
-.book-select select {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  transition:
-    border 0.2s,
-    box-shadow 0.2s;
-}
-
-.book-select select:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-  background: #fff;
-}
-
-/* Book info */
-.book-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  background: #f3f4f6;
-  border-radius: 8px;
-}
-
-.book-title {
-  font-weight: 600;
-  color: #111827;
-}
-
-.tag-count {
-  font-size: 0.875rem;
-  color: #6b7280;
 }
 
 /* Filter */
 .filter-row {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .filter-row input {
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  box-sizing: border-box;
   transition:
-    border 0.2s,
+    border-color 0.2s,
     box-shadow 0.2s;
 }
 
 .filter-row input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-  background: #fff;
+  border-color: #d6822b;
+  box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
+}
+
+/* Tag count */
+.tag-count {
+  font-size: 0.8125rem;
+  color: #888;
+  margin-bottom: 0.5rem;
 }
 
 /* Tag list */
@@ -101,16 +37,23 @@ h1 {
   list-style: none;
   padding: 0;
   margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
 }
 
 .tag-item {
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
   transition: background 0.15s ease;
 }
 
+.tag-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
 .tag-item:hover {
-  background: #f9fafb;
+  background: #faf7f4;
 }
 
 .tag-item label {
@@ -118,31 +61,24 @@ h1 {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  font-weight: normal;
+  margin-top: 0;
 }
 
 .tag-item input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  accent-color: #6366f1;
+  width: 15px;
+  height: 15px;
+  accent-color: #d6822b;
+  cursor: pointer;
 }
 
 /* Default badge */
 .badge-default {
   margin-left: auto;
-  padding: 0.2rem 0.5rem;
+  padding: 0.15rem 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
   background: #e0e7ff;
   color: #3730a3;
   border-radius: 999px;
-}
-
-/* Placeholder */
-.placeholder {
-  margin-top: 1rem;
-  padding: 1rem;
-  text-align: center;
-  color: #6b7280;
-  background: #f9fafb;
-  border-radius: 8px;
 }

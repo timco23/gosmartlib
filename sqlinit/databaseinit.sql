@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS tag (
 );
 
 -- Default non-editable tags
+INSERT INTO tag (name, is_default) VALUES ('Algemeen', true);
 INSERT INTO tag (name, is_default) VALUES ('Pedagogisch', true);
 INSERT INTO tag (name, is_default) VALUES ('12-14j', true);
 INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
