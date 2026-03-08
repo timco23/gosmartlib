@@ -12,7 +12,6 @@ import { TagManagement } from './tag-management/tag-management.component';
 import { TagSelectionMenu } from './tag-selection-menu/tag-selection-menu';
 import { CreateUser } from './create-user/create-user';
 import { ChangePassword } from './change-password/change-password';
-import { SchoolCatalogPage } from './school-catalog-page/school-catalog-page';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,7 +19,6 @@ export const routes: Routes = [
   { path: 'books/add', component: AddBookPage },
   { path: 'books/:id', component: BookDetailPage },
   { path: 'books/:id/edit', component: UpdateBookPage },
-  { path: 'catalog', component: SchoolCatalogPage },
   { path: 'login', component: Login },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
