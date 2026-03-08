@@ -105,51 +105,51 @@
                 }
 
             </div>
-
+            
         </div>
-
+        
+        
         <section class="copies-section">
-
+            
             <h3>Exemplaren</h3>
-
+            
+            <h4 *ngIf="editingCopyId">Exemplaar wijzigen</h4>
+            
             @if (copies.length > 0) {
 
             <table class="copies-table">
                 <div *ngIf="!editingCopyId">
                     <thead>
                         <tr>
-                            <th>Id</th>
                             <th>Conditie</th>
                             <th>Barcode</th>
                         </tr>
                     </thead>
-
+                    
                     <tbody>
                         @for (copy of copies; track copy.id) {
-                        <tr>
-                            <td>{{copy.id}}</td>
-                            <td>{{copy.condition}}</td>
+                            <tr>
+                                <td>{{copy.condition}}</td>
                             <td>{{copy.barcode}}</td>
                             <td class="copy-actions">
                                 <button type="button" class="DeleteButton"
-                                    (click)="deleteCopy(copy.id)">Verwijderen</button>
-                                <button type="button" class="EditButton"
-                                    (click)="editingCopyId = copy.id">Wijzigen</button>
+                                (click)="deleteCopy(copy.id)">Verwijderen</button>
+                                <button type="button" class="EditButton" (click)="startEdit(copy)">Wijzigen</button>
                             </td>
                         </tr>
-                        }
-                    </tbody>
-                </div>
+                    }
+                </tbody>
+            </div>
 
-                <div *ngIf="editingCopyId">
-                    <form (ngSubmit)="saveEdit()">
-                        <div class="form-row">
-                            <label for="edit-condition">Conditie</label>
-                            <select id="edit-condition" [(ngModel)]="editedCopy.condition" name="editCondition"
-                                required>
-                                <option value="">-- Kies conditie --</option>
-                                <option value="Nieuw">Nieuw</option>
-                                <option value="Goed">Goed</option>
+            <div *ngIf="editingCopyId">
+                <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
+                    <div class="form-row">
+                        <label for="edit-condition">Conditie</label>
+                        <select id="edit-condition" [(ngModel)]="editedCopy.condition" name="editCondition"
+                        required>
+                        <option value="">-- Kies conditie --</option>
+                        <option value="Nieuw">Nieuw</option>
+                        <option value="Goed">Goed</option>
                                 <option value="Gebruikt">Gebruikt</option>
                                 <option value="Beschadigd">Beschadigd</option>
                             </select>
@@ -158,12 +158,10 @@
                         <div class="form-row">
                             <label for="edit-barcode">Barcode</label>
                             <input id="edit-barcode" type="text" [(ngModel)]="editedCopy.barcode" name="editBarcode"
-                                required>
+                            required>
                         </div>
-
-                        <button type="submit" class="save-button">
-                            Opslaan
-                        </button>
+                        
+                        <button type="submit" class="save-button" [disabled]="editForm.invalid">Opslaan</button>
                         <button type="button" (click)="cancelEdit()">
                             Annuleren
                         </button>
@@ -172,17 +170,18 @@
 
             </table>
 
-            }
-            @else {
+        }
+        @else {
             <p>Geen exemplaren gevonden.</p>
-            }
-
-            <button (click)="showAddCopyForm()" *ngIf="!addingCopy && !editingCopyId">Exemplaar toevoegen</button>
-
-            <section class="add-copy" *ngIf="addingCopy && !editingCopyId">
-
-                <h4>Nieuw exemplaar toevoegen</h4>
-
+        }
+        
+        <button (click)="showAddCopyForm()" *ngIf="!addingCopy && !editingCopyId">Exemplaar toevoegen</button>
+        
+        
+        <section class="add-copy" *ngIf="addingCopy && !editingCopyId">
+            
+            <h4>Nieuw exemplaar toevoegen</h4>
+            
                 <form (ngSubmit)="addCopy()" #copyForm="ngForm">
 
                     <div class="form-row">

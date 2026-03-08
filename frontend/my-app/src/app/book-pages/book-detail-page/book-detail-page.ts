@@ -120,8 +120,7 @@ cancelEdit() {
 
 saveEdit() {
   if (!this.book) return;
-
-  this.api.addCopy(this.editedCopy).subscribe({
+  this.api.updateCopy(this.editedCopy).subscribe({
     next: (updatedCopy) => {
       const index = this.copies.findIndex(c => c.id === this.editingCopyId);
       if (index > -1) {

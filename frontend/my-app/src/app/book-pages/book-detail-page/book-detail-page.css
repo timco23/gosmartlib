@@ -213,6 +213,11 @@ select {
   cursor: not-allowed;
 }
 
+.save-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 button {
   width: 100%;
   padding: 12px 24px;
