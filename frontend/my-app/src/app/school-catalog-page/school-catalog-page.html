@@ -12,16 +12,23 @@
     <aside class="filter-panel">
       <h3 class="filter-title">Filteren & Sorteren</h3>
 
-      <!-- Search by name -->
+      <!-- Search by title or author-->
       <div class="filter-group">
-        <label class="filter-label" for="search">Zoeken op titel</label>
-        <input class="filter-input" id="search" type="text" placeholder="Bijv. Harry Potter…" />
+        <label class="filter-label" for="search">Zoeken op titel of auteur</label>
+        <input
+          class="filter-input"
+          id="search"
+          type="text"
+          placeholder="Bijv. Harry Potter…"
+          [(ngModel)]="search"
+          (ngModelChange)="onSearchChange($event)"
+        />
       </div>
 
       <!-- Sorting -->
       <div class="filter-group">
         <label class="filter-label" for="sort">Sorteren op</label>
-        <select class="filter-select" id="sort">
+        <select class="filter-select" id="sort" (change)="onSortChange($event)">
           <option value="title-asc">Titel (A → Z)</option>
           <option value="title-desc">Titel (Z → A)</option>
           <option value="author-asc">Auteur (A → Z)</option>
@@ -32,85 +39,127 @@
         </select>
       </div>
 
-      <!-- Taal -->
+      <!-- Language -->
       <div class="filter-group">
         <label class="filter-label">Taal</label>
         <div class="toggle-group">
-          <label class="toggle-item"> <input type="checkbox" checked /> Nederlands </label>
-          <label class="toggle-item"> <input type="checkbox" checked /> Engels </label>
-          <label class="toggle-item"> <input type="checkbox" checked /> Frans </label>
-          <label class="toggle-item"> <input type="checkbox" checked /> Duits </label>
+          <label class="toggle-item">
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Nederlands')"
+              (change)="onLanguageChange('Nederlands', $any($event.target).checked)"
+            />
+            Nederlands
+          </label>
+          <label class="toggle-item">
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Engels')"
+              (change)="onLanguageChange('Engels', $any($event.target).checked)"
+            />
+            Engels
+          </label>
+          <label class="toggle-item">
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Frans')"
+              (change)="onLanguageChange('Frans', $any($event.target).checked)"
+            />
+            Frans
+          </label>
+          <label class="toggle-item">
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Duits')"
+              (change)="onLanguageChange('Duits', $any($event.target).checked)"
+            />
+            Duits
+          </label>
         </div>
       </div>
 
-      <!-- Aantal pagina's -->
+      <!-- Page count -->
       <div class="filter-group">
         <label class="filter-label">Aantal pagina's</label>
         <div class="range-labels">
-          <span id="pages-min-label">0</span>
-          <span id="pages-max-label">1000</span>
+          <span>{{ minPages ?? 0 }}</span>
+          <span>{{ maxPages ?? 1000 }}</span>
         </div>
         <div class="range-track">
-          <input class="range-slider" id="pages-min" type="range" min="0" max="1000" value="0" />
-          <input class="range-slider" id="pages-max" type="range" min="0" max="1000" value="1000" />
+          <input
+            class="range-slider"
+            type="range"
+            min="0"
+            max="1000"
+            [value]="minPages ?? 0"
+            (change)="minPages = $any($event.target).value; onSliderChange()"
+          />
+          <input
+            class="range-slider"
+            type="range"
+            min="0"
+            max="1000"
+            [value]="maxPages ?? 1000"
+            (change)="maxPages = $any($event.target).value; onSliderChange()"
+          />
         </div>
       </div>
 
-      <!-- Uitgavejaar -->
+      <!-- Publication Year -->
       <div class="filter-group">
         <label class="filter-label">Uitgavejaar</label>
         <div class="range-labels">
-          <span id="year-min-label">1900</span>
-          <span id="year-max-label">2025</span>
+          <span>{{ minYear ?? 1900 }}</span>
+          <span>{{ maxYear ?? 2025 }}</span>
         </div>
         <div class="range-track">
           <input
             class="range-slider"
-            id="year-min"
             type="range"
             min="1900"
             max="2025"
-            value="1900"
+            [value]="minYear ?? 1900"
+            (change)="minYear = $any($event.target).value; onSliderChange()"
           />
           <input
             class="range-slider"
-            id="year-max"
             type="range"
             min="1900"
             max="2025"
-            value="2025"
+            [value]="maxYear ?? 2025"
+            (change)="maxYear = $any($event.target).value; onSliderChange()"
           />
         </div>
       </div>
 
-      <!-- Minimale beoordeling -->
+      <!-- Minimum Rating -->
       <div class="filter-group">
         <label class="filter-label">Minimale beoordeling</label>
         <div class="range-labels">
-          <span id="score-label">0.0</span>
+          <span>{{ minScore ?? 0 }}</span>
           <span>5.0</span>
         </div>
         <input
           class="range-slider full-width"
-          id="score-min"
           type="range"
           min="0"
           max="5"
           step="0.1"
-          value="0"
+          [value]="minScore ?? 0"
+          (change)="minScore = $any($event.target).value; onSliderChange()"
         />
       </div>
 
-      <button class="reset-button">Filters wissen</button>
+      <button class="reset-button" (click)="onResetFilters()">Filters wissen</button>
     </aside>
 
-    <!-- BOOK LIST -->
+    <!-- book List -->
     <main class="books-card">
       @if (books.length > 0) {
         <h3>Huidige boeken</h3>
 
         <ul class="book-list">
-          @for (book of books; track $index) {
+          @for (book of books; track book.id) {
             <li class="book-item">
               <div class="book-info">
                 <span class="book-title">{{ book.title }}</span>

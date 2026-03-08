@@ -31,9 +31,22 @@ public class ItemController {
     @GetMapping("/books")
     public ResponseEntity<PageResponseDTO<SchoolItemDTO>> getAllSchoolItems(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") @Min(1) @Max(20) int size
+            @RequestParam(defaultValue = "10") @Min(1) @Max(10) int size,
+            @RequestParam(defaultValue= "title") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> languages,
+            @RequestParam(required = false) Integer minPages,
+            @RequestParam(required = false) Integer maxPages,
+            @RequestParam(required = false) Integer minYear,
+            @RequestParam(required = false) Integer maxYear,
+            @RequestParam(required = false) Double minScore
     ) {
-        return ResponseEntity.ok(itemService.getAllSchoolItems(page, size));
+        SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                page, size, sortBy, sortDirection,
+                search, languages, minPages, maxPages, minYear, maxYear, minScore
+        );
+        return ResponseEntity.ok(itemService.getSchoolItems(request));
     }
 
     @GetMapping("/books/{id}")

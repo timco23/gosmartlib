@@ -12,10 +12,30 @@ export class BookService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getBooksPaginated(page: number = 0, size: number = 10): Observable<Page<Book>> {
-    return this.http.get<Page<Book>>(`${this.apiBaseUrl}/books`, {
-      params: { page, size },
-    });
+  getBooksPaginated(
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'title',
+    sortDirection: string = 'asc',
+    search: string = '',
+    languages: string[] = [],
+    minPages?: number,
+    maxPages?: number,
+    minYear?: number,
+    maxYear?: number,
+    minScore?: number,
+  ): Observable<Page<Book>> {
+    let params: any = { page, size, sortBy, sortDirection };
+
+    if (search) params.search = search;
+    if (languages.length > 0) params.languages = languages;
+    if (minPages !== undefined) params.minPages = minPages;
+    if (maxPages !== undefined) params.maxPages = maxPages;
+    if (minYear !== undefined) params.minYear = minYear;
+    if (maxYear !== undefined) params.maxYear = maxYear;
+    if (minScore !== undefined) params.minScore = minScore;
+
+    return this.http.get<Page<Book>>(`${this.apiBaseUrl}/books`, { params });
   }
 
   getGlobalBooks(): Observable<GlobalBook[]> {

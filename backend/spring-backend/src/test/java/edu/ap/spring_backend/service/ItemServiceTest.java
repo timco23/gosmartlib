@@ -3,6 +3,7 @@ package edu.ap.spring_backend.service;
 import edu.ap.spring_backend.DAO.ItemRepository;
 import edu.ap.spring_backend.DAO.SchoolItemRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
+import edu.ap.spring_backend.dto.SchoolItemRequestDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.SchoolItem;
@@ -68,12 +69,15 @@ class ItemServiceTest {
     // ---------------- GET ALL SCHOOL ITEMS ----------------
 
     @Test
-    void givenSchoolItems_whenGetAllSchoolItems_thenReturnSchoolDTOList() {
+    void givenSchoolItems_whenGetSchoolItems_thenReturnSchoolDTOList() {
         Page<SchoolItem> page = new PageImpl<>(List.of(schoolItem));
 
         when(schoolItemRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var result = itemService.getAllSchoolItems(0, 20);
+        SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                0, 20, "title", "asc", "", List.of(), null, null, null, null, null
+        );
+        var result = itemService.getSchoolItems(request);
 
         assertEquals(1, result.size());
         assertEquals("Clean Code", result.content().getFirst().title());
@@ -82,12 +86,15 @@ class ItemServiceTest {
     }
 
     @Test
-    void givenNoSchoolItems_whenGetAllSchoolItems_thenReturnEmptyList() {
+    void givenNoSchoolItems_whenGetSchoolItems_thenReturnEmptyList() {
         Page<SchoolItem> page = new PageImpl<>(List.of());
 
         when(schoolItemRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var result = itemService.getAllSchoolItems(0, 20);
+        SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                0, 20, "title", "asc", "", List.of(), null, null, null, null, null
+        );
+        var result = itemService.getSchoolItems(request);
 
         assertTrue(result.content().isEmpty());
     }

@@ -24,11 +24,32 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    // Gets all SchoolItems
-    public PageResponseDTO<SchoolItemDTO> getAllSchoolItems(int page, int size){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("item.title").ascending());
-        Page<SchoolItem> schoolItems = schoolItemRepository.findAll(pageable);
+    // Gets SchoolItems in page format
+    public PageResponseDTO<SchoolItemDTO> getSchoolItems(SchoolItemRequestDTO request) {
+        Sort sort = createSort(request.sortBy(), request.sortDirection());
+        Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
+        String searchParam = null;
+        if (request.search() != null && !request.search().isBlank()) {
+            searchParam = request.search();
+        }
+        List<String> languageParam = (request.languages() != null) ? request.languages() : List.of();
+        Page<SchoolItem> schoolItems = schoolItemRepository.findWithFilters(
+                searchParam, languageParam, request.minPages(), request.maxPages(), request.minYear(), request.maxYear(), request.minScore(), pageable);
+
         return new PageResponseDTO<>(schoolItems.map(this::mapToSchoolItemDTO));
+    }
+
+    private Sort createSort(String sortBy, String sortDirection) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ?
+                Sort.Direction.DESC : Sort.Direction.ASC;
+
+        return switch (sortBy) {
+            case "author" -> Sort.by(direction, "item.author");
+            case "year" -> Sort.by(direction, "item.releaseYear");
+            case "score" -> Sort.by(direction, "item.reviewScore");
+            case "pages" -> Sort.by(direction, "item.pageCount");
+            default -> Sort.by(direction, "item.title");
+        };
     }
 
     //Adds a SchoolItem. Checks first if school already has this SchoolItem, if not then if the Item isn't already in the database, adds it there first before linking it to a school.
