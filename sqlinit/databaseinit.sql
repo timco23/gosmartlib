@@ -111,3 +111,10 @@ INSERT INTO tag (name, is_default) VALUES ('12-14j', true);
 INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
 INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
 -- ...
+
+CREATE TABLE IF NOT EXISTS school_item_copy (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    school_item_id INT,
+    barcode VARCHAR(255),
+    `item_condition` VARCHAR(50)
+);
