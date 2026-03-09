@@ -160,4 +160,5 @@ export interface SchoolItemCopy {
   schoolItemId: number;
   condition: string;
   barcode: string;
+  copy_status: string;
 }

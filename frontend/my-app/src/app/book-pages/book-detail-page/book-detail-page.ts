@@ -22,12 +22,13 @@ export class BookDetailPage implements OnInit {
   addingCopy: boolean = false;
 
   editingCopyId: number | null = null;
-  editedCopy: SchoolItemCopy = { schoolItemId: 0, condition: '', barcode: '' };
+  editedCopy: SchoolItemCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
 
   newCopy: SchoolItemCopy = {
     schoolItemId: 0,
     condition: '',
-    barcode: ''
+    barcode: '',
+    copy_status: ''
   };
 
   ngOnInit(): void {
@@ -76,7 +77,8 @@ export class BookDetailPage implements OnInit {
         this.newCopy = {
           schoolItemId: this.book!.itemId,
           condition: '',
-          barcode: ''
+          barcode: '',
+          copy_status: ''
         };
         this.addingCopy = false;
         this.cdr.detectChanges();
@@ -86,7 +88,7 @@ export class BookDetailPage implements OnInit {
 
   cancelAddCopy() {
     this.addingCopy = false;
-    this.newCopy = { schoolItemId: this.book!.itemId, condition: '', barcode: '' };
+    this.newCopy = { schoolItemId: this.book!.itemId, condition: '', barcode: '', copy_status: '' };
   }
 
   showAddCopyForm() {
@@ -115,7 +117,7 @@ export class BookDetailPage implements OnInit {
 
 cancelEdit() {
   this.editingCopyId = null;
-  this.editedCopy = { schoolItemId: 0, condition: '', barcode: '' };
+  this.editedCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
 }
 
 saveEdit() {
@@ -127,7 +129,7 @@ saveEdit() {
         this.copies[index] = updatedCopy;
       }
       this.editingCopyId = null;
-      this.editedCopy = { schoolItemId: 0, condition: '', barcode: '' };
+      this.editedCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
       this.cdr.detectChanges();
     }
   });

@@ -25,6 +25,7 @@ public class SchoolItemCopyService {
         copy.setSchoolItemId(copyDTO.schoolItemId());
         copy.setCondition(copyDTO.condition());
         copy.setBarcode(copyDTO.barcode());
+        copy.setCopy_status(copyDTO.copy_status());
         return schoolItemCopyRepository.save(copy);
     }
 
@@ -40,6 +41,7 @@ public class SchoolItemCopyService {
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
         copy.setCondition(copyDTO.condition());
         copy.setBarcode(copyDTO.barcode());
+        copy.setCopy_status(copyDTO.copy_status());
         return schoolItemCopyRepository.save(copy);
     }
 }

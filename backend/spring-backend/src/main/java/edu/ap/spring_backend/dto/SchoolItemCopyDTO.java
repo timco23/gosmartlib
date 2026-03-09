@@ -13,5 +13,8 @@ public record SchoolItemCopyDTO(
         String barcode,
 
         @JsonProperty("condition")
-        String condition
+        String condition,
+
+        @JsonProperty("copy_status")
+        String copy_status
 ) { }

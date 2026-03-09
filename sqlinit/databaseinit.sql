@@ -116,5 +116,6 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
     school_item_id INT,
     barcode VARCHAR(255),
+    copy_status VARCHAR(255),
     `item_condition` VARCHAR(50)
 );

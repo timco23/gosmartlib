@@ -18,7 +18,7 @@ public class SchoolItemCopy {
 
     private int schoolItemId;
     private String barcode;
-    private String status;
+    private String copy_status;
 
     @Column(name = "item_condition")
     private String condition;
