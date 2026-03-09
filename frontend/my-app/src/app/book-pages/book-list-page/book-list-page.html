@@ -80,6 +80,15 @@
         </div>
       </div>
 
+      <!-- Tags -->
+      <div class="filter-group">
+        <label class="filter-label">Tags</label>
+        <app-tag-selection-menu
+          [initialTags]="selectedTags"
+          (tagsChanged)="onTagsChanged($event)"
+        />
+      </div>
+
       <!-- Page count -->
       <div class="filter-group">
         <label class="filter-label">Aantal pagina's</label>
@@ -177,7 +186,7 @@
               <div class="book-badges">
                 <span class="badge badge-language">{{ book.language }}</span>
                 <span class="badge badge-pages">{{ book.pageCount }} blz.</span>
-                @for (tag of book.tags; track tag.id) {
+                @for (tag of sortedTags(book.tags); track tag.id) {
                   <span class="badge badge-tag">{{ tag.name }}</span>
                 }
               </div>

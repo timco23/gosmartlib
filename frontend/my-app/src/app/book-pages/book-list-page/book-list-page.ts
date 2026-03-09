@@ -2,12 +2,13 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Page } from '../../../types/types';
+import { Book, Page, Tag } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
+import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
 
 @Component({
   selector: 'app-book-list-page',
-  imports: [RouterLink, FormsModule, DecimalPipe],
+  imports: [RouterLink, FormsModule, DecimalPipe, TagSelectionMenu],
   templateUrl: './book-list-page.html',
   styleUrl: './book-list-page.css',
 })
@@ -29,12 +30,15 @@ export class BookListPage implements OnInit {
   minYear?: number;
   maxYear?: number;
   minScore?: number;
+  selectedTags: Tag[] = [];
 
   ngOnInit(): void {
     this.loadBooks();
   }
 
   loadBooks(): void {
+    const tagIds = this.selectedTags.map((t) => t.id!);
+    console.log('tagIds:', tagIds);
     this.api
       .getBooksPaginated(
         this.currentPage,
@@ -48,6 +52,7 @@ export class BookListPage implements OnInit {
         this.minYear,
         this.maxYear,
         this.minScore,
+        tagIds,
       )
       .subscribe({
         next: (data: Page<Book>) => {
@@ -65,6 +70,10 @@ export class BookListPage implements OnInit {
     this.sortDirection = sortDir;
     this.currentPage = 0;
     this.loadBooks();
+  }
+  //sort tags alphabetically
+  sortedTags(tags: Tag[]): Tag[] {
+    return [...tags].sort((a, b) => a.name.localeCompare(b.name));
   }
 
   onSearchChange(value: string): void {
@@ -87,6 +96,13 @@ export class BookListPage implements OnInit {
     this.loadBooks();
   }
 
+  onTagsChanged(tags: Tag[]): void {
+    console.log('tags changed:', tags);
+    this.selectedTags = tags;
+    this.currentPage = 0;
+    this.loadBooks();
+  }
+
   onResetFilters(): void {
     this.search = '';
     this.languages = ['Nederlands', 'Engels', 'Frans', 'Duits'];
@@ -95,6 +111,7 @@ export class BookListPage implements OnInit {
     this.minYear = undefined;
     this.maxYear = undefined;
     this.minScore = undefined;
+    this.selectedTags = [];
     this.currentPage = 0;
     this.loadBooks();
   }

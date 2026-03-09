@@ -36,7 +36,7 @@ export class TagSelectionMenu {
 
   //loads the checkbox states correctly
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialTags'] && this.tags.length > 0) {
+    if (changes['initialTags']) {
       this.selectedTags = [...this.initialTags()];
     }
   }

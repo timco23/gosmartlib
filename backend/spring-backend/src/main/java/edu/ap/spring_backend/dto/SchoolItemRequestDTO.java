@@ -13,5 +13,6 @@ public record SchoolItemRequestDTO(
         Integer maxPages,
         Integer minYear,
         Integer maxYear,
-        Double minScore
+        Double minScore,
+        List<Long> tagIds
 ) {}

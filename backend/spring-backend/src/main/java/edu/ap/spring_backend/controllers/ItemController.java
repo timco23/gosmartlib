@@ -39,11 +39,12 @@ public class ItemController {
             @RequestParam(required = false) @Min(0) Integer maxPages,
             @RequestParam(required = false) @Min(1500) @Max(2050) Integer minYear,
             @RequestParam(required = false) @Min(1500) @Max(2050) Integer maxYear,
-            @RequestParam(required = false) @DecimalMin("0.0") @DecimalMax("5.0") Double minScore
+            @RequestParam(required = false) @DecimalMin("0.0") @DecimalMax("5.0") Double minScore,
+            @RequestParam(required = false) List<Long> tagIds
     ) {
         SchoolItemRequestDTO request = new SchoolItemRequestDTO(
                 page, size, sortBy, sortDirection,
-                search, languages, minPages, maxPages, minYear, maxYear, minScore
+                search, languages, minPages, maxPages, minYear, maxYear, minScore, tagIds
         );
         return ResponseEntity.ok(itemService.getSchoolItems(request));
     }

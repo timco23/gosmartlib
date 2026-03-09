@@ -13,12 +13,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static edu.ap.spring_backend.specification.SchoolItemSpecifications.*;
 
 @Service
 public class ItemService {
@@ -36,16 +38,20 @@ public class ItemService {
     public PageResponseDTO<SchoolItemDTO> getSchoolItems(SchoolItemRequestDTO request) {
         validateRequest(request);
 
+        Specification<SchoolItem> spec = Specification
+                .where(withSearch(request.search()))
+                .and(withLanguages(request.languages()))
+                .and(withMinPages(request.minPages()))
+                .and(withMaxPages(request.maxPages()))
+                .and(withMinYear(request.minYear()))
+                .and(withMaxYear(request.maxYear()))
+                .and(withMinScore(request.minScore()))
+                .and(withTags(request.tagIds()));
+
         Sort sort = createSort(request.sortBy(), request.sortDirection());
         Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
 
-        String searchParam = null;
-        if (request.search() != null && !request.search().isBlank()) {
-            searchParam = request.search();
-        }
-        List<String> languageParam = (request.languages() != null) ? request.languages() : List.of();
-        Page<SchoolItem> schoolItems = schoolItemRepository.findWithFilters(
-                searchParam, languageParam, request.minPages(), request.maxPages(), request.minYear(), request.maxYear(), request.minScore(), pageable);
+        Page<SchoolItem> schoolItems = schoolItemRepository.findAll(spec, pageable);
 
         return new PageResponseDTO<>(schoolItems.map(this::mapToSchoolItemDTO));
     }
