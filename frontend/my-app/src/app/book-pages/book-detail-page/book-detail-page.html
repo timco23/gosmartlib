@@ -1,118 +1,98 @@
 <body class="book-detail-container">
+  <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
 
-    <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
-
-    @if (book) {
-
+  @if (book) {
     <main class="book-detail-card">
+      <header class="book-detail-header">
+        <h2>{{ book.title }}</h2>
 
-        <header class="book-detail-header">
-            <h2>{{book.title}}</h2>
+        <div class="book-actions">
+          <a class="edit-button" [routerLink]="['/books', book.id, 'edit']"> Boek wijzigen </a>
 
-            <div class="book-actions">
-                <a class="edit-button" [routerLink]="['/books', book.id, 'edit']">
-                    Boek wijzigen
-                </a>
-
-                <button class="delete-button" (click)="deleteBook(book!.id!)">
-                    Verwijder boek
-                </button>
-            </div>
-        </header>
-
-        <div class="book-detail-body">
-
-            <ul class="book-info">
-
-                <li class="info-row">
-                    <span class="label">Auteur</span>
-                    <span>{{book.author}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Uitgeverij</span>
-                    <span>{{book.publisher}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">ISBN</span>
-                    <span>{{book.isbn}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Uitgavejaar</span>
-                    <span>{{book.releaseYear}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Taal</span>
-                    <span>{{book.language}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Pagina's</span>
-                    <span>{{book.pageCount}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Review score</span>
-                    <span>{{book.reviewScore}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Aantal reviews</span>
-                    <span>{{book.reviewCount}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">School ID</span>
-                    <span>{{book.schoolId}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Item ID</span>
-                    <span>{{book.itemId}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Uitgelicht</span>
-                    <span>{{book.featured ? 'Ja' : 'Nee'}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Tags</span>
-                    <span>{{book.tags}}</span>
-                </li>
-
-                <li class="description">
-                    <span class="label">Beschrijving</span>
-                    <p>{{book.description}}</p>
-                </li>
-
-            </ul>
-
-            <div class="book-cover">
-
-                <p>Cover</p>
-
-                @if(book.cover == "" || book.cover == null) {
-                <div class="no-cover">
-                    Geen afbeelding
-                </div>
-                }
-                @else {
-                <img [src]="book.cover" alt="Book cover">
-                }
-
-            </div>
-
+          <button class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</button>
         </div>
+      </header>
 
+      <div class="book-detail-body">
+        <ul class="book-info">
+          <li class="info-row">
+            <span class="label">Auteur</span>
+            <span>{{ book.author }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Uitgeverij</span>
+            <span>{{ book.publisher }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">ISBN</span>
+            <span>{{ book.isbn }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Uitgavejaar</span>
+            <span>{{ book.releaseYear }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Taal</span>
+            <span>{{ book.language }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Pagina's</span>
+            <span>{{ book.pageCount }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Review score</span>
+            <span>{{ book.reviewScore }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Aantal reviews</span>
+            <span>{{ book.reviewCount }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">School ID</span>
+            <span>{{ book.schoolId }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Item ID</span>
+            <span>{{ book.itemId }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Uitgelicht</span>
+            <span>{{ book.featured ? 'Ja' : 'Nee' }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Tags</span>
+            <span>{{ getTagNames() }}</span>
+          </li>
+
+          <li class="description">
+            <span class="label">Beschrijving</span>
+            <p>{{ book.description }}</p>
+          </li>
+        </ul>
+
+        <div class="book-cover">
+          <p>Cover</p>
+
+          @if (book.cover == '' || book.cover == null) {
+            <div class="no-cover">Geen afbeelding</div>
+          } @else {
+            <img [src]="book.cover" alt="Book cover" />
+          }
+        </div>
+      </div>
     </main>
-
-    }
-    @else {
+  } @else {
     <h3>Loading...</h3>
-    }
-
+  }
 </body>

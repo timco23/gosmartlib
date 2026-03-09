@@ -17,12 +17,12 @@ export class TagSelectionMenu {
   private tagService = inject(TagService);
 
   bookId = input<number | null>(null);
-  initialTags = input<string[]>([]);
-  tagsChanged = output<string[]>();
+  initialTags = input<Tag[]>([]);
+  tagsChanged = output<Tag[]>();
 
   tags: Tag[] = [];
   filterInput: string = '';
-  selectedTagNames: string[] = [];
+  selectedTags: Tag[] = [];
 
   get filteredTags(): Tag[] {
     return this.tags
@@ -31,32 +31,33 @@ export class TagSelectionMenu {
   }
 
   get selectedTagCount(): number {
-    return this.selectedTagNames.length;
+    return this.selectedTags.length;
   }
 
+  //loads the checkbox states correctly
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['initialTags'] && this.tags.length > 0) {
-      this.selectedTagNames = [...this.initialTags()];
+      this.selectedTags = [...this.initialTags()];
     }
   }
 
   ngOnInit(): void {
     this.tagService.getTags().subscribe((tags) => {
       this.tags = tags;
-      this.selectedTagNames = [...this.initialTags()];
+      this.selectedTags = [...this.initialTags()];
     });
   }
 
-  isTagSelected(tagName: string): boolean {
-    return this.selectedTagNames.includes(tagName);
+  isTagSelected(tag: Tag): boolean {
+    return this.selectedTags.some((t) => t.name === tag.name);
   }
 
-  toggleTag(tagName: string): void {
-    if (this.selectedTagNames.includes(tagName)) {
-      this.selectedTagNames = this.selectedTagNames.filter((n) => n !== tagName);
+  toggleTag(tag: Tag): void {
+    if (this.isTagSelected(tag)) {
+      this.selectedTags = this.selectedTags.filter((t) => t.name !== tag.name);
     } else {
-      this.selectedTagNames = [...this.selectedTagNames, tagName];
+      this.selectedTags = [...this.selectedTags, tag];
     }
-    this.tagsChanged.emit(this.selectedTagNames);
+    this.tagsChanged.emit(this.selectedTags);
   }
 }

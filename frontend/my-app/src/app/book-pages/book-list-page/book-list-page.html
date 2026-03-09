@@ -177,8 +177,8 @@
               <div class="book-badges">
                 <span class="badge badge-language">{{ book.language }}</span>
                 <span class="badge badge-pages">{{ book.pageCount }} blz.</span>
-                @for (tag of book.tags.split(','); track tag) {
-                  <span class="badge badge-tag">{{ tag.trim() }}</span>
+                @for (tag of book.tags; track tag.id) {
+                  <span class="badge badge-tag">{{ tag.name }}</span>
                 }
               </div>
 

@@ -2,6 +2,7 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.DAO.ItemRepository;
 import edu.ap.spring_backend.DAO.SchoolItemRepository;
+import edu.ap.spring_backend.DAO.TagRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
 import edu.ap.spring_backend.dto.SchoolItemRequestDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +33,9 @@ class ItemServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
+
+    @Mock
+    private TagRepository tagRepository;
 
     @InjectMocks
     private ItemService itemService;
@@ -58,7 +63,7 @@ class ItemServiceTest {
 
         schoolItem = new SchoolItem(
                 1,
-                "programming",
+                new HashSet<>(),
                 "Good book",
                 true,
                 item
@@ -242,7 +247,7 @@ class ItemServiceTest {
                 100,
                 0,
                 1,
-                "programming",
+                List.of(),
                 "Good book",
                 true
         );
@@ -316,7 +321,7 @@ class ItemServiceTest {
                 "EN",
                 464,
                 "cover.jpg",
-                "programming",
+                List.of(),
                 "Updated description",
                 false
         );

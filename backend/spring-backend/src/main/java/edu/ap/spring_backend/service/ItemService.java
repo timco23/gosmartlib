@@ -2,26 +2,34 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.DAO.ItemRepository;
 import edu.ap.spring_backend.DAO.SchoolItemRepository;
+import edu.ap.spring_backend.DAO.TagRepository;
 import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.SchoolItem;
 import edu.ap.spring_backend.exception.EntityAlreadyExistsException;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
+import edu.ap.spring_backend.jpa.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
     private final SchoolItemRepository schoolItemRepository;
     private final ItemRepository itemRepository;
-    public ItemService(SchoolItemRepository schoolItemRepository, ItemRepository itemRepository) {
+    private final TagRepository tagRepository;
+
+    public ItemService(SchoolItemRepository schoolItemRepository, ItemRepository itemRepository, TagRepository tagRepository) {
         this.schoolItemRepository = schoolItemRepository;
         this.itemRepository = itemRepository;
+        this.tagRepository = tagRepository;
     }
 
     // Gets SchoolItems in page format
@@ -82,7 +90,8 @@ public class ItemService {
             else {
                 newItem = itemRepository.findById(itemDTO.itemId()).orElseThrow(EntityNotFoundException::new);
             }
-            SchoolItem newSchoolItem = new SchoolItem(itemDTO.schoolId(), itemDTO.tags(), itemDTO.description(), itemDTO.featured(), newItem);
+            Set<Tag> tags = getTagsById(itemDTO.tags());
+            SchoolItem newSchoolItem = new SchoolItem(itemDTO.schoolId(), tags, itemDTO.description(), itemDTO.featured(), newItem);
             schoolItemRepository.save(newSchoolItem);
             return mapToSchoolItemDTO(newSchoolItem);
         }
@@ -108,9 +117,11 @@ public class ItemService {
         SchoolItem currentSchoolItem = schoolItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         Item newItem = new Item(schoolItemDTO.title(), schoolItemDTO.publisher(), schoolItemDTO.author(), currentSchoolItem.getItem().getIsbn(), schoolItemDTO.releaseYear(), schoolItemDTO.bookLanguage(), schoolItemDTO.pageCount(), schoolItemDTO.cover(),  currentSchoolItem.getItem().getReviewScore(),  currentSchoolItem.getItem().getReviewCount());
         newItem.setId(currentSchoolItem.getItem().getId());
-        SchoolItem newSchoolItem = new SchoolItem(currentSchoolItem.getSchoolId(), schoolItemDTO.tags(), schoolItemDTO.description(), schoolItemDTO.featured(), newItem);
 
+        Set<Tag> tags = getTagsById(schoolItemDTO.tags());
+        SchoolItem newSchoolItem = new SchoolItem(currentSchoolItem.getSchoolId(), tags, schoolItemDTO.description(), schoolItemDTO.featured(), newItem);
         newSchoolItem.setId(id);
+
         itemRepository.save(newItem);
         schoolItemRepository.save(newSchoolItem);
         return mapToSchoolItemDTO(newSchoolItem);
@@ -137,8 +148,26 @@ public class ItemService {
         return null;
     }
 
+    // Takes a list of tag IDs, looks each one up in the database and returns them as a Set<Tag>
+    // because a book cannot have the same tag twice
+    private Set<Tag> getTagsById(List<Long> tagIds) {
+        if (tagIds == null || tagIds.isEmpty()) return new HashSet<>();
+
+        Set<Tag> foundTags = new HashSet<>();
+        for (Long tagId : tagIds) {
+            Tag tag = tagRepository.findById(tagId)
+                    .orElseThrow(EntityNotFoundException::new);
+            foundTags.add(tag);
+        }
+        return foundTags;
+    }
+
     //Converts a SchoolItem to an SchoolItemDTO
     private SchoolItemDTO mapToSchoolItemDTO(SchoolItem item) {
+        List<TagDTO> tags = item.getTags().stream()
+                .map(tag -> new TagDTO(tag.getId(), tag.getName()))
+                .toList();
+
         return new SchoolItemDTO(
                 item.getId(),
                 item.getItem().getTitle(),
@@ -153,7 +182,7 @@ public class ItemService {
                 item.getItem().getReviewCount(),
                 item.getItem().getId(),
                 item.getSchoolId(),
-                item.getTags(),
+                tags,
                 item.getDescription(),
                 item.isFeatured()
         );

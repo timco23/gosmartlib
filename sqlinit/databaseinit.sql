@@ -24,7 +24,6 @@ create table if not exists school_item
 		id int unsigned primary key not null auto_increment,
 		school_id int unsigned not null,
 		item_id int unsigned not null,
-		tags varchar(100) not null, -- Will get replaced later on by a proper relation with Tag entities from a Tags table
 		book_description text null,
 		featured boolean not null,
 		foreign key (item_id) references item(id),
@@ -135,12 +134,22 @@ insert into item(title,publisher,author,isbn,release_year,book_language,page_cou
 ('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',4.8,154320),
 ('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',4.3,67891);
 
+-- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
+CREATE TABLE IF NOT EXISTS school_item_tag (
+    school_item_id INT UNSIGNED NOT NULL,
+    tag_id BIGINT NOT NULL,
+    PRIMARY KEY (school_item_id, tag_id),
+    FOREIGN KEY (school_item_id) REFERENCES school_item(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
+);
+
 -- Voeg alle testbook items toe aan de schoolcatalogus van school 1
-INSERT INTO school_item (school_id, item_id, tags, book_description, featured)
-SELECT 
-    1,
-    id,
-    'Algemeen',
-    NULL,
-    FALSE
+INSERT INTO school_item (school_id, item_id, book_description, featured)
+SELECT 1, id, NULL, FALSE
 FROM item;
+
+-- Koppel de 'Algemeen' tag aan alle school items
+INSERT INTO school_item_tag (school_item_id, tag_id)
+SELECT si.id, t.id
+FROM school_item si, tag t
+WHERE t.name = 'Algemeen';

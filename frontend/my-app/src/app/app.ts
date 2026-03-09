@@ -3,7 +3,6 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { RouterOutlet, Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
-import { MockBook } from '../types/types';
 import { filter } from 'rxjs';
 
 @Component({

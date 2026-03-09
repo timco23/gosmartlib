@@ -8,11 +8,7 @@
   @for (tag of filteredTags; track tag.id) {
     <li class="tag-item">
       <label>
-        <input
-          type="checkbox"
-          [ngModel]="isTagSelected(tag.name)"
-          (ngModelChange)="toggleTag(tag.name)"
-        />
+        <input type="checkbox" [ngModel]="isTagSelected(tag)" (ngModelChange)="toggleTag(tag)" />
         <span>{{ tag.name }}</span>
         @if (tag.default) {
           <span class="badge-default">Standaard</span>

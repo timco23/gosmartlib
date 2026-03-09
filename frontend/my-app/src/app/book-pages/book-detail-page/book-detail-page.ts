@@ -17,12 +17,12 @@ export class BookDetailPage implements OnInit {
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(p => {
-      const id = p.get("id")
+    this.route.paramMap.subscribe((p) => {
+      const id = p.get('id');
       if (id) {
         this.getBook(id);
       }
-    })
+    });
   }
 
   getBook(id: string) {
@@ -31,16 +31,19 @@ export class BookDetailPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.cdr.detectChanges();
-      }
-    })
+      },
+    });
+  }
+
+  getTagNames(): string {
+    return this.book?.tags.map((t) => t.name).join(', ') ?? '';
   }
 
   deleteBook(id: number) {
-    this.api.deleteBook(id).subscribe({next: () => this.backToList()});
+    this.api.deleteBook(id).subscribe({ next: () => this.backToList() });
   }
 
   backToList() {
-    this.router.navigate(["/books"]);
+    this.router.navigate(['/books']);
   }
-
 }

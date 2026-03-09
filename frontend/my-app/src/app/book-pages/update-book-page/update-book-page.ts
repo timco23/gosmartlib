@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, UpdateBookPayload } from '../../../types/types';
+import { Book, Tag, UpdateBookPayload } from '../../../types/types';
 import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
 
 @Component({
@@ -24,7 +24,7 @@ export class UpdateBookPage implements OnInit {
   errorMessage: string = '';
 
   book: Book | null = null;
-  selectedTags: string[] = [];
+  selectedTags: Tag[] = [];
   bookLoaded: boolean = false;
 
   constructor(private fb: FormBuilder) {
@@ -41,7 +41,7 @@ export class UpdateBookPage implements OnInit {
     });
   }
 
-  onTagsChanged(tags: string[]): void {
+  onTagsChanged(tags: Tag[]): void {
     this.selectedTags = tags;
   }
 
@@ -56,7 +56,7 @@ export class UpdateBookPage implements OnInit {
 
     const raw = this.form.value;
     const newBook: UpdateBookPayload = {
-      tags: this.selectedTags.join(','),
+      tags: this.selectedTags.map((t) => t.id),
       description: raw.description,
       featured: raw.featured,
       title: raw.title,
@@ -108,13 +108,7 @@ export class UpdateBookPage implements OnInit {
 
   fillForm() {
     if (!this.error) {
-      // book.tags is "Pedagogisch,12-14j" -> split into string[]
-      this.selectedTags = this.book!.tags
-        ? this.book!.tags.split(',')
-            .map((t) => t.trim())
-            .filter((t) => t.length > 0)
-        : [];
-
+      this.selectedTags = this.book!.tags;
       this.form.patchValue({
         title: this.book!.title,
         publisher: this.book!.publisher,

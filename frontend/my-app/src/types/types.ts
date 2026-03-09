@@ -27,13 +27,6 @@ export interface Tag {
   default: boolean;
 }
 
-//mockup
-export interface MockBook {
-  id: number;
-  title: string;
-  tagIds: number[];
-}
-
 export interface CreateUserRequest {
   firstName: string;
   name: string;
@@ -76,7 +69,7 @@ export interface ChangePasswordRequest {
 export interface Book {
   id: number;
   schoolId: number;
-  tags: string;
+  tags: Tag[];
   description: string;
   featured: boolean;
   itemId: number;
@@ -93,7 +86,7 @@ export interface Book {
 }
 
 export interface UpdateBookPayload {
-  tags: string;
+  tags: number[];
   description: string;
   featured: boolean;
   title: string;
