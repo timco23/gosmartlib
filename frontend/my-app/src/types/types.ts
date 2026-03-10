@@ -66,6 +66,24 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
+export interface GoogleBook {
+  totalItems: number,
+  items?: {
+    volumeInfo: {
+      title?: string,
+      authors?: string[],
+      publisher?: string,
+      publishedDate?: string,
+      description?: string,
+      pageCount?: number,
+      imageLinks?: {
+        thumbnail?: string
+      },
+      language?: string
+    }
+  }[]
+}
+
 export interface Book {
   id: number;
   schoolId: number;
@@ -140,4 +158,12 @@ export interface Page<T> {
   last: boolean;
   hasNext: boolean;
   hasPrevious: boolean;
+}
+
+export interface SchoolItemCopy {
+  id?: number;
+  schoolItemId: number;
+  condition: string;
+  barcode: string;
+  copy_status: string;
 }

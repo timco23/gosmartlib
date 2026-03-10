@@ -84,6 +84,40 @@
   font-weight: 600;
 }
 
+label {
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f2f2f;
+}
+
+input[type='text'],
+select {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  background-color: #fafafa;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #df9847;
+  box-shadow: 0 0 0 3px rgba(184, 101, 6, 0.15);
+  background-color: #ffffff;
+}
+
+select {
+  cursor: pointer;
+}
+
 .description {
   margin-top: 20px;
 }
@@ -110,4 +144,132 @@
   background: #f2f2f2;
   border-radius: 8px;
   color: #777;
+}
+
+.copies-section {
+  margin-top: 40px;
+}
+
+.copies-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: white;
+}
+
+.copies-table thead {
+  background-color: #f5f5f5;
+}
+
+.copies-table th {
+  text-align: left;
+  padding: 12px;
+  font-weight: 600;
+  border-bottom: 2px solid #eee;
+}
+
+.copies-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.copies-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.add-copy {
+  margin-top: 25px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.form-row label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.form-row input,
+.form-row select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.add-button {
+  background-color: #d6822b;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.add-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.save-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+button {
+  width: 100%;
+  padding: 12px 24px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2f2f2f; 
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: #1f1f1f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button[type='submit'] {
+  background: #27ae60;
+  color: white;
+}
+
+button[type='submit']:hover {
+  background: #229954;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.DeleteButton {
+  background-color: #e74c3c;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.DeleteButton:hover {
+  background-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.copy-actions {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.copy-actions button {
+  padding: 4px 8px;
+  font-size: 13px;
 }

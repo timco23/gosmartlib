@@ -1,6 +1,6 @@
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.DAO.TagRepository;
+import edu.ap.spring_backend.dao.TagRepository;
 import edu.ap.spring_backend.dto.TagDTO;
 import edu.ap.spring_backend.jpa.Tag;
 import org.springframework.stereotype.Service;

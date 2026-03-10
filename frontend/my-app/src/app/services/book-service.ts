@@ -9,6 +9,7 @@ import {
   UpdateBookPayload,
   Page,
   Tag,
+  GoogleBook,
 } from '../../types/types';
 
 @Injectable({
@@ -59,6 +60,10 @@ export class BookService {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/${id}`);
   }
 
+  getBookByISBN(isbn: string): Observable<GoogleBook> {
+    return this.http.get<GoogleBook>(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+  }
+
   getBookByTitle(bookTitle: string): Observable<Book> {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/search`, { params: { title: bookTitle } });
   }
@@ -77,5 +82,21 @@ export class BookService {
 
   deleteBook(id: number): Observable<Book> {
     return this.http.delete<Book>(`${this.apiBaseUrl}/books/${id}`);
+  }
+
+  loadCopies(id: number) {
+    return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`);
+  }
+
+  addCopy(copy: any) {
+    return this.http.post(`${this.apiBaseUrl}/books/copies`, copy);
+  }
+
+  deleteCopy(id: number) {
+    return this.http.delete(`${this.apiBaseUrl}/books/copies/${id}`);
+  }
+
+  updateCopy(copy: any) {
+    return this.http.put(`${this.apiBaseUrl}/books/copies/${copy.id}`, copy);
   }
 }

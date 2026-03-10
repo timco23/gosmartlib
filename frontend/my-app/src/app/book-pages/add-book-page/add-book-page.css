@@ -68,6 +68,14 @@ textarea:focus {
     font-weight: 500;
 }
 
+.primary-btn.readOnly {
+    background-color: lightgray;
+}
+
+.primary-btn.readOnly:hover {
+    background-color: lightgray;
+}
+
 .primary-btn:hover {
     background: #b86c20;
 }
