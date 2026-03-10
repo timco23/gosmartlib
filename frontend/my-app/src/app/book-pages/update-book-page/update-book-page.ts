@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, UpdateBookPayload } from '../../../types/types';
+import { Book, School, UpdateBookPayload } from '../../../types/types';
+import { SchoolService } from '../../services/school.service';
 
 @Component({
   selector: 'app-update-book-page',
@@ -13,11 +14,13 @@ import { Book, UpdateBookPayload } from '../../../types/types';
 export class UpdateBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
-  route = inject(ActivatedRoute)
+  route = inject(ActivatedRoute);
+  schoolService = inject(SchoolService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   previewUrl: string = "";
   incompleteForm: boolean = false;
-  
+  school: School | null = null;
+
   form: FormGroup;
   error: boolean = false;
   errorMessage: string = "";
@@ -33,15 +36,16 @@ export class UpdateBookPage implements OnInit {
       releaseYear: [0, [Validators.required, Validators.min(0)]],
       language: ['', [Validators.required]],
       pageCount: [0, [Validators.required, Validators.min(0)]],
-      cover: ['', [Validators.required]],
+      cover: [''],
       tags: ["", [Validators.required]],
-      featured: [false, [Validators.required]]
+      featured: [false, [Validators.required]],
+      campusId: ['']
     })
   }
 
   onSubmit(): void {
     this.incompleteForm = false;
-    
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.incompleteForm = true;
@@ -59,7 +63,8 @@ export class UpdateBookPage implements OnInit {
       releaseYear: raw.releaseYear,
       language: raw.language,
       pageCount: raw.pageCount,
-      cover: raw.cover
+      cover: raw.cover,
+      campusId: raw.campusId
     }
 
     this.api.updateBook(newBook, this.book!.id).subscribe({
@@ -76,7 +81,12 @@ export class UpdateBookPage implements OnInit {
   getBook(id: string) {
     const data = this.api.getBookById(parseInt(id));
     data.subscribe({
-      next: (data) => {this.book = data; this.cdr.detectChanges(); this.fillForm()},
+      next: (data) => {
+        this.book = data;
+        this.schoolService.getById(data.schoolId).subscribe({
+          next: (data) => { this.school = data; this.fillForm(); this.cdr.detectChanges() }
+        })
+      },
       error: (err) => { this.errorMessage = err; this.error = true; this.cdr.detectChanges(); }
     })
   }
@@ -103,7 +113,8 @@ export class UpdateBookPage implements OnInit {
         pageCount: this.book!.pageCount,
         cover: this.book!.cover,
         description: this.book!.description,
-        featured: this.book!.featured
+        featured: this.book!.featured,
+        campusId: this.book!.campusId
       })
     }
   }
@@ -112,3 +123,4 @@ export class UpdateBookPage implements OnInit {
     this.loadData()
   }
 }
+

@@ -107,7 +107,9 @@ export interface Book {
     pageCount: number,
     cover?: string,
     reviewScore: number,
-    reviewCount: number
+    reviewCount: number,
+    campusName: string,
+    campusId: number
 }
 
 export interface UpdateBookPayload {
@@ -120,7 +122,9 @@ export interface UpdateBookPayload {
     releaseYear: number,
     language: string,
     pageCount: number,
-    cover: string
+    cover: string,
+    campusId: number
+
 }
 
 export interface CreateBookPayload {
@@ -138,7 +142,8 @@ export interface CreateBookPayload {
     pageCount: number,
     cover?: string,
     reviewScore: number,
-    reviewCount: number
+    reviewCount: number,
+    campusId: number
 }
 
 export interface GlobalBook  { 

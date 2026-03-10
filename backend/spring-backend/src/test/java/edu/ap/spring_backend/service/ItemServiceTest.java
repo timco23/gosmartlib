@@ -1,10 +1,14 @@
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.dao.ItemRepository;
-import edu.ap.spring_backend.dao.SchoolItemRepository;
+import edu.ap.spring_backend.DAO.ItemRepository;
+import edu.ap.spring_backend.DAO.SchoolItemRepository;
+import edu.ap.spring_backend.DAO.SchoolRepository;
+import edu.ap.spring_backend.DAO.CampusRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
+import edu.ap.spring_backend.jpa.Campus;
 import edu.ap.spring_backend.jpa.Item;
+import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.SchoolItem;
 import edu.ap.spring_backend.exception.EntityAlreadyExistsException;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
@@ -28,11 +32,19 @@ class ItemServiceTest {
     @Mock
     private ItemRepository itemRepository;
 
+    @Mock
+    private SchoolRepository schoolRepository;
+
+    @Mock
+    private CampusRepository campusRepository;
+
     @InjectMocks
     private ItemService itemService;
 
     private Item item;
     private SchoolItem schoolItem;
+    private School school;
+    private Campus campus;
 
     @BeforeEach
     void setup() {
@@ -52,12 +64,20 @@ class ItemServiceTest {
         );
         item.setId(1);
 
+        school = mock(School.class);
+        when(school.getId()).thenReturn(1L);
+
+        campus = mock(Campus.class);
+        when(campus.getId()).thenReturn(1L);
+        when(campus.getName()).thenReturn("Main Campus");
+
         schoolItem = new SchoolItem(
-                1,
+                school,
                 "programming",
                 "Good book",
                 true,
-                item
+                item,
+                campus
         );
         schoolItem.setId(1);
     }
@@ -168,13 +188,14 @@ class ItemServiceTest {
     }
 
     @Test
-    void givenMissingTitle_whenGetSchoolItemByTitle_thenThrowException() {
+    void givenMissingTitle_whenGetSchoolItemByTitle_thenReturnNull() {
 
         when(schoolItemRepository.findByItemTitle("Clean Code"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
-                () -> itemService.getSchoolItemByTitle("Clean Code"));
+        var result = itemService.getSchoolItemByTitle("Clean Code");
+
+        assertNull(result);
     }
 
     // ---------------- ADD ITEM ----------------
@@ -197,7 +218,8 @@ class ItemServiceTest {
                 1,
                 "programming",
                 "Good book",
-                true
+                true,
+                1
         );
 
         when(schoolItemRepository.existsByItemTitle("Clean Code"))
@@ -205,6 +227,9 @@ class ItemServiceTest {
 
         when(itemRepository.existsByTitle("Clean Code"))
                 .thenReturn(false);
+
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(school));
+        when(campusRepository.findById(1L)).thenReturn(Optional.of(campus));
 
         when(itemRepository.save(any(Item.class))).thenReturn(item);
         when(schoolItemRepository.save(any(SchoolItem.class))).thenReturn(schoolItem);
@@ -271,11 +296,14 @@ class ItemServiceTest {
                 "cover.jpg",
                 "programming",
                 "Updated description",
-                false
+                false,
+                1
         );
 
         when(schoolItemRepository.findById(1))
                 .thenReturn(Optional.of(schoolItem));
+
+        when(campusRepository.findById(1L)).thenReturn(Optional.of(campus));
 
         when(itemRepository.save(any(Item.class))).thenReturn(item);
         when(schoolItemRepository.save(any(SchoolItem.class))).thenReturn(schoolItem);

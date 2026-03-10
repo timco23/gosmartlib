@@ -73,11 +73,11 @@ CREATE TABLE IF NOT EXISTS user (
 );
 
 -- Admin user (wachtwoord: admin321) of admin123 als dat veranderd is
-INSERT INTO user (name, email, password, role, must_change_password) 
-VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', FALSE);
+INSERT INTO user (name, email, password, role, must_change_password, school_id) 
+VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', FALSE, 1);
 
 CREATE TABLE IF NOT EXISTS campus (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     school_id BIGINT not null,
@@ -110,7 +110,7 @@ create table if not exists school_item
 		id int unsigned primary key not null auto_increment,
 		school_id bigint not null,
 		item_id int unsigned not null,
-        campus_id int null,
+        campus_id bigint null,
 		tags varchar(100) not null, -- Will get replaced later on by a proper relation with Tag entities from a Tags table
 		book_description text null,
 		featured boolean not null,

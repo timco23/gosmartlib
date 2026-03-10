@@ -3,7 +3,7 @@ package edu.ap.spring_backend.controllers;
 import edu.ap.spring_backend.dto.CreateUserRequest;
 import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.jpa.User;
-import edu.ap.spring_backend.dao.UserRepository;
+import edu.ap.spring_backend.DAO.UserRepository;
 import edu.ap.spring_backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

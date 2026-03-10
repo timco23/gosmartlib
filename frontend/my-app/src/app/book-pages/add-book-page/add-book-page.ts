@@ -4,7 +4,10 @@ import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { GlobalBook, CreateBookPayload } from '../../../types/types';
+import { GlobalBook, CreateBookPayload, LoginResponse, School } from '../../../types/types';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { SchoolService } from '../../services/school.service';
 
 @Component({
   selector: 'app-add-book-page',
@@ -15,7 +18,11 @@ import { GlobalBook, CreateBookPayload } from '../../../types/types';
 export class AddBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
+  authService = inject(AuthService)
+  userService = inject(UserService)
+  schoolService = inject(SchoolService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  
   form: FormGroup;
   error: boolean = false;
   isReadOnly: boolean = false;
@@ -23,11 +30,18 @@ export class AddBookPage implements OnInit {
   bookAlreadyExists: boolean = false;
   previewUrl: string = "";
   selectedOption: string = "0";
+  selectedCampusOption: string = "0";
   incompleteForm: boolean = false;
   nothingFound: boolean = false;
   missingFields: string[] = [];
-
+  campusLoading: boolean = true;
+  userError: boolean = false;
+  schoolError: boolean = false;
+  userHasNoSchoolError: boolean = false;
+  schoolErrorMessage: string = "";
+  
   globalBookList: Observable<GlobalBook[]> | null = null;
+  school: School | null = null;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -43,9 +57,8 @@ export class AddBookPage implements OnInit {
       cover: [''],
       reviewScore: [0, [Validators.required]],
       reviewCount: [0, [Validators.required]],
-      schoolId: [0, [Validators.required]],
-      tags: ["", [Validators.required]]
-
+      tags: ["", [Validators.required]],
+      campusId: ['']
     })
   }
 
@@ -61,7 +74,7 @@ export class AddBookPage implements OnInit {
 
     const raw = this.form.value;
     const newBook: CreateBookPayload = {
-      schoolId: raw.schoolId,
+      schoolId: this.school!.id!,
       tags: raw.tags,
       description: raw.beschrijving,
       featured: false,
@@ -75,7 +88,8 @@ export class AddBookPage implements OnInit {
       pageCount: raw.paginaAantal,
       cover: raw.cover,
       reviewScore: raw.reviewScore,
-      reviewCount: raw.reviewCount
+      reviewCount: raw.reviewCount,
+      campusId: parseInt(raw.campusId)
     }
 
     this.api.getBookByTitle(newBook.title).subscribe({
@@ -184,5 +198,33 @@ export class AddBookPage implements OnInit {
 
   ngOnInit(): void {
     this.globalBookList = this.api.getGlobalBooks();
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.email) {
+      this.userError = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.userService.getUser(currentUser.email).subscribe({
+      next: (data) => {
+        if (data.schoolName != null) {
+          this.schoolService.getByName(data.schoolName).subscribe({
+            next: (data) => {
+              this.school = data;
+              this.campusLoading = false;
+              this.cdr.detectChanges();
+            }, error: (err) => {
+              this.schoolError = true; 
+              this.campusLoading = false;
+              this.schoolErrorMessage = err;
+              this.cdr.detectChanges();}
+          })
+        }
+        else {
+          this.userHasNoSchoolError = true;
+          this.cdr.detectChanges();
+        }
+      }
+    })
   }
 }

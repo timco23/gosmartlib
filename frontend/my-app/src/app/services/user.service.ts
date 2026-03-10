@@ -10,7 +10,7 @@ import { CreateUserRequest, UserProfile } from '../../types/types';
 export class UserService {
   private apiUrl = `${environment.apiUrl}/user`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Creates a new student user.
@@ -19,5 +19,11 @@ export class UserService {
    */
   createUser(request: CreateUserRequest): Observable<UserProfile> {
     return this.http.post<UserProfile>(`${this.apiUrl}/create`, request);
+  }
+
+  getUser(email: string): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`, {
+      params: { email: email }
+    })
   }
 }

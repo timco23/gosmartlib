@@ -116,3 +116,20 @@ textarea:focus {
     color: red;
     font-weight: 500;
 }
+
+
+select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+select:focus
+{
+    outline: none;
+    border-color: #d6822b;
+    box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
+}
+
+

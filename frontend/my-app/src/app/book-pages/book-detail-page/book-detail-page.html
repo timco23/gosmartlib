@@ -84,6 +84,16 @@
                     <span>{{book.tags}}</span>
                 </li>
 
+                <li class="info-row">
+                    <span class="label">Campus</span>
+                    @if(book.campusName != null) {
+                        <span>{{book.campusName}}</span>
+                    }
+                    @else {
+                        <span>Geen</span>
+                    }
+                </li>
+
                 <li class="description">
                     <span class="label">Beschrijving</span>
                     <p>{{book.description}}</p>

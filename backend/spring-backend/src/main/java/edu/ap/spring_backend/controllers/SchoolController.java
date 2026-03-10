@@ -27,6 +27,11 @@ public class SchoolController {
         return schoolService.getSchoolByName(name);
     }
 
+    @GetMapping("/{id}")
+    public School getSchoolById(@PathVariable Long id)  {
+        return schoolService.getSchoolById(id);
+    }
+
     @PostMapping
     public School createSchool(@RequestBody School school) {
         return schoolService.createSchool(school);

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import { UserProfile } from '../../types/types';
+import { UserService } from '../services/user.service';
 
 /**
  * Component displaying user profile information.
@@ -23,9 +24,9 @@ export class Profile implements OnInit{
   error: string = '';
 
   constructor(
-    private http: HttpClient,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -43,9 +44,7 @@ export class Profile implements OnInit{
       return;
     }
 
-    this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`, {
-      params: { email: currentUser.email }
-    }).subscribe({
+    this.userService.getUser(currentUser.email).subscribe({
       next: (data) => {
         this.profile = data;
         this.loading = false;

@@ -15,6 +15,9 @@ export class SchoolService {
   getAll(): Observable<School[]> {
     return this.http.get<School[]>(this.apiUrl);
   }
+  getById(id:number): Observable<School> {
+    return this.http.get<School>(`${this.apiUrl}/${id}`);
+  }
   create(school: School): Observable<School> {
     return this.http.post<School>(this.apiUrl, school);
   }
@@ -23,5 +26,9 @@ export class SchoolService {
   }
   update(school: School): Observable<School> {
     return this.http.put<School>(`${this.apiUrl}/${school.id}`, school);
+  }
+
+  getByName(name: string): Observable<School> {
+    return this.http.get<School>(`${this.apiUrl}/search`, { params: {name: name}});
   }
 }

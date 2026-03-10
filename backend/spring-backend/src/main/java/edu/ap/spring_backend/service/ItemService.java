@@ -57,6 +57,7 @@ public class ItemService {
             }
             School school = schoolRepository.findById((long) itemDTO.schoolId()).orElseThrow(EntityNotFoundException::new);
             Campus campus = campusRepository.findById((long) itemDTO.campusId()).orElse(null);
+            System.out.println(campus);
             SchoolItem newSchoolItem = new SchoolItem(school, itemDTO.tags(), itemDTO.description(), itemDTO.featured(), newItem, campus);
             schoolItemRepository.save(newSchoolItem);
             return mapToSchoolItemDTO(newSchoolItem);
@@ -132,7 +133,8 @@ public class ItemService {
                 item.getTags(),
                 item.getDescription(),
                 item.isFeatured(),
-                item.getCampus() != null ? item.getCampus().getName() : null
+                item.getCampus() != null ? item.getCampus().getName() : null,
+                item.getCampus() != null ? item.getCampus().getId().intValue() : 0
         );
     }
 

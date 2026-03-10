@@ -61,4 +61,10 @@ public class SchoolService {
                 .orElseThrow(() -> new RuntimeException("School not found with name " + name));
         return school;
     }
+
+    public School getSchoolById(Long id) {
+        School school =  schoolRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
+        return school;
+    }
 }
