@@ -1,6 +1,8 @@
 package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name="school_item")
@@ -9,7 +11,6 @@ public class SchoolItem {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;
     private int schoolId; //Will become a foreign key connected to a school entity later on
-    private String tags;
     @Column(name = "book_description", columnDefinition = "TEXT")
     private String description;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -17,9 +18,18 @@ public class SchoolItem {
     private Item item;
     private boolean featured;
 
+    //each tag is a separate row in the join table "school_item_id"
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "school_item_tag",
+            joinColumns = @JoinColumn(name = "school_item_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
     public SchoolItem() {}
 
-    public SchoolItem(int schoolId, String tags, String description, boolean featured, Item item) {
+    public SchoolItem(int schoolId, Set<Tag> tags, String description, boolean featured, Item item) {
         this.schoolId = schoolId;
         this.tags = tags;
         this.description = description;
@@ -27,51 +37,21 @@ public class SchoolItem {
         this.item = item;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public int getSchoolId() { return schoolId; }
+    public void setSchoolId(int schoolId) { this.schoolId = schoolId; }
 
-    public int getSchoolId() {
-        return schoolId;
-    }
+    public Item getItem() { return item; }
+    public void setItem(Item item) { this.item = item; }
 
-    public void setSchoolId(int schoolId) {
-        this.schoolId = schoolId;
-    }
+    public Set<Tag> getTags() { return tags; }
+    public void setTags(Set<Tag> tags) { this.tags = tags; }
 
-    public Item getItem() {
-        return item;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public void setItem(Item item) {
-        this.item = item;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isFeatured() {
-        return featured;
-    }
-
-    public void setFeatured(boolean featured) {
-        this.featured = featured;
-    }
+    public boolean isFeatured() { return featured; }
+    public void setFeatured(boolean featured) { this.featured = featured; }
 }

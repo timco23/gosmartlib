@@ -1,23 +1,22 @@
 package edu.ap.spring_backend.controllers;
 
-import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
-import edu.ap.spring_backend.dto.ItemDTO;
-import edu.ap.spring_backend.dto.SchoolItemCopyDTO;
-import edu.ap.spring_backend.dto.SchoolItemDTO;
-import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
-import edu.ap.spring_backend.jpa.SchoolItemCopy;
+import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.service.ItemService;
+import jakarta.validation.constraints.*;
+import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 public class ItemController {
     private final ItemService itemService;
     private final SchoolItemCopyService schoolItemCopyService;
+
     public ItemController(ItemService itemService, SchoolItemCopyService schoolItemCopyService) {
         this.itemService = itemService;
         this.schoolItemCopyService = schoolItemCopyService;
@@ -34,8 +33,23 @@ public class ItemController {
     }
 
     @GetMapping("/books")
-    public ResponseEntity<List<SchoolItemDTO>> getAllSchoolItems() {
-        return ResponseEntity.ok(itemService.getAllSchoolItems());
+    public ResponseEntity<PageResponseDTO<SchoolItemDTO>> getAllSchoolItems(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(10) int size,
+            @RequestParam(defaultValue = "title") @Pattern(regexp = "title|author|year|score|pages") String sortBy,
+            @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE) String sortDirection,
+            @RequestParam(required = false) @Size(max = 100) String search,
+            @RequestParam(required = false) @Size(max = 10) List<String> languages,
+            @RequestParam(required = false) @Min(0) Integer minPages,
+            @RequestParam(required = false) @Min(0) Integer maxPages,
+            @RequestParam(required = false) @Min(1500) @Max(2050) Integer minYear,
+            @RequestParam(required = false) @Min(1500) @Max(2050) Integer maxYear,
+            @RequestParam(required = false) @DecimalMin("0.0") @DecimalMax("5.0") Double minScore,
+            @RequestParam(required = false) List<Long> tagIds) {
+        SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                page, size, sortBy, sortDirection,
+                search, languages, minPages, maxPages, minYear, maxYear, minScore, tagIds);
+        return ResponseEntity.ok(itemService.getSchoolItems(request));
     }
 
     @GetMapping("/books/{id}")
@@ -59,7 +73,8 @@ public class ItemController {
     }
 
     @PutMapping("/books/{id}")
-    public ResponseEntity<SchoolItemDTO> updateItem(@RequestBody UpdateSchoolItemDTO schoolItemDTO, @PathVariable int id) {
+    public ResponseEntity<SchoolItemDTO> updateItem(@RequestBody UpdateSchoolItemDTO schoolItemDTO,
+            @PathVariable int id) {
         return ResponseEntity.ok(itemService.updateSchoolItem(id, schoolItemDTO));
     }
 

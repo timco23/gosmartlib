@@ -24,22 +24,21 @@ export class AddBookPage implements OnInit {
   previewUrl: string = "";
   selectedOption: string = "0";
   incompleteForm: boolean = false;
-  nothingFound: boolean = false;
-  missingFields: string[] = [];
+
 
   globalBookList: Observable<GlobalBook[]> | null = null;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       itemId: ['', [Validators.required]],
-      titel: ['', [Validators.required]],
-      auteur: ['', [Validators.required]],
-      beschrijving: ['', [Validators.required]],
-      uitgeverij: ['', [Validators.required]],
-      isbn: ['', [Validators.pattern("^[0-9]*$")]],
-      uitgaveJaar: [0, [Validators.required, Validators.min(0)]],
-      taal: ['', [Validators.required]],
-      paginaAantal: [0, [Validators.required, Validators.min(0)]],
+      title: ['', [Validators.required]],
+      author: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      publisher: ['', [Validators.required]],
+      isbn: [''],
+      releaseYear: [0, [Validators.required, Validators.min(0)]],
+      language: ['', [Validators.required]],
+      pageCount: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
       reviewScore: [0, [Validators.required]],
       reviewCount: [0, [Validators.required]],
@@ -63,16 +62,16 @@ export class AddBookPage implements OnInit {
     const newBook: CreateBookPayload = {
       schoolId: raw.schoolId,
       tags: raw.tags,
-      description: raw.beschrijving,
+      description: raw.description,
       featured: false,
       itemId: parseInt(raw.itemId),
-      title: raw.titel,
-      publisher: raw.uitgeverij,
-      author: raw.auteur,
+      title: raw.title,
+      publisher: raw.publisher,
+      author: raw.author,
       isbn: raw.isbn,
-      releaseYear: raw.uitgaveJaar,
-      language: raw.taal,
-      pageCount: raw.paginaAantal,
+      releaseYear: raw.releaseYear,
+      language: raw.language,
+      pageCount: raw.pageCount,
       cover: raw.cover,
       reviewScore: raw.reviewScore,
       reviewCount: raw.reviewCount
@@ -109,13 +108,13 @@ export class AddBookPage implements OnInit {
       this.api.getGlobalBookById(id).subscribe({
         next: (data) => {
           this.form.patchValue({
-            titel: data.title,
-            uitgeverij: data.publisher,
-            auteur: data.author,
+            title: data.title,
+            publisher: data.publisher,
+            author: data.author,
             isbn: data.isbn,
-            uitgaveJaar: data.releaseYear,
-            taal: data.language,
-            paginaAantal: data.pageCount,
+            releaseYear: data.releaseYear,
+            language: data.language,
+            pageCount: data.pageCount,
             cover: data.cover,
             reviewScore: data.reviewScore,
             reviewCount: data.reviewCount
@@ -132,50 +131,6 @@ export class AddBookPage implements OnInit {
       this.selectedOption = "0";
     }
 
-  }
-
-  loadDetailsViaISBN() {
-    const isbn: string = this.form.controls["isbn"].value;
-    this.nothingFound = false;
-    this.missingFields = [];
-    this.cdr.detectChanges();
-
-    if (isbn.length > 0) {
-      this.api.getBookByISBN(isbn).subscribe({
-        next: (data) => {
-          if (data.totalItems > 0) {
-            const book = data.items![0].volumeInfo;
-            const patch: any = {};
-
-            const fetchedBook = {
-              titel: book.title,
-              uitgeverij: book.publisher,
-              auteur: book.authors?.join(", "),
-              beschrijving: book.description,
-              uitgaveJaar: book.publishedDate?.substring(0, 4),
-              taal: book.language,
-              paginaAantal: book.pageCount,
-              cover: book.imageLinks?.thumbnail
-            };
-
-            Object.entries(fetchedBook).forEach(([key, value]) => {
-              if (value) {
-                patch[key] = value;
-              } else {
-                this.missingFields.push(key);
-              }
-            });
-
-            this.cdr.detectChanges();
-            this.form.patchValue(patch);
-          }
-          else {
-            this.nothingFound = true
-            this.cdr.detectChanges();
-          }
-        }
-      })
-    }
   }
 
   backToList() {

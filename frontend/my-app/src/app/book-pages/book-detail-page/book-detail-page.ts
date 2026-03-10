@@ -5,7 +5,6 @@ import { Book, SchoolItemCopy } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-
 @Component({
   selector: 'app-book-detail-page',
   imports: [RouterLink, FormsModule, CommonModule],
@@ -28,16 +27,16 @@ export class BookDetailPage implements OnInit {
     schoolItemId: 0,
     condition: '',
     barcode: '',
-    copy_status: ''
+    copy_status: '',
   };
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(p => {
-      const id = p.get("id")
+    this.route.paramMap.subscribe((p) => {
+      const id = p.get('id');
       if (id) {
         this.getBook(id);
       }
-    })
+    });
   }
 
   getBook(id: string) {
@@ -51,10 +50,14 @@ export class BookDetailPage implements OnInit {
           next: (copies) => {
             this.copies = copies;
             this.cdr.detectChanges();
-          }
+          },
         });
-      }
-    })
+      },
+    });
+  }
+
+  getTagNames(): string {
+    return this.book?.tags.map((t) => t.name).join(', ') ?? '';
   }
 
   deleteBook(id: number) {
@@ -62,7 +65,7 @@ export class BookDetailPage implements OnInit {
   }
 
   backToList() {
-    this.router.navigate(["/books"]);
+    this.router.navigate(['/books']);
   }
 
   addCopy() {
@@ -78,11 +81,11 @@ export class BookDetailPage implements OnInit {
           schoolItemId: this.book!.itemId,
           condition: '',
           barcode: '',
-          copy_status: ''
+          copy_status: '',
         };
         this.addingCopy = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -98,40 +101,40 @@ export class BookDetailPage implements OnInit {
   deleteCopy(copy: any) {
     this.api.deleteCopy(copy!).subscribe({
       next: () => {
-        this.copies = []
+        this.copies = [];
         this.api.loadCopies(this.book!.id).subscribe({
           next: (copies) => {
             this.copies = copies;
             this.cdr.detectChanges();
-          }
+          },
         });
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
   startEdit(copy: SchoolItemCopy) {
-  this.editingCopyId = copy.id!;
-  this.editedCopy = { ...copy };
-}
+    this.editingCopyId = copy.id!;
+    this.editedCopy = { ...copy };
+  }
 
-cancelEdit() {
-  this.editingCopyId = null;
-  this.editedCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
-}
+  cancelEdit() {
+    this.editingCopyId = null;
+    this.editedCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
+  }
 
-saveEdit() {
-  if (!this.book) return;
-  this.api.updateCopy(this.editedCopy).subscribe({
-    next: (updatedCopy) => {
-      const index = this.copies.findIndex(c => c.id === this.editingCopyId);
-      if (index > -1) {
-        this.copies[index] = updatedCopy;
-      }
-      this.editingCopyId = null;
-      this.editedCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
-      this.cdr.detectChanges();
-    }
-  });
-}
+  saveEdit() {
+    if (!this.book) return;
+    this.api.updateCopy(this.editedCopy).subscribe({
+      next: (updatedCopy) => {
+        const index = this.copies.findIndex((c) => c.id === this.editingCopyId);
+        if (index > -1) {
+          this.copies[index] = updatedCopy;
+        }
+        this.editingCopyId = null;
+        this.editedCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
+        this.cdr.detectChanges();
+      },
+    });
+  }
 }

@@ -2,7 +2,9 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolItemRepository;
+import edu.ap.spring_backend.dao.TagRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
+import edu.ap.spring_backend.dto.SchoolItemRequestDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.SchoolItem;
@@ -13,7 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,279 +29,317 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class ItemServiceTest {
-    @Mock
-    private SchoolItemRepository schoolItemRepository;
+        @Mock
+        private SchoolItemRepository schoolItemRepository;
 
-    @Mock
-    private ItemRepository itemRepository;
+        @Mock
+        private ItemRepository itemRepository;
 
-    @InjectMocks
-    private ItemService itemService;
+        @Mock
+        private TagRepository tagRepository;
 
-    private Item item;
-    private SchoolItem schoolItem;
+        @InjectMocks
+        private ItemService itemService;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
+        private Item item;
+        private SchoolItem schoolItem;
 
-        item = new Item(
-                "Clean Code",
-                "Prentice Hall",
-                "Robert Martin",
-                "9780132350884",
-                2008,
-                "EN",
-                464,
-                "cover.jpg",
-                4.5,
-                100
-        );
-        item.setId(1);
+        @BeforeEach
+        void setup() {
+                MockitoAnnotations.openMocks(this);
 
-        schoolItem = new SchoolItem(
-                1,
-                "programming",
-                "Good book",
-                true,
-                item
-        );
-        schoolItem.setId(1);
-    }
+                item = new Item(
+                                "Clean Code",
+                                "Prentice Hall",
+                                "Robert Martin",
+                                "9780132350884",
+                                2008,
+                                "EN",
+                                464,
+                                "cover.jpg",
+                                4.5,
+                                100);
+                item.setId(1);
 
-    // ---------------- GET ALL SCHOOL ITEMS ----------------
+                schoolItem = new SchoolItem(
+                                1,
+                                new HashSet<>(),
+                                "Good book",
+                                true,
+                                item);
+                schoolItem.setId(1);
+        }
 
-    @Test
-    void givenSchoolItems_whenGetAllSchoolItems_thenReturnSchoolDTOList() {
+        // ---------------- GET ALL SCHOOL ITEMS ----------------
 
-        when(schoolItemRepository.findAll()).thenReturn(List.of(schoolItem));
+        @Test
+        void givenSchoolItems_whenGetSchoolItems_thenReturnSchoolDTOList() {
+                Page<SchoolItem> page = new PageImpl<>(List.of(schoolItem));
 
-        var result = itemService.getAllSchoolItems();
+                when(schoolItemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        assertEquals(1, result.size());
-        assertEquals("Clean Code", result.get(0).title());
+                SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                                0, 20, "title", "asc", "", List.of(), null, null, null, null, null, List.of());
+                var result = itemService.getSchoolItems(request);
 
-        verify(schoolItemRepository).findAll();
-    }
+                assertEquals(1, result.size());
+                assertEquals("Clean Code", result.content().getFirst().title());
 
-    @Test
-    void givenNoSchoolItems_whenGetAllSchoolItems_thenReturnEmptyList() {
+                verify(schoolItemRepository).findAll(any(Specification.class), any(Pageable.class));
+        }
 
-        when(schoolItemRepository.findAll()).thenReturn(List.of());
+        @Test
+        void givenNoSchoolItems_whenGetSchoolItems_thenReturnEmptyList() {
+                Page<SchoolItem> page = new PageImpl<>(List.of());
 
-        var result = itemService.getAllSchoolItems();
+                when(schoolItemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        assertTrue(result.isEmpty());
-    }
+                SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                                0, 20, "title", "asc", "", List.of(), null, null, null, null, null, List.of());
+                var result = itemService.getSchoolItems(request);
 
-    // ---------------- GET ALL ITEMS ----------------
+                assertTrue(result.content().isEmpty());
+        }
 
-    @Test
-    void givenItems_whenGetAllItems_thenReturnItemDTOList() {
+        @Test
+        void givenMinPagesGreaterThanMaxPages_whenGetSchoolItems_thenThrowException() {
+                SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                                0, 10, "title", "asc", null, List.of(), 100, 50, null, null, null, List.of());
 
-        when(itemRepository.findAll()).thenReturn(List.of(item));
+                assertThrows(IllegalArgumentException.class,
+                                () -> itemService.getSchoolItems(request));
+        }
 
-        var result = itemService.getAllItems();
+        @Test
+        void givenMinYearGreaterThanMaxYear_whenGetSchoolItems_thenThrowException() {
+                SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                                0, 10, "title", "asc", null, List.of(), null, null, 2020, 2000, null, List.of());
 
-        assertEquals(1, result.size());
-        assertEquals("Clean Code", result.get(0).title());
+                assertThrows(IllegalArgumentException.class,
+                                () -> itemService.getSchoolItems(request));
+        }
 
-        verify(itemRepository).findAll();
-    }
+        @Test
+        void givenSearchTerm_whenGetSchoolItems_thenSearchParamIsUsed() {
+                Page<SchoolItem> page = new PageImpl<>(List.of(schoolItem));
 
-    @Test
-    void givenNoItems_whenGetAllItems_thenReturnEmptyList() {
+                when(schoolItemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        when(itemRepository.findAll()).thenReturn(List.of());
+                SchoolItemRequestDTO request = new SchoolItemRequestDTO(
+                                0, 10, "title", "asc", "Clean Code", List.of(), null, null, null, null, null,
+                                List.of());
 
-        var result = itemService.getAllItems();
+                var result = itemService.getSchoolItems(request);
 
-        assertTrue(result.isEmpty());
-    }
+                assertEquals(1, result.content().size());
+        }
 
-    // ---------------- GET SCHOOL ITEM BY ID ----------------
+        // ---------------- GET ALL ITEMS ----------------
 
-    @Test
-    void givenExistingId_whenGetSchoolItemById_thenReturnSchoolItemDTO() {
+        @Test
+        void givenItems_whenGetAllItems_thenReturnItemDTOList() {
 
-        when(schoolItemRepository.findById(1)).thenReturn(Optional.of(schoolItem));
+                when(itemRepository.findAll()).thenReturn(List.of(item));
 
-        var result = itemService.getSchoolItemById(1);
+                var result = itemService.getAllItems();
 
-        assertEquals("Clean Code", result.title());
-    }
+                assertEquals(1, result.size());
+                assertEquals("Clean Code", result.get(0).title());
 
-    @Test
-    void givenNonExistingId_whenGetSchoolItemById_thenThrowException() {
+                verify(itemRepository).findAll();
+        }
 
-        when(schoolItemRepository.findById(1)).thenReturn(Optional.empty());
+        @Test
+        void givenNoItems_whenGetAllItems_thenReturnEmptyList() {
 
-        assertThrows(EntityNotFoundException.class,
-                () -> itemService.getSchoolItemById(1));
-    }
+                when(itemRepository.findAll()).thenReturn(List.of());
 
-    // ---------------- GET ITEM BY ID ----------------
+                var result = itemService.getAllItems();
 
-    @Test
-    void givenExistingItem_whenGetItemById_thenReturnItemDTO() {
+                assertTrue(result.isEmpty());
+        }
 
-        when(itemRepository.findById(1)).thenReturn(Optional.of(item));
+        // ---------------- GET SCHOOL ITEM BY ID ----------------
 
-        var result = itemService.getItemById(1);
+        @Test
+        void givenExistingId_whenGetSchoolItemById_thenReturnSchoolItemDTO() {
 
-        assertEquals("Clean Code", result.title());
-    }
+                when(schoolItemRepository.findById(1)).thenReturn(Optional.of(schoolItem));
 
-    @Test
-    void givenMissingItem_whenGetItemById_thenThrowException() {
+                var result = itemService.getSchoolItemById(1);
 
-        when(itemRepository.findById(1)).thenReturn(Optional.empty());
+                assertEquals("Clean Code", result.title());
+        }
 
-        assertThrows(EntityNotFoundException.class,
-                () -> itemService.getItemById(1));
-    }
+        @Test
+        void givenNonExistingId_whenGetSchoolItemById_thenThrowException() {
 
-    // ---------------- GET BY TITLE ----------------
+                when(schoolItemRepository.findById(1)).thenReturn(Optional.empty());
 
-    @Test
-    void givenExistingTitle_whenGetSchoolItemByTitle_thenReturnSchoolItemDTO() {
+                assertThrows(EntityNotFoundException.class,
+                                () -> itemService.getSchoolItemById(1));
+        }
 
-        when(schoolItemRepository.findByItemTitle("Clean Code"))
-                .thenReturn(Optional.of(schoolItem));
+        // ---------------- GET ITEM BY ID ----------------
 
-        var result = itemService.getSchoolItemByTitle("Clean Code");
+        @Test
+        void givenExistingItem_whenGetItemById_thenReturnItemDTO() {
 
-        assertEquals("Clean Code", result.title());
-    }
+                when(itemRepository.findById(1)).thenReturn(Optional.of(item));
 
-    @Test
-    void givenMissingTitle_whenGetSchoolItemByTitle_thenThrowException() {
+                var result = itemService.getItemById(1);
 
-        when(schoolItemRepository.findByItemTitle("Clean Code"))
-                .thenReturn(Optional.empty());
+                assertEquals("Clean Code", result.title());
+        }
 
-        assertThrows(EntityNotFoundException.class,
-                () -> itemService.getSchoolItemByTitle("Clean Code"));
-    }
+        @Test
+        void givenMissingItem_whenGetItemById_thenThrowException() {
 
-    // ---------------- ADD ITEM ----------------
+                when(itemRepository.findById(1)).thenReturn(Optional.empty());
 
-    @Test
-    void givenCreateSchoolItemDTO_whenAddItem_thenItemIsSaved() {
+                assertThrows(EntityNotFoundException.class,
+                                () -> itemService.getItemById(1));
+        }
 
-        CreateSchoolItemDTO dto = new CreateSchoolItemDTO(
-                "Clean Code",
-                "Prentice Hall",
-                "Robert Martin",
-                "9780132350884",
-                2008,
-                "EN",
-                464,
-                "cover.jpg",
-                4.5,
-                100,
-                0,
-                1,
-                "programming",
-                "Good book",
-                true
-        );
+        // ---------------- GET BY TITLE ----------------
 
-        when(schoolItemRepository.existsByItemTitle("Clean Code"))
-                .thenReturn(false);
+        @Test
+        void givenExistingTitle_whenGetSchoolItemByTitle_thenReturnSchoolItemDTO() {
 
-        when(itemRepository.existsByTitle("Clean Code"))
-                .thenReturn(false);
+                when(schoolItemRepository.findByItemTitle("Clean Code"))
+                                .thenReturn(Optional.of(schoolItem));
 
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
-        when(schoolItemRepository.save(any(SchoolItem.class))).thenReturn(schoolItem);
+                var result = itemService.getSchoolItemByTitle("Clean Code");
 
-        var result = itemService.addSchoolItem(dto);
+                assertEquals("Clean Code", result.title());
+        }
 
-        assertEquals("Clean Code", result.title());
+        @Test
+        void givenMissingTitle_whenGetSchoolItemByTitle_thenThrowException() {
 
-        verify(itemRepository).save(any(Item.class));
-        verify(schoolItemRepository).save(any(SchoolItem.class));
-    }
+                when(schoolItemRepository.findByItemTitle("Clean Code"))
+                                .thenReturn(Optional.empty());
 
-    @Test
-    void givenItemAlreadyExistsInSchool_whenAddItem_thenThrowException() {
+                assertThrows(EntityNotFoundException.class,
+                                () -> itemService.getSchoolItemByTitle("Clean Code"));
+        }
 
-        CreateSchoolItemDTO dto = mock(CreateSchoolItemDTO.class);
+        // ---------------- ADD ITEM ----------------
 
-        when(dto.title()).thenReturn("Clean Code");
+        @Test
+        void givenCreateSchoolItemDTO_whenAddItem_thenItemIsSaved() {
 
-        when(schoolItemRepository.existsByItemTitle("Clean Code"))
-                .thenReturn(true);
+                CreateSchoolItemDTO dto = new CreateSchoolItemDTO(
+                                "Clean Code",
+                                "Prentice Hall",
+                                "Robert Martin",
+                                "9780132350884",
+                                2008,
+                                "EN",
+                                464,
+                                "cover.jpg",
+                                4.5,
+                                100,
+                                0,
+                                1,
+                                List.of(),
+                                "Good book",
+                                true);
 
-        assertThrows(EntityAlreadyExistsException.class,
-                () -> itemService.addSchoolItem(dto));
-    }
+                when(schoolItemRepository.existsByItemTitle("Clean Code"))
+                                .thenReturn(false);
 
-    // ---------------- DELETE ITEM ----------------
+                when(itemRepository.existsByTitle("Clean Code"))
+                                .thenReturn(false);
 
-    @Test
-    void givenExistingSchoolItem_whenDeleteSchoolItem_thenDeleteAndReturnDTO() {
+                when(itemRepository.save(any(Item.class))).thenReturn(item);
+                when(schoolItemRepository.save(any(SchoolItem.class))).thenReturn(schoolItem);
 
-        when(schoolItemRepository.findById(1))
-                .thenReturn(Optional.of(schoolItem));
+                var result = itemService.addSchoolItem(dto);
 
-        var result = itemService.deleteSchoolItem(1);
+                assertEquals("Clean Code", result.title());
 
-        assertEquals("Clean Code", result.title());
+                verify(itemRepository).save(any(Item.class));
+                verify(schoolItemRepository).save(any(SchoolItem.class));
+        }
 
-        verify(schoolItemRepository).delete(schoolItem);
-    }
+        @Test
+        void givenItemAlreadyExistsInSchool_whenAddItem_thenThrowException() {
 
-    @Test
-    void givenMissingSchoolItem_whenDeleteSchoolItem_thenThrowException() {
+                CreateSchoolItemDTO dto = mock(CreateSchoolItemDTO.class);
 
-        when(schoolItemRepository.findById(1))
-                .thenReturn(Optional.empty());
+                when(dto.title()).thenReturn("Clean Code");
 
-        assertThrows(EntityNotFoundException.class,
-                () -> itemService.deleteSchoolItem(1));
-    }
+                when(schoolItemRepository.existsByItemTitle("Clean Code"))
+                                .thenReturn(true);
 
-    // ---------------- UPDATE ITEM ----------------
+                assertThrows(EntityAlreadyExistsException.class,
+                                () -> itemService.addSchoolItem(dto));
+        }
 
-    @Test
-    void givenExistingSchoolItem_whenUpdateSchoolItem_thenItemIsUpdated() {
+        // ---------------- DELETE ITEM ----------------
 
-        UpdateSchoolItemDTO dto = new UpdateSchoolItemDTO(
-                "Clean Code Updated",
-                "Prentice Hall",
-                "Robert Martin",
-                2008,
-                "EN",
-                464,
-                "cover.jpg",
-                "programming",
-                "Updated description",
-                false
-        );
+        @Test
+        void givenExistingSchoolItem_whenDeleteSchoolItem_thenDeleteAndReturnDTO() {
 
-        when(schoolItemRepository.findById(1))
-                .thenReturn(Optional.of(schoolItem));
+                when(schoolItemRepository.findById(1))
+                                .thenReturn(Optional.of(schoolItem));
 
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
-        when(schoolItemRepository.save(any(SchoolItem.class))).thenReturn(schoolItem);
+                var result = itemService.deleteSchoolItem(1);
 
-        var result = itemService.updateSchoolItem(1, dto);
+                assertEquals("Clean Code", result.title());
 
-        assertEquals("Clean Code Updated", result.title());
-    }
+                verify(schoolItemRepository).delete(schoolItem);
+        }
 
-    @Test
-    void givenMissingSchoolItem_whenUpdateSchoolItem_thenThrowException() {
+        @Test
+        void givenMissingSchoolItem_whenDeleteSchoolItem_thenThrowException() {
 
-        UpdateSchoolItemDTO dto = mock(UpdateSchoolItemDTO.class);
+                when(schoolItemRepository.findById(1))
+                                .thenReturn(Optional.empty());
 
-        when(schoolItemRepository.findById(1))
-                .thenReturn(Optional.empty());
+                assertThrows(EntityNotFoundException.class,
+                                () -> itemService.deleteSchoolItem(1));
+        }
 
-        assertThrows(EntityNotFoundException.class,
-                () -> itemService.updateSchoolItem(1, dto));
-    }
+        // ---------------- UPDATE ITEM ----------------
+
+        @Test
+        void givenExistingSchoolItem_whenUpdateSchoolItem_thenItemIsUpdated() {
+
+                UpdateSchoolItemDTO dto = new UpdateSchoolItemDTO(
+                                "Clean Code Updated",
+                                "Prentice Hall",
+                                "Robert Martin",
+                                2008,
+                                "EN",
+                                464,
+                                "cover.jpg",
+                                List.of(),
+                                "Updated description",
+                                false);
+
+                when(schoolItemRepository.findById(1))
+                                .thenReturn(Optional.of(schoolItem));
+
+                when(itemRepository.save(any(Item.class))).thenReturn(item);
+                when(schoolItemRepository.save(any(SchoolItem.class))).thenReturn(schoolItem);
+
+                var result = itemService.updateSchoolItem(1, dto);
+
+                assertEquals("Clean Code Updated", result.title());
+        }
+
+        @Test
+        void givenMissingSchoolItem_whenUpdateSchoolItem_thenThrowException() {
+
+                UpdateSchoolItemDTO dto = mock(UpdateSchoolItemDTO.class);
+
+                when(schoolItemRepository.findById(1))
+                                .thenReturn(Optional.empty());
+
+                assertThrows(EntityNotFoundException.class,
+                                () -> itemService.updateSchoolItem(1, dto));
+        }
 
 }
