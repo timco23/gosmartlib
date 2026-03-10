@@ -1,4 +1,4 @@
-package edu.ap.spring_backend.DAO;
+package edu.ap.spring_backend.dao;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package edu.ap.spring_backend.DAO;
+package edu.ap.spring_backend.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

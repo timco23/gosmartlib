@@ -123,6 +123,22 @@ insert into item(title,publisher,author,isbn,release_year,book_language,page_cou
 ('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',4.8,154320),
 ('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',4.3,67891);
 
+
+
+create table if not exists school_item
+(
+		id int unsigned primary key not null auto_increment,
+		school_id bigint not null,
+		item_id int unsigned not null,
+        campus_id bigint null,
+		book_description text null,
+		featured boolean not null,
+		foreign key (item_id) references item(id) on delete cascade,
+        foreign key (school_id) references school(id) on delete cascade,
+		foreign key (campus_id) references campus(id) on delete set null,
+		unique (item_id) -- So that a school can't have the same book twice
+);
+
 -- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
 CREATE TABLE IF NOT EXISTS school_item_tag (
     school_item_id INT UNSIGNED NOT NULL,
@@ -150,20 +166,3 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     copy_status VARCHAR(255),
     `item_condition` VARCHAR(50)
 );
-
-create table if not exists school_item
-(
-		id int unsigned primary key not null auto_increment,
-		school_id bigint not null,
-		item_id int unsigned not null,
-        campus_id bigint null,
-		book_description text null,
-		featured boolean not null,
-		foreign key (item_id) references item(id) on delete cascade,
-        foreign key (school_id) references school(id) on delete cascade,
-		foreign key (campus_id) references campus(id) on delete set null,
-		unique (item_id) -- So that a school can't have the same book twice
-);
-
--- Testbook
-insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count) values ('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9789492478092-L.jpg',4.2,1250);

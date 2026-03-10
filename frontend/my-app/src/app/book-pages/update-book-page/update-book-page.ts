@@ -40,7 +40,7 @@ export class UpdateBookPage implements OnInit {
       language: ['', [Validators.required]],
       pageCount: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
-      featured: [false, [Validators.required]],,
+      featured: [false, [Validators.required]],
       campusId: ['']
     });
   }

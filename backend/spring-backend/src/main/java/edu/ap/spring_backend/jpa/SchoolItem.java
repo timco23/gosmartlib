@@ -8,12 +8,11 @@ import java.util.Set;
 @Table(name="school_item")
 public class SchoolItem {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
-    private String tags;
     @Column(name = "book_description", columnDefinition = "TEXT")
     private String description;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -24,6 +23,7 @@ public class SchoolItem {
     @JoinColumn(name = "campus_id")
     private Campus campus;
 
+
     //each tag is a separate row in the join table "school_item_id"
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -33,9 +33,10 @@ public class SchoolItem {
     )
     private Set<Tag> tags = new HashSet<>();
 
-    public SchoolItem() {}
+    public SchoolItem() {
+    }
 
-    public SchoolItem(School school, String tags, String description, boolean featured, Item item, Campus campus) {
+    public SchoolItem(School school, Set<Tag> tags, String description, boolean featured, Item item, Campus campus) {
         this.school = school;
         this.tags = tags;
         this.description = description;
@@ -44,30 +45,20 @@ public class SchoolItem {
         this.campus = campus;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public int getSchoolId() { return schoolId; }
-    public void setSchoolId(int schoolId) { this.schoolId = schoolId; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public School getSchool() {
         return school;
     }
 
-    public void setSchoolId(School school) {
+    public void setSchool(School school) {
         this.school = school;
-    }
-    public Item getItem() { return item; }
-    public void setItem(Item item) { this.item = item; }
-
-    public Set<Tag> getTags() { return tags; }
-    public void setTags(Set<Tag> tags) { this.tags = tags; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public String getTags() {
-        return tags;
     }
 
     public String getDescription() {
@@ -76,6 +67,14 @@ public class SchoolItem {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
     }
 
     public boolean isFeatured() {
@@ -93,4 +92,14 @@ public class SchoolItem {
     public void setCampus(Campus campus) {
         this.campus = campus;
     }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
 }
+
+

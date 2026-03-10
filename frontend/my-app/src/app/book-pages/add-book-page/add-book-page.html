@@ -40,7 +40,7 @@
                         }
 
                         <label for="itemId">Selecteer een boek (optioneel)</label>
-                        <select id="itemId" [(ngModel)]="selectedOption" (change)="loadBookDetails()" formControlName="itemId">
+                        <select id="itemId" (change)="loadBookDetails()" formControlName="itemId">
                             <option value="0">Geen</option>
                             @for(globalBook of (globalBookList | async); track $index) {
                             <option [value]="globalBook.id">{{globalBook.title}}</option>
@@ -83,7 +83,7 @@
 
                         <label for="cover">Cover URL (optioneel)</label>
                         <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="cover" type="url"
-                            [(ngModel)]="previewUrl" formControlName="cover">
+                            formControlName="cover">
 
                         <label for="reviewScore">Review score</label>
                         <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="reviewScore" type="number"
@@ -93,8 +93,11 @@
                         <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="reviewCount" type="number"
                             formControlName="reviewCount">
 
-                        <label for="tags">Tags</label>
-                        <input id="tags" type="text" formControlName="tags">
+                        <label>Tags</label>
+                        <app-tag-selection-menu
+                        [initialTags]="selectedTags"
+                        (tagsChanged)="onTagsChanged($event)"
+                        />
 
                         <label for="campus">Selecteer een campus (optioneel)</label>
                         @if (campusLoading) {
@@ -102,7 +105,7 @@
                         }
                         @else {
                             @if (school?.campuses!.length > 0) {
-                            <select id="campus" [(ngModel)]="selectedCampusOption" formControlName="campusId">
+                            <select id="campus" formControlName="campusId">
                                 <option value="0">Geen</option>
                                 @for(campus of school?.campuses; track $index) {
                                 <option [value]="campus.id">{{campus.name}}</option>
@@ -136,11 +139,11 @@
 
             <p class="preview-title">Preview van coverafbeelding</p>
 
-            @if(previewUrl == "") {
+            @if(!form.get('cover')?.value) {
             <div class="no-cover">Voer een juiste URL in</div>
             }
             @else {
-            <img [src]="previewUrl">
+            <img [src]="form.get('cover')?.value">
             }
 
         </div>

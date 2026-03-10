@@ -165,7 +165,7 @@ public class ItemService {
 
     // Gets a SchoolItem by its title
     public SchoolItemDTO getSchoolItemByTitle(String title) {
-        SchoolItem schoolItem = schoolItemRepository.findByItemTitle(title).orElseThrow(EntityNotFoundException::new);
+        SchoolItem schoolItem = schoolItemRepository.findByItemTitle(title).orElse(null);
         if (schoolItem != null) {
             return mapToSchoolItemDTO(schoolItem);
         }
@@ -214,7 +214,7 @@ public class ItemService {
                 item.getDescription(),
                 item.isFeatured(),
                 item.getCampus() != null ? item.getCampus().getName() : null,
-                item.getCampus() != null ? item.getCampus().getId().intValue() : 0)
+                item.getCampus() != null ? item.getCampus().getId().intValue() : 0);
     }
 
     // Converts an Item to an ItemDTO

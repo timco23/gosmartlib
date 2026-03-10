@@ -122,7 +122,7 @@ export interface UpdateBookPayload {
 
 export interface CreateBookPayload {
     schoolId: number,
-    tags: string,
+    tags: number[],
     description: string,
     featured: boolean,
     itemId: number,

@@ -4,14 +4,15 @@ import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { GlobalBook, CreateBookPayload, LoginResponse, School } from '../../../types/types';
+import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
+import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
@@ -22,15 +23,12 @@ export class AddBookPage implements OnInit {
   userService = inject(UserService)
   schoolService = inject(SchoolService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
-  
+
   form: FormGroup;
   error: boolean = false;
   isReadOnly: boolean = false;
   errorMessage: string = "";
   bookAlreadyExists: boolean = false;
-  previewUrl: string = "";
-  selectedOption: string = "0";
-  selectedCampusOption: string = "0";
   incompleteForm: boolean = false;
   nothingFound: boolean = false;
   missingFields: string[] = [];
@@ -39,26 +37,26 @@ export class AddBookPage implements OnInit {
   schoolError: boolean = false;
   userHasNoSchoolError: boolean = false;
   schoolErrorMessage: string = "";
-  
+  selectedTags: Tag[] = [];
+
   globalBookList: Observable<GlobalBook[]> | null = null;
   school: School | null = null;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      itemId: ['', [Validators.required]],
-      title: ['', [Validators.required]],
-      author: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      publisher: ['', [Validators.required]],
+      itemId: ['0', [Validators.required]],
+      titel: ['', [Validators.required]],
+      auteur: ['', [Validators.required]],
+      beschrijving: ['', [Validators.required]],
+      uitgeverij: ['', [Validators.required]],
       isbn: [''],
-      releaseYear: [0, [Validators.required, Validators.min(0)]],
-      language: ['', [Validators.required]],
-      pageCount: [0, [Validators.required, Validators.min(0)]],
+      uitgaveJaar: [0, [Validators.required, Validators.min(0)]],
+      taal: ['', [Validators.required]],
+      paginaAantal: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
       reviewScore: [0, [Validators.required]],
       reviewCount: [0, [Validators.required]],
-      tags: ["", [Validators.required]],
-      campusId: ['']
+      campusId: ['0']
     })
   }
 
@@ -75,17 +73,17 @@ export class AddBookPage implements OnInit {
     const raw = this.form.value;
     const newBook: CreateBookPayload = {
       schoolId: this.school!.id!,
-      tags: raw.tags,
-      description: raw.description,
+      tags: this.selectedTags.map((t) => t.id),
+      description: raw.beschrijving,
       featured: false,
       itemId: parseInt(raw.itemId),
-      title: raw.title,
-      publisher: raw.publisher,
-      author: raw.author,
+      title: raw.titel,
+      publisher: raw.uitgeverij,
+      author: raw.auteur,
       isbn: raw.isbn,
-      releaseYear: raw.releaseYear,
-      language: raw.language,
-      pageCount: raw.pageCount,
+      releaseYear: raw.uitgaveJaar,
+      language: raw.taal,
+      pageCount: raw.paginaAantal,
       cover: raw.cover,
       reviewScore: raw.reviewScore,
       reviewCount: raw.reviewCount,
@@ -114,7 +112,7 @@ export class AddBookPage implements OnInit {
   }
 
   loadBookDetails() {
-    const id = parseInt(this.selectedOption)
+    const id = parseInt(this.form.get('itemId')?.value)
 
     if (id != 0) {
       this.error = false;
@@ -123,13 +121,13 @@ export class AddBookPage implements OnInit {
       this.api.getGlobalBookById(id).subscribe({
         next: (data) => {
           this.form.patchValue({
-            title: data.title,
-            publisher: data.publisher,
-            author: data.author,
+            titel: data.title,
+            uitgeverij: data.publisher,
+            auteur: data.author,
             isbn: data.isbn,
-            releaseYear: data.releaseYear,
-            language: data.language,
-            pageCount: data.pageCount,
+            uitgaveJaar: data.releaseYear,
+            taal: data.language,
+            paginaAantal: data.pageCount,
             cover: data.cover,
             reviewScore: data.reviewScore,
             reviewCount: data.reviewCount
@@ -141,15 +139,77 @@ export class AddBookPage implements OnInit {
     }
     else {
       this.isReadOnly = false;
-      this.form.reset();
-      this.previewUrl = "";
-      this.selectedOption = "0";
+      this.form.reset({
+        itemId: '0',
+        titel: '',
+        auteur: '',
+        beschrijving: '',
+        uitgeverij: '',
+        isbn: '',
+        uitgaveJaar: 0,
+        taal: '',
+        paginaAantal: 0,
+        cover: '',
+        reviewScore: 0,
+        reviewCount: 0,
+        campusId: '0'
+      });
+      this.selectedTags = [];
+      this.cdr.detectChanges();
     }
 
   }
 
   backToList() {
     this.router.navigate(["/books"]);
+  }
+
+  onTagsChanged(tags: Tag[]): void {
+    this.selectedTags = tags;
+  }
+
+  loadDetailsViaISBN() {
+    const isbn: string = this.form.controls["isbn"].value;
+    this.nothingFound = false;
+    this.missingFields = [];
+    this.cdr.detectChanges();
+
+    if (isbn.length > 0) {
+      this.api.getBookByISBN(isbn).subscribe({
+        next: (data) => {
+          if (data.totalItems > 0) {
+            const book = data.items![0].volumeInfo;
+            const patch: any = {};
+
+            const fetchedBook = {
+              titel: book.title,
+              uitgeverij: book.publisher,
+              auteur: book.authors?.join(", "),
+              beschrijving: book.description,
+              uitgaveJaar: book.publishedDate?.substring(0, 4),
+              taal: book.language,
+              paginaAantal: book.pageCount,
+              cover: book.imageLinks?.thumbnail
+            };
+
+            Object.entries(fetchedBook).forEach(([key, value]) => {
+              if (value) {
+                patch[key] = value;
+              } else {
+                this.missingFields.push(key);
+              }
+            });
+
+            this.cdr.detectChanges();
+            this.form.patchValue(patch);
+          }
+          else {
+            this.nothingFound = true
+            this.cdr.detectChanges();
+          }
+        }
+      })
+    }
   }
 
   ngOnInit(): void {
@@ -170,10 +230,11 @@ export class AddBookPage implements OnInit {
               this.campusLoading = false;
               this.cdr.detectChanges();
             }, error: (err) => {
-              this.schoolError = true; 
+              this.schoolError = true;
               this.campusLoading = false;
               this.schoolErrorMessage = err;
-              this.cdr.detectChanges();}
+              this.cdr.detectChanges();
+            }
           })
         }
         else {
@@ -184,3 +245,5 @@ export class AddBookPage implements OnInit {
     })
   }
 }
+
+

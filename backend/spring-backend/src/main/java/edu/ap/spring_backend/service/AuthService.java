@@ -3,7 +3,7 @@ package edu.ap.spring_backend.service;
 import edu.ap.spring_backend.dto.LoginRequest;
 import edu.ap.spring_backend.dto.LoginResponse;
 import edu.ap.spring_backend.jpa.User;
-import edu.ap.spring_backend.DAO.UserRepository;
+import edu.ap.spring_backend.dao.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
