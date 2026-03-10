@@ -1,11 +1,11 @@
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.dao.SchoolRepository;
+import edu.ap.spring_backend.DAO.SchoolRepository;
 import edu.ap.spring_backend.dto.CreateUserRequest;
 import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.jpa.Role;
-import edu.ap.spring_backend.dao.UserRepository;
+import edu.ap.spring_backend.DAO.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

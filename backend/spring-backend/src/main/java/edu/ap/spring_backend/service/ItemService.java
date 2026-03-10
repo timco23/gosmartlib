@@ -1,7 +1,7 @@
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.dao.ItemRepository;
-import edu.ap.spring_backend.dao.SchoolItemRepository;
+import edu.ap.spring_backend.DAO.ItemRepository;
+import edu.ap.spring_backend.DAO.SchoolItemRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.SchoolItemDTO;
@@ -12,9 +12,9 @@ import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.SchoolItem;
 import edu.ap.spring_backend.exception.EntityAlreadyExistsException;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
-import edu.ap.spring_backend.dao.SchoolRepository;
+import edu.ap.spring_backend.DAO.SchoolRepository;
 import org.springframework.stereotype.Service;
-import edu.ap.spring_backend.dao.CampusRepository;
+import edu.ap.spring_backend.DAO.CampusRepository;
 
 import java.util.List;
 

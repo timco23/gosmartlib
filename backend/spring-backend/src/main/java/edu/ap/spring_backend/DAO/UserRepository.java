@@ -1,4 +1,4 @@
-package edu.ap.spring_backend.dao;
+package edu.ap.spring_backend.DAO;
 
 import edu.ap.spring_backend.jpa.User;
 import org.springframework.data.jpa.repository.JpaRepository;
