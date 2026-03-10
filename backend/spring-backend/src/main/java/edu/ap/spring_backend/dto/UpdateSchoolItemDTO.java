@@ -22,6 +22,8 @@ public record UpdateSchoolItemDTO(
         @JsonProperty("description")
         String description,
         @JsonProperty("featured")
-        boolean featured
+        boolean featured,
+        @JsonProperty("campusId")
+        int campusId
 ) {
 }

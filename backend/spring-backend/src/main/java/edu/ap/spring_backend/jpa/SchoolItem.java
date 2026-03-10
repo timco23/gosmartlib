@@ -8,7 +8,9 @@ public class SchoolItem {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;
-    private int schoolId; //Will become a foreign key connected to a school entity later on
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
+    private School school;
     private String tags;
     @Column(name = "book_description", columnDefinition = "TEXT")
     private String description;
@@ -16,15 +18,19 @@ public class SchoolItem {
     @JoinColumn(name = "ItemId", unique = true)
     private Item item;
     private boolean featured;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campus_id")
+    private Campus campus;
 
     public SchoolItem() {}
 
-    public SchoolItem(int schoolId, String tags, String description, boolean featured, Item item) {
-        this.schoolId = schoolId;
+    public SchoolItem(School school, String tags, String description, boolean featured, Item item, Campus campus) {
+        this.school = school;
         this.tags = tags;
         this.description = description;
         this.featured = featured;
         this.item = item;
+        this.campus = campus;
     }
 
     public int getId() {
@@ -35,12 +41,12 @@ public class SchoolItem {
         this.id = id;
     }
 
-    public int getSchoolId() {
-        return schoolId;
+    public School getSchool() {
+        return school;
     }
 
-    public void setSchoolId(int schoolId) {
-        this.schoolId = schoolId;
+    public void setSchoolId(School school) {
+        this.school = school;
     }
 
     public Item getItem() {
@@ -73,5 +79,13 @@ public class SchoolItem {
 
     public void setFeatured(boolean featured) {
         this.featured = featured;
+    }
+
+    public Campus getCampus() {
+        return campus;
+    }
+
+    public void setCampus(Campus campus) {
+        this.campus = campus;
     }
 }

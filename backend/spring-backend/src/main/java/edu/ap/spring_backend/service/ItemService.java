@@ -6,11 +6,15 @@ import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.SchoolItemDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
+import edu.ap.spring_backend.jpa.Campus;
 import edu.ap.spring_backend.jpa.Item;
+import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.SchoolItem;
 import edu.ap.spring_backend.exception.EntityAlreadyExistsException;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
+import edu.ap.spring_backend.dao.SchoolRepository;
 import org.springframework.stereotype.Service;
+import edu.ap.spring_backend.dao.CampusRepository;
 
 import java.util.List;
 
@@ -18,9 +22,13 @@ import java.util.List;
 public class ItemService {
     private final SchoolItemRepository schoolItemRepository;
     private final ItemRepository itemRepository;
-    public ItemService(SchoolItemRepository schoolItemRepository, ItemRepository itemRepository) {
+    private final SchoolRepository schoolRepository;
+    private final CampusRepository campusRepository;
+    public ItemService(SchoolItemRepository schoolItemRepository, ItemRepository itemRepository,  SchoolRepository schoolRepository, CampusRepository campusRepository) {
         this.schoolItemRepository = schoolItemRepository;
         this.itemRepository = itemRepository;
+        this.schoolRepository = schoolRepository;
+        this.campusRepository = campusRepository;
     }
 
     // Gets all SchoolItems
@@ -47,14 +55,16 @@ public class ItemService {
             else {
                 newItem = itemRepository.findById(itemDTO.itemId()).orElseThrow(EntityNotFoundException::new);
             }
-            SchoolItem newSchoolItem = new SchoolItem(itemDTO.schoolId(), itemDTO.tags(), itemDTO.description(), itemDTO.featured(), newItem);
+            School school = schoolRepository.findById((long) itemDTO.schoolId()).orElseThrow(EntityNotFoundException::new);
+            Campus campus = campusRepository.findById((long) itemDTO.campusId()).orElse(null);
+            SchoolItem newSchoolItem = new SchoolItem(school, itemDTO.tags(), itemDTO.description(), itemDTO.featured(), newItem, campus);
             schoolItemRepository.save(newSchoolItem);
             return mapToSchoolItemDTO(newSchoolItem);
         }
         throw new EntityAlreadyExistsException();
     }
 
-    //Checks if given id has a SchoolItem that's linked to the school attached. If so deletes it
+    //Checks if given id has a SchoolItem attached. If so deletes it
     public SchoolItemDTO deleteSchoolItem(int id) throws EntityNotFoundException {
         SchoolItem schoolItem = schoolItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         schoolItemRepository.delete(schoolItem);
@@ -73,7 +83,8 @@ public class ItemService {
         SchoolItem currentSchoolItem = schoolItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         Item newItem = new Item(schoolItemDTO.title(), schoolItemDTO.publisher(), schoolItemDTO.author(), currentSchoolItem.getItem().getIsbn(), schoolItemDTO.releaseYear(), schoolItemDTO.bookLanguage(), schoolItemDTO.pageCount(), schoolItemDTO.cover(),  currentSchoolItem.getItem().getReviewScore(),  currentSchoolItem.getItem().getReviewCount());
         newItem.setId(currentSchoolItem.getItem().getId());
-        SchoolItem newSchoolItem = new SchoolItem(currentSchoolItem.getSchoolId(), schoolItemDTO.tags(), schoolItemDTO.description(), schoolItemDTO.featured(), newItem);
+        Campus newCampus = campusRepository.findById((long) schoolItemDTO.campusId()).orElse(null);
+        SchoolItem newSchoolItem = new SchoolItem(currentSchoolItem.getSchool(), schoolItemDTO.tags(), schoolItemDTO.description(), schoolItemDTO.featured(), newItem, newCampus);
 
         newSchoolItem.setId(id);
         itemRepository.save(newItem);
@@ -102,7 +113,7 @@ public class ItemService {
         return null;
     }
 
-    //Converts a SchoolItem to an SchoolItemDTO
+    //Converts a SchoolItem to a SchoolItemDTO
     private SchoolItemDTO mapToSchoolItemDTO(SchoolItem item) {
         return new SchoolItemDTO(
                 item.getId(),
@@ -117,10 +128,11 @@ public class ItemService {
                 item.getItem().getReviewScore(),
                 item.getItem().getReviewCount(),
                 item.getItem().getId(),
-                item.getSchoolId(),
+                item.getSchool().getId().intValue(),
                 item.getTags(),
                 item.getDescription(),
-                item.isFeatured()
+                item.isFeatured(),
+                item.getCampus() != null ? item.getCampus().getName() : null
         );
     }
 

@@ -32,4 +32,6 @@ public record CreateSchoolItemDTO(
         @JsonProperty(value = "description")
         String description,
         @JsonProperty(value = "featured")
-        boolean featured) { }
+        boolean featured,
+        @JsonProperty("campusId")
+        int campusId) { }
