@@ -2,6 +2,8 @@ package edu.ap.spring_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public record SchoolItemDTO(
         @JsonProperty("id")
         int id,
@@ -30,7 +32,7 @@ public record SchoolItemDTO(
         @JsonProperty("schoolId")
         int schoolId,
         @JsonProperty("tags")
-        String tags,
+        List<TagDTO> tags,
         @JsonProperty("description")
         String description,
         @JsonProperty("featured")

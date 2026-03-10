@@ -2,12 +2,13 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, School, UpdateBookPayload } from '../../../types/types';
+import { Book, Tag, School, UpdateBookPayload } from '../../../types/types';
+import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
 import { SchoolService } from '../../services/school.service';
 
 @Component({
   selector: 'app-update-book-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TagSelectionMenu],
   templateUrl: './update-book-page.html',
   styleUrl: './update-book-page.css',
 })
@@ -17,15 +18,17 @@ export class UpdateBookPage implements OnInit {
   route = inject(ActivatedRoute);
   schoolService = inject(SchoolService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
-  previewUrl: string = "";
+  previewUrl: string = '';
   incompleteForm: boolean = false;
   school: School | null = null;
 
   form: FormGroup;
   error: boolean = false;
-  errorMessage: string = "";
+  errorMessage: string = '';
 
   book: Book | null = null;
+  selectedTags: Tag[] = [];
+  bookLoaded: boolean = false;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -37,14 +40,18 @@ export class UpdateBookPage implements OnInit {
       language: ['', [Validators.required]],
       pageCount: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
-      tags: ["", [Validators.required]],
-      featured: [false, [Validators.required]],
+      featured: [false, [Validators.required]],,
       campusId: ['']
-    })
+    });
+  }
+
+  onTagsChanged(tags: Tag[]): void {
+    this.selectedTags = tags;
   }
 
   onSubmit(): void {
     this.incompleteForm = false;
+
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -54,7 +61,7 @@ export class UpdateBookPage implements OnInit {
 
     const raw = this.form.value;
     const newBook: UpdateBookPayload = {
-      tags: raw.tags,
+      tags: this.selectedTags.map((t) => t.id),
       description: raw.description,
       featured: raw.featured,
       title: raw.title,
@@ -69,13 +76,13 @@ export class UpdateBookPage implements OnInit {
 
     this.api.updateBook(newBook, this.book!.id).subscribe({
       next: (data) => {
-        this.router.navigate(["/books", data.id])
-      }
-    })
+        this.router.navigate(['/books', data.id]);
+      },
+    });
   }
 
   backToList() {
-    this.router.navigate(["/books"]);
+    this.router.navigate(['/books']);
   }
 
   getBook(id: string) {
@@ -83,6 +90,7 @@ export class UpdateBookPage implements OnInit {
     data.subscribe({
       next: (data) => {
         this.book = data;
+        this.bookLoaded = true;
         this.schoolService.getById(data.schoolId).subscribe({
           next: (data) => { this.school = data; this.fillForm(); this.cdr.detectChanges() }
         })
@@ -93,21 +101,21 @@ export class UpdateBookPage implements OnInit {
 
   loadData() {
     this.error = false;
-    this.route.paramMap.subscribe(p => {
-      const id = p.get("id")
+    this.route.paramMap.subscribe((p) => {
+      const id = p.get('id');
       if (id) {
         this.getBook(id);
       }
-    })
+    });
   }
 
   fillForm() {
     if (!this.error) {
+      this.selectedTags = this.book!.tags;
       this.form.patchValue({
         title: this.book!.title,
         publisher: this.book!.publisher,
         author: this.book!.author,
-        tags: this.book!.tags,
         releaseYear: this.book!.releaseYear,
         language: this.book!.language,
         pageCount: this.book!.pageCount,
@@ -120,7 +128,7 @@ export class UpdateBookPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadData()
+    this.loadData();
   }
 }
 

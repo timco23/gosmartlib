@@ -3,8 +3,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { RouterOutlet, Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
-import { MockBook } from '../types/types';
-import { filter } from 'rxjs'
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -24,13 +23,11 @@ export class App implements OnInit {
 
   ngOnInit() {
     // Subscribe to user changes
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
 
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       const currentUrl = this.router.url;
       const isLoggedIn = this.authService.isLoggedIn();
 
@@ -38,7 +35,7 @@ export class App implements OnInit {
       if (isLoggedIn && currentUrl === '/login') {
         this.router.navigate(['/home']);
       }
-      
+
       // Als niet ingelogd en NIET op login → redirect naar login
       if (!isLoggedIn && currentUrl !== '/login') {
         this.router.navigate(['/login']);
@@ -69,12 +66,3 @@ export class App implements OnInit {
     }
   }
 }
-
-//book mockups, delete when replaced with Book database
-export const MOCK_BOOKS: MockBook[] = [
-  { id: 1, title: 'De Ontdekking van de Hemel', tagIds: [] },
-  { id: 2, title: 'Het Diner', tagIds: [] },
-  { id: 3, title: 'Oorlogswinter', tagIds: [] },
-  { id: 4, title: 'De Aanslag', tagIds: [] },
-  { id: 5, title: 'Turks Fruit', tagIds: [] },
-];

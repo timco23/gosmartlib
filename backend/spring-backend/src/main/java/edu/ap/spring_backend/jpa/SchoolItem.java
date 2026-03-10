@@ -1,6 +1,8 @@
 package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name="school_item")
@@ -22,6 +24,15 @@ public class SchoolItem {
     @JoinColumn(name = "campus_id")
     private Campus campus;
 
+    //each tag is a separate row in the join table "school_item_id"
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "school_item_tag",
+            joinColumns = @JoinColumn(name = "school_item_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
     public SchoolItem() {}
 
     public SchoolItem(School school, String tags, String description, boolean featured, Item item, Campus campus) {
@@ -33,13 +44,11 @@ public class SchoolItem {
         this.campus = campus;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public int getSchoolId() { return schoolId; }
+    public void setSchoolId(int schoolId) { this.schoolId = schoolId; }
 
     public School getSchool() {
         return school;
@@ -48,21 +57,17 @@ public class SchoolItem {
     public void setSchoolId(School school) {
         this.school = school;
     }
+    public Item getItem() { return item; }
+    public void setItem(Item item) { this.item = item; }
 
-    public Item getItem() {
-        return item;
-    }
+    public Set<Tag> getTags() { return tags; }
+    public void setTags(Set<Tag> tags) { this.tags = tags; }
 
-    public void setItem(Item item) {
-        this.item = item;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public String getTags() {
         return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
     }
 
     public String getDescription() {
