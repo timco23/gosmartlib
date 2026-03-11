@@ -95,4 +95,11 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user.getFavoriteBooks().toArray(new Item[0]);
     }
+
+    public void addFavoriteBook(String email, Item item) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.getFavoriteBooks().add(item);
+        userRepository.save(user);
+    }
 }

@@ -125,4 +125,16 @@ public class UserController {
         return ResponseEntity.ok(favoriteBooks);
     }
 
+    @PostMapping("/favorite-books")
+    public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Item itemId) {
+        logger.info("Add favorite book request for email: {}, itemId: {}", email, itemId);
+        try {
+            userService.addFavoriteBook(email, itemId);
+            logger.info("Book added to favorites for: {}", email);
+            return ResponseEntity.ok("Book added to favorites");
+        } catch (RuntimeException e) {
+            logger.error("Failed to add favorite book: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
