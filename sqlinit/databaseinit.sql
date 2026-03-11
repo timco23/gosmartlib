@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS user (
     first_name VARCHAR(100),
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('ADMIN', 'LEERLING') NOT NULL,
+    role ENUM('ADMIN', 'LEERLING','BEHEERDER','LEERKRACHT') NOT NULL,
     student_number VARCHAR(50),
     class VARCHAR(50), 
     school_id BIGINT, 
