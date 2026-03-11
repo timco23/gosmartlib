@@ -173,7 +173,6 @@ public class ItemService {
     }
 
 
-    //Converts a SchoolItem to a SchoolItemDTO
     // Takes a list of tag IDs, looks each one up in the database and returns them
     // as a Set<Tag>
     // because a book cannot have the same tag twice

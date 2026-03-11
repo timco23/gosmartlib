@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 /**
  * Entity representing a user in the library system.
- * Users can be administrators or students (leerlingen).
+ * Users can be administrators, students (leerlingen), teachers (leerkrachten) or managers (beheerders).
  */
 @Entity
 @Table(name = "user")
@@ -65,7 +65,7 @@ public class User {
      * @param name user's last name
      * @param email user's unique email address
      * @param password encrypted password
-     * @param role user role (ADMIN or LEERLING)
+     * @param role user role (ADMIN, LEERLING, LEERKRACHT or BEHEERDER)
      */
     public User(String name, String email, String password, Role role) {
         this.name = name;

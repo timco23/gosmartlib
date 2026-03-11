@@ -23,7 +23,7 @@ public class UserResponse {
      * @param name user's last name
      * @param firstName user's first name
      * @param email user's email
-     * @param role user role (ADMIN or LEERLING)
+     * @param role user role (ADMIN, LEERLING, LEERKRACHT or BEHEERDER)
      * @param studentNumber student number (null for admins)
      * @param className class name (null for admins)
      * @param schoolName school name (null for admins)
