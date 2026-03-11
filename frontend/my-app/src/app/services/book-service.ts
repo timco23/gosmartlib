@@ -52,6 +52,10 @@ export class BookService {
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/books`, { params });
   }
 
+  getFeaturedBooks(): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiBaseUrl}/books/featured`);
+  }
+
   getGlobalBooks(): Observable<GlobalBook[]> {
     return this.http.get<GlobalBook[]>(`${this.apiBaseUrl}/globalBooks`);
   }

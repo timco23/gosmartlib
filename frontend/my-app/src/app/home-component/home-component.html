@@ -1,7 +1,60 @@
-<div class="container">  
+<div class="container">
   <h1>Welkom bij GoSmartLib</h1>
   <div *ngIf="currentUser" class="user-card">
     <h2>Welkom, {{ currentUser.name }}!</h2>
     <p>Rol: {{ currentUser.role }}</p>
   </div>
+
+  <section class="featured-section">
+    <div class="section-header">
+      <h2>Uitgelichte boeken</h2>
+      <a class="browse-link" [routerLink]="['/books']">Alle boeken bekijken →</a>
+    </div>
+
+    @if (isLoading) {
+      <div class="state-message">Boeken laden…</div>
+    } @else if (error) {
+      <div class="state-message error">{{ error }}</div>
+    } @else if (featuredBooks.length === 0) {
+      <div class="state-message">Geen uitgelichte boeken gevonden.</div>
+    } @else {
+      <ul class="featured-list">
+        @for (book of featuredBooks; track book.id) {
+          <li class="featured-card">
+            <div class="featured-cover">
+              @if (book.cover) {
+                <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+              } @else {
+                <div class="cover-placeholder">📖</div>
+              }
+            </div>
+
+            <div class="featured-info">
+              <div class="featured-meta-top">
+                <span class="badge badge-language">{{ book.language }}</span>
+                <span class="badge badge-pages">{{ book.pageCount }} blz.</span>
+                @for (tag of book.tags; track tag.id) {
+                  <span class="badge badge-tag">{{ tag.name }}</span>
+                }
+              </div>
+
+              <h3 class="featured-title">{{ book.title }}</h3>
+              <p class="featured-author">{{ book.author }} · {{ book.releaseYear }}</p>
+
+              @if (book.description) {
+                <p class="featured-description">{{ book.description }}</p>
+              }
+
+              <div class="featured-footer">
+                <span class="score-value"
+                  >Beoordeling: {{ book.reviewScore | number: '1.1-1' }} / 5</span
+                >
+                <a class="details-button" [routerLink]="['/books', book.id]">Details bekijken</a>
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
 </div>
