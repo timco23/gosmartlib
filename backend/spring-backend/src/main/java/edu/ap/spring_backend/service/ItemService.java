@@ -46,7 +46,7 @@ public class ItemService {
         validateRequest(request);
 
         Specification<SchoolItem> spec = Specification
-                .where(withSearch(request.search()))
+                .allOf(withSearch(request.search()))
                 .and(withLanguages(request.languages()))
                 .and(withMinPages(request.minPages()))
                 .and(withMaxPages(request.maxPages()))
@@ -172,6 +172,11 @@ public class ItemService {
         return null;
     }
 
+    // Gets a List of featured SchoolItems
+    public List<SchoolItemDTO> getFeaturedSchoolItems() {
+        List<SchoolItem> featuredBooks = schoolItemRepository.findAll(Specification.allOf(isFeatured(true)));
+        return featuredBooks.stream().map(this::mapToSchoolItemDTO).toList();
+    }
 
     //Converts a SchoolItem to a SchoolItemDTO
     // Takes a list of tag IDs, looks each one up in the database and returns them

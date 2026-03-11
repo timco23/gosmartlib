@@ -52,6 +52,11 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getSchoolItems(request));
     }
 
+    @GetMapping("/books/featured")
+    public ResponseEntity<List<SchoolItemDTO>> getFeaturedSchoolItems() {
+        return ResponseEntity.ok(itemService.getFeaturedSchoolItems());
+    }
+
     @GetMapping("/books/{id}")
     public ResponseEntity<SchoolItemDTO> getSchoolItemById(@PathVariable int id) {
         return ResponseEntity.ok(itemService.getSchoolItemById(id));

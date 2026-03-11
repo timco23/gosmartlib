@@ -83,4 +83,8 @@ public class SchoolItemSpecifications {
             return cb.and(predicates);
         };
     }
+
+    public static Specification<SchoolItem> isFeatured(boolean featured){
+        return (root, query, cb) -> cb.equal(root.get("featured"), featured);
+    }
 }
