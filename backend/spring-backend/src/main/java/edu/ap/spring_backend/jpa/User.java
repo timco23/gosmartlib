@@ -2,6 +2,7 @@ package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entity representing a user in the library system.
@@ -45,6 +46,9 @@ public class User {
 
     @Column(name = "must_change_password")
     private boolean mustChangePassword = false;
+    
+    @Column(name = "favorite_books")
+    private List<Item> favoriteBooks;
 
     /**
      * Refresh token for session persistence and future OAuth implementation.
@@ -52,7 +56,7 @@ public class User {
      */
     @Column(name = "refresh_token")
     private String refreshToken;
-    
+
     /**
      * Default constructor initializing actiefSinceDate to now.
      */
@@ -88,6 +92,7 @@ public class User {
     public LocalDateTime getActiefSinceDate() { return actiefSinceDate; }
     public boolean isMustChangePassword() { return mustChangePassword; }
     public String getRefreshToken() { return refreshToken; }
+    public List<Item> getFavoriteBooks() { return favoriteBooks; }
     
     // Setters
     public void setName(String name) { this.name = name; }
@@ -100,4 +105,5 @@ public class User {
     public void setSchool(School school) { this.school = school; }
     public void setMustChangePassword(boolean mustChangePassword) { this.mustChangePassword = mustChangePassword; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+    public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
 }
