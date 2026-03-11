@@ -4,6 +4,7 @@ import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.CreateUserRequest;
 import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.Role;
 import edu.ap.spring_backend.dao.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -87,5 +88,11 @@ public class UserService {
         user.setMustChangePassword(false);
         
         userRepository.save(user);
+    }
+
+    public Item[] getFavoriteBooks(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getFavoriteBooks().toArray(new Item[0]);
     }
 }

@@ -2,6 +2,7 @@ package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,9 +47,10 @@ public class User {
 
     @Column(name = "must_change_password")
     private boolean mustChangePassword = false;
-    
-    @Column(name = "favorite_books")
-    private List<Item> favoriteBooks;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private List<Item> favoriteBooks = new ArrayList<>();
 
     /**
      * Refresh token for session persistence and future OAuth implementation.

@@ -2,6 +2,7 @@ package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.CreateUserRequest;
 import edu.ap.spring_backend.dto.UserResponse;
+import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.service.UserService;
@@ -56,7 +57,8 @@ public class UserController {
             user.getStudentNumber(),
             user.getClassName(),
             schoolName,
-            user.getActiefSinceDate()
+            user.getActiefSinceDate(),
+            user.getFavoriteBooks().toArray(new Item[0])
         );
         
         logger.info("Profile retrieved for: {}", email);
@@ -87,7 +89,8 @@ public class UserController {
             user.getStudentNumber(),
             user.getClassName(),
             schoolName,
-            user.getActiefSinceDate()
+            user.getActiefSinceDate(),
+            user.getFavoriteBooks().toArray(new Item[0])
         );
         
         logger.info("User created with email: {}", user.getEmail());
@@ -113,4 +116,13 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/favorite-books")
+    public ResponseEntity<Item[]> getFavoriteBooks(@RequestParam String email) {
+        logger.info("Favorite books request for email: {}", email);
+        Item[] favoriteBooks = userService.getFavoriteBooks(email);
+        logger.info("Favorite books retrieved for: {}", email);
+        return ResponseEntity.ok(favoriteBooks);
+    }
+
 }
