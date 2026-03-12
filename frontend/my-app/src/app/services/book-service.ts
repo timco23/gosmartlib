@@ -106,4 +106,11 @@ export class BookService {
       responseType: 'text'
     });
   }
+
+  removeFromFavorites(bookId: number, email: string): Observable<any> {
+    return this.http.delete(`${this.apiBaseUrl}/user/favorites`, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text'
+    });
+  }
 }

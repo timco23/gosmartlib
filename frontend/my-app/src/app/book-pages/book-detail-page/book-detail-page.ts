@@ -60,15 +60,36 @@ export class BookDetailPage implements OnInit {
   }
 
   addToFavorites() {
-    if (!this.book || !this.currentUser) return;
+    console.log('isFavorite:', this.isFavorite);
+    console.log('book:', this.book);
+    console.log('currentUser:', this.currentUser);
 
-    this.api.addToFavorites(this.book.itemId, this.currentUser.email).subscribe({
-      next: () => {
-        this.isFavorite = true;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Probleem bij toevoegen:', err)
-    });
+    if (!this.isFavorite) {
+      if (!this.book || !this.currentUser) {
+        console.log('EARLY RETURN - book or currentUser is null');
+        return;
+      }
+    }
+    if(!this.isFavorite) {
+      if (!this.book || !this.currentUser) return;
+  
+      this.api.addToFavorites(this.book.itemId, this.currentUser.email).subscribe({
+        next: () => {
+          this.isFavorite = true;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij toevoegen:', err)
+      });
+    }
+    else {
+      this.api.removeFromFavorites(this.book!.itemId, this.currentUser!.email).subscribe({
+        next: () => {
+          this.isFavorite = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij verwijderen:', err)
+      });
+    }
   }
 
   getBook(id: string) {
