@@ -172,3 +172,10 @@ export interface SchoolItemCopy {
   barcode: string;
   copy_status: string;
 }
+
+export enum Role {
+  LEERLING,
+  LEERKRACHT,
+  BEHEERDER,
+  ADMIN
+}

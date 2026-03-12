@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { LoginResponse } from '../../types/types';
+import { LoginResponse, Role } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
@@ -68,5 +68,10 @@ export class AuthService {
    */
   isLoggedIn(): boolean {
     return this.currentUserValue !== null;
+  }
+
+  atLeastHasRole(role: Role): boolean {
+    const currentRole: Role = Role[this.currentUserValue!.role.toUpperCase() as keyof typeof Role];
+    return role <= currentRole
   }
 }
