@@ -137,4 +137,17 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @DeleteMapping("/favorites")
+    public ResponseEntity<String> deleteFavoriteBook(@RequestParam String email, @RequestParam Integer itemId) {
+        logger.info("Delete favorite book request for email: {}, itemId: {}", email, itemId);
+        try {
+            userService.deleteFavoriteBook(email, itemId);
+            logger.info("Book removed from favorites for: {}", email);
+            return ResponseEntity.ok("Book removed from favorites");
+        } catch (RuntimeException e) {
+            logger.error("Failed to remove favorite book: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

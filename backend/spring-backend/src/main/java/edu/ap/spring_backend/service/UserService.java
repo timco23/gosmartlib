@@ -108,5 +108,12 @@ public class UserService {
         userRepository.save(user);
     }
 
-    
+    public void deleteFavoriteBook(String email, Integer itemId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+        user.getFavoriteBooks().remove(item);
+        userRepository.save(user);
+    }
 }
