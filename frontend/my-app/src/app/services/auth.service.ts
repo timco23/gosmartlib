@@ -70,6 +70,11 @@ export class AuthService {
     return this.currentUserValue !== null;
   }
 
+
+  /**
+   * Checks if the current user has the required role or higher.
+   * @returns true if user atleast has the specified role or higher, false otherwise
+   */
   atLeastHasRole(role: Role): boolean {
     const currentRole: Role = Role[this.currentUserValue!.role.toUpperCase() as keyof typeof Role];
     return role <= currentRole
