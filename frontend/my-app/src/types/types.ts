@@ -67,21 +67,21 @@ export interface ChangePasswordRequest {
 }
 
 export interface GoogleBook {
-  totalItems: number,
+  totalItems: number;
   items?: {
     volumeInfo: {
-      title?: string,
-      authors?: string[],
-      publisher?: string,
-      publishedDate?: string,
-      description?: string,
-      pageCount?: number,
+      title?: string;
+      authors?: string[];
+      publisher?: string;
+      publishedDate?: string;
+      description?: string;
+      pageCount?: number;
       imageLinks?: {
-        thumbnail?: string
-      },
-      language?: string
-    }
-  }[]
+        thumbnail?: string;
+      };
+      language?: string;
+    };
+  }[];
 }
 
 export interface Book {
@@ -101,8 +101,8 @@ export interface Book {
   cover?: string;
   reviewScore: number;
   reviewCount: number;
-    campusName: string;
-    campusId: number;
+  campusName: string;
+  campusId: number;
 }
 
 export interface UpdateBookPayload {
@@ -116,27 +116,26 @@ export interface UpdateBookPayload {
   language: string;
   pageCount: number;
   cover: string;
-    campusId: number;
-
+  campusId: number;
 }
 
 export interface CreateBookPayload {
-    schoolId: number,
-    tags: number[],
-    description: string,
-    featured: boolean,
-    itemId: number,
-    title: string,
-    publisher: string,
-    author: string,
-    isbn?: string,
-    releaseYear: number,
-    language: string,
-    pageCount: number,
-    cover?: string,
-    reviewScore: number,
-    reviewCount: number,
-    campusId: number
+  schoolId: number;
+  tags: number[];
+  description: string;
+  featured: boolean;
+  itemId: number;
+  title: string;
+  publisher: string;
+  author: string;
+  isbn?: string;
+  releaseYear: number;
+  language: string;
+  pageCount: number;
+  cover?: string;
+  reviewScore: number;
+  reviewCount: number;
+  campusId: number;
 }
 
 export interface GlobalBook {
@@ -171,4 +170,10 @@ export interface SchoolItemCopy {
   condition: string;
   barcode: string;
   copy_status: string;
+}
+
+export interface CarouselSlot {
+  book: Book;
+  index: number;
+  position: 'left-2' | 'left-1' | 'center' | 'right-1' | 'right-2';
 }
