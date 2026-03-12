@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.service;
 
+import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.CreateUserRequest;
 import edu.ap.spring_backend.jpa.School;
@@ -21,14 +22,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final SchoolRepository schoolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ItemRepository itemRepository;
     
     private static final String DEFAULT_PASSWORD = "Welkom2024!";
     private static final String EMAIL_DOMAIN = "@gsmartlib.tech";
 
-    public UserService(UserRepository userRepository, SchoolRepository schoolRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, SchoolRepository schoolRepository, PasswordEncoder passwordEncoder, ItemRepository itemRepository) {
         this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
         this.passwordEncoder = passwordEncoder;
+        this.itemRepository = itemRepository;
     }
 
     /**
@@ -96,10 +99,14 @@ public class UserService {
         return user.getFavoriteBooks().toArray(new Item[0]);
     }
 
-    public void addFavoriteBook(String email, Item item) {
+    public void addFavoriteBook(String email, Integer itemId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
         user.getFavoriteBooks().add(item);
         userRepository.save(user);
     }
+
+    
 }

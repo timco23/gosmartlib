@@ -117,7 +117,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/favorite-books")
+    @GetMapping("/favorites")
     public ResponseEntity<Item[]> getFavoriteBooks(@RequestParam String email) {
         logger.info("Favorite books request for email: {}", email);
         Item[] favoriteBooks = userService.getFavoriteBooks(email);
@@ -125,8 +125,8 @@ public class UserController {
         return ResponseEntity.ok(favoriteBooks);
     }
 
-    @PostMapping("/favorite-books")
-    public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Item itemId) {
+    @PostMapping("/favorites")
+    public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Integer itemId) {
         logger.info("Add favorite book request for email: {}, itemId: {}", email, itemId);
         try {
             userService.addFavoriteBook(email, itemId);

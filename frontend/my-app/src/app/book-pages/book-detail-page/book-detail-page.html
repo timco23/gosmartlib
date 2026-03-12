@@ -116,6 +116,12 @@
 
             </div>
 
+            <div class="add-favorite">
+
+                <button (click)="addToFavorites(currentUser)" [disabled]="isFavorite">
+                    {{isFavorite ? 'Toegevoegd aan favorieten' : 'Toevoegen aan favorieten'}}
+                </button>
+            </div>
         </div>
 
 

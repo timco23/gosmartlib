@@ -26,4 +26,10 @@ export class UserService {
       params: { email: email }
     })
   }
+
+  getFavorites(): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(`${environment.apiUrl}/user/favorites`, {
+      params: { email: localStorage.getItem('email')! }
+    });
+  }
 }
