@@ -35,28 +35,39 @@ export class BookDetailPage implements OnInit {
     copy_status: '',
   };
 
-  
-  constructor(private authService: AuthService) {}
+
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
+
+      // Only load favorites once we have a user
+      this.route.paramMap.subscribe((p) => {
+        const id = p.get('id');
+        if (id) {
+          this.getBook(id);
+
+          this.userApi.getFavorites().subscribe({
+            next: (favorites) => {
+              this.isFavorite = favorites.some((fav: any) => fav.id === this.book?.itemId);
+              this.cdr.detectChanges();
+            }
+          });
+        }
+      });
     });
+  }
 
-    this.route.paramMap.subscribe((p) => {
-      const id = p.get('id');
-      if (id) {
-        this.getBook(id);
-      }
+  addToFavorites() {
+    if (!this.book || !this.currentUser) return;
 
-      if(id) {
-        this.userApi.getFavorites().subscribe({
-          next: (favorites) => {
-            this.isFavorite = favorites.some((fav) => fav.id === parseInt(id));
-            this.cdr.detectChanges();
-          }
-        });
-      }
+    this.api.addToFavorites(this.book.itemId, this.currentUser.email).subscribe({
+      next: () => {
+        this.isFavorite = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Probleem bij toevoegen:', err)
     });
   }
 
@@ -156,23 +167,6 @@ export class BookDetailPage implements OnInit {
         this.editedCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
         this.cdr.detectChanges();
       },
-    });
-  }
-
-  addToFavorites(currentUser: any) {
-    if (!this.book) return;
-
-    const email = currentUser.email;
-
-    this.api.addToFavorites(this.book.itemId, email).subscribe({
-      next: () => {
-        this.isFavorite = true;
-        this.cdr.detectChanges();
-        alert('Boek toegevoegd aan favorieten');
-      },
-      error: (err) => {
-        console.error('Probleem bij toevoegen:', err);
-      }
     });
   }
 }

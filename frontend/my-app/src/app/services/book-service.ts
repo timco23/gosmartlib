@@ -102,7 +102,8 @@ export class BookService {
 
   addToFavorites(bookId: number, email: string): Observable<any> {
     return this.http.post(`${this.apiBaseUrl}/user/favorites`, null, {
-      params: { itemId: bookId, email: email }
+      params: { itemId: bookId, email: email },
+      responseType: 'text'
     });
   }
 }
