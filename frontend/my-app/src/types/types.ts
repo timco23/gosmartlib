@@ -18,21 +18,12 @@ export interface UserProfile {
   studentNumber?: string;
   className?: string;
   schoolName?: string;
-  actiefSinceDate: string;
 }
 
 export interface Tag {
   id: number;
   name: string;
   default: boolean;
-}
-
-export interface CreateUserRequest {
-  firstName: string;
-  name: string;
-  studentNumber: string;
-  className: string;
-  schoolId: number;
 }
 
 export interface School {
@@ -60,28 +51,22 @@ export interface Campus {
   name: string;
 }
 
-export interface ChangePasswordRequest {
-  email: string;
-  oldPassword: string;
-  newPassword: string;
-}
-
 export interface GoogleBook {
-  totalItems: number,
+  totalItems: number;
   items?: {
     volumeInfo: {
-      title?: string,
-      authors?: string[],
-      publisher?: string,
-      publishedDate?: string,
-      description?: string,
-      pageCount?: number,
+      title?: string;
+      authors?: string[];
+      publisher?: string;
+      publishedDate?: string;
+      description?: string;
+      pageCount?: number;
       imageLinks?: {
-        thumbnail?: string
-      },
-      language?: string
-    }
-  }[]
+        thumbnail?: string;
+      };
+      language?: string;
+    };
+  }[];
 }
 
 export interface Book {
@@ -101,8 +86,8 @@ export interface Book {
   cover?: string;
   reviewScore: number;
   reviewCount: number;
-    campusName: string;
-    campusId: number;
+  campusName: string;
+  campusId: number;
 }
 
 export interface UpdateBookPayload {
@@ -116,27 +101,26 @@ export interface UpdateBookPayload {
   language: string;
   pageCount: number;
   cover: string;
-    campusId: number;
-
+  campusId: number;
 }
 
 export interface CreateBookPayload {
-    schoolId: number,
-    tags: number[],
-    description: string,
-    featured: boolean,
-    itemId: number,
-    title: string,
-    publisher: string,
-    author: string,
-    isbn?: string,
-    releaseYear: number,
-    language: string,
-    pageCount: number,
-    cover?: string,
-    reviewScore: number,
-    reviewCount: number,
-    campusId: number
+  schoolId: number;
+  tags: number[];
+  description: string;
+  featured: boolean;
+  itemId: number;
+  title: string;
+  publisher: string;
+  author: string;
+  isbn?: string;
+  releaseYear: number;
+  language: string;
+  pageCount: number;
+  cover?: string;
+  reviewScore: number;
+  reviewCount: number;
+  campusId: number;
 }
 
 export interface GlobalBook {

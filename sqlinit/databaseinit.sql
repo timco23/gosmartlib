@@ -6,17 +6,17 @@ use LibraryDB;
 -- Replace ReviewScore and ReviewCount later on with generated columns that calculate these values based on the SchoolItems that use this id
 create table if not exists item 
 (
-		id int unsigned primary key not null auto_increment,
-		title varchar(255) not null,
-		publisher varchar(100) not null,
-		author varchar(255) not null,
-		isbn varchar(13) null,
-		release_year smallint unsigned not null,
-		book_language varchar(50) not null,
-		page_count smallint unsigned not null,
-		cover varchar(200) null,
-		review_score decimal(2,1) check (review_score >= 0) not null,
-		review_count int unsigned not null
+	id int unsigned primary key not null auto_increment,
+	title varchar(255) not null,
+	publisher varchar(100) not null,
+	author varchar(255) not null,
+	isbn varchar(13) null,
+	release_year smallint unsigned not null,
+	book_language varchar(50) not null,
+	page_count smallint unsigned not null,
+	cover varchar(200) null,
+	review_score decimal(2,1) check (review_score >= 0) not null,
+	review_count int unsigned not null
 );
 
 CREATE TABLE IF NOT EXISTS school (
@@ -41,21 +41,21 @@ CREATE TABLE IF NOT EXISTS school (
 );
 
 INSERT INTO school (
-  name, address,
-  lending_period_days, extend_period_days, max_extends,
-  max_lends_student, max_lend_teacher,
-  lender_notification_period, lender_late_notification_period,
-  librarian_notification_not_returned, librarian_request_notification,
-  external_visibility, external_lending,
-  reviews, review_moderation
-) VALUES (
-  'Testschool', 'TestAddress 1',
-  14, 7, 2,
-  5, 10,
-  3, 1,
-  2, 1,
-  true, true,
-  true, false
+    name, address,
+    lending_period_days, extend_period_days, max_extends,
+    max_lends_student, max_lend_teacher,
+    lender_notification_period, lender_late_notification_period,
+    librarian_notification_not_returned, librarian_request_notification,
+    external_visibility, external_lending,
+    reviews, review_moderation
+    ) VALUES (
+    'AP Hogeschool Antwerpen', 'Noorderplaats 2',
+    14, 7, 2,
+    5, 10,
+    3, 1,
+    2, 1,
+    true, true,
+    true, false
 );
 
 CREATE TABLE IF NOT EXISTS user (
@@ -68,15 +68,17 @@ CREATE TABLE IF NOT EXISTS user (
     student_number VARCHAR(50),
     class VARCHAR(50), 
     school_id BIGINT, 
-    actief_since_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    must_change_password BOOLEAN DEFAULT FALSE,
     refresh_token VARCHAR(512),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL
 );
 
--- Admin user (wachtwoord: admin321) of admin123 als dat veranderd is
-INSERT INTO user (name, email, password, role, must_change_password, school_id) 
-VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', FALSE, 1);
+-- Admin user (wachtwoord: admin321)
+INSERT INTO user (name, email, password, role, school_id) 
+VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', 1);
+
+-- Leerling user (wachtwoord: leerling321) 
+INSERT INTO user (name, first_name, email, password, role, student_number, class, school_id) 
+VALUES ('Wick', 'John', 's123456@gsmartlib.tech', '$2a$12$3l8/4.y7HDg3AfY2NOuoSuY.YKV02m2a.0WeeNMo3Cc8vonEuvuOq', 'LEERLING', 's123456', '2ITSOF1', 1);
 
 CREATE TABLE IF NOT EXISTS campus (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -127,16 +129,16 @@ insert into item(title,publisher,author,isbn,release_year,book_language,page_cou
 
 create table if not exists school_item
 (
-		id int unsigned primary key not null auto_increment,
-		school_id bigint not null,
-		item_id int unsigned not null,
-        campus_id bigint null,
-		book_description text null,
-		featured boolean not null,
-		foreign key (item_id) references item(id) on delete cascade,
-        foreign key (school_id) references school(id) on delete cascade,
-		foreign key (campus_id) references campus(id) on delete set null,
-		unique (item_id) -- So that a school can't have the same book twice
+	id int unsigned primary key not null auto_increment,
+	school_id bigint not null,
+	item_id int unsigned not null,
+    campus_id bigint null,
+	book_description text null,
+	featured boolean not null,
+	foreign key (item_id) references item(id) on delete cascade,
+    foreign key (school_id) references school(id) on delete cascade,
+	foreign key (campus_id) references campus(id) on delete set null,
+	unique (item_id) -- So that a school can't have the same book twice
 );
 
 -- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
