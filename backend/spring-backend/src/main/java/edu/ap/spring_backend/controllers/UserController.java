@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.UserResponse;
+import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.dao.UserRepository;
 import org.slf4j.Logger;
@@ -49,7 +50,9 @@ public class UserController {
             user.getRole().name(),
             user.getStudentNumber(),
             user.getClassName(),
-            schoolName
+            schoolName,
+            user.getActiefSinceDate(),
+            user.getFavoriteBooks().toArray(new Item[0])
         );
         
         logger.info("Profile retrieved for: {}", email);

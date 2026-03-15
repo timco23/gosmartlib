@@ -9,9 +9,12 @@ import { authGuard } from './guards/auth-guard';
 import { Profile } from './profile/profile';
 import { SchoolManagementComponent } from './school-management/school-management.component';
 import { TagManagement } from './tag-management/tag-management.component';
+import { CreateUser } from './create-user/create-user';
+import { ChangePassword } from './change-password/change-password';
+import { FavoritesComponent } from './favorites/favorites.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'books', component: BookListPage },
   { path: 'books/add', component: AddBookPage },
   { path: 'books/:id', component: BookDetailPage },
@@ -24,5 +27,8 @@ export const routes: Routes = [
   { path: 'schools', component: SchoolManagementComponent },
   { path: 'tags', component: TagManagement },
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
+  { path: 'create-user', component: CreateUser, canActivate: [authGuard] },
+  { path: 'change-password', component: ChangePassword, canActivate: [authGuard] },
+  { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/login' },
 ];

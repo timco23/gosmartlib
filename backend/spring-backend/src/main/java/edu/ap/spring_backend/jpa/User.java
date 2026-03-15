@@ -1,6 +1,9 @@
 package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity representing a user in the library system.
@@ -38,6 +41,16 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
+    
+    @Column(name = "actief_since_date")
+    private LocalDateTime actiefSinceDate;
+
+    @Column(name = "must_change_password")
+    private boolean mustChangePassword = false;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private List<Item> favoriteBooks = new ArrayList<>();
 
     /**
      * Refresh token for session persistence and future OAuth implementation.
@@ -45,8 +58,13 @@ public class User {
      */
     @Column(name = "refresh_token")
     private String refreshToken;
-    
-    public User() {}
+
+    /**
+     * Default constructor initializing actiefSinceDate to now.
+     */
+    public User() {
+        this.actiefSinceDate = LocalDateTime.now();
+    }
     
     /**
      * Constructor for creating admin users.
@@ -74,6 +92,7 @@ public class User {
     public String getClassName() { return className; }
     public School getSchool() { return school; }
     public String getRefreshToken() { return refreshToken; }
+    public List<Item> getFavoriteBooks() { return favoriteBooks; }
     
     // Setters
     public void setName(String name) { this.name = name; }
@@ -85,4 +104,5 @@ public class User {
     public void setClassName(String className) { this.className = className; }
     public void setSchool(School school) { this.school = school; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+    public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
 }

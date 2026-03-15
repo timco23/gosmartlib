@@ -1,9 +1,11 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, SchoolItemCopy } from '../../../types/types';
+import { Book, LoginResponse, SchoolItemCopy } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-book-detail-page',
@@ -13,7 +15,9 @@ import { CommonModule } from '@angular/common';
 })
 export class BookDetailPage implements OnInit {
   book: Book | null = null;
+  currentUser: LoginResponse | null = null;
   api = inject(BookService);
+  userApi = inject(UserService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
@@ -22,6 +26,7 @@ export class BookDetailPage implements OnInit {
 
   editingCopyId: number | null = null;
   editedCopy: SchoolItemCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
+  isFavorite: boolean = false;
 
   newCopy: SchoolItemCopy = {
     schoolItemId: 0,
@@ -30,13 +35,61 @@ export class BookDetailPage implements OnInit {
     copy_status: '',
   };
 
+
+  constructor(private authService: AuthService) { }
+
   ngOnInit(): void {
-    this.route.paramMap.subscribe((p) => {
-      const id = p.get('id');
-      if (id) {
-        this.getBook(id);
-      }
+    this.authService.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+
+      // Only load favorites once we have a user
+      this.route.paramMap.subscribe((p) => {
+        const id = p.get('id');
+        if (id) {
+          this.getBook(id);
+
+          this.userApi.getFavorites().subscribe({
+            next: (favorites) => {
+              this.isFavorite = favorites.some((fav: any) => fav.id === this.book?.itemId);
+              this.cdr.detectChanges();
+            }
+          });
+        }
+      });
     });
+  }
+
+  addToFavorites() {
+    console.log('isFavorite:', this.isFavorite);
+    console.log('book:', this.book);
+    console.log('currentUser:', this.currentUser);
+
+    if (!this.isFavorite) {
+      if (!this.book || !this.currentUser) {
+        console.log('EARLY RETURN - book or currentUser is null');
+        return;
+      }
+    }
+    if(!this.isFavorite) {
+      if (!this.book || !this.currentUser) return;
+  
+      this.api.addToFavorites(this.book.itemId, this.currentUser.email).subscribe({
+        next: () => {
+          this.isFavorite = true;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij toevoegen:', err)
+      });
+    }
+    else {
+      this.api.removeFromFavorites(this.book!.itemId, this.currentUser!.email).subscribe({
+        next: () => {
+          this.isFavorite = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij verwijderen:', err)
+      });
+    }
   }
 
   getBook(id: string) {
