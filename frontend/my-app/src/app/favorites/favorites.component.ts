@@ -45,7 +45,7 @@ export class FavoritesComponent {
   loadBooks(): void {
     this.api.getFavorites().subscribe({
       next: (data: Book[]) => {
-        this.allBooks = data;
+        this.allBooks = data.sort((a, b) => a.title.localeCompare(b.title));
         this.totalPages = Math.ceil(this.allBooks.length / this.pageSize);
         this.applyPage();
         this.cdr.detectChanges();
