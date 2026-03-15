@@ -1,24 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [CommonModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login implements OnInit {
-  email: string = '';
-  password: string = '';
-  errorMessage: string = '';
-
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -28,18 +23,26 @@ export class Login implements OnInit {
     }
   }
 
-  onSubmit() {
-    this.errorMessage = '';
-    
-    this.authService.login(this.email, this.password).subscribe({
-      next: (response) => {
-        console.log('Login successful', response);
-        this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        console.error('Login failed', error);
-        this.errorMessage = 'Ongeldige email of wachtwoord';
-      }
+  loginWithSmartschool() {
+    // For OAuth
+    alert('Smartschool OAuth komt eraan. Gebruik voorlopig Dev login.');
+  }
+
+  loginAsAdmin() {
+    this.authService.setCurrentUser({
+      name: 'Admin',
+      role: 'ADMIN',
+      email: 'admin@gsmartlib.tech',
     });
+    this.router.navigate(['/home']);
+  }
+
+  loginAsStudent() {
+    this.authService.setCurrentUser({
+      name: 'John Wick',
+      role: 'LEERLING',
+      email: 's123456@gsmartlib.tech',
+    });
+    this.router.navigate(['/home']);
   }
 }

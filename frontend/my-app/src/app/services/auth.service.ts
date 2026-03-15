@@ -62,6 +62,11 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  setCurrentUser(user: LoginResponse): void {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
   /**
    * Checks if a user is currently logged in.
    * @returns true if user is logged in, false otherwise
