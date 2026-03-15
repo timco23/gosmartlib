@@ -11,6 +11,7 @@ import { SchoolManagementComponent } from './school-management/school-management
 import { TagManagement } from './tag-management/tag-management.component';
 import { CreateUser } from './create-user/create-user';
 import { ChangePassword } from './change-password/change-password';
+import { FavoritesComponent } from './favorites/favorites.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,5 +29,6 @@ export const routes: Routes = [
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
   { path: 'create-user', component: CreateUser, canActivate: [authGuard] },
   { path: 'change-password', component: ChangePassword, canActivate: [authGuard] },
+  { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/login' },
 ];
