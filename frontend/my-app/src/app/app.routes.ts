@@ -14,7 +14,7 @@ import { ChangePassword } from './change-password/change-password';
 import { FavoritesComponent } from './favorites/favorites.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'books', component: BookListPage },
   { path: 'books/add', component: AddBookPage },
   { path: 'books/:id', component: BookDetailPage },
