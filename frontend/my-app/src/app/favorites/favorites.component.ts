@@ -25,6 +25,7 @@ export class FavoritesComponent {
   pageSize: number = 10;
   totalPages: number = 0;
   books: Book[] = [];
+  allBooks: Book[] = [];
   
   constructor(private authService: AuthService) { }
   
@@ -37,31 +38,38 @@ export class FavoritesComponent {
     });
   }
 
-  loadBooks(): void {
-    this.api
-      .getFavorites().subscribe({
-        next: (data: Book[]) => {
-          this.books = data;
-          this.cdr.detectChanges();
-        },
-      });
-  }
-
   sortedTags(tags: Tag[]): Tag[] {
     return [...tags].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  loadBooks(): void {
+    this.api.getFavorites().subscribe({
+      next: (data: Book[]) => {
+        this.allBooks = data;
+        this.totalPages = Math.ceil(this.allBooks.length / this.pageSize);
+        this.applyPage();
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  applyPage(): void {
+    const start = this.currentPage * this.pageSize;
+    const end = start + this.pageSize;
+    this.books = this.allBooks.slice(start, end);
   }
 
   nextPage(): void {
     if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
-      this.loadBooks();
+      this.applyPage();
     }
   }
 
   previousPage(): void {
     if (this.currentPage > 0) {
       this.currentPage--;
-      this.loadBooks();
+      this.applyPage();
     }
   }
 
