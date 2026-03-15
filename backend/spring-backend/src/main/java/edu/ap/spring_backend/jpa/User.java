@@ -46,7 +46,7 @@ public class User {
     private LocalDateTime actiefSinceDate;
 
     @Column(name = "must_change_password")
-    private boolean mustChangePassword = false;
+    private Boolean mustChangePassword = false;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
@@ -93,6 +93,7 @@ public class User {
     public School getSchool() { return school; }
     public String getRefreshToken() { return refreshToken; }
     public List<Item> getFavoriteBooks() { return favoriteBooks; }
+    public LocalDateTime getActiefSinceDate() { return actiefSinceDate; }
     
     // Setters
     public void setName(String name) { this.name = name; }
@@ -105,4 +106,5 @@ public class User {
     public void setSchool(School school) { this.school = school; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
+    public void setActiefSinceDate(LocalDateTime actiefSinceDate) { this.actiefSinceDate = actiefSinceDate; }
 }
