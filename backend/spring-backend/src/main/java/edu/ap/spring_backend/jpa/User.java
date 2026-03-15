@@ -1,6 +1,8 @@
 package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity representing a user in the library system.
@@ -39,13 +41,20 @@ public class User {
     @JoinColumn(name = "school_id")
     private School school;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private List<Item> favoriteBooks = new ArrayList<>();
+
     /**
      * Refresh token for session persistence and future OAuth implementation.
      * Enables "stay logged in" and token refresh without re-authentication.
      */
     @Column(name = "refresh_token")
     private String refreshToken;
-    
+
+    /**
+     * Default constructor
+     */
     public User() {}
     
     /**
@@ -60,7 +69,6 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
-
     }
     
     // Getters
@@ -74,6 +82,7 @@ public class User {
     public String getClassName() { return className; }
     public School getSchool() { return school; }
     public String getRefreshToken() { return refreshToken; }
+    public List<Item> getFavoriteBooks() { return favoriteBooks; }
     
     // Setters
     public void setName(String name) { this.name = name; }
@@ -85,4 +94,5 @@ public class User {
     public void setClassName(String className) { this.className = className; }
     public void setSchool(School school) { this.school = school; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+    public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
 }

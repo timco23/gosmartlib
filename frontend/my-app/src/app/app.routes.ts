@@ -9,9 +9,10 @@ import { authGuard } from './guards/auth-guard';
 import { Profile } from './profile/profile';
 import { SchoolManagementComponent } from './school-management/school-management.component';
 import { TagManagement } from './tag-management/tag-management.component';
+import { FavoritesComponent } from './favorites/favorites.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', component: HomeComponent },
   { path: 'login', component: Login },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
   { path: 'books', component: BookListPage, canActivate: [authGuard] },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
+  { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: 'tags', component: TagManagement, canActivate: [authGuard] },
   { path: '**', redirectTo: '/login' },
 ];

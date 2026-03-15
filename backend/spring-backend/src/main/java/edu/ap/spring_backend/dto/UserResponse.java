@@ -1,5 +1,7 @@
 package edu.ap.spring_backend.dto;
 
+import edu.ap.spring_backend.jpa.Item;
+
 /**
  * DTO for user profile information without sensitive data.
  * Includes student-specific fields if applicable.
@@ -13,6 +15,7 @@ public class UserResponse {
     private String studentNumber;
     private String className;
     private String schoolName;
+    private Item[] favoriteBooks;
     
     /**
      * Constructor for user profile response.
@@ -24,9 +27,11 @@ public class UserResponse {
      * @param studentNumber student number (null for admins)
      * @param className class name (null for admins)
      * @param schoolName school name (null for admins)
+     * @param actiefSinceDate account creation date
+     * @param favoriteBooks list of user's favorite books
      */
     public UserResponse(Integer id, String name, String firstName, String email, String role, 
-                       String studentNumber, String className, String schoolName) {
+                       String studentNumber, String className, String schoolName, Item[] favoriteBooks) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
@@ -35,6 +40,7 @@ public class UserResponse {
         this.studentNumber = studentNumber;
         this.className = className;
         this.schoolName = schoolName;
+        this.favoriteBooks = favoriteBooks;
     }
     
     // Getters
@@ -46,6 +52,7 @@ public class UserResponse {
     public String getStudentNumber() { return studentNumber; }
     public String getClassName() { return className; }
     public String getSchoolName() { return schoolName; }
+    public Item[] getFavoriteBooks() { return favoriteBooks; }
     
     // Setters
     public void setId(Integer id) { this.id = id; }
@@ -56,4 +63,5 @@ public class UserResponse {
     public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
     public void setClassName(String className) { this.className = className; }
     public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
+    public void setFavoriteBooks(Item[] favoriteBooks) { this.favoriteBooks = favoriteBooks; }
 }

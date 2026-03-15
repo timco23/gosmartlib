@@ -1,14 +1,9 @@
 <div class="navbar" *ngIf="currentUser">
   <div class="nav-left">
     <a routerLink="/home" class="nav-link" routerLinkActive="active">Home</a>
-    <a
-      routerLink="/schools"
-      class="nav-link"
-      routerLinkActive="active"
-      *ngIf="currentUser.role === 'ADMIN'"
-      >Schoolbeheer</a
-    >
+    <a routerLink="/schools" class="nav-link" routerLinkActive="active" *ngIf="currentUser.role === 'ADMIN'">Schoolbeheer</a>
     <a routerLink="/books" class="nav-link">Boeken</a>
+    <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
   </div>
 
   <div class="user-menu">

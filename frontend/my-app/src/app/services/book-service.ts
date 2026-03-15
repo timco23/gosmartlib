@@ -103,4 +103,18 @@ export class BookService {
   updateCopy(copy: any) {
     return this.http.put(`${this.apiBaseUrl}/books/copies/${copy.id}`, copy);
   }
+
+  addToFavorites(bookId: number, email: string): Observable<any> {
+    return this.http.post(`${this.apiBaseUrl}/user/favorites`, null, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text'
+    });
+  }
+
+  removeFromFavorites(bookId: number, email: string): Observable<any> {
+    return this.http.delete(`${this.apiBaseUrl}/user/favorites`, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text'
+    });
+  }
 }

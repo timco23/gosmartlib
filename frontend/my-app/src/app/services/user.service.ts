@@ -22,4 +22,14 @@ export class UserService {
       params: { email: email },
     });
   }
+
+  getFavorites(): Observable<any[]> {
+    const stored = localStorage.getItem('currentUser');
+    if (!stored) return new Observable(o => { o.next([]); o.complete(); });
+
+    const user = JSON.parse(stored);
+    return this.http.get<any[]>(`${environment.apiUrl}/user/favorites`, {
+      params: { email: user.email }
+    });
+  }
 }
