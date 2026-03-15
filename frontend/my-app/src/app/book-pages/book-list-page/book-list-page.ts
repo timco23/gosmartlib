@@ -72,7 +72,7 @@ export class BookListPage implements OnInit {
     this.loadBooks();
   }
   //sort tags alphabetically
-  sortedTags(tags: Tag[]): Tag[] {
+ sortedTags(tags: Tag[]): Tag[] {
     return [...tags].sort((a, b) => a.name.localeCompare(b.name));
   }
 
