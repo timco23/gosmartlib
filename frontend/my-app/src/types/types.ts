@@ -18,21 +18,12 @@ export interface UserProfile {
   studentNumber?: string;
   className?: string;
   schoolName?: string;
-  actiefSinceDate: string;
 }
 
 export interface Tag {
   id: number;
   name: string;
   default: boolean;
-}
-
-export interface CreateUserRequest {
-  firstName: string;
-  name: string;
-  studentNumber: string;
-  className: string;
-  schoolId: number;
 }
 
 export interface School {
@@ -58,12 +49,6 @@ export interface School {
 export interface Campus {
   id?: number;
   name: string;
-}
-
-export interface ChangePasswordRequest {
-  email: string;
-  oldPassword: string;
-  newPassword: string;
 }
 
 export interface GoogleBook {
@@ -171,6 +156,7 @@ export interface SchoolItemCopy {
   barcode: string;
   copy_status: string;
 }
+
 
 export interface CarouselSlot {
   book: Book;
