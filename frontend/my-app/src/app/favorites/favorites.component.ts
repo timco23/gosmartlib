@@ -1,9 +1,10 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { BookService } from '../services/book-service';
-import { Book, Page, Tag } from '../../types/types';
+import { Book, LoginResponse, Page, Tag } from '../../types/types';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-favorites',
@@ -13,7 +14,10 @@ import { UserService } from '../services/user.service';
   styleUrl: './favorites.component.css'
 })
 export class FavoritesComponent {
+  currentUser: LoginResponse | null = null;
+  
   api = inject(UserService);
+  bookApi = inject(BookService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
 
@@ -21,9 +25,16 @@ export class FavoritesComponent {
   pageSize: number = 10;
   totalPages: number = 0;
   books: Book[] = [];
+  
+  constructor(private authService: AuthService) { }
+  
 
   ngOnInit(): void {
     this.loadBooks();
+
+    this.authService.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+    });
   }
 
   loadBooks(): void {
@@ -56,5 +67,18 @@ export class FavoritesComponent {
 
   checkDetails(id: number) {
     this.router.navigate(['/books', id]);
+  }
+
+  deleteFavorite(bookId: number): void {
+    if (!this.currentUser) return;
+
+    this.bookApi.removeFromFavorites(bookId, this.currentUser.email).subscribe({
+      next: () => {
+        this.loadBooks();
+      },
+      error: (err) => {
+        console.error('Fout bij verwijderen van favoriet:', err);
+      }
+    });
   }
 }
