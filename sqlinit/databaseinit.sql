@@ -3,22 +3,6 @@ SET NAMES utf8mb4;
 create database if not exists LibraryDB;
 use LibraryDB;
 
--- Replace ReviewScore and ReviewCount later on with generated columns that calculate these values based on the SchoolItems that use this id
-create table if not exists item 
-(
-	id int primary key not null auto_increment,
-	title varchar(255) not null,
-	publisher varchar(100) not null,
-	author varchar(255) not null,
-	isbn varchar(13) null,
-	release_year smallint unsigned not null,
-	book_language varchar(50) not null,
-	page_count smallint unsigned not null,
-	cover varchar(200) null,
-	review_score decimal(2,1) check (review_score >= 0) not null,
-	review_count int unsigned not null
-);
-
 CREATE TABLE IF NOT EXISTS school (
     id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -58,6 +42,31 @@ INSERT INTO school (
     true, false
 );
 
+CREATE TABLE IF NOT EXISTS campus (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    school_id BIGINT not null,
+    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
+);
+
+-- Replace ReviewScore and ReviewCount later on with generated columns that calculate these values based on the SchoolItems that use this id
+create table if not exists item 
+(
+	id int primary key not null auto_increment,
+	title varchar(255) not null,
+	publisher varchar(100) null,
+	author varchar(255) not null,
+	isbn varchar(13) null,
+	release_year smallint unsigned null,
+	book_language varchar(50) not null,
+	page_count smallint unsigned null,
+	cover varchar(200) null,
+	review_score decimal(2,1) check (review_score >= 0) not null,
+	review_count int unsigned not null,
+    book_description text not null
+);
+
 CREATE TABLE IF NOT EXISTS user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
@@ -80,14 +89,6 @@ VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96R
 INSERT INTO user (name, first_name, email, password, role, student_number, class, school_id) 
 VALUES ('Wick', 'John', 's123456@gsmartlib.tech', '$2a$12$3l8/4.y7HDg3AfY2NOuoSuY.YKV02m2a.0WeeNMo3Cc8vonEuvuOq', 'LEERLING', 's123456', '2ITSOF1', 1);
 
-CREATE TABLE IF NOT EXISTS campus (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    school_id BIGINT not null,
-    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS tag (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
@@ -102,69 +103,59 @@ INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
 INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
 
 -- Testbooks
-insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count) values
-('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9082410613-M.jpg',4.2,1250),
-('De donkere kamer van Damokles','Em. Querido','Willem Frederik Hermans','9789023413110',1958,'Nederlands',352,'https://covers.openlibrary.org/b/isbn/9023413113-M.jpg',4.4,876),
-('De aanslag','De Bezige Bij','Harry Mulisch','9789023442448',1982,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/902344244X-M.jpg',4.3,1543),
-('Turks fruit','Bezige Bij','Jan Wolkers','9789023403975',1969,'Nederlands',192,'https://covers.openlibrary.org/b/isbn/9023403975-M.jpg',3.9,654),
-('De ontdekking van de hemel','De Bezige Bij','Harry Mulisch','9789023430988',1992,'Nederlands',944,'https://covers.openlibrary.org/b/isbn/9023430980-M.jpg',4.5,2103),
-('Oorlogswinter','Leopold','Jan Terlouw','9789025861124',1972,'Nederlands',208,'https://covers.openlibrary.org/b/isbn/9025861121-M.jpg',4.1,3871),
-('The Great Gatsby','Scribner','F. Scott Fitzgerald','9780743273565',1925,'Engels',180,'https://covers.openlibrary.org/b/isbn/0743273567-M.jpg',4.0,52340),
-('To Kill a Mockingbird','HarperCollins','Harper Lee','9780061935466',1960,'Engels',336,'https://covers.openlibrary.org/b/isbn/0061935468-M.jpg',4.6,89421),
-('1984','Secker & Warburg','George Orwell','9780451524935',1949,'Engels',328,'https://covers.openlibrary.org/b/isbn/0451524934-M.jpg',4.7,112453),
-('The Catcher in the Rye','Little Brown','J.D. Salinger','9780316769174',1951,'Engels',224,'https://covers.openlibrary.org/b/isbn/0316769177-M.jpg',3.8,44217),
-('Brave New World','Chatto & Windus','Aldous Huxley','9780060850524',1932,'Engels',311,'https://covers.openlibrary.org/b/isbn/0060850523-M.jpg',4.3,61892),
-('Sapiens','Harper','Yuval Noah Harari','9780062316097',2011,'Engels',443,'https://covers.openlibrary.org/b/isbn/0062316095-M.jpg',4.5,203451),
-('Een kleine geschiedenis van de wereld','Lemniscaat','Ernst Gombrich','9789047700975',1935,'Nederlands',284,'https://covers.openlibrary.org/b/isbn/904770097X-M.jpg',4.4,1234),
-('Het korte geheugen','Prometheus','Maarten van Rossem','9789044628180',2019,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/9044628186-M.jpg',3.7,423),
-('Le Petit Prince','Gallimard','Antoine de Saint-Exupéry','9782070408504',1943,'Frans',96,'https://covers.openlibrary.org/b/isbn/2070408507-M.jpg',4.8,178932),
-('L''Étranger','Gallimard','Albert Camus','9782070360024',1942,'Frans',186,'https://covers.openlibrary.org/b/isbn/2070360024-M.jpg',4.3,88321),
-('Der Vorleser','Diogenes','Bernhard Schlink','9783257229530',1995,'Duits',208,'https://covers.openlibrary.org/b/isbn/3257229534-M.jpg',4.1,32109),
-('Die Verwandlung','Kurt Wolff Verlag','Franz Kafka','9783150090299',1915,'Duits',96,'https://covers.openlibrary.org/b/isbn/3150090296-M.jpg',4.2,45678),
-('Het dagboek van een muts','Van Goor','Jeff Kinney','9789047514527',2007,'Nederlands',224,'https://covers.openlibrary.org/b/isbn/9047514521-M.jpg',4.0,9823),
-('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',4.8,154320),
-('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',4.3,67891);
+insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count,book_description) values
+('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9082410613-M.jpg',4.2,1250,'Een aangrijpende roman over trauma en jeugd.'),
+('De donkere kamer van Damokles','Em. Querido','Willem Frederik Hermans','9789023413110',1958,'Nederlands',352,'https://covers.openlibrary.org/b/isbn/9023413113-M.jpg',4.4,876,'Een psychologische roman over identiteit en oorlog.'),
+('De aanslag','De Bezige Bij','Harry Mulisch','9789023442448',1982,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/902344244X-M.jpg',4.3,1543,'Een verhaal over schuld en verwerking na WOII.'),
+('Turks fruit','Bezige Bij','Jan Wolkers','9789023403975',1969,'Nederlands',192,'https://covers.openlibrary.org/b/isbn/9023403975-M.jpg',3.9,654,'Een rauw liefdesverhaal met tragische elementen.'),
+('De ontdekking van de hemel','De Bezige Bij','Harry Mulisch','9789023430988',1992,'Nederlands',944,'https://covers.openlibrary.org/b/isbn/9023430980-M.jpg',4.5,2103,'Een epische roman over wetenschap, religie en lot.'),
+('Oorlogswinter','Leopold','Jan Terlouw','9789025861124',1972,'Nederlands',208,'https://covers.openlibrary.org/b/isbn/9025861121-M.jpg',4.1,3871,'Een jongen beleeft de hongerwinter tijdens WOII.'),
+('The Great Gatsby','Scribner','F. Scott Fitzgerald','9780743273565',1925,'Engels',180,'https://covers.openlibrary.org/b/isbn/0743273567-M.jpg',4.0,52340,'Een klassiek verhaal over rijkdom en illusies.'),
+('To Kill a Mockingbird','HarperCollins','Harper Lee','9780061935466',1960,'Engels',336,'https://covers.openlibrary.org/b/isbn/0061935468-M.jpg',4.6,89421,'Een roman over racisme en rechtvaardigheid.'),
+('1984','Secker & Warburg','George Orwell','9780451524935',1949,'Engels',328,'https://covers.openlibrary.org/b/isbn/0451524934-M.jpg',4.7,112453,'Een dystopisch verhaal over totalitaire controle.'),
+('The Catcher in the Rye','Little Brown','J.D. Salinger','9780316769174',1951,'Engels',224,'https://covers.openlibrary.org/b/isbn/0316769177-M.jpg',3.8,44217,'Een coming-of-age verhaal over vervreemding.'),
+('Brave New World','Chatto & Windus','Aldous Huxley','9780060850524',1932,'Engels',311,'https://covers.openlibrary.org/b/isbn/0060850523-M.jpg',4.3,61892,'Een dystopie over technologie en controle.'),
+('Sapiens','Harper','Yuval Noah Harari','9780062316097',2011,'Engels',443,'https://covers.openlibrary.org/b/isbn/0062316095-M.jpg',4.5,203451,'Een overzicht van de menselijke geschiedenis.'),
+('Een kleine geschiedenis van de wereld','Lemniscaat','Ernst Gombrich','9789047700975',1935,'Nederlands',284,'https://covers.openlibrary.org/b/isbn/904770097X-M.jpg',4.4,1234,'Een toegankelijke wereldgeschiedenis.'),
+('Het korte geheugen','Prometheus','Maarten van Rossem','9789044628180',2019,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/9044628186-M.jpg',3.7,423,'Reflecties op geschiedenis en politiek.'),
+('Le Petit Prince','Gallimard','Antoine de Saint-Exupéry','9782070408504',1943,'Frans',96,'https://covers.openlibrary.org/b/isbn/2070408507-M.jpg',4.8,178932,'Een filosofisch sprookje over het leven.'),
+('L''Étranger','Gallimard','Albert Camus','9782070360024',1942,'Frans',186,'https://covers.openlibrary.org/b/isbn/2070360024-M.jpg',4.3,88321,'Een existentiële roman over absurditeit.'),
+('Der Vorleser','Diogenes','Bernhard Schlink','9783257229530',1995,'Duits',208,'https://covers.openlibrary.org/b/isbn/3257229534-M.jpg',4.1,32109,'Een verhaal over schuld en liefde na WOII.'),
+('Die Verwandlung','Kurt Wolff Verlag','Franz Kafka','9783150090299',1915,'Duits',96,'https://covers.openlibrary.org/b/isbn/3150090296-M.jpg',4.2,45678,'Een man verandert plots in een insect.'),
+('Het dagboek van een muts','Van Goor','Jeff Kinney','9789047514527',2007,'Nederlands',224,'https://covers.openlibrary.org/b/isbn/9047514521-M.jpg',4.0,9823,'Humoristisch dagboek van een tiener.'),
+('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',4.8,154320,'Een jongen ontdekt dat hij een tovenaar is.'),
+('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',4.3,67891,'Een liefdesverhaal tussen twee zieke tieners.');
 
-
-
-create table if not exists school_item
-(
-	id int unsigned primary key not null auto_increment,
-	school_id bigint not null,
-	item_id int not null,
-    campus_id bigint null,
-	book_description text null,
-	featured boolean not null,
-	foreign key (item_id) references item(id) on delete cascade,
-    foreign key (school_id) references school(id) on delete cascade,
-	foreign key (campus_id) references campus(id) on delete set null,
-	unique (item_id) -- So that a school can't have the same book twice
-);
-
--- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
-CREATE TABLE IF NOT EXISTS school_item_tag (
-    school_item_id INT UNSIGNED NOT NULL,
+-- Koppeltabel die de item en tag tabellen nodig hebben voor de FK's
+CREATE TABLE IF NOT EXISTS item_tag (
+    item_id INT NOT NULL,
     tag_id BIGINT NOT NULL,
-    PRIMARY KEY (school_item_id, tag_id),
-    FOREIGN KEY (school_item_id) REFERENCES school_item(id) ON DELETE CASCADE,
+    PRIMARY KEY (item_id, tag_id),
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
 );
 
--- Voeg alle testbook items toe aan de schoolcatalogus van school 1
-INSERT INTO school_item (school_id, item_id, book_description, featured)
-SELECT 1, id, NULL, FALSE
-FROM item;
-
--- Koppel de 'Algemeen' tag aan alle school items
-INSERT INTO school_item_tag (school_item_id, tag_id)
-SELECT si.id, t.id
-FROM school_item si, tag t
+-- Koppel de 'Algemeen' tag aan alle items
+INSERT INTO item_tag (item_id, tag_id)
+SELECT i.id, t.id
+FROM item i, tag t
 WHERE t.name = 'Algemeen';
 
 CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    school_item_id INT,
+    item_id INT not null,
+    school_id bigint not null,
     barcode VARCHAR(255),
-    copy_status VARCHAR(255),
-    `item_condition` VARCHAR(50)
+    copy_status ENUM('Beschikbaar', 'Uitgeleend','Ontbrekend'),
+    item_condition ENUM('Nieuw', 'Goed','Gebruikt','Beschadigd'),
+	featured boolean not null,
+	campus_id bigint null,
+    foreign key (item_id) references item(id) on delete cascade,
+    foreign key (school_id) references school(id) on delete cascade,
+	foreign key (campus_id) references campus(id) on delete set null
 );
+
+-- Voeg alle testbook items toe aan de schoolcatalogus van school 1 als exemplaren
+INSERT INTO school_item_copy (school_id, item_id, barcode, copy_status, item_condition, featured, campus_id)
+SELECT 1, id, 12345, 'Beschikbaar', 'Nieuw', FALSE, NULL
+FROM item;
