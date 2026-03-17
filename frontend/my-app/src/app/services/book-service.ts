@@ -52,6 +52,10 @@ export class BookService {
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/books`, { params });
   }
 
+  getFeaturedBooks(): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiBaseUrl}/books/featured`);
+  }
+
   getGlobalBooks(): Observable<GlobalBook[]> {
     return this.http.get<GlobalBook[]>(`${this.apiBaseUrl}/globalBooks`);
   }
@@ -98,5 +102,19 @@ export class BookService {
 
   updateCopy(copy: any) {
     return this.http.put(`${this.apiBaseUrl}/books/copies/${copy.id}`, copy);
+  }
+
+  addToFavorites(bookId: number, email: string): Observable<any> {
+    return this.http.post(`${this.apiBaseUrl}/user/favorites`, null, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text'
+    });
+  }
+
+  removeFromFavorites(bookId: number, email: string): Observable<any> {
+    return this.http.delete(`${this.apiBaseUrl}/user/favorites`, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text'
+    });
   }
 }

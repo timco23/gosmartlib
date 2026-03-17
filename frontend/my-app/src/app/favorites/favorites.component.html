@@ -1,0 +1,43 @@
+<main class="books-card">
+    @if (books.length > 0) {
+    <h3>Huidige boeken</h3>
+
+    <ul class="book-list">
+        @for (book of books; track book.id) {
+        <li class="book-item">
+            <div class="book-cover">
+                @if (book.cover) {
+                <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                }
+            </div>
+            <div class="book-info">
+                <span class="book-title">{{ book.title }}</span>
+                <span class="book-meta">{{ book.author }} · {{ book.releaseYear }}</span>
+            </div>
+            <div class="book-score">
+                <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }} / 5</span>
+            </div>
+
+            <div>
+                <button class="delete-button" (click)="deleteFavorite(book.id)">Verwijderen</button>
+            </div>
+
+            <div class="book-actions">
+                <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
+            </div>
+        </li>
+        }
+    </ul>
+    <div class="pagination">
+        <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
+            ← Vorige
+        </button>
+        <span class="page-indicator">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
+        <button class="page-button" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
+            Volgende →
+        </button>
+    </div>
+    } @else {
+    <h3>Geen boeken gevonden</h3>
+    }
+</main>

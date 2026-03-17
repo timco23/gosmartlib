@@ -3,13 +3,10 @@
   <div class="nav-left">
     <a routerLink="/home" class="nav-link" routerLinkActive="active">Home</a>
     @if (authService.atLeastHasRole(role.ADMIN)) {
-      <a
-      routerLink="/schools"
-      class="nav-link"
-      routerLinkActive="active"
-      >Schoolbeheer</a
-    >}
+      <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
+    }
     <a routerLink="/books" class="nav-link">Boeken</a>
+    <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
   </div>
 
   <div class="user-menu">
@@ -21,18 +18,6 @@
     @if (dropdownOpen) {
       <div class="dropdown-menu">
       <a routerLink="/profile" (click)="closeDropdown()" class="dropdown-item"> Mijn Gegevens </a>
-      <a routerLink="/change-password" (click)="closeDropdown()" class="dropdown-item">
-        Wachtwoord wijzigen
-      </a>
-      @if (authService.atLeastHasRole(role.ADMIN)) {
-        <a
-        routerLink="/create-user"
-        (click)="closeDropdown()"
-        class="dropdown-item"
-        >
-        Gebruiker aanmaken
-      </a>
-      }
       <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
     </div>
     }

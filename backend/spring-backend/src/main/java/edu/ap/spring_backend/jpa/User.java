@@ -1,7 +1,8 @@
 package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity representing a user in the library system.
@@ -39,12 +40,10 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
-    
-    @Column(name = "actief_since_date")
-    private LocalDateTime actiefSinceDate;
 
-    @Column(name = "must_change_password")
-    private boolean mustChangePassword = false;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private List<Item> favoriteBooks = new ArrayList<>();
 
     /**
      * Refresh token for session persistence and future OAuth implementation.
@@ -52,13 +51,11 @@ public class User {
      */
     @Column(name = "refresh_token")
     private String refreshToken;
-    
+
     /**
-     * Default constructor initializing actiefSinceDate to now.
+     * Default constructor
      */
-    public User() {
-        this.actiefSinceDate = LocalDateTime.now();
-    }
+    public User() {}
     
     /**
      * Constructor for creating admin users.
@@ -72,7 +69,6 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
-        this.actiefSinceDate = LocalDateTime.now();
     }
     
     // Getters
@@ -85,9 +81,8 @@ public class User {
     public String getStudentNumber() { return studentNumber; }
     public String getClassName() { return className; }
     public School getSchool() { return school; }
-    public LocalDateTime getActiefSinceDate() { return actiefSinceDate; }
-    public boolean isMustChangePassword() { return mustChangePassword; }
     public String getRefreshToken() { return refreshToken; }
+    public List<Item> getFavoriteBooks() { return favoriteBooks; }
     
     // Setters
     public void setName(String name) { this.name = name; }
@@ -98,6 +93,6 @@ public class User {
     public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
     public void setClassName(String className) { this.className = className; }
     public void setSchool(School school) { this.school = school; }
-    public void setMustChangePassword(boolean mustChangePassword) { this.mustChangePassword = mustChangePassword; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+    public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
 }
