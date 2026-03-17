@@ -4,6 +4,7 @@ import { RouterOutlet, Router, RouterLink, NavigationEnd } from '@angular/router
 import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
 import { filter } from 'rxjs';
+import { Role } from '../types/types';
 
 @Component({
   selector: 'app-root',
@@ -15,9 +16,10 @@ import { filter } from 'rxjs';
 export class App implements OnInit {
   currentUser: LoginResponse | null = null;
   dropdownOpen = false;
+  role = Role
 
   constructor(
-    private authService: AuthService,
+    public authService: AuthService,
     private router: Router,
   ) {}
 

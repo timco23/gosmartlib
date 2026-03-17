@@ -27,7 +27,9 @@
         />
       </div>
 
-      <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+      @if(errorMessage) {
+        <div class="error">{{ errorMessage }}</div>
+      }
 
       <button type="submit" class="btn-login">Inloggen</button>
     </form>

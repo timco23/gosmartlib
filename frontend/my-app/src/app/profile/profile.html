@@ -1,37 +1,48 @@
 <div class="profile-container">
   <h2>Mijn gegevens</h2>
 
-  <div *ngIf="loading" class="loading">Laden...</div>
+  @if(loading) {
+    <div class="loading">Laden...</div>
+  }
 
-  <div *ngIf="error" class="error-message">
-    {{ error }}
-  </div>
+  @if(error) {
+    <div class="error-message">{{ error }}</div>
+  }
 
-  <div *ngIf="profile && !loading" class="profile-content">
-    <div class="profile-item" *ngIf="profile.firstName">
+  @if(profile && !loading) {
+  <div class="profile-content">
+    @if (profile.firstName) {
+    <div class="profile-item">
       <label>Voornaam:</label>
       <span>{{ profile.firstName }}</span>
     </div>
+    }
 
     <div class="profile-item">
       <label>Naam:</label>
       <span>{{ profile.name }}</span>
     </div>
 
-    <div class="profile-item" *ngIf="profile.className">
+    @if(profile.className) {
+    <div class="profile-item">
       <label>Klas:</label>
       <span>{{ profile.className }}</span>
     </div>
+    }
 
-    <div class="profile-item" *ngIf="profile.schoolName">
+    @if(profile.schoolName) {
+    <div class="profile-item">
       <label>School:</label>
       <span>{{ profile.schoolName }}</span>
     </div>
+    }
 
-    <div class="profile-item" *ngIf="profile.studentNumber">
+    @if(profile.studentNumber) {
+    <div class="profile-item">
       <label>Studentnummer:</label>
       <span>{{ profile.studentNumber }}</span>
     </div>
+    }
 
     <div class="profile-item">
       <label>Email:</label>
@@ -50,4 +61,5 @@
       <span>{{ formatDate(profile.actiefSinceDate) }}</span>
     </div>
   </div>
+  }
 </div>

@@ -1,47 +1,42 @@
 <div class="create-user-container">
   <h2>Gebruiker aanmaken</h2>
 
-  <div *ngIf="successMessage" class="success-message">
+  @if(successMessage) {
+    <div class="success-message">
     {{ successMessage }}
-  </div>
+    </div>
+  }
 
-  <div *ngIf="errorMessage" class="error-message">
+  @if(errorMessage) {
+    <div class="error-message">
     {{ errorMessage }}
-  </div>
+    </div>
+  }
 
   <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
     <label>Voornaam</label>
     <input type="text" placeholder="Voornaam" formControlName="firstName" />
-    <div
-      *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
-      class="error"
-    >
-      Voornaam is verplicht
-    </div>
+    @if(userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched) {
+      <div class="error">Voornaam is verplicht</div>
+    }
 
     <label>Naam</label>
     <input type="text" placeholder="Naam" formControlName="name" />
-    <div *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched" class="error">
-      Naam is verplicht
-    </div>
+    @if(userForm.get('name')?.invalid && userForm.get('name')?.touched) {
+      <div class="error">Naam is verplicht</div>
+    }
 
     <label>Studentnummer</label>
     <input type="text" placeholder="s123456" formControlName="studentNumber" />
-    <div
-      *ngIf="userForm.get('studentNumber')?.invalid && userForm.get('studentNumber')?.touched"
-      class="error"
-    >
-      Studentnummer moet formaat s123456 hebben
-    </div>
+    @if(userForm.get('studentNumber')?.invalid && userForm.get('studentNumber')?.touched) {
+      <div class="error">Studentnummer moet formaat s123456 hebben</div>
+    }
 
     <label>Klas</label>
     <input type="text" placeholder="3A" formControlName="className" />
-    <div
-      *ngIf="userForm.get('className')?.invalid && userForm.get('className')?.touched"
-      class="error"
-    >
-      Klas is verplicht
-    </div>
+    @if(userForm.get('className')?.invalid && userForm.get('className')?.touched) {
+      <div class="error">Klas is verplicht</div>
+    }
 
     <label>School</label>
     <select formControlName="schoolId">
@@ -50,13 +45,10 @@
         {{ school.name }}
       </option>
     </select>
-    <div
-      *ngIf="userForm.get('schoolId')?.invalid && userForm.get('schoolId')?.touched"
-      class="error"
-    >
-      School is verplicht
-    </div>
-
+    @if (userForm.get('schoolId')?.invalid && userForm.get('schoolId')?.touched) {
+      <div class="error">School is verplicht</div>
+    }
+    
     <div class="info-box">
       <strong>Let op:</strong> De gebruiker krijgt automatisch:
       <ul>
