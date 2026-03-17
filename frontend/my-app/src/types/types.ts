@@ -157,13 +157,11 @@ export interface SchoolItemCopy {
   copy_status: string;
 }
 
-
 export interface CarouselSlot {
   book: Book;
   index: number;
   position: 'left-2' | 'left-1' | 'center' | 'right-1' | 'right-2';
 }
-
 
 export enum Role {
   LEERLING,
