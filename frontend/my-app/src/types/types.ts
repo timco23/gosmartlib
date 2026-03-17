@@ -77,12 +77,12 @@ export interface Book {
   featured: boolean;
   itemId: number;
   title: string;
-  publisher: string;
+  publisher?: string;
   author: string;
   isbn?: string;
-  releaseYear: number;
+  releaseYear?: number;
   language: string;
-  pageCount: number;
+  pageCount?: number;
   cover?: string;
   reviewScore: number;
   reviewCount: number;
