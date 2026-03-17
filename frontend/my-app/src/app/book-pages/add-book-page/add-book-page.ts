@@ -45,18 +45,18 @@ export class AddBookPage implements OnInit {
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       itemId: ['0', [Validators.required]],
-      titel: ['', [Validators.required]],
-      auteur: ['', [Validators.required]],
-      beschrijving: ['', [Validators.required]],
-      uitgeverij: [''],
-      isbn: [''],
-      uitgaveJaar: [0],
+      titel: ['', [Validators.required, Validators.maxLength(255)]],
+      auteur: ['', [Validators.required, Validators.maxLength(255)]],
+      beschrijving: ['', [Validators.required, Validators.maxLength(1000)]],
+      uitgeverij: ['', [Validators.maxLength(255)]],
+      isbn: ['', [Validators.maxLength(20)]],
+      uitgaveJaar: [0, [Validators.min(0), Validators.max(new Date().getFullYear())]],
       taal: ['', [Validators.required]],
-      paginaAantal: [0],
-      cover: [''],
-      reviewScore: [0, [Validators.required]],
-      reviewCount: [0, [Validators.required]],
-      campusId: ['0']
+      paginaAantal: [0, [Validators.min(0)]],
+      cover: ['', [Validators.maxLength(255)]],
+      reviewScore: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
+      reviewCount: [0, [Validators.required, Validators.min(0)]],
+      campusId: ['0', [Validators.required]]
     })
   }
 
