@@ -34,7 +34,7 @@ export class BookDetailPage implements OnInit {
     schoolItemId: 0,
     condition: '',
     barcode: '',
-    copy_status: '',
+    copy_status: 'Beschikbaar',
   };
 
   ngOnInit(): void {
@@ -133,7 +133,7 @@ export class BookDetailPage implements OnInit {
           schoolItemId: this.book!.itemId,
           condition: '',
           barcode: '',
-          copy_status: '',
+          copy_status: 'Beschikbaar',
         };
         this.addingCopy = false;
         this.cdr.detectChanges();
