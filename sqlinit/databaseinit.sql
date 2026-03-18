@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
 -- the main genre of a book
 CREATE TABLE IF NOT EXISTS genre (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 INSERT INTO genre (name) VALUES 
