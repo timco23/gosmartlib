@@ -96,13 +96,6 @@ CREATE TABLE IF NOT EXISTS campus (
 --     is_default BOOLEAN NOT NULL DEFAULT FALSE
 -- );
 
--- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
--- Default non-editable tags
--- INSERT INTO tag (name, is_default) VALUES ('Algemeen', true);
--- INSERT INTO tag (name, is_default) VALUES ('Pedagogisch', true);
--- INSERT INTO tag (name, is_default) VALUES ('12-14j', true);
--- INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
--- INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
 
 -- Testbooks
 insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count) values
@@ -183,6 +176,25 @@ CREATE TABLE IF NOT EXISTS genre (
     name VARCHAR(255) NOT NULL UNIQUE,
 );
 
+INSERT INTO genre (name) VALUES 
+('Fictie algemeen'),
+('Literaire roman'),
+('Spanning / thriller'),
+('Detective / misdaad'),
+('Fantasy'),
+('Sciencefiction'),
+('Dystopie'),
+('Historische roman'),
+('Romantiek'),
+('Coming-of-age'),
+('Avontuur'),
+('Oorlog & conflict'),
+('Horror'),
+('Humor'),
+('Graphic novel / strip'),
+('Poëzie'),
+('Non-fictie algemeen');
+
 -- the subgenre of a book, linked to a main genre
 CREATE TABLE IF NOT EXISTS subgenre (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -191,11 +203,112 @@ CREATE TABLE IF NOT EXISTS subgenre (
     FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
 );
 
+INSERT INTO subgenre (name, genre_id) VALUES 
+-- Fictie algemeen (1)
+('Kortverhaal', 1),
+('Novelle', 1),
+
+-- Literaire roman (2)
+('Moderne literatuur', 2),
+('Klassieke literatuur', 2),
+
+-- Spanning / thriller (3)
+('Psychologische thriller', 3),
+('Juridische thriller', 3),
+('Actiethriller', 3),
+
+-- Detective / misdaad (4)
+('Cozy mystery', 4),
+('Noir', 4),
+('Politieprocedure', 4),
+
+-- Fantasy (5)
+('High fantasy', 5),
+('Urban fantasy', 5),
+('Dark fantasy', 5),
+
+-- Sciencefiction (6)
+('Space opera', 6),
+('Cyberpunk', 6),
+('Hard sciencefiction', 6),
+
+-- Dystopie (7)
+('Post-apocalyptisch', 7),
+('Klimaatfictie', 7),
+
+-- Historische roman (8)
+('Middeleeuwen', 8),
+('Tweede Wereldoorlog', 8),
+('Victoriaans', 8),
+
+-- Romantiek (9)
+('Hedendaagse romantiek', 9),
+('Historische romantiek', 9),
+('Paranormale romantiek', 9),
+
+-- Coming-of-age (10)
+('Jeugdroman', 10),
+('Young adult', 10),
+
+-- Avontuur (11)
+('Reisavontuur', 11),
+('Overlevingsverhaal', 11),
+
+-- Oorlog & conflict (12)
+('Oorlogsroman', 12),
+('Antioorlogsliteratuur', 12),
+
+-- Horror (13)
+('Psychologische horror', 13),
+('Bovennatuurlijke horror', 13),
+('Gotische horror', 13),
+
+-- Humor (14)
+('Satire', 14),
+('Absurdisme', 14),
+
+-- Graphic novel / strip (15)
+('Superhelden', 15),
+('Manga', 15),
+('Autobiografische strip', 15),
+
+-- Poëzie (16)
+('Sonnet', 16),
+('Vrije vers', 16),
+('Haiku', 16),
+
+-- Non-fictie algemeen (17)
+('Biografie / autobiografie', 17),
+('Wetenschap & technologie', 17),
+('Filosofie', 17),
+('Maatschappij & politiek', 17),
+('Psychologie', 17),
+('Geschiedenis', 17),
+('Kunst & cultuur', 17);
+
 -- extra tags for a book
 CREATE TABLE IF NOT EXISTS tag (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE
 );
+
+INSERT INTO tag (name) VALUES 
+('Liefde & relaties'),
+('Vriendschap'),
+('Identiteit & zelfbeeld'),
+('Gender & seksualiteit'),
+('Diversiteit & inclusie'),
+('Mentale gezondheid'),
+('Rouw & verlies'),
+('Familie'),
+('School & prestatiedruk'),
+('Sociale media'),
+('Migratie & afkomst'),
+('Armoede & ongelijkheid'),
+('Macht & onrecht'),
+('Avontuur & ontdekking'),
+('Overleven'),
+('Toekomst & technologie');
 
 -- reading level of a book (A, B, C or D. increasing difficulty)
 CREATE TABLE IF NOT EXISTS reading_level (
@@ -203,8 +316,20 @@ CREATE TABLE IF NOT EXISTS reading_level (
     name VARCHAR(255) NOT NULL UNIQUE
 );
 
+INSERT INTO reading_level (name) VALUES 
+('A'),
+('B'),
+('C'),
+('D');
+
 -- didactic gategory of a book
 CREATE TABLE IF NOT EXISTS didactic_category (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE
 );
+
+INSERT INTO didactic_category (name) VALUES 
+('Lesmethodes'),
+('Didactische handboeken'),
+('Evaluatiemateriaal'),
+('Naslagwerken');

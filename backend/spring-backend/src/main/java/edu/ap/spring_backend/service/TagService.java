@@ -31,10 +31,6 @@ public class TagService {
     public Tag update(Long id, TagDTO newTag) {
         Tag existing = tagRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tag niet gevonden"));
-
-        if (existing.isDefault()) {
-            throw new IllegalArgumentException("Standaard tags kunnen niet gewijzigd worden");
-        }
         if (tagRepository.existsByNameIgnoreCaseAndIdNot(newTag.name(), id)) {
             throw new IllegalArgumentException("Tag bestaat reeds");
         }
@@ -45,10 +41,6 @@ public class TagService {
     public void delete(Long id) {
         Tag existing = tagRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tag niet gevonden"));
-
-        if (existing.isDefault()) {
-            throw new IllegalArgumentException("Standaard tags kunnen niet verwijderd worden");
-        }
         tagRepository.delete(existing);
     }
 }
