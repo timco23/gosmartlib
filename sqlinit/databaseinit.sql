@@ -90,19 +90,19 @@ CREATE TABLE IF NOT EXISTS campus (
 
 
 -- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS tag (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    is_default BOOLEAN NOT NULL DEFAULT FALSE
-);
+-- CREATE TABLE IF NOT EXISTS tag (
+--     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--     name VARCHAR(255) NOT NULL UNIQUE,
+--     is_default BOOLEAN NOT NULL DEFAULT FALSE
+-- );
 
 -- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 -- Default non-editable tags
-INSERT INTO tag (name, is_default) VALUES ('Algemeen', true);
-INSERT INTO tag (name, is_default) VALUES ('Pedagogisch', true);
-INSERT INTO tag (name, is_default) VALUES ('12-14j', true);
-INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
-INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
+-- INSERT INTO tag (name, is_default) VALUES ('Algemeen', true);
+-- INSERT INTO tag (name, is_default) VALUES ('Pedagogisch', true);
+-- INSERT INTO tag (name, is_default) VALUES ('12-14j', true);
+-- INSERT INTO tag (name, is_default) VALUES ('14-16j', true);
+-- INSERT INTO tag (name, is_default) VALUES ('16-18j', true);
 
 -- Testbooks
 insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count) values
@@ -144,27 +144,27 @@ create table if not exists school_item
 	unique (item_id) -- So that a school can't have the same book twice
 );
 
--- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
--- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
-CREATE TABLE IF NOT EXISTS school_item_tag (
-    school_item_id INT UNSIGNED NOT NULL,
-    tag_id BIGINT NOT NULL,
-    PRIMARY KEY (school_item_id, tag_id),
-    FOREIGN KEY (school_item_id) REFERENCES school_item(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
-);
-
 -- Voeg alle testbook items toe aan de schoolcatalogus van school 1
 INSERT INTO school_item (school_id, item_id, book_description, featured)
 SELECT 1, id, NULL, FALSE
 FROM item;
 
 -- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
+-- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
+-- CREATE TABLE IF NOT EXISTS school_item_tag (
+--     school_item_id INT UNSIGNED NOT NULL,
+--     tag_id BIGINT NOT NULL,
+--     PRIMARY KEY (school_item_id, tag_id),
+--     FOREIGN KEY (school_item_id) REFERENCES school_item(id) ON DELETE CASCADE,
+--     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
+-- );
+
+-- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 -- Koppel de 'Algemeen' tag aan alle school items
-INSERT INTO school_item_tag (school_item_id, tag_id)
-SELECT si.id, t.id
-FROM school_item si, tag t
-WHERE t.name = 'Algemeen';
+-- INSERT INTO school_item_tag (school_item_id, tag_id)
+-- SELECT si.id, t.id
+-- FROM school_item si, tag t
+-- WHERE t.name = 'Algemeen';
 
 
 -- tabel voor de fysieke exemplaren van een school item, met unieke barcode en status
@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
 -- the main genre of a book
 CREATE TABLE IF NOT EXISTS genre (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL UNIQUE,
 );
 
 -- the subgenre of a book, linked to a main genre
