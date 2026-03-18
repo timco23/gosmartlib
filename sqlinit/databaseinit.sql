@@ -88,12 +88,15 @@ CREATE TABLE IF NOT EXISTS campus (
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
 
+
+-- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS tag (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
     is_default BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+-- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 -- Default non-editable tags
 INSERT INTO tag (name, is_default) VALUES ('Algemeen', true);
 INSERT INTO tag (name, is_default) VALUES ('Pedagogisch', true);
@@ -141,6 +144,7 @@ create table if not exists school_item
 	unique (item_id) -- So that a school can't have the same book twice
 );
 
+-- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 -- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
 CREATE TABLE IF NOT EXISTS school_item_tag (
     school_item_id INT UNSIGNED NOT NULL,
@@ -155,16 +159,52 @@ INSERT INTO school_item (school_id, item_id, book_description, featured)
 SELECT 1, id, NULL, FALSE
 FROM item;
 
+-- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 -- Koppel de 'Algemeen' tag aan alle school items
 INSERT INTO school_item_tag (school_item_id, tag_id)
 SELECT si.id, t.id
 FROM school_item si, tag t
 WHERE t.name = 'Algemeen';
 
+
+-- tabel voor de fysieke exemplaren van een school item, met unieke barcode en status
 CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
     school_item_id INT,
     barcode VARCHAR(255),
     copy_status VARCHAR(255),
     `item_condition` VARCHAR(50)
+);
+
+
+-- the main genre of a book
+CREATE TABLE IF NOT EXISTS genre (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- the subgenre of a book, linked to a main genre
+CREATE TABLE IF NOT EXISTS subgenre (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    genre_id BIGINT NOT NULL,
+    FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
+);
+
+-- extra tags for a book
+CREATE TABLE IF NOT EXISTS tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- reading level of a book (A, B, C or D. increasing difficulty)
+CREATE TABLE IF NOT EXISTS reading_level (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- didactic gategory of a book
+CREATE TABLE IF NOT EXISTS didactic_category (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
 );
