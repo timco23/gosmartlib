@@ -137,7 +137,7 @@ create table if not exists school_item
 	unique (item_id) -- So that a school can't have the same book twice
 );
 
--- Voeg alle testbook items toe aan de schoolcatalogus van school 1
+-- Add all testbook items to the schoolcatalog of school 1
 INSERT INTO school_item (school_id, item_id, book_description, featured)
 SELECT 1, id, NULL, FALSE
 FROM item;
@@ -159,8 +159,7 @@ FROM item;
 -- FROM school_item si, tag t
 -- WHERE t.name = 'Algemeen';
 
-
--- tabel voor de fysieke exemplaren van een school item, met unieke barcode en status
+-- table for the fysical copies of a school item, with unique barcode and status
 CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
     school_item_id INT,
@@ -168,7 +167,6 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     copy_status VARCHAR(255),
     `item_condition` VARCHAR(50)
 );
-
 
 -- the main genre of a book
 CREATE TABLE IF NOT EXISTS genre (
