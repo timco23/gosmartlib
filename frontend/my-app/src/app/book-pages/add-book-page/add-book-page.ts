@@ -8,11 +8,12 @@ import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag } from '../..
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
-import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
+import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
+import { GenreSelectionMenuComponent } from "../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component";
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
@@ -38,6 +39,7 @@ export class AddBookPage implements OnInit {
   userHasNoSchoolError: boolean = false;
   schoolErrorMessage: string = "";
   selectedTags: Tag[] = [];
+  selectedGenres: Tag[] = [];
 
   globalBookList: Observable<GlobalBook[]> | null = null;
   school: School | null = null;

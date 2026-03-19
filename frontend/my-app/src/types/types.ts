@@ -23,7 +23,11 @@ export interface UserProfile {
 export interface Tag {
   id: number;
   name: string;
-  default: boolean;
+}
+
+export interface Genre {
+  id: number;
+  name: string;
 }
 
 export interface School {

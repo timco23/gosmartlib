@@ -11,9 +11,6 @@
       <label>
         <input type="checkbox" [ngModel]="isTagSelected(tag)" (ngModelChange)="toggleTag(tag)" />
         <span>{{ tag.name }}</span>
-        @if (tag.default) {
-          <span class="badge-default">Standaard</span>
-        }
       </label>
     </li>  
     }

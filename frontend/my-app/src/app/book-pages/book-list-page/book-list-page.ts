@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { Book, Page, Role, Tag } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
-import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
+import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { AuthService } from '../../services/auth.service';
 
 @Component({

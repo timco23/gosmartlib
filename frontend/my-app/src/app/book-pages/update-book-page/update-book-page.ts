@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { Book, Tag, School, UpdateBookPayload } from '../../../types/types';
-import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
+import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { SchoolService } from '../../services/school.service';
 
 @Component({

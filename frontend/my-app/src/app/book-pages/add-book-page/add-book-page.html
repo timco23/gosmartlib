@@ -105,6 +105,12 @@
                         (tagsChanged)="onTagsChanged($event)"
                         />
 
+                        <label>Tags</label>
+                        <app-genre-selection-menu
+                        [initialGenres]="selectedGenres"
+                        (tagsChanged)="onTagsChanged($event)"
+                        />
+
                         <label for="campus">Selecteer een campus (optioneel)</label>
                         @if (campusLoading) {
                         <p>Schoolcampussen laden....</p>

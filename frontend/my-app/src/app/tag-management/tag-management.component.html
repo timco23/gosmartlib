@@ -48,13 +48,8 @@
         </div>
 
         <div class="tag-actions">
-          @if (tag.default) {
-            <span class="badge-default">Standaard</span>
-          }
-          @if (!tag.default) {
             <button (click)="startEdit(tag)">Wijzigen</button>
             <button (click)="deleteTag(tag.id)">Verwijderen</button>
-          }
         </div>
       }
     </li>
