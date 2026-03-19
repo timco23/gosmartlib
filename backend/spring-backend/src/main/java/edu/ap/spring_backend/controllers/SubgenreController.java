@@ -27,7 +27,7 @@ public class SubgenreController {
         return subgenreService.GetAll();
     }
 
-    @PostMapping
+    @PostMapping()
     public Subgenre create(@RequestBody SubgenreDTO subgenre) {
         return subgenreService.create(subgenre);
     }

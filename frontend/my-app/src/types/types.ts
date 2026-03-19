@@ -30,6 +30,11 @@ export interface Genre {
   name: string;
 }
 
+export interface Subgenre {
+  id: number;
+  name: string;
+}
+
 export interface School {
   id?: number;
   name: string;
