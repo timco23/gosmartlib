@@ -2,9 +2,10 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Page, Tag } from '../../../types/types';
+import { Book, Page, Role, Tag } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-book-list-page',
@@ -16,6 +17,8 @@ export class BookListPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
+  authService = inject(AuthService)
+  role = Role;
 
   currentPage: number = 0;
   pageSize: number = 10;

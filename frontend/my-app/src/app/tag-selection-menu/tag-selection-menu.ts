@@ -1,7 +1,8 @@
 import { Component, inject, input, output, SimpleChanges } from '@angular/core';
-import { Tag } from '../../types/types';
+import { Role, Tag } from '../../types/types';
 import { TagService } from '../services/tag.service';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../services/auth.service';
 
 /**
  * Displays all available tags and lets the user toggle which tags
@@ -15,6 +16,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class TagSelectionMenu {
   private tagService = inject(TagService);
+  authService = inject(AuthService)
+  role = Role;
 
   bookId = input<number | null>(null);
   initialTags = input<Tag[]>([]);

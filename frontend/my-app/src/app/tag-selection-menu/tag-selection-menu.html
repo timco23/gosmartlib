@@ -6,7 +6,8 @@
 
 <ul class="tag-list">
   @for (tag of filteredTags; track tag.id) {
-    <li class="tag-item">
+    @if((tag.name == "Pedagogisch" && authService.atLeastHasRole(role.LEERKRACHT)) || tag.name != "Pedagogisch") {
+      <li class="tag-item">
       <label>
         <input type="checkbox" [ngModel]="isTagSelected(tag)" (ngModelChange)="toggleTag(tag)" />
         <span>{{ tag.name }}</span>
@@ -14,7 +15,8 @@
           <span class="badge-default">Standaard</span>
         }
       </label>
-    </li>
+    </li>  
+    }
   } @empty {
     <li>Geen tags gevonden.</li>
   }

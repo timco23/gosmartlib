@@ -1,7 +1,10 @@
-<div class="navbar" *ngIf="currentUser">
+@if (currentUser) {
+  <div class="navbar">
   <div class="nav-left">
     <a routerLink="/home" class="nav-link" routerLinkActive="active">Home</a>
-    <a routerLink="/schools" class="nav-link" routerLinkActive="active" *ngIf="currentUser.role === 'ADMIN'">Schoolbeheer</a>
+    @if (authService.atLeastHasRole(role.ADMIN)) {
+      <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
+    }
     <a routerLink="/books" class="nav-link">Boeken</a>
     <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
   </div>
@@ -12,11 +15,14 @@
       <span class="dropdown-arrow">▼</span>
     </div>
 
-    <div class="dropdown-menu" *ngIf="dropdownOpen">
+    @if (dropdownOpen) {
+      <div class="dropdown-menu">
       <a routerLink="/profile" (click)="closeDropdown()" class="dropdown-item"> Mijn Gegevens </a>
       <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
     </div>
+    }
   </div>
 </div>
+}
 
 <router-outlet></router-outlet>

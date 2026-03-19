@@ -1,8 +1,10 @@
 <div class="school-list">
-  <div *ngIf="!addingSchool && !editingSchool && !viewingSchool">
+  @if(!addingSchool && !editingSchool && !viewingSchool) {
+  <div>
     <h2>Scholen</h2>
     <button (click)="addingSchool = true">School toevoegen</button>
-    <ul *ngIf="schools">
+    @if(schools) {
+    <ul>
       <li *ngFor="let school of schools" class="SchoolItem">
         <span class="school-name">{{ school.name }}</span>
         <div class="button-group">
@@ -11,10 +13,13 @@
         </div>
       </li>
     </ul>
+    }
   </div>
+  }
 
   <!-- Details view (read-only) -->
-  <div *ngIf="viewingSchool">
+  @if(viewingSchool) {
+  <div>
     <h2>School Details: {{ viewingSchool.name }}</h2>
     <div class="details-container">
       <div class="detail-item">
@@ -59,10 +64,14 @@
       </div>
 
       <h3>Campussen</h3>
-      <ul class="campus-details-list" *ngIf="viewingSchool.campuses && viewingSchool.campuses.length > 0">
+      @if(viewingSchool.campuses && viewingSchool.campuses.length > 0) {
+      <ul class="campus-details-list">
         <li *ngFor="let campus of viewingSchool.campuses">{{ campus.name }}</li>
       </ul>
-      <p *ngIf="!viewingSchool.campuses || viewingSchool.campuses.length === 0" class="no-data">Geen campussen</p>
+      }
+      @if (!viewingSchool.campuses || viewingSchool.campuses.length === 0) {
+        <p class="no-data">Geen campussen</p>
+      }
 
       <h3>Instellingen</h3>
       <div class="detail-item">
@@ -92,8 +101,10 @@
       </div>
     </div>
   </div>
+  }
 
-  <div *ngIf="addingSchool || editingSchool">
+  @if(addingSchool || editingSchool) {
+  <div>
     <h2>{{ editingSchool ? 'School bewerken' : 'School toevoegen' }}</h2>
     <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
       <label>Naam</label>
@@ -127,12 +138,14 @@
         <button type="button" (click)="addCampus()">Toevoegen</button>
       </div>
 
-      <ul class="campus-list" *ngIf="campuses.length > 0">
+      @if(campuses.length > 0) {
+      <ul class="campus-list">
         <li *ngFor="let campus of campuses; let i = index">
           {{ campus.name }}
           <button type="button" class="remove-btn" (click)="removeCampus(i)">×</button>
         </li>
-      </ul>
+      </ul> 
+      }
       <label>
         <input type="checkbox" formControlName="librarianRequestNotification">
         Melding voor bibliotheekbeheerder bij verzoek
@@ -160,8 +173,10 @@
       <button type="button" class="DeleteButton" style="width:100%; margin-top: 8px;" (click)="confirmDelete()">School verwijderen</button>
     </form>
   </div>
+  }
 
-  <div *ngIf="showDeleteConfirm" class="overlay">
+  @if(showDeleteConfirm) {
+  <div class="overlay">
     <div class="confirm-dialog">
       <p>Bent u zeker dat u <strong>{{ editingSchool?.name }}</strong> wil verwijderen?</p>
       <div class="button-row">
@@ -170,4 +185,5 @@
       </div>
     </div>
   </div>
+  }
 </div>

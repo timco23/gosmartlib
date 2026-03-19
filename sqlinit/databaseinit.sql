@@ -6,7 +6,7 @@ use LibraryDB;
 -- Replace ReviewScore and ReviewCount later on with generated columns that calculate these values based on the SchoolItems that use this id
 create table if not exists item 
 (
-	id int unsigned primary key not null auto_increment,
+	id int primary key not null auto_increment,
 	title varchar(255) not null,
 	publisher varchar(100) not null,
 	author varchar(255) not null,
@@ -128,7 +128,7 @@ create table if not exists school_item
 (
 	id int unsigned primary key not null auto_increment,
 	school_id bigint not null,
-	item_id int unsigned not null,
+	item_id int not null,
     campus_id bigint null,
 	book_description text null,
 	featured boolean not null,

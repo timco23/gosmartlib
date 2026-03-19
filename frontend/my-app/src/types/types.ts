@@ -72,12 +72,12 @@ export interface Book {
   featured: boolean;
   itemId: number;
   title: string;
-  publisher: string;
+  publisher?: string;
   author: string;
   isbn?: string;
-  releaseYear: number;
+  releaseYear?: number;
   language: string;
-  pageCount: number;
+  pageCount?: number;
   cover?: string;
   reviewScore: number;
   reviewCount: number;
@@ -156,4 +156,11 @@ export interface CarouselSlot {
   book: Book;
   index: number;
   position: 'left-2' | 'left-1' | 'center' | 'right-1' | 'right-2';
+}
+
+export enum Role {
+  LEERLING,
+  LEERKRACHT,
+  BEHEERDER,
+  ADMIN
 }

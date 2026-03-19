@@ -29,8 +29,8 @@ export class SchoolManagementComponent {
     private cdr: ChangeDetectorRef
   ) {
     this.schoolForm = this.fb.group({
-      name: ['', [Validators.required]],
-      address: ['', [Validators.required]],
+      name: ['', [Validators.required, Validators.maxLength(100)]],
+      address: ['', [Validators.required, Validators.maxLength(200)]],
       lendingPeriodDays: [0, [Validators.required, Validators.min(0)]],
       extendPeriodDays: [0, [Validators.required, Validators.min(0)]],
       maxExtends: [0, [Validators.required, Validators.min(0)]],

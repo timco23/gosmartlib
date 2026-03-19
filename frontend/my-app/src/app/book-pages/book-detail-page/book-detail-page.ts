@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, LoginResponse, SchoolItemCopy } from '../../../types/types';
+import { Book, Role, LoginResponse, SchoolItemCopy } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
@@ -20,9 +20,11 @@ export class BookDetailPage implements OnInit {
   userApi = inject(UserService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  authService = inject(AuthService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   copies: any[] = [];
   addingCopy: boolean = false;
+  role = Role;
 
   editingCopyId: number | null = null;
   editedCopy: SchoolItemCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
@@ -32,11 +34,8 @@ export class BookDetailPage implements OnInit {
     schoolItemId: 0,
     condition: '',
     barcode: '',
-    copy_status: '',
+    copy_status: 'Beschikbaar',
   };
-
-
-  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
@@ -134,7 +133,7 @@ export class BookDetailPage implements OnInit {
           schoolItemId: this.book!.itemId,
           condition: '',
           barcode: '',
-          copy_status: '',
+          copy_status: 'Beschikbaar',
         };
         this.addingCopy = false;
         this.cdr.detectChanges();

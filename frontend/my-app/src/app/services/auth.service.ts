@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { LoginResponse } from '../../types/types';
+import { LoginResponse, Role } from '../../types/types';
 
 const TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -111,5 +111,15 @@ export class AuthService {
    */
   isLoggedIn(): boolean {
     return this.getToken() !== null;
+  }
+
+
+  /**
+   * Checks if the current user has the required role or higher.
+   * @returns true if user atleast has the specified role or higher, false otherwise
+   */
+  atLeastHasRole(role: Role): boolean {
+    const currentRole: Role = Role[this.currentUserValue!.role.toUpperCase() as keyof typeof Role];
+    return role <= currentRole
   }
 }
