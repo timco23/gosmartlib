@@ -43,6 +43,13 @@
         (tagsChanged)="onTagsChanged($event)"
       />
 
+      <label>Genres</label>
+      <app-genre-selection-menu
+        [bookId]="book?.id ?? null"
+        [initialGenres]="selectedGenres"
+        (tagsChanged)="onTagsChanged($event)"
+      />
+
             <label for="campus">Selecteer een campus (optioneel)</label>
 
             @if (school?.campuses!.length > 0) {

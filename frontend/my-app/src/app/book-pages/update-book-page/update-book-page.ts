@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { Book, Tag, School, UpdateBookPayload } from '../../../types/types';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
+import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SchoolService } from '../../services/school.service';
 
 @Component({
   selector: 'app-update-book-page',
-  imports: [ReactiveFormsModule, TagSelectionMenu],
+  imports: [ReactiveFormsModule, TagSelectionMenu, GenreSelectionMenuComponent],
   templateUrl: './update-book-page.html',
   styleUrl: './update-book-page.css',
 })
@@ -28,6 +29,7 @@ export class UpdateBookPage implements OnInit {
 
   book: Book | null = null;
   selectedTags: Tag[] = [];
+  selectedGenres: Tag[] = [];
   bookLoaded: boolean = false;
 
   constructor(private fb: FormBuilder) {
