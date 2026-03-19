@@ -17,7 +17,7 @@ services:
       - "443:443"
     volumes:
       - traefik-certs:/certs
-      
+
   frontend:
     labels:
       - "traefik.enable=true"
@@ -26,7 +26,7 @@ services:
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.frontend.entrypoints=web,websecure"
       - "traefik.docker.network=traefik"
-      
+
   backend:
     labels:
       - "traefik.enable=true"
@@ -40,11 +40,19 @@ services:
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowheaders=*"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowcredentials=true"
       - "traefik.http.routers.backend.middlewares=cors-prod"
+      # route /oauth/* ook naar backend (nodig voor Smartschool callback)
+      - "traefik.http.routers.backend-oauth.rule=Host(`api.gsmartlib.tech`) && PathPrefix(`/oauth`)"
+      - "traefik.http.routers.backend-oauth.entrypoints=web,websecure"
+      - "traefik.http.routers.backend-oauth.tls=true"
+      - "traefik.http.routers.backend-oauth.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.backend-oauth.middlewares=cors-prod"
+      - "traefik.http.routers.backend-oauth.service=backend"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
     networks:
-    - frontend
-    - backend
-    - traefik
-      
+      - frontend
+      - backend
+      - traefik
+
   database:
     volumes:
       - ./sqlinit:/docker-entrypoint-initdb.d

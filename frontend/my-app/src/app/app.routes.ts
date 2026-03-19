@@ -10,6 +10,7 @@ import { Profile } from './profile/profile';
 import { SchoolManagementComponent } from './school-management/school-management.component';
 import { TagManagement } from './tag-management/tag-management.component';
 import { FavoritesComponent } from './favorites/favorites.component';
+import { OauthCallback } from './oauth-callback/oauth-callback';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -23,5 +24,6 @@ export const routes: Routes = [
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: 'tags', component: TagManagement, canActivate: [authGuard] },
+  { path: 'oauth/callback', component: OauthCallback },
   { path: '**', redirectTo: '/login' },
 ];

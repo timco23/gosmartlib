@@ -27,16 +27,31 @@ export class App implements OnInit {
       this.currentUser = user;
     });
 
+    // If a token exists, validate it by calling /auth/me once on startup.
+    // If the token is invalid/expired, log out and redirect to /login.
+    if (this.authService.isLoggedIn()) {
+      this.authService.me().subscribe({
+        next: () => {
+          if (this.router.url === '/login') this.router.navigate(['/home']);
+        },
+        error: () => {
+          this.authService.logout();
+          this.router.navigate(['/login'], { queryParams: { oauth: 'session_expired' } });
+        },
+      });
+    }
+
+    // Route protection based on auth state
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       const currentUrl = this.router.url;
       const isLoggedIn = this.authService.isLoggedIn();
 
-      // Als ingelogd en op login pagina → redirect naar home
+      // If logged in and on login page, redirect to home
       if (isLoggedIn && currentUrl === '/login') {
         this.router.navigate(['/home']);
       }
 
-      // Als niet ingelogd en NIET op login → redirect naar login
+      // If not logged in and not on login page, redirect to login
       if (!isLoggedIn && currentUrl !== '/login') {
         this.router.navigate(['/login']);
       }

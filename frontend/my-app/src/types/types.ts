@@ -1,8 +1,3 @@
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 export interface LoginResponse {
   name: string;
   role: string;
@@ -156,7 +151,6 @@ export interface SchoolItemCopy {
   barcode: string;
   copy_status: string;
 }
-
 
 export interface CarouselSlot {
   book: Book;

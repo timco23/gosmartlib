@@ -24,7 +24,7 @@ public class User {
     @Column(unique = true, nullable = false, name = "email")
     private String email;
     
-    @Column(nullable = false, name = "password")
+    @Column(nullable = true, name = "password")
     private String password;
     
     @Enumerated(EnumType.STRING)
@@ -36,6 +36,9 @@ public class User {
     
     @Column(name = "class")
     private String className;
+
+    @Column(name = "smartschool_username", unique = true)
+    private String smartschoolUsername;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
@@ -81,6 +84,7 @@ public class User {
     public String getStudentNumber() { return studentNumber; }
     public String getClassName() { return className; }
     public School getSchool() { return school; }
+    public String getSmartschoolUsername() { return smartschoolUsername; }
     public String getRefreshToken() { return refreshToken; }
     public List<Item> getFavoriteBooks() { return favoriteBooks; }
     
@@ -93,6 +97,7 @@ public class User {
     public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
     public void setClassName(String className) { this.className = className; }
     public void setSchool(School school) { this.school = school; }
+    public void setSmartschoolUsername(String smartschoolUsername) { this.smartschoolUsername = smartschoolUsername; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
 }

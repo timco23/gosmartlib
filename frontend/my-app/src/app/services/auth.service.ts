@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginResponse } from '../../types/types';
+
+const TOKEN_KEY = 'accessToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
 
 @Injectable({
   providedIn: 'root',
@@ -19,22 +22,24 @@ export class AuthService {
     }
   }
 
-  /**
-   * Logs in a user with email and password.
-   * Stores user data in localStorage and updates currentUser$.
-   * @param email user's email
-   * @param password user's password
-   * @returns Observable with login response
-   */
-  login(email: string, password: string): Observable<LoginResponse> {
-    return this.http
-      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, password })
-      .pipe(
-        tap((user) => {
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          this.currentUserSubject.next(user);
-        }),
-      );
+  //For staying logged in:
+
+  //Sets jWT token
+  setToken(token: string): void {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  //Reads JWT token
+  getToken(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
+  }
+
+  setRefreshToken(token: string): void {
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
   /**
@@ -43,6 +48,8 @@ export class AuthService {
    */
   logout(): void {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     this.currentUserSubject.next(null);
   }
 
@@ -67,11 +74,42 @@ export class AuthService {
     this.currentUserSubject.next(user);
   }
 
+  me(): Observable<LoginResponse> {
+    //backend call
+    return this.http.get<LoginResponse>(`${environment.apiUrl}/auth/me`).pipe(
+      tap((user) => {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        this.currentUserSubject.next(user);
+      }),
+    );
+  }
+
+  /**
+   * Refreshes the JWT token using the refresh token.
+   * Called when JWT is expired or about to expire.
+   * @returns Observable with new JWT token
+   */
+  refreshToken(): Observable<{ token: string }> {
+    const refreshToken = this.getRefreshToken();
+
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    return this.http
+      .post<{ token: string }>(`${environment.apiUrl}/auth/refresh`, { refreshToken })
+      .pipe(
+        tap((response) => {
+          this.setToken(response.token);
+        }),
+      );
+  }
+
   /**
    * Checks if a user is currently logged in.
    * @returns true if user is logged in, false otherwise
    */
   isLoggedIn(): boolean {
-    return this.currentUserValue !== null;
+    return this.getToken() !== null;
   }
 }

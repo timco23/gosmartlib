@@ -34,6 +34,13 @@ services:
     restart: on-failure
     environment:
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
+      - SMARTSCHOOL_CLIENT_ID=${SMARTSCHOOL_CLIENT_ID}
+      - SMARTSCHOOL_CLIENT_SECRET=${SMARTSCHOOL_CLIENT_SECRET}
+      - SMARTSCHOOL_PLATFORM=${SMARTSCHOOL_PLATFORM}
+      - SMARTSCHOOL_REDIRECT_URI=${SMARTSCHOOL_REDIRECT_URI}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_MINUTES=${JWT_EXPIRES_MINUTES}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
@@ -62,8 +69,18 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
       - MYSQL_DATABASE=LibraryDB
-    healthcheck: 
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${sqlrootpwd}"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${sqlrootpwd}",
+        ]
       interval: 3s
       timeout: 5s
       retries: 20

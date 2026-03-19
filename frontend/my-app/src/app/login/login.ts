@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -17,31 +18,25 @@ export class Login implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Check of user al ingelogd is
+    // Check of user is logged in
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/home']);
     }
   }
 
   loginWithSmartschool() {
-    // For OAuth
-    alert('Smartschool OAuth komt eraan. Gebruik voorlopig Dev login.');
+    window.location.href = environment.apiUrl + '/oauth/smartschool/login';
   }
 
+  //For testing
   loginAsAdmin() {
+    //Fake token
+    this.authService.setToken('DEV_ADMIN_TOKEN');
+
     this.authService.setCurrentUser({
       name: 'Admin',
       role: 'ADMIN',
       email: 'admin@gsmartlib.tech',
-    });
-    this.router.navigate(['/home']);
-  }
-
-  loginAsStudent() {
-    this.authService.setCurrentUser({
-      name: 'John Wick',
-      role: 'LEERLING',
-      email: 's123456@gsmartlib.tech',
     });
     this.router.navigate(['/home']);
   }
