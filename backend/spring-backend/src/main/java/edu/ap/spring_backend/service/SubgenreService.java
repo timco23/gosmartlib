@@ -29,4 +29,8 @@ public class SubgenreService {
         subgenre.setName(newSubgenre.name());
         return subgenreRepository.save(subgenre);
     }
+
+    public List<Subgenre> getFromGenreId(long genreId) {
+        return subgenreRepository.findAllByGenreId(genreId);
+    }
 }
