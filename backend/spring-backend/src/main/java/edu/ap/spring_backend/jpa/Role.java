@@ -8,5 +8,5 @@ package edu.ap.spring_backend.jpa;
  * LEERLING: Student with limited access (from Smartschool)
  */
 public enum Role {
-    ADMIN, LEERLING
+    ADMIN, BIBLIOTHEEKBEHEERDEER, LEERKRACHT, LEERLING
 }
