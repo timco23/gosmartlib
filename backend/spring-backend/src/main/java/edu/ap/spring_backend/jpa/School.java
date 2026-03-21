@@ -41,7 +41,7 @@ public class School {
     private List<Campus> campuses = new ArrayList<>();
 
 
-    protected School() {
+    public School() {
     }
 
     public School(String name, String address,

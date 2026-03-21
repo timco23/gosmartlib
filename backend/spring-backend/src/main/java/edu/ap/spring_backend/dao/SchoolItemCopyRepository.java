@@ -10,6 +10,8 @@ import edu.ap.spring_backend.jpa.SchoolItemCopy;
 @Repository
 public interface SchoolItemCopyRepository extends JpaRepository<SchoolItemCopy, Integer> {
 
-    List<SchoolItemCopy> findBySchoolItemId(int schoolItemId);
+    List<SchoolItemCopy> findByItemId(int itemId);
+    boolean existsByItemIdAndSchoolId(int itemId, Long schoolId);
+    boolean existsByItemTitleAndSchoolId(String title, Long schoolId);
 
 }

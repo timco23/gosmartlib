@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 /**
  * Service class handling authentication logic.
  * Validates user credentials and returns authenticated user information.
- */
+     */
 @Service
 public class AuthService {
     private final UserRepository userRepository;

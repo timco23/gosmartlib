@@ -146,16 +146,16 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     item_id INT not null,
     school_id bigint not null,
     barcode VARCHAR(255),
-    copy_status ENUM('Beschikbaar', 'Uitgeleend','Ontbrekend'),
-    item_condition ENUM('Nieuw', 'Goed','Gebruikt','Beschadigd'),
+    copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND'),
+    item_condition ENUM('NIEUW', 'GOED','GEBRUIKT','BESCHADIGD'),
 	featured boolean not null,
 	campus_id bigint null,
-    foreign key (item_id) references item(id) on delete cascade,
+    foreign key (item_id) references item(id) on delete restrict,
     foreign key (school_id) references school(id) on delete cascade,
 	foreign key (campus_id) references campus(id) on delete set null
 );
 
 -- Voeg alle testbook items toe aan de schoolcatalogus van school 1 als exemplaren
 INSERT INTO school_item_copy (school_id, item_id, barcode, copy_status, item_condition, featured, campus_id)
-SELECT 1, id, 12345, 'Beschikbaar', 'Nieuw', FALSE, NULL
+SELECT 1, id, 12345, 'BESCHIKBAAR', 'Nieuw', FALSE, NULL
 FROM item;
