@@ -78,6 +78,8 @@ export class AddBookPage implements OnInit {
     const newBook: CreateBookPayload = {
       schoolId: this.school!.id!,
       tags: this.selectedTags.map((t) => t.id),
+      genres: this.selectedGenres.map((g) => g.id),
+      subgenres: this.selectedSubgenres.map((s) => s.id),
       description: raw.beschrijving,
       featured: false,
       itemId: parseInt(raw.itemId),
@@ -170,6 +172,17 @@ export class AddBookPage implements OnInit {
 
   onTagsChanged(tags: Tag[]): void {
     this.selectedTags = tags;
+    this.cdr.detectChanges();
+  }
+
+  onGenresChanged(genres: Genre[]): void {
+    this.selectedGenres = [...genres];
+    this.cdr.detectChanges();
+  }
+
+  onSubgenresChanged(subgenres: Subgenre[]): void {
+    this.selectedSubgenres = subgenres;
+    this.cdr.detectChanges();
   }
 
   loadDetailsViaISBN() {

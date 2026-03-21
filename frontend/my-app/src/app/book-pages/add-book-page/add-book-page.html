@@ -107,15 +107,15 @@
 
                         <label>Genres</label>
                         <app-genre-selection-menu
-                        [initialGenres]="selectedGenres"
-                        (tagsChanged)="onTagsChanged($event)"
+                          [initialGenres]="selectedGenres"
+                          (tagsChanged)="onGenresChanged($event)"
                         />
-
+                        
                         <label>Subgenres</label>
                         <app-subgenre-selection-menu
-                        [initialSubgenres]="selectedSubgenres"
-                        [genreIds]="selectedGenres"
-                        (subgenresChanged)="onTagsChanged($event)"
+                          [initialSubgenres]="selectedSubgenres"
+                          [genreIds]="selectedGenres"
+                          (subgenresChanged)="onSubgenresChanged($event)"
                         />
 
                         <label for="campus">Selecteer een campus (optioneel)</label>

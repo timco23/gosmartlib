@@ -116,6 +116,8 @@ export interface UpdateBookPayload {
 export interface CreateBookPayload {
   schoolId: number;
   tags: number[];
+  genres: number[];
+  subgenres: number[];
   description: string;
   featured: boolean;
   itemId: number;

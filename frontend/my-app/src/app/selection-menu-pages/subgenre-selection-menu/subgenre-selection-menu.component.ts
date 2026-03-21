@@ -29,12 +29,21 @@ export class SubgenreSelectionMenuComponent {
       const genres = this.genreIds();
       if (genres != null && genres.length > 0) {
         const ids = genres.map(g => g.id);
-        console.log(genres)
         this.subgenreService.getSubgenresByGenres(ids).subscribe((subgenres) => {
           this.subgenres = subgenres;
+
+          // Verwijder geselecteerde subgenres die niet meer geldig zijn
+          this.selectedSubgenres = this.selectedSubgenres.filter(selected =>
+            subgenres.some(s => s.id === selected.id)
+          );
+
+          // Emit zodat de parent altijd up-to-date is
+          this.subgenresChanged.emit(this.selectedSubgenres);
         });
       } else {
         this.subgenres = [];
+        this.selectedSubgenres = [];
+        this.subgenresChanged.emit([]);
       }
     });
   }
