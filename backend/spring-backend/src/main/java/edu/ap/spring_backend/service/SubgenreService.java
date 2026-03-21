@@ -13,11 +13,11 @@ public class SubgenreService {
 
     private final SubgenreRepository subgenreRepository;
 
-    public SubgenreService(SubgenreRepository subgenreRepository){
+    public SubgenreService(SubgenreRepository subgenreRepository) {
         this.subgenreRepository = subgenreRepository;
     }
-    
-    public List<Subgenre> GetAll(){
+
+    public List<Subgenre> GetAll() {
         return subgenreRepository.findAll();
     }
 
@@ -30,7 +30,7 @@ public class SubgenreService {
         return subgenreRepository.save(subgenre);
     }
 
-    public List<Subgenre> getFromGenreId(long genreId) {
-        return subgenreRepository.findAllByGenreId(genreId);
+    public List<Subgenre> getFromGenreIds(List<Long> genreIds) {
+        return subgenreRepository.findAllByGenreIdIn(genreIds);
     }
 }

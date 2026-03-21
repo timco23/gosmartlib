@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Subgenre } from '../../types/types';
+import { Genre, Subgenre, Tag } from '../../types/types';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ import { Subgenre } from '../../types/types';
 export class SubgenreService {
   private apiUrl = `${environment.apiUrl}/subgenres`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getSubgenres(): Observable<Subgenre[]> {
     return this.http.get<Subgenre[]>(this.apiUrl);
@@ -26,5 +26,10 @@ export class SubgenreService {
 
   deleteSubgenre(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getSubgenresByGenres(genreIds: number[]): Observable<Subgenre[]> {
+    const params = genreIds.map(id => `genreIds=${id}`).join('&');
+    return this.http.get<Subgenre[]>(`${this.apiUrl}/genre?${params}`);
   }
 }

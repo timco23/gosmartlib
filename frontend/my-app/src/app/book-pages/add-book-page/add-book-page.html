@@ -111,6 +111,13 @@
                         (tagsChanged)="onTagsChanged($event)"
                         />
 
+                        <label>Subgenres</label>
+                        <app-subgenre-selection-menu
+                        [initialSubgenres]="selectedSubgenres"
+                        [genreIds]="selectedGenres"
+                        (subgenresChanged)="onTagsChanged($event)"
+                        />
+
                         <label for="campus">Selecteer een campus (optioneel)</label>
                         @if (campusLoading) {
                         <p>Schoolcampussen laden....</p>

@@ -4,16 +4,17 @@ import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag } from '../../../types/types';
+import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag, Genre, Subgenre } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from "../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component";
+import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent, SubgenreSelectionMenuComponent],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
@@ -39,7 +40,8 @@ export class AddBookPage implements OnInit {
   userHasNoSchoolError: boolean = false;
   schoolErrorMessage: string = "";
   selectedTags: Tag[] = [];
-  selectedGenres: Tag[] = [];
+  selectedGenres: Genre[] = [];
+  selectedSubgenres: Subgenre[] = [];
 
   globalBookList: Observable<GlobalBook[]> | null = null;
   school: School | null = null;

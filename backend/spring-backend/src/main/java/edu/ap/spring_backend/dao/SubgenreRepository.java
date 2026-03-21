@@ -8,8 +8,10 @@ import java.util.List;
 import org.springframework.data.repository.ListCrudRepository;
 
 @Repository
-public interface SubgenreRepository extends ListCrudRepository<Subgenre, Long>{
+public interface SubgenreRepository extends ListCrudRepository<Subgenre, Long> {
     boolean existsByNameIgnoreCase(String name);
+
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
-    List<Subgenre> findAllByGenreId(long genreId);
+
+    List<Subgenre> findAllByGenreIdIn(List<Long> genreIds);
 }

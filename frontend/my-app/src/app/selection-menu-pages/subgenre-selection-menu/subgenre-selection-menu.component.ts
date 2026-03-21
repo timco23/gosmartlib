@@ -1,5 +1,5 @@
-import { Component, inject, input, output, SimpleChanges } from '@angular/core';
-import { Role, Subgenre } from '../../../types/types';
+import { Component, effect, inject, input, output, SimpleChanges } from '@angular/core';
+import { Genre, Role, Subgenre, Tag } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { SubgenreService } from '../../services/subgenre.service';
 import { FormsModule } from '@angular/forms';
@@ -17,33 +17,48 @@ export class SubgenreSelectionMenuComponent {
 
   bookId = input<number | null>(null);
   initialSubgenres = input<Subgenre[]>([]);
-  tagsChanged = output<Subgenre[]>();
+  subgenresChanged = output<Subgenre[]>();
 
   subgenres: Subgenre[] = [];
   filterInput: string = '';
   selectedSubgenres: Subgenre[] = [];
+  genreIds = input<Genre[] | null>(null);
 
-    get filteredSubgenres(): Subgenre[] {
-      return this.subgenres
-        .filter((subgenre) => subgenre.name.toLowerCase().includes(this.filterInput.toLowerCase()))
-        .sort((a, b) => a.name.localeCompare(b.name));
+  constructor() {
+    effect(() => {
+      const genres = this.genreIds();
+      if (genres != null && genres.length > 0) {
+        const ids = genres.map(g => g.id);
+        console.log(genres)
+        this.subgenreService.getSubgenresByGenres(ids).subscribe((subgenres) => {
+          this.subgenres = subgenres;
+        });
+      } else {
+        this.subgenres = [];
+      }
+    });
+  }
+
+  get filteredSubgenres(): Subgenre[] {
+    return this.subgenres
+      .filter((subgenre) => subgenre.name.toLowerCase().includes(this.filterInput.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   get selectedSubgenreCount(): number {
     return this.selectedSubgenres.length;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialTags']) {
-      this.selectedSubgenres = [...this.initialSubgenres()];
+  private loadSubgenres(): void {
+    const genres = this.genreIds();
+    if (genres != null && genres.length > 0) {
+      const ids = genres.map(g => g.id);
+      this.subgenreService.getSubgenresByGenres(ids).subscribe((subgenres) => {
+        this.subgenres = subgenres;
+      });
+    } else {
+      this.subgenres = [];
     }
-  }
-
-  ngOnInit(): void {
-    this.subgenreService.getSubgenres().subscribe((subgenre) => {
-      this.subgenres = subgenre;
-      this.selectedSubgenres = [...this.initialSubgenres()];
-    });
   }
 
   isSubgenreSelected(subgenre: Subgenre): boolean {
@@ -56,6 +71,6 @@ export class SubgenreSelectionMenuComponent {
     } else {
       this.selectedSubgenres.push(subgenre);
     }
-    this.tagsChanged.emit(this.selectedSubgenres);
+    this.subgenresChanged.emit(this.selectedSubgenres);
   }
 }
