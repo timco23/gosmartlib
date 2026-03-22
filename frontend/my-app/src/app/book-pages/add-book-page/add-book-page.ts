@@ -12,10 +12,12 @@ import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/
 import { GenreSelectionMenuComponent } from "../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component";
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
 import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
+import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
+import { DidacticCategory } from '../../../types/types';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent, SubgenreSelectionMenuComponent, ReadingLevelSelectionMenuComponent],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent, SubgenreSelectionMenuComponent, ReadingLevelSelectionMenuComponent, DidacticCategorySelectionMenuComponent],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
@@ -44,6 +46,7 @@ export class AddBookPage implements OnInit {
   selectedGenres: Genre[] = [];
   selectedSubgenres: Subgenre[] = [];
   selectedReadingLevel: Readinglevel | null = null;
+  selectedDidacticCategories: DidacticCategory[] = [];
 
   globalBookList: Observable<GlobalBook[]> | null = null;
   school: School | null = null;
@@ -82,6 +85,8 @@ export class AddBookPage implements OnInit {
       tags: this.selectedTags.map((t) => t.id),
       genres: this.selectedGenres.map((g) => g.id),
       subgenres: this.selectedSubgenres.map((s) => s.id),
+      readingLevel: this.selectedReadingLevel?.id ?? null,
+      didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
       description: raw.beschrijving,
       featured: false,
       itemId: parseInt(raw.itemId),
@@ -189,6 +194,11 @@ export class AddBookPage implements OnInit {
 
   onReadingLevelChanged(level: Readinglevel | null): void {
     this.selectedReadingLevel = level;
+  }
+
+  onDidacticCategoriesChanged(categories: DidacticCategory[]): void {
+    this.selectedDidacticCategories = [...categories];
+    this.cdr.detectChanges();
   }
 
   loadDetailsViaISBN() {

@@ -123,6 +123,12 @@
                           (selectedReadingLevel)="onReadingLevelChanged($event)"
                         />
 
+                        <label>Didactische categorieën</label>
+                        <app-didactic-category-selection-menu
+                          [initialCategories]="selectedDidacticCategories"
+                          (tagsChanged)="onDidacticCategoriesChanged($event)"
+                        />
+
                         <label for="campus">Selecteer een campus (optioneel)</label>
                         @if (campusLoading) {
                         <p>Schoolcampussen laden....</p>

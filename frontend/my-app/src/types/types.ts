@@ -40,6 +40,11 @@ export interface Readinglevel {
   name: string;
 }
 
+export interface DidacticCategory {
+  id: number;
+  name: string;
+}
+
 export interface School {
   id?: number;
   name: string;
@@ -123,6 +128,8 @@ export interface CreateBookPayload {
   tags: number[];
   genres: number[];
   subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
   description: string;
   featured: boolean;
   itemId: number;
