@@ -222,9 +222,8 @@ public class SmartschoolOAuthController {
         userRepository.save(user);
 
         String redirectUrl = frontendBaseUrl
-                + "/oauth/callback?token=" + url(jwt)
-                + "&refreshToken=" + url(refreshToken);
-
+            + "/oauth-callback?token=" + url(jwt)
+            + "&refreshToken=" + url(refreshToken);
         response.sendRedirect(redirectUrl);
     }
 

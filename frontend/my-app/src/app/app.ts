@@ -16,7 +16,7 @@ import { Role } from '../types/types';
 export class App implements OnInit {
   currentUser: LoginResponse | null = null;
   dropdownOpen = false;
-  role = Role
+  role = Role;
 
   constructor(
     public authService: AuthService,
@@ -24,17 +24,20 @@ export class App implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Subscribe to user changes
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
 
-    // If a token exists, validate it by calling /auth/me once on startup.
-    // If the token is invalid/expired, log out and redirect to /login.
-    if (this.authService.isLoggedIn()) {
+    const isPublicRoute = (url: string) => {
+      const path = url.split('?')[0];
+      return path === '/login' || path === '/oauth-callback' || path === '/oauth/callback';
+    };
+
+    // Validate only if the token exists AND we are not on the OAuth callback
+    if (this.authService.isLoggedIn() && !isPublicRoute(this.router.url)) {
       this.authService.me().subscribe({
         next: () => {
-          if (this.router.url === '/login') this.router.navigate(['/home']);
+          if (this.router.url.split('?')[0] === '/login') this.router.navigate(['/home']);
         },
         error: () => {
           this.authService.logout();
@@ -43,18 +46,18 @@ export class App implements OnInit {
       });
     }
 
-    // Route protection based on auth state
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       const currentUrl = this.router.url;
+      const path = currentUrl.split('?')[0];
       const isLoggedIn = this.authService.isLoggedIn();
 
-      // If logged in and on login page, redirect to home
-      if (isLoggedIn && currentUrl === '/login') {
+      if (isLoggedIn && path === '/login') {
         this.router.navigate(['/home']);
+        return;
       }
 
-      // If not logged in and not on login page, redirect to login
-      if (!isLoggedIn && currentUrl !== '/login') {
+      // IMPORTANT: oauth-callback is public
+      if (!isLoggedIn && !isPublicRoute(currentUrl)) {
         this.router.navigate(['/login']);
       }
     });
@@ -74,7 +77,7 @@ export class App implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // Sluit dropdown als je buiten klikt
+  // Close the dropdown when you click outside it
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;

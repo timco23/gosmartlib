@@ -15,7 +15,7 @@ import { OauthCallback } from './oauth-callback/oauth-callback';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: Login },
-  { path: 'oauth/callback', component: OauthCallback },
+  { path: 'oauth-callback', component: OauthCallback },
   { path: 'oauth/callback', component: OauthCallback },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
   { path: 'books', component: BookListPage, canActivate: [authGuard] },

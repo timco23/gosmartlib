@@ -30,7 +30,7 @@ export class OauthCallback implements OnInit {
     this.auth.setRefreshToken(refreshToken);
 
     this.auth.me().subscribe({
-      next: () => this.router.navigate(['/profile']),
+      next: () => this.router.navigate(['/home']),
       error: () => {
         this.auth.logout();
         this.router.navigate(['/login'], { queryParams: { oauth: 'me_failed' } });
