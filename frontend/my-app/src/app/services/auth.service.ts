@@ -89,6 +89,10 @@ export class AuthService {
     );
   }
 
+  fetchCurrentUser(): Observable<LoginResponse> {
+    return this.me();
+  }
+
   /**
    * Refreshes the JWT token using the refresh token.
    * Called when JWT is expired or about to expire.
@@ -118,12 +122,14 @@ export class AuthService {
     return this.getToken() !== null;
   }
 
-  /**
-   * Checks if the current user has the required role or higher.
-   * @returns true if user atleast has the specified role or higher, false otherwise
-   */
   atLeastHasRole(role: Role): boolean {
-    const currentRole: Role = Role[this.currentUserValue!.role.toUpperCase() as keyof typeof Role];
+    const user = this.currentUserValue;
+    if (!user?.role) return false;
+
+    const key = user.role.toUpperCase() as keyof typeof Role;
+    const currentRole = Role[key];
+    if (currentRole === undefined) return false;
+
     return role <= currentRole;
   }
 }

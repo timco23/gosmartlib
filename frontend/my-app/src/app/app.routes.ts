@@ -15,6 +15,8 @@ import { OauthCallback } from './oauth-callback/oauth-callback';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: Login },
+  { path: 'oauth/callback', component: OauthCallback },
+  { path: 'oauth/callback', component: OauthCallback },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
   { path: 'books', component: BookListPage, canActivate: [authGuard] },
   { path: 'books/add', component: AddBookPage, canActivate: [authGuard] },
@@ -24,6 +26,5 @@ export const routes: Routes = [
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: 'tags', component: TagManagement, canActivate: [authGuard] },
-  { path: 'oauth/callback', component: OauthCallback },
-  { path: '**', redirectTo: '/login' },
+  { path: '**', redirectTo: 'login' },
 ];

@@ -17,7 +17,7 @@ export class OauthCallback implements OnInit {
     private auth: AuthService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
     const refreshToken = this.route.snapshot.queryParamMap.get('refreshToken');
 
@@ -26,13 +26,15 @@ export class OauthCallback implements OnInit {
       return;
     }
 
-    // Save both tokens
     this.auth.setToken(token);
     this.auth.setRefreshToken(refreshToken);
 
     this.auth.me().subscribe({
       next: () => this.router.navigate(['/profile']),
-      error: () => this.router.navigate(['/login'], { queryParams: { oauth: 'me_failed' } }),
+      error: () => {
+        this.auth.logout();
+        this.router.navigate(['/login'], { queryParams: { oauth: 'me_failed' } });
+      },
     });
   }
 }

@@ -43,4 +43,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @return true if refresh token exists, false otherwise
      */
     Optional<User> findByRefreshToken(String refreshToken);
+    
+    
+    boolean existsByEmailAndIdNot(String email, Integer id);    
 }

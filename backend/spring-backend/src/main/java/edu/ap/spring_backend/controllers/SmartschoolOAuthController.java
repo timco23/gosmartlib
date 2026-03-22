@@ -21,6 +21,8 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.web.util.UriComponentsBuilder;
 import java.time.Duration;
@@ -35,6 +37,8 @@ import java.time.Duration;
  */
 @RestController
 public class SmartschoolOAuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(SmartschoolOAuthController.class);
 
     private final UserRepository userRepository;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -106,106 +110,124 @@ public class SmartschoolOAuthController {
 
     /**
      * Handles the OAuth callback from Smartschool.
-     * Validates the state cookie, exchanges the code for an access token, fetches user info,
-     * finds/creates a local user, generates a JWT, and redirects to the frontend with the token.
-     * @param request incoming request containing "code" and "state"
-     * @param response HTTP response used for redirects
+     * Validates the state cookie, exchanges the code for an access token, fetches full user info,
+     * finds/creates a local user, generates JWT + refresh token, then redirects to frontend.
      */
     @GetMapping("/oauth/smartschool/callback")
     public void callback(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    String code = request.getParameter("code");
-    String state = request.getParameter("state");
+        String code = request.getParameter("code");
+        String state = request.getParameter("state");
 
-    if (code == null || state == null) {
-        response.sendRedirect(frontendBaseUrl + "/login?oauth=error");
-        return;
-    }
+        if (code == null || state == null) {
+            response.sendRedirect(frontendBaseUrl + "/login?oauth=error");
+            return;
+        }
 
-    String cookieState = readCookie(request, "oauth_state");
-    if (cookieState == null || !cookieState.equals(state)) {
-        response.sendRedirect(frontendBaseUrl + "/login?oauth=state_mismatch");
-        return;
-    }
+        String cookieState = readCookie(request, "oauth_state");
+        if (cookieState == null || !cookieState.equals(state)) {
+            response.sendRedirect(frontendBaseUrl + "/login?oauth=state_mismatch");
+            return;
+        }
 
-    // 1) access token -> MUST be your own Smartschool platform
-    String tokenUrl = "https://" + platform + "/OAuth/index/token"; // CHANGED
+        // 1) exchange code for access token on own Smartschool platform
+        String tokenUrl = "https://" + platform + "/OAuth/index/token";
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-    MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-    form.add("grant_type", "authorization_code");
-    form.add("code", code);
-    form.add("redirect_uri", getEffectiveRedirectUri(request));
-    form.add("client_id", clientId);
-    form.add("client_secret", clientSecret);
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("grant_type", "authorization_code");
+        form.add("code", code);
+        form.add("redirect_uri", getEffectiveRedirectUri(request));
+        form.add("client_id", clientId);
+        form.add("client_secret", clientSecret);
+
         HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(form, headers);
 
-    @SuppressWarnings("unchecked")
-    ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, tokenRequest, Map.class);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<Map<String, Object>> tokenResponse =
+                restTemplate.postForEntity(tokenUrl, tokenRequest, (Class<Map<String, Object>>) (Class<?>) Map.class);
 
-    if (!tokenResponse.getStatusCode().is2xxSuccessful() || tokenResponse.getBody() == null) {
-        response.sendRedirect(frontendBaseUrl + "/login?oauth=token_error");
-        return;
-    }
-
-    Object accessTokenObj = tokenResponse.getBody().get("access_token");
-    if (accessTokenObj == null) {
-        Object result = tokenResponse.getBody().get("result");
-        if (result instanceof Map<?, ?> m && m.get("access_token") != null) {
-            accessTokenObj = m.get("access_token");
+        if (!tokenResponse.getStatusCode().is2xxSuccessful() || tokenResponse.getBody() == null) {
+            response.sendRedirect(frontendBaseUrl + "/login?oauth=token_error");
+            return;
         }
-    }
 
-    if (accessTokenObj == null) {
-        response.sendRedirect(frontendBaseUrl + "/login?oauth=token_missing");
-        return;
-    }
+        Map<String, Object> tokenBody = tokenResponse.getBody();
+        Object accessTokenObj = tokenBody.get("access_token");
 
-      String accessToken = String.valueOf(accessTokenObj);
-
-    // 2) Fetch FULL user info -> own platform
-    String userInfoUrl = "https://" + platform + "/Api/V1/fulluserinfo?access_token=" + url(accessToken); // CHANGED
-    SmartschoolUserInfo info = restTemplate.getForObject(userInfoUrl, SmartschoolUserInfo.class);
-
-    if (info == null || info.getUsername() == null || info.getUsername().isBlank()) {
-        response.sendRedirect(frontendBaseUrl + "/login?oauth=userinfo_error");
-        return;
-    }
-
-    // 3) Find or create local user
-    User user = userRepository.findBySmartschoolUsername(info.getUsername()).orElse(null);
-
-    if (user == null) {
-        user = new User();
-        user.setSmartschoolUsername(info.getUsername());
-        user.setFirstName(info.getName());
-        user.setName(info.getSurname());
-        user.setRole(mapSmartschoolRole(info.getBasisrol()));
-        user.setEmail(
-            (info.getEmail() != null && !info.getEmail().isBlank())
-                ? info.getEmail()
-                : info.getUsername() + "@smartschool.local"
-        );
-        user.setPassword("{noop}oauth");
-        user = userRepository.save(user);
-    } else {
-                // keep synced on every login
-        user.setRole(mapSmartschoolRole(info.getBasisrol()));
-        if (info.getEmail() != null && !info.getEmail().isBlank()) {
-            user.setEmail(info.getEmail());
+        if (accessTokenObj == null) {
+            Object resultObj = tokenBody.get("result");
+            if (resultObj instanceof Map<?, ?> resultMap && resultMap.get("access_token") != null) {
+                accessTokenObj = resultMap.get("access_token");
+            }
         }
-        user = userRepository.save(user);
+
+        if (accessTokenObj == null) {
+            response.sendRedirect(frontendBaseUrl + "/login?oauth=token_missing");
+            return;
+        }
+
+        String accessToken = String.valueOf(accessTokenObj);
+
+        // 2) fetch FULL user info
+        String userInfoUrl = "https://" + platform + "/Api/V1/fulluserinfo?access_token=" + url(accessToken);
+        SmartschoolUserInfo info = restTemplate.getForObject(userInfoUrl, SmartschoolUserInfo.class);
+
+        if (info == null || info.getUsername() == null || info.getUsername().isBlank()) {
+            response.sendRedirect(frontendBaseUrl + "/login?oauth=userinfo_error");
+            return;
+        }
+
+        // 3) find/create local user
+        User user = userRepository.findBySmartschoolUsername(info.getUsername()).orElse(null);
+
+        String incomingEmail = (info.getEmail() != null) ? info.getEmail().trim().toLowerCase() : null;
+        boolean hasIncomingEmail = incomingEmail != null && !incomingEmail.isBlank();
+
+        if (user == null) {
+            user = new User();
+            user.setSmartschoolUsername(info.getUsername());
+            user.setFirstName(info.getName());
+            user.setName(info.getSurname());
+            user.setRole(mapSmartschoolRole(info.getBasisrol()));
+            user.setPassword("{noop}oauth");
+
+            // unique email conflict vermijden
+            if (hasIncomingEmail && !userRepository.existsByEmail(incomingEmail)) {
+                user.setEmail(incomingEmail);
+            } else {
+                user.setEmail(info.getUsername() + "@smartschool.local");
+            }
+
+            user = userRepository.save(user);
+        } else {
+            // sync bij elke login
+            user.setFirstName(info.getName());
+            user.setName(info.getSurname());
+            user.setRole(mapSmartschoolRole(info.getBasisrol()));
+
+            // update email alleen als niet in gebruik door andere user
+            if (hasIncomingEmail && !userRepository.existsByEmailAndIdNot(incomingEmail, user.getId())) {
+                user.setEmail(incomingEmail);
+            }
+
+            user = userRepository.save(user);
+        }
+
+        String jwt = jwtService.generateToken(user);
+        String refreshToken = generateRefreshToken();
+
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        String redirectUrl = frontendBaseUrl
+                + "/oauth/callback?token=" + url(jwt)
+                + "&refreshToken=" + url(refreshToken);
+
+        response.sendRedirect(redirectUrl);
     }
 
-    String jwt = jwtService.generateToken(user);
-    String refreshToken = generateRefreshToken();
-    user.setRefreshToken(refreshToken);
-    userRepository.save(user);
-
-    String redirectUrl = frontendBaseUrl + "/oauth/callback?token=" + url(jwt) + "&refreshToken=" + url(refreshToken);
-    response.sendRedirect(redirectUrl);
-    }
 
      private boolean isHttpsRequest(HttpServletRequest request) {
         String forwardedProto = request.getHeader("X-Forwarded-Proto");
@@ -225,12 +247,17 @@ public class SmartschoolOAuthController {
      * Smartschool returns "leerkracht" or "leerling".
      * ADMIN and BIBLIOTHEEKBEHEERDER must be manually assigned (they don't come from Smartschool).*/
     private Role mapSmartschoolRole(String basisrol) {
-        if (basisrol == null) return Role.LEERLING; 
+        if (basisrol == null) return Role.LEERLING;
         String r = basisrol.trim().toLowerCase();
-        if (r.contains("leerling")) return Role.LEERLING;
-        if (r.contains("leerkracht")) return Role.LEERKRACHT;
-        return Role.LEERLING; 
-}
+
+        if (r.contains("leerkracht") || r.contains("leraar") || r.contains("personeel")) {
+            return Role.LEERKRACHT;
+        }
+        if (r.contains("leerling")) {
+            return Role.LEERLING;
+        }
+        return Role.LEERLING;
+    }
 
     /**
      * Generates a URL-safe random OAuth state value.
