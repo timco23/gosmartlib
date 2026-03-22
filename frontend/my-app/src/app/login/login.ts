@@ -25,7 +25,7 @@ export class Login implements OnInit {
   }
 
   loginWithSmartschool() {
-    window.location.href = environment.apiUrl + '/oauth/smartschool/login';
+    window.location.href = this.authService.getOAuthLoginUrl();
   }
 
   //For testing

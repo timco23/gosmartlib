@@ -22,6 +22,11 @@ export class AuthService {
     }
   }
 
+  getOAuthLoginUrl(): string {
+    const base = environment.apiUrl.replace(/\/api\/?$/, '');
+    return `${base}/oauth/smartschool/login`;
+  }
+
   //For staying logged in:
 
   //Sets jWT token
@@ -113,13 +118,12 @@ export class AuthService {
     return this.getToken() !== null;
   }
 
-
   /**
    * Checks if the current user has the required role or higher.
    * @returns true if user atleast has the specified role or higher, false otherwise
    */
   atLeastHasRole(role: Role): boolean {
     const currentRole: Role = Role[this.currentUserValue!.role.toUpperCase() as keyof typeof Role];
-    return role <= currentRole
+    return role <= currentRole;
   }
 }

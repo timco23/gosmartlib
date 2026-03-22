@@ -3,28 +3,36 @@ services:
     command:
       - "--api.insecure=false"
       - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--entryPoints.websecure.http.tls=true"
-      - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
-      - "--entryPoints.web.http.redirections.entryPoint.permanent=true"
+
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.email=${email}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.caserver=${LETSENCRYPT_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory}"
     ports:
       - "80:80"
       - "443:443"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-certs:/certs
+    networks:
+      - traefik
 
   frontend:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`gsmartlib.tech`) || Host(`www.gsmartlib.tech`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
       - "traefik.docker.network=traefik"
 
   backend:
@@ -34,16 +42,19 @@ services:
       - APP_FRONTEND_BASE_URL=${APP_FRONTEND_BASE_URL}
     labels:
       - "traefik.enable=true"
+
+      # API routes (/api/*) -> strip /api
       - "traefik.http.routers.backend.rule=Host(`api.gsmartlib.tech`)"
       - "traefik.http.routers.backend.priority=10"
-      - "traefik.http.routers.backend.entrypoints=web,websecure"
+      - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.backend.middlewares=cors-prod,backend-stripprefix"
 
+      # OAuth routes (/oauth/*) -> no strip
       - "traefik.http.routers.backend-oauth.rule=Host(`api.gsmartlib.tech`) && PathPrefix(`/oauth`)"
       - "traefik.http.routers.backend-oauth.priority=20"
-      - "traefik.http.routers.backend-oauth.entrypoints=web,websecure"
+      - "traefik.http.routers.backend-oauth.entrypoints=websecure"
       - "traefik.http.routers.backend-oauth.tls=true"
       - "traefik.http.routers.backend-oauth.tls.certresolver=letsencrypt"
       - "traefik.http.routers.backend-oauth.middlewares=cors-prod"
@@ -51,12 +62,13 @@ services:
 
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
       - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
+
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolalloworiginlist=https://gsmartlib.tech,https://www.gsmartlib.tech"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowheaders=*"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowcredentials=true"
-      - "traefik.docker.network=traefik"
 
+      - "traefik.docker.network=traefik"
     networks:
       - frontend
       - backend
