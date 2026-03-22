@@ -1,0 +1,12 @@
+<ul class="level-list">
+  @for (level of readingLevels; track level.name) {
+    <li class="level-item">
+      <label>
+        <input type="radio" [checked]="isSelected(level)" (change)="toggleLevel(level)" />
+        <span>{{ level.name }}</span>
+      </label>
+    </li>
+  } @empty {
+    <li>Geen niveaus gevonden.</li>
+  }
+</ul>

@@ -118,6 +118,11 @@
                           (subgenresChanged)="onSubgenresChanged($event)"
                         />
 
+                        <label>Leesniveau</label>
+                        <app-reading-level
+                          (selectedReadingLevel)="onReadingLevelChanged($event)"
+                        />
+
                         <label for="campus">Selecteer een campus (optioneel)</label>
                         @if (campusLoading) {
                         <p>Schoolcampussen laden....</p>

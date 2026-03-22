@@ -4,17 +4,18 @@ import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag, Genre, Subgenre } from '../../../types/types';
+import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag, Genre, Subgenre, Readinglevel } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from "../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component";
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
+import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent, SubgenreSelectionMenuComponent],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent, SubgenreSelectionMenuComponent, ReadingLevelSelectionMenuComponent],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
@@ -42,6 +43,7 @@ export class AddBookPage implements OnInit {
   selectedTags: Tag[] = [];
   selectedGenres: Genre[] = [];
   selectedSubgenres: Subgenre[] = [];
+  selectedReadingLevel: Readinglevel | null = null;
 
   globalBookList: Observable<GlobalBook[]> | null = null;
   school: School | null = null;
@@ -183,6 +185,10 @@ export class AddBookPage implements OnInit {
   onSubgenresChanged(subgenres: Subgenre[]): void {
     this.selectedSubgenres = subgenres;
     this.cdr.detectChanges();
+  }
+
+  onReadingLevelChanged(level: Readinglevel | null): void {
+    this.selectedReadingLevel = level;
   }
 
   loadDetailsViaISBN() {

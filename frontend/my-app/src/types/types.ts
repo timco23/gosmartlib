@@ -35,6 +35,11 @@ export interface Subgenre {
   name: string;
 }
 
+export interface Readinglevel {
+  id: number;
+  name: string;
+}
+
 export interface School {
   id?: number;
   name: string;
