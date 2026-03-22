@@ -28,26 +28,35 @@ services:
       - "traefik.docker.network=traefik"
 
   backend:
+    environment:
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework
+      - SMARTSCHOOL_REDIRECT_URI=${SMARTSCHOOL_REDIRECT_URI}
+      - APP_FRONTEND_BASE_URL=${APP_FRONTEND_BASE_URL}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.gsmartlib.tech`)"
+      - "traefik.http.routers.backend.priority=10"
       - "traefik.http.routers.backend.entrypoints=web,websecure"
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.docker.network=traefik"
-      - "traefik.http.middlewares.cors-prod.headers.accesscontrolalloworiginlist=https://gsmartlib.tech,https://www.gsmartlib.tech"
-      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
-      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowheaders=*"
-      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowcredentials=true"
-      - "traefik.http.routers.backend.middlewares=cors-prod"
-      # route /oauth/* ook naar backend (nodig voor Smartschool callback)
+      - "traefik.http.routers.backend.middlewares=cors-prod,backend-stripprefix"
+
       - "traefik.http.routers.backend-oauth.rule=Host(`api.gsmartlib.tech`) && PathPrefix(`/oauth`)"
+      - "traefik.http.routers.backend-oauth.priority=20"
       - "traefik.http.routers.backend-oauth.entrypoints=web,websecure"
       - "traefik.http.routers.backend-oauth.tls=true"
       - "traefik.http.routers.backend-oauth.tls.certresolver=letsencrypt"
       - "traefik.http.routers.backend-oauth.middlewares=cors-prod"
       - "traefik.http.routers.backend-oauth.service=backend"
+
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.middlewares.cors-prod.headers.accesscontrolalloworiginlist=https://gsmartlib.tech,https://www.gsmartlib.tech"
+      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
+      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowcredentials=true"
+      - "traefik.docker.network=traefik"
+
     networks:
       - frontend
       - backend

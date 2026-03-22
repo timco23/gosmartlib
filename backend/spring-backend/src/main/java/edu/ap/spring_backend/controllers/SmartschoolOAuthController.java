@@ -22,6 +22,9 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.web.util.UriComponentsBuilder;
+import java.time.Duration;
+
 /**
  * Handles the Smartschool OAuth2 login flow.
  * Endpoints:
@@ -73,26 +76,30 @@ public class SmartschoolOAuthController {
      * Generates a random state value, stores it in an HttpOnly cookie, and redirects to Smartschool.
      * @param response HTTP response used to set cookie and redirect
      */
-    @GetMapping("/oauth/smartschool/login")
-    public void login(HttpServletResponse response) throws Exception {
+   @GetMapping("/oauth/smartschool/login")
+    public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String state = generateState();
 
-        // Store the OAuth state to protect against CSRF in the callback
-        Cookie cookie = new Cookie("oauth_state", state);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(300); // 5 min
+        boolean https = isHttpsRequest(request);
 
-         // Add SameSite because Cookie API does not expose it directly
-        response.addHeader("Set-Cookie", "oauth_state=" + state + "; Path=/; Max-Age=300; HttpOnly; Secure; SameSite=Lax");
+        // Build cookie correctly (instead of manual Set-Cookie string + unused Cookie object)
+        ResponseCookie stateCookie = ResponseCookie.from("oauth_state", state)
+                .httpOnly(true)
+                .secure(https)          // true in HTTPS/proxy, false for plain local HTTP
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ofMinutes(5))
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, stateCookie.toString());
 
         String authorizeUrl = "https://" + platform + "/OAuth";
+        String effectiveRedirectUri = getEffectiveRedirectUri(request);
 
         String redirect = authorizeUrl
                 + "?response_type=code"
                 + "&client_id=" + url(clientId)
-                + "&redirect_uri=" + url(redirectUri)
+                + "&redirect_uri=" + url(effectiveRedirectUri)
                 + "&scope=" + url("userinfo")
                 + "&state=" + url(state);
 
@@ -133,7 +140,7 @@ public class SmartschoolOAuthController {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "authorization_code");
         form.add("code", code);
-        form.add("redirect_uri", redirectUri);
+        form.add("redirect_uri", getEffectiveRedirectUri(request)); // must match login redirect_uri
         form.add("client_id", clientId);
         form.add("client_secret", clientSecret);
 
@@ -204,10 +211,21 @@ public class SmartschoolOAuthController {
         userRepository.save(user);
 
         // 4) Redirect to the frontend with the JWT and refresh token
-        // Frontend will use refreshToken to get a new JWT when it expires
-        response.setStatus(302);
-        response.setHeader("Location",
-                frontendBaseUrl + "/oauth/callback?token=" + url(jwt) + "&refreshToken=" + url(refreshToken));
+        String redirectUrl = frontendBaseUrl + "/oauth/callback?token=" + url(jwt) + "&refreshToken=" + url(refreshToken);
+        response.sendRedirect(redirectUrl);
+    }
+
+     private boolean isHttpsRequest(HttpServletRequest request) {
+        String forwardedProto = request.getHeader("X-Forwarded-Proto");
+        return request.isSecure() || "https".equalsIgnoreCase(forwardedProto);
+    }
+
+    private String getEffectiveRedirectUri(HttpServletRequest request) {
+        if (!isHttpsRequest(request)) return redirectUri;
+        return UriComponentsBuilder.fromUriString(redirectUri)
+                .scheme("https")
+                .build(true)
+                .toUriString();
     }
 
     /**
