@@ -107,7 +107,8 @@ class ItemServiceTest {
                         "Good book",
                         true,
                         item,
-                        campus);
+                        campus,
+                        false);
         schoolItem.setId(1);
   }
 
@@ -284,14 +285,15 @@ void givenCreateSchoolItemDTO_whenAddItem_thenItemIsSaved() {
                         100,
                         0,
                         1,
-                        List.of(), // tags
+                        List.of(),
                         "Good book",
                         true,
                         1,
                         List.of(),
                         List.of(),
                         null,
-                        List.of()
+                        List.of(),
+                        false
         );
 
         when(schoolItemRepository.existsByItemTitle("Clean Code"))
@@ -373,7 +375,8 @@ void givenCreateSchoolItemDTO_whenAddItem_thenItemIsSaved() {
                                 List.of(),
                                 List.of(),
                                 null,
-                                List.of()
+                                List.of(),
+                                false
                 );
 
                 when(schoolItemRepository.findById(1))

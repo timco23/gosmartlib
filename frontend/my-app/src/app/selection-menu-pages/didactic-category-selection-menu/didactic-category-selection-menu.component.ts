@@ -1,4 +1,4 @@
-import { Component, inject, input, output, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, input, output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { DidacticCategory } from '../../../types/types';
@@ -11,6 +11,7 @@ import { DidacticCategory } from '../../../types/types';
 })
 export class DidacticCategorySelectionMenuComponent {
   private didacticCategoryService = inject(DidacticCategoryService);
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   initialCategories = input<DidacticCategory[]>([]);
   tagsChanged = output<DidacticCategory[]>();
@@ -32,6 +33,7 @@ export class DidacticCategorySelectionMenuComponent {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['initialCategories']) {
       this.selectedCategories = [...this.initialCategories()];
+      this.cdr.detectChanges();
     }
   }
 
@@ -39,6 +41,8 @@ export class DidacticCategorySelectionMenuComponent {
     this.didacticCategoryService.getDidacticCategories().subscribe((categories) => {
       this.categories = categories;
       this.selectedCategories = [...this.initialCategories()];
+      this.cdr.detectChanges();
+
     });
   }
 

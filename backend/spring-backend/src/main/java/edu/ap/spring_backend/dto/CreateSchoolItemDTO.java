@@ -44,5 +44,7 @@ public record CreateSchoolItemDTO(
         @JsonProperty("readingLevel")
         Long readingLevel,
         @JsonProperty("didacticCategories")
-        List<Long> didacticCategories
+        List<Long> didacticCategories,
+        @JsonProperty("isDidactic")
+        boolean isDidactic
 ) { }

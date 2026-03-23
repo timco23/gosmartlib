@@ -123,7 +123,7 @@ public class ItemService {
             Set<DidacticCategory> didacticCategories = getDidacticCategoriesById(itemDTO.didacticCategories());
 
             SchoolItem newSchoolItem = new SchoolItem(school, tags, genres, subgenres, readingLevel,
-                    didacticCategories, itemDTO.description(), itemDTO.featured(), newItem, campus);
+                    didacticCategories, itemDTO.description(), itemDTO.featured(), newItem, campus, itemDTO.isDidactic());
             schoolItemRepository.save(newSchoolItem);
             return mapToSchoolItemDTO(newSchoolItem);
         }
@@ -158,7 +158,7 @@ public class ItemService {
         Set<DidacticCategory> didacticCategories = getDidacticCategoriesById(schoolItemDTO.didacticCategories());
 
         SchoolItem newSchoolItem = new SchoolItem(currentSchoolItem.getSchool(), tags, genres, subgenres,
-                readingLevel, didacticCategories, schoolItemDTO.description(), schoolItemDTO.featured(), newItem, newCampus);
+                readingLevel, didacticCategories, schoolItemDTO.description(), schoolItemDTO.featured(), newItem, newCampus, schoolItemDTO.isDidactic());
         newSchoolItem.setId(id);
 
         itemRepository.save(newItem);
@@ -259,7 +259,8 @@ public class ItemService {
         item.getDescription(),
         item.isFeatured(),
         item.getCampus() != null ? item.getCampus().getName() : null,
-        item.getCampus() != null ? item.getCampus().getId().intValue() : 0);
+        item.getCampus() != null ? item.getCampus().getId().intValue() : 0,
+        item.isDidactic());
     }
 
     private ItemDTO mapToItemDTO(Item item) {

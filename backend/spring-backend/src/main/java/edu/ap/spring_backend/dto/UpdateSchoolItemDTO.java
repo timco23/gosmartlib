@@ -18,6 +18,7 @@ public record UpdateSchoolItemDTO(
         @JsonProperty("campusId") int campusId,
         @JsonProperty("genres") List<Long> genres,
         @JsonProperty("subgenres") List<Long> subgenres,
-        @JsonProperty("readinglevel") Long readingLevel,
-        @JsonProperty("didacticCategories") List<Long> didacticCategories
+        @JsonProperty("readingLevel") Long readingLevel,
+        @JsonProperty("didacticCategories") List<Long> didacticCategories,
+        @JsonProperty("isDidactic") boolean isDidactic
 ) {}

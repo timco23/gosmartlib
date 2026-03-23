@@ -27,7 +27,7 @@ public class SchoolItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campus_id")
     private Campus campus;
-    
+    private boolean isDidactic;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "school_item_tag", joinColumns = @JoinColumn(name = "school_item_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
@@ -54,7 +54,7 @@ public class SchoolItem {
 
     public SchoolItem(School school, Set<Tag> tags, Set<Genre> genres, Set<Subgenre> subgenres,
             ReadingLevel readingLevel, Set<DidacticCategory> didacticCategories,
-            String description, boolean featured, Item item, Campus campus) {
+            String description, boolean featured, Item item, Campus campus, Boolean isDidactic) {
         this.school = school;
         this.tags = tags;
         this.genres = genres;
@@ -65,6 +65,7 @@ public class SchoolItem {
         this.featured = featured;
         this.item = item;
         this.campus = campus;
+        this.isDidactic = isDidactic;
     }
 
     public Set<Tag> getTags() {

@@ -123,11 +123,17 @@
                           (selectedReadingLevel)="onReadingLevelChanged($event)"
                         />
 
-                        <label>Didactische categorieën</label>
-                        <app-didactic-category-selection-menu
-                          [initialCategories]="selectedDidacticCategories"
-                          (tagsChanged)="onDidacticCategoriesChanged($event)"
-                        />
+                        <label>
+                          <input type="checkbox" formControlName="isDidactic"> Didactisch boek
+                        </label>
+                        
+                        @if (form.get('isDidactic')?.value) {
+                          <label>Didactische categorieën</label>
+                          <app-didactic-category-selection-menu
+                            [initialCategories]="selectedDidacticCategories"
+                            (tagsChanged)="onDidacticCategoriesChanged($event)"
+                          />
+                        }
 
                         <label for="campus">Selecteer een campus (optioneel)</label>
                         @if (campusLoading) {

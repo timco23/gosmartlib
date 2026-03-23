@@ -31,6 +31,7 @@ export class AddBookPage implements OnInit {
 
   form: FormGroup;
   isReadOnly: boolean = false;
+  isDidactic: boolean = false;
   
   error: boolean = false;
   errorMessage: string = "";
@@ -68,7 +69,8 @@ export class AddBookPage implements OnInit {
       cover: ['', [Validators.maxLength(255)]],
       reviewScore: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
       reviewCount: [0, [Validators.required, Validators.min(0)]],
-      campusId: ['0', [Validators.required]]
+      campusId: ['0', [Validators.required]],
+      isDidactic: [false, [Validators.required]]
     })
   }
 
@@ -124,8 +126,6 @@ export class AddBookPage implements OnInit {
         }
       }
     })
-
-
   }
 
   loadBookDetails() {
