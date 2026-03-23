@@ -23,7 +23,7 @@
       @if (dropdownOpen) {
         <div class="dropdown-menu">
           <a routerLink="/profile" (click)="closeDropdown()" class="dropdown-item">
-            Mijn Gegevens
+            Mijn gegevens
           </a>
           <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
         </div>
@@ -32,7 +32,9 @@
   </div>
 }
 
-<router-outlet></router-outlet>
+<div class="content">
+  <router-outlet></router-outlet>
+</div>
 
 <footer class="footer" itemscope="itemscope" itemtype="https://schema.org/WPFooter">
   <div class="footer__widgets">
