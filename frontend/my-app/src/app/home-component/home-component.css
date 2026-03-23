@@ -6,12 +6,12 @@
 }
 
 h1 {
-  color: #333;
+  color: #8c1b3f;
   margin-bottom: 1rem;
 }
 
 .user-card {
-  background: white;
+  background: #f0efe4;
   border-radius: 10px;
   padding: 0.875rem 1.5rem;
   margin-top: 1rem;
@@ -20,11 +20,10 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  background-color: #e9e9e9;
 }
 
 .user-card h2 {
-  color: #df9847;
+  color: #8c1b3f;
   margin: 0;
   font-size: 1rem;
 }
@@ -59,18 +58,24 @@ h1 {
 .section-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #333;
+  color: #8c1b3f;
 }
 
 .browse-link {
   font-size: 0.875rem;
-  color: #df9847;
+  color: #8c1b3f;
   text-decoration: none;
   font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .browse-link:hover {
-  text-decoration: underline;
+  color: #8c1b3f;
+  background: #c2e569;
 }
 
 .state-message {
@@ -97,7 +102,7 @@ h1 {
 .static-card {
   flex: 1;
   max-width: 44rem;
-  background: #f4f4f4;
+  background: #f0efe4;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -120,24 +125,25 @@ h1 {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 1px solid #ddd;
+  border: 1px solid #8c1b3f;
   background: white;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #333;
+  color: #8c1b3f;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transition:
-    border-color 0.2s,
-    color 0.2s;
+    background 0.2s ease,
+    color 0.2s ease;
   z-index: 1;
 }
 
 .carousel-arrow:hover {
-  border-color: #df9847;
-  color: #df9847;
+  background: #c2e569;
+  color: #8c1b3f;
+  border-color: #8c1b3f;
 }
 
 .carousel-viewport {
@@ -155,7 +161,7 @@ h1 {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: #f4f4f4;
+  background: #f0efe4;
 }
 
 .carousel-card.is-side {
@@ -236,18 +242,21 @@ h1 {
   display: inline-block;
   align-self: flex-end;
   margin-top: 0.75rem;
-  background-color: #333;
+  background-color: #8c1b3f;
   color: white;
   padding: 0.6rem 1.3rem;
   border-radius: 6px;
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 500;
-  transition: background 0.2s;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .details-button:hover {
-  background-color: black;
+  background-color: #c2e569;
+  color: #8c1b3f;
 }
 
 .card-footer {
@@ -255,7 +264,7 @@ h1 {
   align-items: flex-start;
   justify-content: space-between;
   padding: 0.875rem 1.25rem;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid #ddd;
   gap: 1rem;
 }
 
@@ -269,7 +278,7 @@ h1 {
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #222;
+  color: #8c1b3f;
 }
 
 .card-author {
@@ -306,20 +315,20 @@ h1 {
 }
 
 .badge-language {
-  background: #fff3e6;
-  color: #d6822b;
-  border: 1px solid #f5c89a;
+  background: #f0efe4;
+  color: #8c1b3f;
+  border: 1px solid #8c1b3f;
 }
 
 .badge-tag {
-  background: #edf7f0;
-  color: #2e7d4f;
-  border: 1px solid #a8d5b5;
+  background: #bfbfe8;
+  color: #2f2f2f;
+  border: 1px solid #a0a0d0;
 }
 
 .side-footer {
   padding: 0.5rem 0.625rem;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid #ddd;
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
@@ -329,7 +338,7 @@ h1 {
 .side-title {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #222;
+  color: #8c1b3f;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -367,6 +376,6 @@ h1 {
 }
 
 .dot.active {
-  background: #df9847;
+  background: #8c1b3f;
   transform: scale(1.3);
 }
