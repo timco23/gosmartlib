@@ -1,10 +1,14 @@
 package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dao.ItemRepository;
+import edu.ap.spring_backend.dao.ReadingLevelRepository;
 import edu.ap.spring_backend.dao.SchoolItemRepository;
 import edu.ap.spring_backend.dao.TagRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
+import edu.ap.spring_backend.dao.SubgenreRepository;
 import edu.ap.spring_backend.dao.CampusRepository;
+import edu.ap.spring_backend.dao.DidacticCategoryRepository;
+import edu.ap.spring_backend.dao.GenreRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemDTO;
 import edu.ap.spring_backend.dto.SchoolItemRequestDTO;
 import edu.ap.spring_backend.dto.UpdateSchoolItemDTO;
@@ -42,29 +46,41 @@ class ItemServiceTest {
         @Mock
         private TagRepository tagRepository;
 
-    @Mock
-    private SchoolRepository schoolRepository;
+        @Mock
+        private SchoolRepository schoolRepository;
 
-    @Mock
-    private CampusRepository campusRepository;
+        @Mock
+        private CampusRepository campusRepository;
+
+        @Mock
+        private GenreRepository genreRepository;
+
+        @Mock
+        private SubgenreRepository subgenreRepository;
+
+        @Mock
+        private ReadingLevelRepository readingLevelRepository;
+
+        @Mock
+        private DidacticCategoryRepository didacticCategoryRepository;
 
         @InjectMocks
         private ItemService itemService;
 
-    private Item item;
-    private SchoolItem schoolItem;
-    private School school;
-    private Campus campus;
+        private Item item;
+        private SchoolItem schoolItem;
+        private School school;
+        private Campus campus;
 
         @BeforeEach
         void setup() {
                 MockitoAnnotations.openMocks(this);
 
-        item = new Item(
-                "Clean Code",
-                "Prentice Hall",
-                "Robert Martin",
-                "9780132350884",
+                item = new Item(
+                                "Clean Code",
+                                "Prentice Hall",
+                                "Robert Martin",
+                                "9780132350884",
                 2008,
                 "EN",
                 464,
@@ -82,15 +98,18 @@ class ItemServiceTest {
         when(campus.getName()).thenReturn("Main Campus");
 
         schoolItem = new SchoolItem(
-                school,
-                new HashSet<>(),
-                "Good book",
-                true,
-                item,
-                campus
-        );
+                        school,
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        null,
+                        new HashSet<>(),
+                        "Good book",
+                        true,
+                        item,
+                        campus);
         schoolItem.setId(1);
-    }
+  }
 
         // ---------------- GET ALL SCHOOL ITEMS ----------------
 
@@ -245,33 +264,38 @@ class ItemServiceTest {
         var result = itemService.getSchoolItemByTitle("Clean Code");
 
         assertNull(result);
-    }
+  }
 
-        // ---------------- ADD ITEM ----------------
+// ---------------- ADD ITEM ----------------
 
-        @Test
-        void givenCreateSchoolItemDTO_whenAddItem_thenItemIsSaved() {
+@Test
+void givenCreateSchoolItemDTO_whenAddItem_thenItemIsSaved() {
 
-                CreateSchoolItemDTO dto = new CreateSchoolItemDTO(
-                                "Clean Code",
-                                "Prentice Hall",
-                                "Robert Martin",
-                                "9780132350884",
-                                2008,
-                                "EN",
-                                464,
-                                "cover.jpg",
-                                4.5,
-                                100,
-                                0,
-                                1,
-                                List.of(),
-                                "Good book",
-                                true,
-                                1);
+        CreateSchoolItemDTO dto = new CreateSchoolItemDTO(
+                        "Clean Code",
+                        "Prentice Hall",
+                        "Robert Martin",
+                        "9780132350884",
+                        2008,
+                        "EN",
+                        464,
+                        "cover.jpg",
+                        4.5,
+                        100,
+                        0,
+                        1,
+                        List.of(), // tags
+                        "Good book",
+                        true,
+                        1,
+                        List.of(),
+                        List.of(),
+                        null,
+                        List.of()
+        );
 
-                when(schoolItemRepository.existsByItemTitle("Clean Code"))
-                                .thenReturn(false);
+        when(schoolItemRepository.existsByItemTitle("Clean Code"))
+                              .thenReturn(false);
 
                 when(itemRepository.existsByTitle("Clean Code"))
                                 .thenReturn(false);
@@ -345,7 +369,12 @@ class ItemServiceTest {
                                 List.of(),
                                 "Updated description",
                                 false,
-                                1);
+                                1,
+                                List.of(),
+                                List.of(),
+                                null,
+                                List.of()
+                );
 
                 when(schoolItemRepository.findById(1))
                                 .thenReturn(Optional.of(schoolItem));

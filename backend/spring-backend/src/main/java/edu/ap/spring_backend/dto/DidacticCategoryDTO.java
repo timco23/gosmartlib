@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record DidacticCategoryDTO(
     @JsonProperty("id") 
-    int id,
+    Long id,
 
     @JsonProperty("name")
     String name

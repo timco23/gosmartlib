@@ -36,4 +36,13 @@ public record CreateSchoolItemDTO(
         @JsonProperty(value = "featured")
         boolean featured,
         @JsonProperty("campusId")
-        int campusId) { }
+        int campusId,
+        @JsonProperty("genres")
+        List<Long> genres,
+        @JsonProperty("subgenres")
+        List<Long> subgenres,
+        @JsonProperty("readinglevel")
+        Long readingLevel,
+        @JsonProperty("didacticCategories")
+        List<Long> didacticCategories
+) { }

@@ -14,7 +14,7 @@ import lombok.Setter;
 public class DidacticCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @Column(unique = true)
     private String name;

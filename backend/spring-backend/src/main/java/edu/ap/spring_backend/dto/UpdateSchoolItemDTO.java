@@ -5,27 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record UpdateSchoolItemDTO(
-        @JsonProperty("title")
-        String title,
-        @JsonProperty("publisher")
-        String publisher,
-        @JsonProperty("author")
-        String author,
-        @JsonProperty("releaseYear")
-        int releaseYear,
-        @JsonProperty("language")
-        String bookLanguage,
-        @JsonProperty("pageCount")
-        int pageCount,
-        @JsonProperty("cover")
-        String cover,
-        @JsonProperty("tags")
-        List<Long> tags,
-        @JsonProperty("description")
-        String description,
-        @JsonProperty("featured")
-        boolean featured,
-        @JsonProperty("campusId")
-        int campusId
-) {
-}
+        @JsonProperty("title") String title,
+        @JsonProperty("publisher") String publisher,
+        @JsonProperty("author") String author,
+        @JsonProperty("releaseYear") int releaseYear,
+        @JsonProperty("language") String bookLanguage,
+        @JsonProperty("pageCount") int pageCount,
+        @JsonProperty("cover") String cover,
+        @JsonProperty("tags") List<Long> tags,
+        @JsonProperty("description") String description,
+        @JsonProperty("featured") boolean featured,
+        @JsonProperty("campusId") int campusId,
+        @JsonProperty("genres") List<Long> genres,
+        @JsonProperty("subgenres") List<Long> subgenres,
+        @JsonProperty("readinglevel") Long readingLevel,
+        @JsonProperty("didacticCategories") List<Long> didacticCategories
+) {}
