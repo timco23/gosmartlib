@@ -97,6 +97,7 @@ export class BookDetailPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.cdr.detectChanges();
+        console.log(data)
 
         this.api.loadCopies(data.id).subscribe({
           next: (copies) => {

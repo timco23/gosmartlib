@@ -41,7 +41,7 @@ public record CreateSchoolItemDTO(
         List<Long> genres,
         @JsonProperty("subgenres")
         List<Long> subgenres,
-        @JsonProperty("readinglevel")
+        @JsonProperty("readingLevel")
         Long readingLevel,
         @JsonProperty("didacticCategories")
         List<Long> didacticCategories

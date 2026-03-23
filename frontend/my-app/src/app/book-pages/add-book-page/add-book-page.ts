@@ -116,10 +116,9 @@ export class AddBookPage implements OnInit {
         
         if (!this.bookAlreadyExists) {
           this.bookAlreadyExists = false;
-          console.log('Payload:', newBook);  // voeg dit toe vóór de API call
           this.api.addBook(newBook).subscribe({
             next: (data) => {
-              //this.router.navigate(["/books", data.id])
+              this.router.navigate(["/books", data.id])
             }
           })
         }
