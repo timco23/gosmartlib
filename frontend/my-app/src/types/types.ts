@@ -130,6 +130,7 @@ export interface CreateBookPayload {
   subgenres: number[];
   readingLevel: number | null;
   didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
   featured: boolean;
   itemId: number;

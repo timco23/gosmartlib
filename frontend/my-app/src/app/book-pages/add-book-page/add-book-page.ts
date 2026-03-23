@@ -30,18 +30,21 @@ export class AddBookPage implements OnInit {
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   form: FormGroup;
-  error: boolean = false;
   isReadOnly: boolean = false;
+  
+  error: boolean = false;
   errorMessage: string = "";
   bookAlreadyExists: boolean = false;
   incompleteForm: boolean = false;
   nothingFound: boolean = false;
   missingFields: string[] = [];
+  
   campusLoading: boolean = true;
   userError: boolean = false;
   schoolError: boolean = false;
   userHasNoSchoolError: boolean = false;
   schoolErrorMessage: string = "";
+
   selectedTags: Tag[] = [];
   selectedGenres: Genre[] = [];
   selectedSubgenres: Subgenre[] = [];
@@ -87,6 +90,7 @@ export class AddBookPage implements OnInit {
       subgenres: this.selectedSubgenres.map((s) => s.id),
       readingLevel: this.selectedReadingLevel?.id ?? null,
       didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
+      isDidactic: raw.isDidactic,
       description: raw.beschrijving,
       featured: false,
       itemId: parseInt(raw.itemId),
@@ -109,12 +113,13 @@ export class AddBookPage implements OnInit {
           this.bookAlreadyExists = true;
           this.cdr.detectChanges();
         }
-
+        
         if (!this.bookAlreadyExists) {
           this.bookAlreadyExists = false;
+          console.log('Payload:', newBook);  // voeg dit toe vóór de API call
           this.api.addBook(newBook).subscribe({
             next: (data) => {
-              this.router.navigate(["/books", data.id])
+              //this.router.navigate(["/books", data.id])
             }
           })
         }
