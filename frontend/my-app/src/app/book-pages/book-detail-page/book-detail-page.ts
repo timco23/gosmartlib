@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Role, LoginResponse, SchoolItemCopy } from '../../../types/types';
+import { Book, Role, LoginResponse, SchoolItemCopy, Tag } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { TagService } from '../../services/tag.service';
 
 @Component({
   selector: 'app-book-detail-page',
@@ -25,6 +26,9 @@ export class BookDetailPage implements OnInit {
   copies: any[] = [];
   addingCopy: boolean = false;
   role = Role;
+  allTags: Tag[] = [];
+
+  tagService = inject(TagService);
 
   editingCopyId: number | null = null;
   editedCopy: SchoolItemCopy = { schoolItemId: 0, condition: '', barcode: '', copy_status: '' };
@@ -40,6 +44,10 @@ export class BookDetailPage implements OnInit {
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
+
+      this.tagService.getTags().subscribe(tags => {
+        this.allTags = tags;
+      });
 
       // Only load favorites once we have a user
       this.route.paramMap.subscribe((p) => {
@@ -109,8 +117,12 @@ export class BookDetailPage implements OnInit {
     });
   }
 
+  getTagName(id: number): string {
+    return this.allTags.find(t => t.id === id)?.name ?? '';
+  }
+
   getTagNames(): string {
-    return this.book?.tags.map((t) => t.name).join(', ') ?? '';
+    return this.book?.tags.map((id) => this.getTagName(id)).join(', ') ?? '';
   }
 
   deleteBook(id: number) {

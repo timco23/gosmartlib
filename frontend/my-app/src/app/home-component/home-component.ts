@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
-import { LoginResponse, Book, CarouselSlot } from '../../types/types';
+import { LoginResponse, Book, CarouselSlot, Tag } from '../../types/types';
+import { TagService } from '../services/tag.service';
 
 @Component({
   selector: 'app-home-component',
@@ -22,8 +23,15 @@ export class HomeComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
   scrollIndex = 0;
+  
+  tagService = inject(TagService);
+  allTags: Tag[] = [];
 
   ngOnInit() {
+    this.tagService.getTags().subscribe(tags => {
+      this.allTags = tags;
+    });
+
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
@@ -39,6 +47,12 @@ export class HomeComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  mapTagIds(tagIds: number[]): Tag[] {
+  return tagIds
+    .map(id => this.allTags.find(t => t.id === id))
+    .filter((t): t is Tag => !!t);
   }
 
   // Returns the cards that should be visible in the carousel

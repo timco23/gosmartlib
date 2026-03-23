@@ -6,6 +6,7 @@ import { Book, Page, Role, Tag } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { AuthService } from '../../services/auth.service';
+import { TagService } from '../../services/tag.service';
 
 @Component({
   selector: 'app-book-list-page',
@@ -35,7 +36,13 @@ export class BookListPage implements OnInit {
   minScore?: number;
   selectedTags: Tag[] = [];
 
+  allTags: Tag[] = [];
+  tagService = inject(TagService);
+
   ngOnInit(): void {
+    this.tagService.getTags().subscribe(tags => {
+      this.allTags = tags;
+    });
     this.loadBooks();
   }
 
@@ -75,8 +82,11 @@ export class BookListPage implements OnInit {
     this.loadBooks();
   }
   //sort tags alphabetically
- sortedTags(tags: Tag[]): Tag[] {
-    return [...tags].sort((a, b) => a.name.localeCompare(b.name));
+  sortedTags(tagIds: number[]): Tag[] {
+    return tagIds
+      .map(id => this.allTags.find(t => t.id === id))
+      .filter((t): t is Tag => !!t)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   onSearchChange(value: string): void {

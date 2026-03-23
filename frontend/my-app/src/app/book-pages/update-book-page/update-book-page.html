@@ -1,68 +1,77 @@
 <body class="form-container">
   <h1>Boek wijzigen</h1>
-
   @if (error) {
     <div class="error-box">
-      <p id="warning">
-        Er was een probleem met het ophalen van de boekgegevens. Error bericht: {{ errorMessage }}
-      </p>
+      <p id="warning">Er was een probleem met het ophalen van de boekgegevens. Error: {{ errorMessage }}</p>
       <button class="secondary-btn" (click)="loadData()">Opnieuw proberen</button>
     </div>
   }
-
   <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
     <main class="form-left">
       <label for="title">Titel</label>
       <input id="title" type="text" formControlName="title" />
-
       <label for="author">Auteur</label>
       <input id="author" type="text" formControlName="author" />
-
       <label for="description">Beschrijving</label>
       <textarea id="description" formControlName="description"></textarea>
-
       <label for="publisher">Uitgeverij</label>
       <input id="publisher" type="text" formControlName="publisher" />
-
       <label for="releaseYear">Uitgavejaar</label>
       <input id="releaseYear" type="number" formControlName="releaseYear" />
-
       <label for="language">Taal</label>
       <input id="language" type="text" formControlName="language" />
-
       <label for="pageCount">Aantal paginas</label>
       <input id="pageCount" type="number" formControlName="pageCount" />
-
       <label for="cover">Cover URL</label>
       <input id="cover" type="text" [(ngModel)]="previewUrl" formControlName="cover" />
 
       <label>Tags</label>
       <app-tag-selection-menu
-        [bookId]="book?.id ?? null"
         [initialTags]="selectedTags"
         (tagsChanged)="onTagsChanged($event)"
       />
 
       <label>Genres</label>
       <app-genre-selection-menu
-        [bookId]="book?.id ?? null"
         [initialGenres]="selectedGenres"
-        (tagsChanged)="onTagsChanged($event)"
+        (tagsChanged)="onGenresChanged($event)"
       />
 
-            <label for="campus">Selecteer een campus (optioneel)</label>
+      <label>Subgenres</label>
+      <app-subgenre-selection-menu
+        [initialSubgenres]="selectedSubgenres"
+        [genreIds]="selectedGenres"
+        (subgenresChanged)="onSubgenresChanged($event)"
+      />
 
-            @if (school?.campuses!.length > 0) {
-            <select id="campus" formControlName="campusId">
-                <option value="0">Geen</option>
-                @for(campus of school?.campuses; track $index) {
-                <option [value]="campus.id">{{campus.name}}</option>
-                }
-            </select>
-            }
-            @else {
-            <p>Geen schoolcampussen gevonden</p>
-            }
+      <label>Leesniveau</label>
+      <app-reading-level
+        (selectedReadingLevel)="onReadingLevelChanged($event)"
+      />
+
+      <label>
+        <input type="checkbox" formControlName="isDidactic" (change)="onIsDidacticChanged()"> Didactisch boek
+      </label>
+
+      @if (isDidactic) {
+        <label>Didactische categorieën</label>
+        <app-didactic-category-selection-menu
+          [initialCategories]="selectedDidacticCategories"
+          (tagsChanged)="onDidacticCategoriesChanged($event)"
+        />
+      }
+
+      <label for="campus">Selecteer een campus (optioneel)</label>
+      @if (school?.campuses!.length > 0) {
+        <select id="campus" formControlName="campusId">
+          <option value="0">Geen</option>
+          @for(campus of school?.campuses; track $index) {
+            <option [value]="campus.id">{{campus.name}}</option>
+          }
+        </select>
+      } @else {
+        <p>Geen schoolcampussen gevonden</p>
+      }
 
       <label class="checkbox-label">
         <input id="featured" type="checkbox" formControlName="featured" />
@@ -78,10 +87,8 @@
         <p id="warning">Vul alle velden juist in.</p>
       }
     </main>
-
     <div class="form-right">
       <p class="preview-title">Preview van coverafbeelding</p>
-
       @if (previewUrl == '') {
         <div class="no-cover">Geen afbeelding</div>
       } @else {

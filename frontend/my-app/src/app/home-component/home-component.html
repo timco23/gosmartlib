@@ -45,8 +45,8 @@
               <div class="footer-right">
                 <div class="card-badges">
                   <span class="badge badge-language">{{ book.language }}</span>
-                  @for (tag of book.tags; track tag.id) {
-                    <span class="badge badge-tag">{{ tag.name }}</span>
+                  @for (tag of mapTagIds(book.tags); track tag.id){
+                    <span>{{ tag.name }}</span>
                   }
                 </div>
                 <span class="score-value">⭐ {{ book.reviewScore | number: '1.1-1' }}</span>
@@ -89,7 +89,7 @@
                   <div class="footer-right">
                     <div class="card-badges">
                       <span class="badge badge-language">{{ slot.book.language }}</span>
-                      @for (tag of slot.book.tags; track tag.id) {
+                      @for (tag of mapTagIds(slot.book.tags); track tag.id) {
                         <span class="badge badge-tag">{{ tag.name }}</span>
                       }
                     </div>

@@ -91,7 +91,12 @@ export interface GoogleBook {
 export interface Book {
   id: number;
   schoolId: number;
-  tags: Tag[];
+    tags: number[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
   featured: boolean;
   itemId: number;
@@ -111,6 +116,11 @@ export interface Book {
 
 export interface UpdateBookPayload {
   tags: number[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
   featured: boolean;
   title: string;
