@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, input, OnInit, Output, output } from '@angular/core';
 import { ReadingLevelService } from '../../services/reading-level.service';
 import { Readinglevel } from '../../../types/types';
 
@@ -11,14 +11,17 @@ import { Readinglevel } from '../../../types/types';
 export class ReadingLevelSelectionMenuComponent {
   private readingLevelService = inject(ReadingLevelService);
 
-  selectedReadingLevel = output<Readinglevel | null>();
-
   readingLevels: Readinglevel[] = [];
   selected: Readinglevel | null = null;
+  @Input() initialReadingLevel: Readinglevel | null = null;
+  @Output() selectedReadingLevel = new EventEmitter<Readinglevel | null>();
 
   ngOnInit(): void {
     this.readingLevelService.getAll().subscribe((data) => {
       this.readingLevels = data;
+      if (this.initialReadingLevel) {
+        this.selected = this.initialReadingLevel;
+      }
     });
   }
 

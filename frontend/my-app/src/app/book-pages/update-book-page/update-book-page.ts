@@ -142,6 +142,10 @@ export class UpdateBookPage implements OnInit {
     this.router.navigate(['/books']);
   }
 
+  get selectedGenreIds(): number[] {
+    return this.selectedGenres?.map(g => g.id) || [];
+  }
+
   ngOnInit(): void {
     this.loadLookups();
     this.loadData();
@@ -218,25 +222,42 @@ export class UpdateBookPage implements OnInit {
     if (!this.book) return;
 
     this.selectedTags = this.allTags.filter(tag =>
-  (this.book!.tags as number[]).includes(tag.id)
-);
+      (this.book!.tags as number[]).includes(tag.id)
+    );
 
-this.selectedGenres = this.allGenres.filter(genre =>
-  (this.book!.genres as number[]).includes(genre.id)
-);
+    this.selectedGenres = this.allGenres.filter(genre =>
+      (this.book!.genres as number[]).includes(genre.id)
+    );
 
-this.selectedSubgenres = this.allSubgenres.filter(sub =>
-  (this.book!.subgenres as number[]).includes(sub.id)
-);
+    this.selectedSubgenres = this.allSubgenres.filter(sub =>
+      (this.book!.subgenres as number[]).includes(sub.id)
+    );
 
-this.selectedReadingLevel =
-  this.allReadingLevels.find(rl =>
-    rl.id === (this.book!.readingLevel as number)
-  ) ?? null;
+    this.selectedReadingLevel =
+      this.allReadingLevels.find(rl =>
+        rl.id === (this.book!.readingLevel as number)
+      ) ?? null;
 
-this.selectedDidacticCategories = this.allDidacticCategories.filter(cat =>
-  (this.book!.didacticCategories as number[]).includes(cat.id)
-);
+    this.selectedDidacticCategories = this.allDidacticCategories.filter(cat =>
+      (this.book!.didacticCategories as number[]).includes(cat.id)
+    );
+
+    this.selectedGenres = this.allGenres.filter(genre =>
+      (this.book!.genres as number[]).includes(genre.id)
+    );
+
+    this.selectedSubgenres = this.allSubgenres.filter(sub =>
+      (this.book!.subgenres as number[]).includes(sub.id)
+    );
+
+    this.selectedReadingLevel =
+      this.allReadingLevels.find(rl =>
+        rl.id === (this.book!.readingLevel as number)
+      ) ?? null;
+
+    this.selectedDidacticCategories = this.allDidacticCategories.filter(cat =>
+      (this.book!.didacticCategories as number[]).includes(cat.id)
+    );
 
     this.isDidactic = this.book.isDidactic ?? false;
 

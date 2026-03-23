@@ -1,4 +1,4 @@
-import { Component, inject, input, output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, input, Output, output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GenreService } from '../../services/genre.service';
 import { AuthService } from '../../services/auth.service';
@@ -16,8 +16,8 @@ export class GenreSelectionMenuComponent {
   role = Role;
 
   bookId = input<number | null>(null);
-  initialGenres = input<Genre[]>([]);
-  tagsChanged = output<Genre[]>();
+  @Input() initialGenres: Genre[] = [];
+  @Output() tagsChanged = new EventEmitter<Genre[]>();
 
   genres: Genre[] = [];
   filterInput: string = '';
@@ -34,15 +34,15 @@ export class GenreSelectionMenuComponent {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialTags']) {
-      this.selectedGenres = [...this.initialGenres()];
+    if (changes['initialGenres'] && this.initialGenres) {
+      this.selectedGenres = [...this.initialGenres];
     }
   }
 
   ngOnInit(): void {
     this.genreService.getGenres().subscribe((genres) => {
       this.genres = genres;
-      this.selectedGenres = [...this.initialGenres()];
+      this.selectedGenres = [...this.initialGenres];
     });
   }
 

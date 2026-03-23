@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, SimpleChanges } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, input, Output, output, SimpleChanges } from '@angular/core';
 import { Genre, Role, Subgenre, Tag } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { SubgenreService } from '../../services/subgenre.service';
@@ -15,35 +15,21 @@ export class SubgenreSelectionMenuComponent {
   authService = inject(AuthService)
   role = Role;
 
-  bookId = input<number | null>(null);
-  initialSubgenres = input<Subgenre[]>([]);
-  subgenresChanged = output<Subgenre[]>();
+  @Input() genreIds: number[] = [];
+  @Input() initialSubgenres: Subgenre[] = [];
+  @Output() subgenresChanged = new EventEmitter<Subgenre[]>();
 
   subgenres: Subgenre[] = [];
   filterInput: string = '';
   selectedSubgenres: Subgenre[] = [];
-  genreIds = input<Genre[] | null>(null);
 
   constructor() {
     effect(() => {
-      const genres = this.genreIds();
-      if (genres != null && genres.length > 0) {
-        const ids = genres.map(g => g.id);
+      const ids = this.genreIds;
+      if (ids != null && ids.length > 0) {
         this.subgenreService.getSubgenresByGenres(ids).subscribe((subgenres) => {
           this.subgenres = subgenres;
-
-          // Verwijder geselecteerde subgenres die niet meer geldig zijn
-          this.selectedSubgenres = this.selectedSubgenres.filter(selected =>
-            subgenres.some(s => s.id === selected.id)
-          );
-
-          // Emit zodat de parent altijd up-to-date is
-          this.subgenresChanged.emit(this.selectedSubgenres);
         });
-      } else {
-        this.subgenres = [];
-        this.selectedSubgenres = [];
-        this.subgenresChanged.emit([]);
       }
     });
   }
@@ -59,9 +45,8 @@ export class SubgenreSelectionMenuComponent {
   }
 
   private loadSubgenres(): void {
-    const genres = this.genreIds();
-    if (genres != null && genres.length > 0) {
-      const ids = genres.map(g => g.id);
+    const ids = this.genreIds;
+    if (ids != null && ids.length > 0) {
       this.subgenreService.getSubgenresByGenres(ids).subscribe((subgenres) => {
         this.subgenres = subgenres;
       });

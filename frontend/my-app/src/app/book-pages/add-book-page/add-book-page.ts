@@ -74,6 +74,10 @@ export class AddBookPage implements OnInit {
     })
   }
 
+  get selectedGenreIds(): number[] {
+    return this.selectedGenres?.map(g => g.id) || [];
+  }
+
   onSubmit(): void {
     this.bookAlreadyExists = false;
     this.incompleteForm = false;
