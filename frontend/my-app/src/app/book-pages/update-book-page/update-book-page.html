@@ -31,7 +31,14 @@
       <input id="releaseYear" type="number" formControlName="releaseYear" />
 
       <label for="language">Taal</label>
-      <input id="language" type="text" formControlName="language" />
+      <select id="language" formControlName="language">
+        <option value="">Selecteer een taal</option>
+        <option value="Nederlands">Nederlands</option>
+        <option value="Engels">Engels</option>
+        <option value="Frans">Frans</option>
+        <option value="Duits">Duits</option>
+        <option value="Andere">Andere</option>
+      </select>
 
       <label for="pageCount">Aantal paginas</label>
       <input id="pageCount" type="number" formControlName="pageCount" />
