@@ -20,9 +20,23 @@ public class DidacticCategoryService {
         return didacticCategoryRepository.findAll();
     }
 
-    public DidacticCategory addDidacticCategory(DidacticCategoryDTO didacticCategory){
+    public DidacticCategory addDidacticCategory(DidacticCategoryDTO didacticCategory) {
         DidacticCategory newCategory = new DidacticCategory(didacticCategory.name());
         didacticCategoryRepository.save(newCategory);
         return newCategory;
+    }
+
+    public DidacticCategory updateDidacticCategory(Long id, DidacticCategoryDTO dto) {
+        DidacticCategory existing = didacticCategoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("DidacticCategory not found"));
+        existing.setName(dto.name());
+        didacticCategoryRepository.save(existing);
+        return existing;
+    }
+
+    public void deleteDidacticCategory(Long id) {
+        DidacticCategory existing = didacticCategoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("DidacticCategory not found"));
+        didacticCategoryRepository.delete(existing);
     }
 }
