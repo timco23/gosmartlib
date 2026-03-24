@@ -21,9 +21,8 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import edu.ap.spring_backend.dao.SchoolRepository;
+import edu.ap.spring_backend.jpa.School;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.time.Duration;
 
@@ -38,12 +37,12 @@ import java.time.Duration;
 @RestController
 public class SmartschoolOAuthController {
 
-    private static final Logger log = LoggerFactory.getLogger(SmartschoolOAuthController.class);
-
+    private final SchoolRepository schoolRepository;
     private final UserRepository userRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final SecureRandom secureRandom = new SecureRandom();
     private final JwtService jwtService;
+    
 
     @Value("${smartschool.client-id}")
     private String clientId;
@@ -60,20 +59,32 @@ public class SmartschoolOAuthController {
     @Value("${app.frontend-base-url}")
     private String frontendBaseUrl;
 
+    @Value("${oauth.default-school-id:0}")
+    private Integer defaultSchoolId;
+
      /**
      * Creates the controller and initializes {@link JwtService} using application properties.
      * @param userRepository repository for loading/saving users
      * @param jwtSecret JWT signing secret
      * @param expiresMinutes JWT lifetime in minutes
+     * @param schoolRepository repository for loading schools
      */
     public SmartschoolOAuthController(
             UserRepository userRepository,
             @Value("${app.jwt.secret}") String jwtSecret,
-            @Value("${app.jwt.expires-minutes}") long expiresMinutes
+            @Value("${app.jwt.expires-minutes}") long expiresMinutes,
+            SchoolRepository schoolRepository
     ) {
         this.userRepository = userRepository;
         this.jwtService = new JwtService(jwtSecret, expiresMinutes);
+        this.schoolRepository = schoolRepository;
     }
+
+    private School resolveDefaultSchool() {
+        if (defaultSchoolId == null || defaultSchoolId <= 0) return null;
+        return schoolRepository.findById(defaultSchoolId.longValue()).orElse(null);
+    }
+
 
     /**
      * Starts the OAuth flow.
@@ -181,6 +192,7 @@ public class SmartschoolOAuthController {
 
         // 3) find/create local user
         User user = userRepository.findBySmartschoolUsername(info.getUsername()).orElse(null);
+        School defaultSchool = resolveDefaultSchool();
 
         String incomingEmail = (info.getEmail() != null) ? info.getEmail().trim().toLowerCase() : null;
         boolean hasIncomingEmail = incomingEmail != null && !incomingEmail.isBlank();
@@ -192,6 +204,10 @@ public class SmartschoolOAuthController {
             user.setName(info.getSurname());
             user.setRole(mapSmartschoolRole(info.getBasisrol()));
             user.setPassword("{noop}oauth");
+
+            if (defaultSchool != null) {
+                user.setSchool(defaultSchool);
+            }
 
             // Avoid unique email conflicts
             if (hasIncomingEmail && !userRepository.existsByEmail(incomingEmail)) {
@@ -210,6 +226,10 @@ public class SmartschoolOAuthController {
             // Update the email only if it is not currently in use by another user
             if (hasIncomingEmail && !userRepository.existsByEmailAndIdNot(incomingEmail, user.getId())) {
                 user.setEmail(incomingEmail);
+            }
+
+            if (user.getSchool() == null && defaultSchool != null) {
+                user.setSchool(defaultSchool);
             }
 
             user = userRepository.save(user);

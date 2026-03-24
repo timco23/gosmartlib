@@ -37,6 +37,7 @@ services:
       - SERVER_FORWARD_HEADERS_STRATEGY=framework
       - SMARTSCHOOL_REDIRECT_URI=${SMARTSCHOOL_REDIRECT_URI}
       - APP_FRONTEND_BASE_URL=${APP_FRONTEND_BASE_URL}
+      - OAUTH_DEFAULT_SCHOOL_ID=${OAUTH_DEFAULT_SCHOOL_ID}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.gsmartlib.tech`)"
