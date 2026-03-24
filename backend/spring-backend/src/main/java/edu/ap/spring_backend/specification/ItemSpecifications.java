@@ -85,11 +85,24 @@ public class ItemSpecifications {
         };
     }
 
-    public static Specification<Item> isFeatured(boolean featured) {
+    public static Specification<Item> isFeatured(boolean featured, Long schoolId) {
+        if (schoolId == null) return null;
         return (root, query, cb) -> {
             Join<Item, SchoolItemCopy> copies = root.join("copies");
             query.distinct(true);
-            return cb.equal(copies.get("featured"), featured);
+            return cb.and(
+                    cb.equal(copies.get("featured"), featured),
+                    cb.equal(copies.get("school").get("id"), schoolId)
+            );
+        };
+    }
+
+    public static Specification<Item> withSchoolId(Long schoolId) {
+        return (root, query, cb) -> {
+            if (schoolId == null) return null;
+            Join<Item, SchoolItemCopy> copies = root.join("copies");
+            query.distinct(true);
+            return cb.equal(copies.get("school").get("id"), schoolId);
         };
     }
 }

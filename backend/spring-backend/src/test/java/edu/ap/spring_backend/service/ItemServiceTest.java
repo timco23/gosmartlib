@@ -83,7 +83,7 @@ class ItemServiceTest {
         // Given
         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", "Test", List.of("English"),
-                100, 500, 2000, 2025, 4.0, List.of(1L)
+                100, 500, 2000, 2025, 4.0, List.of(1L), 1L
         );
         Page<Item> page = new PageImpl<>(List.of(testItem));
         when(itemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
@@ -103,7 +103,7 @@ class ItemServiceTest {
         // Given
         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", null, null,
-                500, 100, null, null, null, null);
+                500, 100, null, null, null, null, 1L);
 
         // When & Then
         assertThrows(IllegalArgumentException.class, () -> itemService.getFilteredItems(request));
@@ -114,7 +114,7 @@ class ItemServiceTest {
         // Given
         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", null, null,
-                null, null, 2025, 2020, null, null);
+                null, null, 2025, 2020, null, null, 1L);
 
         // When & Then
         assertThrows(IllegalArgumentException.class, () -> itemService.getFilteredItems(request));
@@ -353,4 +353,22 @@ class ItemServiceTest {
         // Then
         assertNull(result);
     }
+
+
+    // ---------------- getFeaturedItems ----------------
+
+    @Test
+    void givenSchoolId_whenGetFeaturedItems_thenReturnList() {
+        // Given
+        when(itemRepository.findAll(any(Specification.class))).thenReturn(List.of(testItem));
+
+        // When
+        List<ItemDTO> result = itemService.getFeaturedItems(1L);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(testItem.getTitle(), result.get(0).title());
+    }
+
 }

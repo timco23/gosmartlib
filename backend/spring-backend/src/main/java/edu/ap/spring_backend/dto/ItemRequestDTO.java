@@ -14,5 +14,6 @@ public record ItemRequestDTO(
         Integer minYear,
         Integer maxYear,
         Double minScore,
-        List<Long> tagIds
+        List<Long> tagIds,
+        Long schoolId
 ) {}

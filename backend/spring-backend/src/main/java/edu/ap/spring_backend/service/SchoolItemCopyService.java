@@ -30,8 +30,8 @@ public class SchoolItemCopyService {
         this.campusRepository = campusRepository;
     }
 
-    public List<SchoolItemCopy> getCopiesByItemId(int itemId) {
-        return schoolItemCopyRepository.findByItemId(itemId);
+    public List<SchoolItemCopy> getCopiesByItemIdAndSchoolId(int itemId, Long schoolId) {
+        return schoolItemCopyRepository.findByItemIdAndSchoolId(itemId, schoolId);
     }
 
     public SchoolItemCopy addCopy(CreateSchoolItemCopyDTO copyDTO) {
@@ -71,7 +71,7 @@ public class SchoolItemCopyService {
         schoolItemCopyRepository.save(copy);
         if (copy.isFeatured() != copyDTO.featured()) {
             copy.setFeatured(copyDTO.featured());
-            List<SchoolItemCopy> schoolItemCopies = getCopiesByItemId(copyDTO.itemId());
+            List<SchoolItemCopy> schoolItemCopies = getCopiesByItemIdAndSchoolId(copyDTO.itemId(), copyDTO.schoolId());
             schoolItemCopies.forEach(schoolItemCopy -> {
                 schoolItemCopy.setFeatured(copyDTO.featured());
                 schoolItemCopyRepository.save(schoolItemCopy);
@@ -80,8 +80,8 @@ public class SchoolItemCopyService {
         return copy;
     }
 
-    public SchoolItemCopy getByItemTitle(String title) {
-        SchoolItemCopy copy = schoolItemCopyRepository.findByItemTitle(title).orElse(null);
+    public SchoolItemCopy getByItemTitleAndSchoolId(String title, Long schoolId) {
+        SchoolItemCopy copy = schoolItemCopyRepository.findByItemTitleAndSchoolId(title, schoolId).orElse(null);
         return copy;
     }
 }

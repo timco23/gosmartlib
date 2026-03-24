@@ -39,6 +39,7 @@ public class ItemController {
             @RequestParam(defaultValue = "10") @Min(1) @Max(10) int size,
             @RequestParam(defaultValue = "title") @Pattern(regexp = "title|author|year|score|pages") String sortBy,
             @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE) String sortDirection,
+            @RequestParam Long schoolId,
             @RequestParam(required = false) @Size(max = 100) String search,
             @RequestParam(required = false) @Size(max = 10) List<String> languages,
             @RequestParam(required = false) @Min(0) Integer minPages,
@@ -49,13 +50,13 @@ public class ItemController {
             @RequestParam(required = false) List<Long> tagIds) {
         ItemRequestDTO request = new ItemRequestDTO(
                 page, size, sortBy, sortDirection,
-                search, languages, minPages, maxPages, minYear, maxYear, minScore, tagIds);
+                search, languages, minPages, maxPages, minYear, maxYear, minScore, tagIds, schoolId);
         return ResponseEntity.ok(itemService.getFilteredItems(request));
     }
 
-    @GetMapping("/books/featured")
-    public ResponseEntity<List<ItemDTO>> getFeaturedItems() {
-        return ResponseEntity.ok(itemService.getFeaturedItems());
+    @GetMapping("/books/featured/{schoolId}")
+    public ResponseEntity<List<ItemDTO>> getFeaturedItems(@PathVariable Long schoolId) {
+        return ResponseEntity.ok(itemService.getFeaturedItems(schoolId));
     }
 
     @GetMapping("/books/search")
@@ -80,8 +81,8 @@ public class ItemController {
     }
 
     @GetMapping("/books/copies/{itemId}")
-    public ResponseEntity<List<SchoolItemCopy>> getCopiesByItemId(@PathVariable int itemId) {
-        return ResponseEntity.ok(schoolItemCopyService.getCopiesByItemId(itemId));
+    public ResponseEntity<List<SchoolItemCopy>> getCopiesByItemIdAndSchoolId(@PathVariable int itemId, @RequestParam Long schoolId) {
+        return ResponseEntity.ok(schoolItemCopyService.getCopiesByItemIdAndSchoolId(itemId, schoolId));
     }
 
     @PostMapping("/books/copies")
@@ -100,7 +101,7 @@ public class ItemController {
     }
 
     @GetMapping("/books/copies/search")
-    public ResponseEntity<SchoolItemCopy> getCopyByItemTitle(@RequestParam String title) {
-        return ResponseEntity.ok(schoolItemCopyService.getByItemTitle(title));
+    public ResponseEntity<SchoolItemCopy> getCopyByItemTitle(@RequestParam String title, @RequestParam Long schoolId) {
+        return ResponseEntity.ok(schoolItemCopyService.getByItemTitleAndSchoolId(title, schoolId));
     }
 }

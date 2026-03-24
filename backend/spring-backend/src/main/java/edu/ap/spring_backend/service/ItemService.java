@@ -45,7 +45,8 @@ public class ItemService {
                 .and(withMinYear(request.minYear()))
                 .and(withMaxYear(request.maxYear()))
                 .and(withMinScore(request.minScore()))
-                .and(withTags(request.tagIds()));
+                .and(withTags(request.tagIds()))
+                .and(withSchoolId(request.schoolId()));
 
         Sort sort = createSort(request.sortBy(), request.sortDirection());
         Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
@@ -151,8 +152,8 @@ public class ItemService {
     }
 
     // Gets a List of featured Items
-    public List<ItemDTO> getFeaturedItems() {
-        List<Item> featuredBooks = itemRepository.findAll(Specification.allOf(isFeatured(true)));
+    public List<ItemDTO> getFeaturedItems(Long schoolId) {
+        List<Item> featuredBooks = itemRepository.findAll(Specification.allOf(isFeatured(true, schoolId)));
         return featuredBooks.stream().map(this::mapToItemDTO).toList();
     }
 
