@@ -28,7 +28,7 @@ export class BookListPage implements OnInit {
   sortBy: string = 'title';
   sortDirection: string = 'asc';
   search: string = '';
-  languages: string[] = ['Nederlands', 'Engels', 'Frans', 'Duits'];
+  languages: string[] = [];
   minPages?: number;
   maxPages?: number;
   minYear?: number;
@@ -118,7 +118,7 @@ export class BookListPage implements OnInit {
 
   onResetFilters(): void {
     this.search = '';
-    this.languages = ['Nederlands', 'Engels', 'Frans', 'Duits'];
+    this.languages = [];
     this.minPages = undefined;
     this.maxPages = undefined;
     this.minYear = undefined;
