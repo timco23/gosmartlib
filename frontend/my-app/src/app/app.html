@@ -1,28 +1,30 @@
 @if (currentUser) {
   <div class="navbar">
-  <div class="nav-left">
-    <a routerLink="/home" class="nav-link" routerLinkActive="active">Home</a>
-    @if (authService.atLeastHasRole(role.ADMIN)) {
-      <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
-    }
-    <a routerLink="/books" class="nav-link">Boeken</a>
-    <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
-  </div>
-
-  <div class="user-menu">
-    <div class="user-info" (click)="toggleDropdown()">
-      <strong>{{ currentUser.name }}</strong> ({{ currentUser.role }})
-      <span class="dropdown-arrow">▼</span>
+    <div class="nav-left">
+      <a routerLink="/home" class="nav-link" routerLinkActive="active">Home</a>
+      @if (authService.atLeastHasRole(role.ADMIN)) {
+        <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
+      }
+      <a routerLink="/books" class="nav-link">Boeken</a>
+      <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
     </div>
 
-    @if (dropdownOpen) {
-      <div class="dropdown-menu">
-      <a routerLink="/profile" (click)="closeDropdown()" class="dropdown-item"> Mijn Gegevens </a>
-      <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
+    <div class="user-menu">
+      <div class="user-info" (click)="toggleDropdown()">
+        <strong>{{ currentUser?.name }}</strong> ({{ currentUser?.role }})
+        <span class="dropdown-arrow">▼</span>
+      </div>
+
+      @if (dropdownOpen) {
+        <div class="dropdown-menu">
+          <a routerLink="/profile" (click)="closeDropdown()" class="dropdown-item">
+            Mijn Gegevens
+          </a>
+          <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
+        </div>
+      }
     </div>
-    }
   </div>
-</div>
 }
 
 <router-outlet></router-outlet>

@@ -11,11 +11,11 @@ import { AuthService } from '../services/auth.service';
   imports: [DecimalPipe],
   standalone: true,
   templateUrl: './favorites.component.html',
-  styleUrl: './favorites.component.css'
+  styleUrl: './favorites.component.css',
 })
 export class FavoritesComponent {
   currentUser: LoginResponse | null = null;
-  
+
   api = inject(UserService);
   bookApi = inject(BookService);
   router = inject(Router);
@@ -26,9 +26,8 @@ export class FavoritesComponent {
   totalPages: number = 0;
   books: Book[] = [];
   allBooks: Book[] = [];
-  
-  constructor(private authService: AuthService) { }
-  
+
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadBooks();
@@ -78,7 +77,7 @@ export class FavoritesComponent {
   }
 
   deleteFavorite(bookId: number): void {
-    if (!this.currentUser) return;
+    if (!this.currentUser?.email) return;
 
     this.bookApi.removeFromFavorites(bookId, this.currentUser.email).subscribe({
       next: () => {
@@ -86,7 +85,7 @@ export class FavoritesComponent {
       },
       error: (err) => {
         console.error('Fout bij verwijderen van favoriet:', err);
-      }
+      },
     });
   }
 }

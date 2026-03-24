@@ -1,64 +1,73 @@
-<h1>Tag Beheer</h1>
+<h1>Beheer</h1>
+<div class="type-select">
+  <select [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event); editingId.set(null)">
+    <option value="tags">Tags</option>
+    <option value="genres">Genres</option>
+    <option value="didacticCategories">Didactische categorieën</option>
+  </select>
+</div>
 
-<!-- Filter & toevoegen -->
 <div class="add-row">
-  <input
-    [ngModel]="filterInput()"
-    (ngModelChange)="filterInput.set($event)"
-    placeholder="Zoeken op naam"
-  />
-  <input
-    [ngModel]="newTagName()"
-    (ngModelChange)="newTagName.set($event)"
-    placeholder="Nieuwe tag..."
-    (keyup.enter)="addTag()"
-  />
-  <button (click)="addTag()">Toevoegen</button>
+  <input [ngModel]="filterInput()" (ngModelChange)="filterInput.set($event)" placeholder="Zoeken op naam" />
+  <input [ngModel]="newTagName()" (ngModelChange)="newTagName.set($event)" placeholder="Nieuw item..."
+    (keyup.enter)="addItem()" />
+  <button (click)="addItem()">Toevoegen</button>
 </div>
 
 @if (addErrorMessage()) {
-  <p class="error">{{ addErrorMessage() }}</p>
+<p class="error">{{ addErrorMessage() }}</p>
 }
-
-<!-- Tag list -->
 <ul>
-  @for (tag of filteredTags(); track tag.id) {
-    <li>
-      @if (editingId() === tag.id) {
-        <div class="tag-content">
-          <input
-            [ngModel]="editName()"
-            (ngModelChange)="editName.set($event)"
-            (keyup.enter)="saveEdit(tag.id)"
-            (keyup.escape)="cancelEdit()"
-          />
-        </div>
+  @for (item of currentList(); track item.id) {
+  <li class="genre-item">
+    @if (editingId() === item.id) {
+    <div class="tag-content">
+      <input [ngModel]="editName()" (ngModelChange)="editName.set($event)" (keyup.enter)="saveEditItem(item.id)"
+        (keyup.escape)="cancelEdit()" />
+    </div>
+    <div class="tag-actions">
+      <button (click)="saveEditItem(item.id)">Opslaan</button>
+      <button (click)="cancelEdit()">Annuleren</button>
+    </div>
+    } @else {
+    <div class="tag-content">
+      <span>{{ item.name }}</span>
+    </div>
+    <div class="tag-actions">
+      <button (click)="startEdit(item)">Wijzigen</button>
+      <button (click)="deleteItem(item.id)">Verwijderen</button>
+    </div>
 
+    @if (selectedType() === 'genres') {
+    @let genre = asGenre(item);
+    @if (genre.subgenres && genre.subgenres.length > 0) {
+    <ul class="subgenre-list">
+      @for (sub of genre.subgenres; track sub.id) {
+      <li>
+        @if (editingId() === sub.id) {
+        <div class="tag-content">
+          <input [ngModel]="editName()" (ngModelChange)="editName.set($event)" (keyup.enter)="saveSubgenreEdit(sub.id)"
+            (keyup.escape)="cancelEdit()" />
+        </div>
         <div class="tag-actions">
-          <button (click)="saveEdit(tag.id)">Opslaan</button>
+          <button (click)="saveSubgenreEdit(sub.id)">Opslaan</button>
           <button (click)="cancelEdit()">Annuleren</button>
         </div>
-
-        @if (editErrorMessage()) {
-          <span class="error">{{ editErrorMessage() }}</span>
-        }
-      } @else {
-        <div class="tag-content">
-          <span>{{ tag.name }}</span>
-        </div>
-
+        } @else {
+        <div class="tag-content"><span>{{ sub.name }}</span></div>
         <div class="tag-actions">
-          @if (tag.default) {
-            <span class="badge-default">Standaard</span>
-          }
-          @if (!tag.default) {
-            <button (click)="startEdit(tag)">Wijzigen</button>
-            <button (click)="deleteTag(tag.id)">Verwijderen</button>
-          }
+          <button (click)="startEdit(sub)">Wijzigen</button>
+          <button (click)="deleteSubgenre(sub.id, item.id)">Verwijderen</button>
         </div>
+        }
+      </li>
       }
-    </li>
+    </ul>
+    }
+    }
+    }
+  </li>
   } @empty {
-    <li>Geen tags gevonden.</li>
+  <li>Geen items gevonden.</li>
   }
 </ul>

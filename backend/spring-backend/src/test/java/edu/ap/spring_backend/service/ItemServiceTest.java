@@ -47,7 +47,7 @@ class ItemServiceTest {
         MockitoAnnotations.openMocks(this);
 
         testTag = new Tag();
-        testTag.setId(1L);
+        testTag.setId((int) 1L);
         testTag.setName("Science Fiction");
 
         testItem = new Item(
@@ -62,8 +62,7 @@ class ItemServiceTest {
                 "Test Author",
                 "Test Publisher",
                 "Test Title",
-                new HashSet<>(Collections.singletonList(testTag))
-        );
+                new HashSet<>(Collections.singletonList(testTag)));
         testItem.setId(1);
 
         testSchool = new School();
@@ -83,8 +82,7 @@ class ItemServiceTest {
         // Given
         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", "Test", List.of("English"),
-                100, 500, 2000, 2025, 4.0, List.of(1L), 1L
-        );
+                100, 500, 2000, 2025, 4.0, List.of(1L), 1L);
         Page<Item> page = new PageImpl<>(List.of(testItem));
         when(itemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
@@ -128,7 +126,12 @@ class ItemServiceTest {
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
                 4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
+                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+                List.of(), // genres
+                List.of(), // subgenres
+                null, // readingLevel
+                List.of(), // didacticCategories
+                false // isDidactic
         );
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
@@ -154,8 +157,8 @@ class ItemServiceTest {
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
                 4.5, 10, 1, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
-        );
+                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+                List.of(), List.of(), null, List.of(), false);
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
@@ -178,9 +181,8 @@ class ItemServiceTest {
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
                 4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
-        );
-
+                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+                List.of(), List.of(), null, List.of(), false);
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
         when(itemRepository.findByTitle(dto.title())).thenReturn(Optional.of(testItem));
@@ -202,7 +204,12 @@ class ItemServiceTest {
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
                 4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
+                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+                List.of(), // genres
+                List.of(), // subgenres
+                null, // readingLevel
+                List.of(), // didacticCategories
+                false // isDidactic
         );
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(true);
@@ -216,8 +223,13 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 1, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
+                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+                List.of(), // genres
+                List.of(), // subgenres
+                null, // readingLevel
+                List.of(), // didacticCategories
+                false // isDidactic
         );
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
@@ -275,9 +287,22 @@ class ItemServiceTest {
     void givenExistingId_whenUpdateSchoolItem_thenUpdateAndReturnDTO() {
         // Given
         UpdateItemDTO dto = new UpdateItemDTO(
-                "Updated Title", "Updated Publisher", "Updated Author", 2022, "French", 350,
-                "updated-cover.jpg", List.of(1L), "Updated Description", "0987654321"
-        );
+                "Updated Title",
+                "Updated Publisher",
+                "Updated Author",
+                2022,
+                "French",
+                350,
+                "updated-cover.jpg",
+                List.of(1L),
+                "Updated Description",
+                "0987654321",
+
+                List.of(),
+                List.of(),
+                null,
+                List.of(),
+                false);
         when(itemRepository.findById(1)).thenReturn(Optional.of(testItem));
         when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
 
@@ -294,8 +319,22 @@ class ItemServiceTest {
     void givenNonExistingId_whenUpdateSchoolItem_thenThrowEntityNotFoundException() {
         // Given
         UpdateItemDTO dto = new UpdateItemDTO(
-                "Updated Title", "Updated Publisher", "Updated Author", 2022, "French", 350,
-                "updated-cover.jpg", List.of(1L), "Updated Description", "0987654321"
+                "Updated Title",
+                "Updated Publisher",
+                "Updated Author",
+                2022,
+                "French",
+                350,
+                "updated-cover.jpg",
+                List.of(1L),
+                "Updated Description",
+                "0987654321",
+
+                List.of(),
+                List.of(),
+                null,
+                List.of(),
+                false
         );
         when(itemRepository.findById(1)).thenReturn(Optional.empty());
 
@@ -353,7 +392,6 @@ class ItemServiceTest {
         // Then
         assertNull(result);
     }
-
 
     // ---------------- getFeaturedItems ----------------
 

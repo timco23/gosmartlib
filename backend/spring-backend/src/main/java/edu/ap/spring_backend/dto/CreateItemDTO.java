@@ -44,4 +44,15 @@ public record CreateItemDTO(
         @JsonProperty("copy_status")
         CopyStatus copyStatus,
         @JsonProperty("condition")
-        ItemCondition condition) { }
+        ItemCondition condition,
+        @JsonProperty("genres")
+        List<Long> genres,
+        @JsonProperty("subgenres")
+        List<Long> subgenres,
+        @JsonProperty("readingLevel")
+        Long readingLevel,
+        @JsonProperty("didacticCategories")
+        List<Long> didacticCategories,
+        @JsonProperty("isDidactic")
+        boolean isDidactic
+) { }

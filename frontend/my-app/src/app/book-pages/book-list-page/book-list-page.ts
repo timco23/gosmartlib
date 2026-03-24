@@ -4,10 +4,11 @@ import { Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { Book, Page, Role, School, Tag } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
-import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
+import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { AuthService } from '../../services/auth.service';
 import { SchoolService } from '../../services/school.service';
 import { UserService } from '../../services/user.service';
+import { TagService } from '../../services/tag.service';
 
 @Component({
   selector: 'app-book-list-page',
@@ -31,7 +32,7 @@ export class BookListPage implements OnInit {
   sortBy: string = 'title';
   sortDirection: string = 'asc';
   search: string = '';
-  languages: string[] = ['Nederlands', 'Engels', 'Frans', 'Duits'];
+  languages: string[] = [];
   minPages?: number;
   maxPages?: number;
   minYear?: number;
@@ -40,26 +41,35 @@ export class BookListPage implements OnInit {
   selectedTags: Tag[] = [];
   school: School | null = null;
 
+  allTags: Tag[] = [];
+  tagService = inject(TagService);
+
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
-      this.userService.getUser(user!.email).subscribe({
+      if (!user?.email) return;
+
+      this.userService.getUser(user.email).subscribe({
         next: (data) => {
           if (data.schoolName != null) {
             this.schoolService.getByName(data.schoolName).subscribe({
-              next: (data) => {
-                this.school = data;
-                this.loadBooks();
-              }
-            })
+              next: (schoolData) => {
+                this.school = schoolData;
+                this.tagService.getTags().subscribe(tags => {
+      this.allTags = tags;
+    });
+    this.loadBooks();
+              },
+            });
           }
-        }
-      })
+        },
+      });
     });
   }
 
   loadBooks(): void {
+    if (!this.school?.id) return;
+
     const tagIds = this.selectedTags.map((t) => t.id!);
-    console.log('tagIds:', tagIds);
     this.api
       .getBooksPaginated(
         this.currentPage,
@@ -68,7 +78,7 @@ export class BookListPage implements OnInit {
         this.sortDirection,
         this.search,
         this.languages,
-        this.school!.id!,
+        this.school.id,
         this.minPages,
         this.maxPages,
         this.minYear,
@@ -94,8 +104,10 @@ export class BookListPage implements OnInit {
     this.loadBooks();
   }
   //sort tags alphabetically
- sortedTags(tags: Tag[]): Tag[] {
-    return [...tags].sort((a, b) => a.name.localeCompare(b.name));
+   sortedTags(tags: Tag[]): Tag[] {
+  return tags
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   onSearchChange(value: string): void {
@@ -127,7 +139,7 @@ export class BookListPage implements OnInit {
 
   onResetFilters(): void {
     this.search = '';
-    this.languages = ['Nederlands', 'Engels', 'Frans', 'Duits'];
+    this.languages = [];
     this.minPages = undefined;
     this.maxPages = undefined;
     this.minYear = undefined;

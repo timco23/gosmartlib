@@ -21,6 +21,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
       - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
       - "traefik.docker.network=traefik"
     depends_on:
@@ -34,10 +35,28 @@ services:
     restart: on-failure
     environment:
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
+      - SMARTSCHOOL_CLIENT_ID=${SMARTSCHOOL_CLIENT_ID}
+      - SMARTSCHOOL_CLIENT_SECRET=${SMARTSCHOOL_CLIENT_SECRET}
+      - SMARTSCHOOL_PLATFORM=${SMARTSCHOOL_PLATFORM}
+      - SMARTSCHOOL_REDIRECT_URI=${SMARTSCHOOL_REDIRECT_URI}
+      - APP_FRONTEND_BASE_URL=${APP_FRONTEND_BASE_URL}
+      - SERVER_FORWARD_HEADERS_STRATEGY=framework
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_MINUTES=${JWT_EXPIRES_MINUTES}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.routers.backend.priority=10"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.service=backend"
+      - "traefik.http.routers.backend.middlewares=cors,backend-stripprefix"
+
+      - "traefik.http.routers.backend-oauth.rule=PathPrefix(`/oauth`)"
+      - "traefik.http.routers.backend-oauth.priority=20"
+      - "traefik.http.routers.backend-oauth.entrypoints=web"
+      - "traefik.http.routers.backend-oauth.service=backend"
+      - "traefik.http.routers.backend-oauth.middlewares=cors"
+
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik"
       - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
@@ -47,7 +66,7 @@ services:
       - "traefik.http.middlewares.cors.headers.accesscontrolallowcredentials=true"
       - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.cors.headers.addvaryheader=true"
-      - "traefik.http.routers.backend.middlewares=cors,backend-stripprefix"
+
     depends_on:
       database:
         condition: service_healthy
@@ -62,8 +81,18 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
       - MYSQL_DATABASE=LibraryDB
-    healthcheck: 
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${sqlrootpwd}"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${sqlrootpwd}",
+        ]
       interval: 3s
       timeout: 5s
       retries: 20

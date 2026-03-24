@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
-import { LoginResponse, Book, CarouselSlot, School } from '../../types/types';
+import { LoginResponse, Book, CarouselSlot, School, Tag } from '../../types/types';
 import { SchoolService } from '../services/school.service';
 import { UserService } from '../services/user.service';
+import { TagService } from '../services/tag.service';
 
 @Component({
   selector: 'app-home-component',
@@ -27,28 +28,39 @@ export class HomeComponent implements OnInit {
   error: string | null = null;
   scrollIndex = 0;
   school: School | null = null;
+  
+  tagService = inject(TagService);
+  allTags: Tag[] = [];
 
   ngOnInit() {
+    this.tagService.getTags().subscribe(tags => {
+      this.allTags = tags;
+    });
+
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
 
-      this.userService.getUser(user!.email).subscribe({
+      if (!user?.email) return;
+
+      this.userService.getUser(user.email).subscribe({
         next: (data) => {
           if (data.schoolName != null) {
             this.schoolService.getByName(data.schoolName).subscribe({
-              next: (data) => {
-                this.school = data;
+              next: (schoolData) => {
+                this.school = schoolData;
                 this.getBooks();
-              }
-            })
+              },
+            });
           }
-        }
-      })
+        },
+      });
     });
   }
 
   getBooks() {
-    this.bookService.getFeaturedBooks(this.school!.id!).subscribe({
+    if (!this.school?.id) return;
+
+    this.bookService.getFeaturedBooks(this.school.id).subscribe({
       next: (books) => {
         this.featuredBooks = books;
         this.isLoading = false;
@@ -60,7 +72,13 @@ export class HomeComponent implements OnInit {
       },
     });
   }
-  
+
+  mapTagObjects(tags: Tag[] | undefined): Tag[] {
+    return (tags ?? []).map(tag => {
+      // optioneel: vervang door object uit allTags voor volledige gegevens
+      return this.allTags.find(t => t.id === tag.id) ?? tag;
+    });
+  }
 
   // Returns the cards that should be visible in the carousel
   // left cards + center + right cards

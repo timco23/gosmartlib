@@ -1,8 +1,3 @@
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 export interface LoginResponse {
   name: string;
   role: string;
@@ -23,7 +18,27 @@ export interface UserProfile {
 export interface Tag {
   id: number;
   name: string;
-  default: boolean;
+}
+
+export interface Genre {
+  id: number;
+  name: string;
+  subgenres?: Subgenre[];
+}
+
+export interface Subgenre {
+  id: number;
+  name: string;
+}
+
+export interface Readinglevel {
+  id: number;
+  name: string;
+}
+
+export interface DidacticCategory {
+  id: number;
+  name: string;
 }
 
 export interface School {
@@ -71,7 +86,12 @@ export interface GoogleBook {
 
 export interface Book {
   id: number;
-  tags: Tag[];
+    tags: Tag[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
   title: string;
   publisher?: string;
@@ -87,6 +107,11 @@ export interface Book {
 
 export interface UpdateBookPayload {
   tags: number[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
   title: string;
   publisher: string;
@@ -101,6 +126,11 @@ export interface UpdateBookPayload {
 export interface CreateBookPayload {
   schoolId: number;
   tags: number[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
   featured: boolean;
   itemId: number;

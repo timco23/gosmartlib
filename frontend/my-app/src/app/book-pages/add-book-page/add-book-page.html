@@ -105,6 +105,36 @@
                         (tagsChanged)="onTagsChanged($event)"
                         />
 
+                        <label>Genres</label>
+                        <app-genre-selection-menu
+                          [initialGenres]="selectedGenres"
+                          (tagsChanged)="onGenresChanged($event)"
+                        />
+                        
+                        <label>Subgenres</label>
+                        <app-subgenre-selection-menu
+                          [initialSubgenres]="selectedSubgenres"
+                          [genreIds]="selectedGenres"
+                          (subgenresChanged)="onSubgenresChanged($event)"
+                        />
+
+                        <label>Leesniveau</label>
+                        <app-reading-level
+                          (selectedReadingLevel)="onReadingLevelChanged($event)"
+                        />
+
+                        <label>
+                          <input type="checkbox" formControlName="isDidactic"> Didactisch boek
+                        </label>
+                        
+                        @if (form.get('isDidactic')?.value) {
+                          <label>Didactische categorieën</label>
+                          <app-didactic-category-selection-menu
+                            [initialCategories]="selectedDidacticCategories"
+                            (tagsChanged)="onDidacticCategoriesChanged($event)"
+                          />
+                        }
+
                         <label for="campus">Selecteer een campus (optioneel)</label>
                         @if (campusLoading) {
                         <p>Schoolcampussen laden....</p>
