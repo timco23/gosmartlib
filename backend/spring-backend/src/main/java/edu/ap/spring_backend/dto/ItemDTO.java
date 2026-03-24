@@ -30,5 +30,21 @@ public record ItemDTO(
         @JsonProperty("description")
         String description,
         @JsonProperty("tags")
-        List<TagDTO> tags
+        List<TagDTO> tags,
+        @JsonProperty("genres")
+        List<Long> genres,
+        @JsonProperty("subgenres")
+        List<Long> subgenres,
+        @JsonProperty("readingLevel")
+        Long readingLevel,
+        @JsonProperty("didacticCategories")
+        List<Long> didacticCategories,
+        @JsonProperty("schoolId")
+        Long schoolId,
+        @JsonProperty("featured")
+        boolean featured,
+        @JsonProperty("isDidactic")
+        boolean isDidactic,
+        @JsonProperty("campusId")
+        Long campusId
 ) { }

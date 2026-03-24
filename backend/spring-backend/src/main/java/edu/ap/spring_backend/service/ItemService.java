@@ -29,8 +29,10 @@ public class ItemService {
     private final ReadingLevelRepository readingLevelRepository;
     private final DidacticCategoryRepository didacticCategoryRepository;
     private final SchoolItemCopyRepository schoolItemCopyRepository;
-    
-    public ItemService(ItemRepository itemRepository,  SchoolRepository schoolRepository, CampusRepository campusRepository, TagRepository tagRepository,  SchoolItemCopyRepository schoolItemCopyRepository, 
+
+    public ItemService(ItemRepository itemRepository, SchoolRepository schoolRepository,
+            CampusRepository campusRepository, TagRepository tagRepository,
+            SchoolItemCopyRepository schoolItemCopyRepository,
             GenreRepository genreRepository, SubgenreRepository subgenreRepository,
             ReadingLevelRepository readingLevelRepository, DidacticCategoryRepository didacticCategoryRepository) {
         this.itemRepository = itemRepository;
@@ -41,6 +43,7 @@ public class ItemService {
         this.subgenreRepository = subgenreRepository;
         this.readingLevelRepository = readingLevelRepository;
         this.didacticCategoryRepository = didacticCategoryRepository;
+        this.schoolItemCopyRepository = schoolItemCopyRepository;
     }
 
     // Gets Items in page format
@@ -90,18 +93,21 @@ public class ItemService {
     }
 
     // Adds an Item to the database.
-    // If it doesn't already exist adds it, makes a SchoolItemCopy of it and links it to the school.
-    // If it does already exist, makes a SchoolItemCopy that's linked to it and the school.
+    // If it doesn't already exist adds it, makes a SchoolItemCopy of it and links
+    // it to the school.
+    // If it does already exist, makes a SchoolItemCopy that's linked to it and the
+    // school.
     public ItemDTO addItem(CreateItemDTO itemDTO)
             throws EntityNotFoundException, EntityAlreadyExistsException {
         if (!schoolItemCopyRepository.existsByItemTitleAndSchoolId(itemDTO.title(), itemDTO.schoolId())) {
             Item newItem;
             if (!itemRepository.existsByTitle(itemDTO.title())) {
                 Set<Tag> tags = getTagsById(itemDTO.tags());
-                newItem = new Item(itemDTO.description(), itemDTO.reviewCount(), itemDTO.reviewScore(), itemDTO.cover(), itemDTO.pageCount(), itemDTO.bookLanguage(), itemDTO.releaseYear(), itemDTO.isbn(), itemDTO.author(), itemDTO.publisher(), itemDTO.title(), tags);
+                newItem = new Item(itemDTO.description(), itemDTO.reviewCount(), itemDTO.reviewScore(), itemDTO.cover(),
+                        itemDTO.pageCount(), itemDTO.bookLanguage(), itemDTO.releaseYear(), itemDTO.isbn(),
+                        itemDTO.author(), itemDTO.publisher(), itemDTO.title(), tags);
                 itemRepository.save(newItem);
-            }
-            else {
+            } else {
                 // itemId will be 0 if none has been given
                 if (itemDTO.itemId() == 0) {
                     newItem = itemRepository.findByTitle(itemDTO.title()).orElseThrow(EntityNotFoundException::new);
@@ -114,7 +120,8 @@ public class ItemService {
             if (itemDTO.campusId() != null) {
                 campus = campusRepository.findById(itemDTO.campusId()).orElse(null);
             }
-            SchoolItemCopy copy = new SchoolItemCopy(itemDTO.barcode(), itemDTO.featured(), newItem, school, campus, itemDTO.copyStatus(), itemDTO.condition());
+            SchoolItemCopy copy = new SchoolItemCopy(itemDTO.barcode(), itemDTO.featured(), newItem, school, campus,
+                    itemDTO.copyStatus(), itemDTO.condition());
             Set<Tag> tags = getTagsById(itemDTO.tags());
             Set<Genre> genres = getGenresById(itemDTO.genres());
             Set<Subgenre> subgenres = getSubgenresById(itemDTO.subgenres());
@@ -127,7 +134,7 @@ public class ItemService {
         throw new EntityAlreadyExistsException();
     }
 
-    //Deletes an Item from the database.
+    // Deletes an Item from the database.
     public ItemDTO deleteItem(int id) throws EntityNotFoundException {
         Item schoolItem = itemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         itemRepository.delete(schoolItem);
@@ -143,24 +150,12 @@ public class ItemService {
     public ItemDTO updateItem(int id, UpdateItemDTO itemDTO) throws EntityNotFoundException {
         Item currentItem = itemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         Set<Tag> tags = getTagsById(itemDTO.tags());
-        Item newItem = new Item(itemDTO.description(), currentItem.getReviewCount(), currentItem.getReviewScore(), itemDTO.cover(), itemDTO.pageCount(), itemDTO.bookLanguage(), itemDTO.releaseYear(), itemDTO.isbn(), itemDTO.author(), itemDTO.publisher(), itemDTO.title(), tags);
+        Item newItem = new Item(itemDTO.description(), currentItem.getReviewCount(), currentItem.getReviewScore(),
+                itemDTO.cover(), itemDTO.pageCount(), itemDTO.bookLanguage(), itemDTO.releaseYear(),
+                itemDTO.isbn(), itemDTO.author(), itemDTO.publisher(), itemDTO.title(), tags);
         newItem.setId(currentItem.getId());
         itemRepository.save(newItem);
-
-        Set<Tag> tags = getTagsById(schoolItemDTO.tags());
-        Set<Genre> genres = getGenresById(schoolItemDTO.genres());
-        Set<Subgenre> subgenres = getSubgenresById(schoolItemDTO.subgenres());
-        ReadingLevel readingLevel = getReadingLevelById(schoolItemDTO.readingLevel());
-        Set<DidacticCategory> didacticCategories = getDidacticCategoriesById(schoolItemDTO.didacticCategories());
-
-        schoolItemRepository.save(newSchoolItem);
-        return mapToSchoolItemDTO(newSchoolItem);
-    }
-
-    // Gets a SchoolItem by its id
-    public SchoolItemDTO getSchoolItemById(int id) throws EntityNotFoundException {
-        SchoolItem schoolItem = schoolItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        return mapToSchoolItemDTO(schoolItem);
+        return mapToItemDTO(newItem);
     }
 
     public ItemDTO getItemById(int id) throws EntityNotFoundException {
@@ -184,21 +179,24 @@ public class ItemService {
     }
 
     private Set<Tag> getTagsById(List<Long> tagIds) {
-        if (tagIds == null || tagIds.isEmpty()) return new HashSet<>();
+        if (tagIds == null || tagIds.isEmpty())
+            return new HashSet<>();
         return tagIds.stream()
                 .map(id -> tagRepository.findById(id).orElseThrow(EntityNotFoundException::new))
                 .collect(Collectors.toSet());
     }
 
     private Set<Genre> getGenresById(List<Long> genreIds) {
-        if (genreIds == null || genreIds.isEmpty()) return new HashSet<>();
+        if (genreIds == null || genreIds.isEmpty())
+            return new HashSet<>();
         return genreIds.stream()
                 .map(id -> genreRepository.findById(id).orElseThrow(EntityNotFoundException::new))
                 .collect(Collectors.toSet());
     }
 
     private Set<Subgenre> getSubgenresById(List<Long> subgenreIds) {
-        if (subgenreIds == null || subgenreIds.isEmpty()) return new HashSet<>();
+        if (subgenreIds == null || subgenreIds.isEmpty())
+            return new HashSet<>();
         return subgenreIds.stream()
                 .map(id -> subgenreRepository.findById(id).orElseThrow(EntityNotFoundException::new))
                 .collect(Collectors.toSet());
@@ -206,7 +204,8 @@ public class ItemService {
 
     // FIX: Long -> intValue() omdat ReadingLevel entity int id gebruikt
     private ReadingLevel getReadingLevelById(Long id) {
-        if (id == null) return null;
+        if (id == null)
+            return null;
         return readingLevelRepository.findById(id.intValue()).orElse(null);
     }
 
@@ -215,44 +214,6 @@ public class ItemService {
         List<TagDTO> tags = item.getTags().stream()
                 .map(tag -> new TagDTO((long) tag.getId(), tag.getName()))
                 .toList();
-        List<GenreDTO> genres = item.getGenres().stream()
-                .map(genre -> new GenreDTO((long) genre.getId(), genre.getName()))
-                .toList();
-        List<SubgenreDTO> subgenres = item.getSubgenres().stream()
-                .map(subgenre -> new SubgenreDTO((int) subgenre.getId(), subgenre.getName()))
-                .toList();
-        List<DidacticCategoryDTO> didacticCategories = item.getDidacticCategories().stream()
-                .map(dc -> new DidacticCategoryDTO((long) dc.getId(), dc.getName()))
-                .toList();
-
-        return new SchoolItemDTO(
-                item.getId(),
-                item.getItem().getTitle(),
-                item.getItem().getPublisher(),
-                item.getItem().getAuthor(),
-                item.getItem().getIsbn(),
-                item.getItem().getReleaseYear(),
-                item.getItem().getBookLanguage(),
-                item.getItem().getPageCount(),
-                item.getItem().getCover(),
-                item.getItem().getReviewScore(),
-                item.getItem().getReviewCount(),
-                item.getItem().getId(),
-                item.getSchool().getId().intValue(),
-                tags,
-                genres,
-                subgenres,
-                item.getReadingLevel(),
-                didacticCategories,
-                item.getDescription(),
-                item.isFeatured(),
-                item.getCampus() != null ? item.getCampus().getName() : null,
-                item.getCampus() != null ? item.getCampus().getId().intValue() : 0,
-                item.isDidactic();
-    }
-
-    // Converts an Item to an ItemDTO
-    private ItemDTO mapToItemDTO(Item item) {
         return new ItemDTO(
                 item.getId(),
                 item.getTitle(),
@@ -266,6 +227,26 @@ public class ItemService {
                 item.getReviewScore(),
                 item.getReviewCount(),
                 item.getDescription(),
-                tags);
+                tags,
+                item.getGenres() != null ? item.getGenres().stream().map(g -> (long) g.getId()).toList() : List.of(),
+                item.getSubgenres() != null ? item.getSubgenres().stream().map(s -> (long) s.getId()).toList()
+                        : List.of(),
+                item.getReadingLevel() != null ? (long) item.getReadingLevel().getId() : null,
+                item.getDidacticCategories() != null
+                        ? item.getDidacticCategories().stream().map(d -> (long) d.getId()).toList()
+                        : List.of(),
+                null, // schoolId (of juiste waarde)
+                false, // featured (of uit copy halen)
+                item.isDidactic(),
+                null // campusId
+        );
+    }
+
+    private Set<DidacticCategory> getDidacticCategoriesById(List<Long> didacticCategoryIds) {
+        if (didacticCategoryIds == null || didacticCategoryIds.isEmpty())
+            return new HashSet<>();
+        return didacticCategoryIds.stream()
+                .map(id -> didacticCategoryRepository.findById(id).orElseThrow(EntityNotFoundException::new))
+                .collect(Collectors.toSet());
     }
 }

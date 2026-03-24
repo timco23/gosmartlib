@@ -47,7 +47,7 @@ class ItemServiceTest {
         MockitoAnnotations.openMocks(this);
 
         testTag = new Tag();
-        testTag.setId(1L);
+        testTag.setId((int) 1L);  
         testTag.setName("Science Fiction");
 
         testItem = new Item(
@@ -126,12 +126,17 @@ class ItemServiceTest {
     void givenNewItem_whenAddItem_thenCreateItemAndCopy() {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
+            "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
+            4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+            CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+            List.of(),                    // genres
+            List.of(),                   // subgenres
+            null,          // readingLevel
+            List.of(),                  // didacticCategories
+            false           // isDidactic
         );
 
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
+            when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(false);
         when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
@@ -152,10 +157,11 @@ class ItemServiceTest {
     void givenExistingItemById_whenAddItem_thenCreateOnlyCopy() {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 1, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
-        );
+    "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
+    4.5, 10, 1, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+    CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+    List.of(), List.of(), null, List.of(), false
+);
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
@@ -176,11 +182,11 @@ class ItemServiceTest {
     void givenExistingItemByTitle_whenAddItem_thenCreateOnlyCopy() {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
+            "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
+            4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+            CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+            List.of(), List.of(), null, List.of(), false
         );
-
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
         when(itemRepository.findByTitle(dto.title())).thenReturn(Optional.of(testItem));
@@ -200,9 +206,14 @@ class ItemServiceTest {
     void givenExistingCopy_whenAddItem_thenThrowEntityAlreadyExistsException() {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
+            "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
+            4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+            CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+            List.of(),      // genres
+            List.of(),      // subgenres
+            null,           // readingLevel
+            List.of(),      // didacticCategories
+            false           // isDidactic
         );
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(true);
@@ -215,9 +226,14 @@ class ItemServiceTest {
     void givenNonExistingSchool_whenAddItem_thenThrowEntityNotFoundException() {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 1, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED
+            "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
+            4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+            CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+            List.of(),                    // genres
+            List.of(),                   // subgenres
+            null,          // readingLevel
+            List.of(),                  // didacticCategories
+            false           // isDidactic
         );
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);

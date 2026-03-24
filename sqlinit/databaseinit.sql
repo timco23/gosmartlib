@@ -89,14 +89,6 @@ VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96R
 INSERT INTO user (name, first_name, email, password, role, student_number, class, school_id) 
 VALUES ('Wick', 'John', 's123456@gsmartlib.tech', '$2a$12$3l8/4.y7HDg3AfY2NOuoSuY.YKV02m2a.0WeeNMo3Cc8vonEuvuOq', 'LEERLING', 's123456', '2ITSOF1', 1);
 
-CREATE TABLE IF NOT EXISTS campus (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    school_id BIGINT not null,
-    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
-);
-
 
 -- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 -- CREATE TABLE IF NOT EXISTS tag (
@@ -130,10 +122,6 @@ insert into item(title,publisher,author,isbn,release_year,book_language,page_cou
 ('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',4.8,154320,'Een jongen ontdekt dat hij een tovenaar is.'),
 ('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',4.3,67891,'Een liefdesverhaal tussen twee zieke tieners.');
 
--- Add all testbook items to the schoolcatalog of school 1
-INSERT INTO school_item (school_id, item_id, book_description, featured)
-SELECT 1, id, NULL, FALSE
-FROM item;
 
 -- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
 -- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
@@ -160,17 +148,17 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     barcode VARCHAR(255),
     copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND'),
     item_condition ENUM('NIEUW', 'GOED','GEBRUIKT','BESCHADIGD'),
-	featured boolean not null,
-	campus_id bigint null,
+    featured boolean not null,
+    campus_id bigint null,
     foreign key (item_id) references item(id) on delete restrict,
     foreign key (school_id) references school(id) on delete cascade,
-	foreign key (campus_id) references campus(id) on delete set null
+    foreign key (campus_id) references campus(id) on delete set null
 );
 
--- Voeg alle testbook items toe aan de schoolcatalogus van school 1 als exemplaren
 INSERT INTO school_item_copy (school_id, item_id, barcode, copy_status, item_condition, featured, campus_id)
-SELECT 1, id, 12345, 'BESCHIKBAAR', 'Nieuw', FALSE, NULL
+SELECT 1, id, 12345, 'BESCHIKBAAR', 'NIEUW', FALSE, NULL
 FROM item;
+
 -- the main genre of a book
 CREATE TABLE IF NOT EXISTS genre (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

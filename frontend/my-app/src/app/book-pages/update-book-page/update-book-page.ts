@@ -190,11 +190,11 @@ export class UpdateBookPage implements OnInit {
     this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
+        this.tryFillForm();
 
         this.schoolService.getById(data.schoolId).subscribe({
           next: (school) => {
             this.school = school;
-            this.tryFillForm();
           }
         });
       },
@@ -221,27 +221,26 @@ export class UpdateBookPage implements OnInit {
 
   fillForm() {
     if (!this.book) return;
+    this.selectedGenres = this.allGenres.filter(genre =>
+      (this.book!.genres as number[] ?? []).includes(genre.id)
+    );
+
+    this.selectedSubgenres = this.allSubgenres.filter(sub =>
+      (this.book!.subgenres as number[] ?? []).includes(sub.id)
+    );
 
     this.selectedTags = this.allTags.filter(tag =>
-  (this.book!.tags as number[]).includes(tag.id)
-);
+      (this.book!.tags as number[] ?? []).includes(tag.id)
+    );
 
-this.selectedGenres = this.allGenres.filter(genre =>
-  (this.book!.genres as number[]).includes(genre.id)
-);
+    this.selectedDidacticCategories = this.allDidacticCategories.filter(cat =>
+      (this.book!.didacticCategories as number[] ?? []).includes(cat.id)
+    );
 
-this.selectedSubgenres = this.allSubgenres.filter(sub =>
-  (this.book!.subgenres as number[]).includes(sub.id)
-);
-
-this.selectedReadingLevel =
-  this.allReadingLevels.find(rl =>
-    rl.id === (this.book!.readingLevel as number)
-  ) ?? null;
-
-this.selectedDidacticCategories = this.allDidacticCategories.filter(cat =>
-  (this.book!.didacticCategories as number[]).includes(cat.id)
-);
+    this.selectedReadingLevel =
+      this.allReadingLevels.find(rl =>
+        rl.id === (this.book!.readingLevel as number)
+      ) ?? null;
 
     this.isDidactic = this.book.isDidactic ?? false;
 

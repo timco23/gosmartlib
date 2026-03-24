@@ -110,6 +110,8 @@ export interface Book {
   reviewCount: number;
   campusName: string;
   campusId: number;
+  schoolId: number;
+  featured: boolean;
 }
 
 export interface UpdateBookPayload {
