@@ -40,15 +40,14 @@
       <label>Subgenres</label>
       <app-subgenre-selection-menu
         [initialSubgenres]="selectedSubgenres"
-        [genreIds]="selectedGenreIds"
+        [genreIds]="selectedGenres"
         (subgenresChanged)="onSubgenresChanged($event)"
-      ></app-subgenre-selection-menu>
+      />
 
       <label>Leesniveau</label>
       <app-reading-level
-  [initialReadingLevel]="selectedReadingLevel"
-  (selectedReadingLevel)="onReadingLevelChanged($event)"
-/>
+        (selectedReadingLevel)="onReadingLevelChanged($event)"
+      />
 
       <label>
         <input type="checkbox" formControlName="isDidactic" (change)="onIsDidacticChanged()"> Didactisch boek

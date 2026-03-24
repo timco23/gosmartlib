@@ -114,9 +114,9 @@
                         <label>Subgenres</label>
                         <app-subgenre-selection-menu
                           [initialSubgenres]="selectedSubgenres"
-                          [genreIds]="selectedGenreIds"
+                          [genreIds]="selectedGenres"
                           (subgenresChanged)="onSubgenresChanged($event)"
-                        ></app-subgenre-selection-menu>
+                        />
 
                         <label>Leesniveau</label>
                         <app-reading-level
