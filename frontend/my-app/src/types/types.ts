@@ -28,6 +28,7 @@ export interface Tag {
 export interface Genre {
   id: number;
   name: string;
+  subgenres?: Subgenre[];
 }
 
 export interface Subgenre {

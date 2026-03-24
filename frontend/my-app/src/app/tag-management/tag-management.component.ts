@@ -30,6 +30,8 @@ export class TagManagement {
   editErrorMessage = signal('');
   filterInput = signal('');
 
+  selectedType = signal<'tags' | 'genres' | 'didacticCategories'>('tags');
+
   //case-insensitive keyword filtering
   filteredTags = computed(() => {
     const filter = this.filterInput().toLowerCase();
@@ -69,49 +71,106 @@ export class TagManagement {
   loadTags() {
     this.tagService.getTags().subscribe((tags) => {
       this.tags.set(tags);
-      console.log(this.filteredTags());
     });
   }
 
   loadGenres() {
     this.genreService.getGenres().subscribe((genres) => {
       this.genres.set(genres);
-      console.log(this.filteredGenres());
     });
+  }
+
+  asGenre(item: any): Genre {
+    return item as Genre;
   }
 
   loadSubgenres() {
     this.subgenreService.getSubgenres().subscribe((subgenres) => {
       this.subgenres.set(subgenres);
-      console.log(this.filteredSubgenres());
     });
   }
 
   loadDidacticCategories() {
     this.didacticService.getDidacticCategories().subscribe((didacticCategories) => {
       this.didacticCategories.set(didacticCategories);
-      console.log(this.filteredDidacticCategories());
     });
   }
 
-  addTag() {
+  addItem() {
     const name = this.newTagName().trim();
     if (!name) return;
     this.addErrorMessage.set('');
 
-    this.tagService.addTag(name).subscribe({
-      next: (tag) => {
-        this.tags.update((tags) => [...tags, tag]);
-        this.newTagName.set('');
-        this.addErrorMessage.set('');
-      },
-      error: (err) => {
-        if (err.status === 409) {
-          this.addErrorMessage.set('Een tag met deze naam bestaat al.');
-        }
-      },
+    const type = this.selectedType();
+
+    if (type === 'tags') {
+      this.tagService.addTag(name).subscribe({
+        next: (tag) => { this.tags.update(t => [...t, tag]); this.newTagName.set(''); },
+        error: (err) => { if (err.status === 409) this.addErrorMessage.set('Bestaat al.'); }
+      });
+    } else if (type === 'genres') {
+      this.genreService.addGenre(name).subscribe({
+        next: (genre) => { this.genres.update(g => [...g, genre]); this.newTagName.set(''); },
+        error: (err) => { if (err.status === 409) this.addErrorMessage.set('Bestaat al.'); }
+      });
+    } else if (type === 'didacticCategories') {
+      this.didacticService.addDidacticCategory(name).subscribe({
+        next: (cat) => { this.didacticCategories.update(c => [...c, cat]); this.newTagName.set(''); },
+        error: (err) => { if (err.status === 409) this.addErrorMessage.set('Bestaat al.'); }
+      });
+    }
+  }
+
+  deleteItem(id: number) {
+    const type = this.selectedType();
+    if (type === 'tags') {
+      this.tagService.deleteTag(id).subscribe(() => this.tags.update(t => t.filter(x => x.id !== id)));
+    } else if (type === 'genres') {
+      this.genreService.deleteGenre(id).subscribe(() => this.genres.update(g => g.filter(x => x.id !== id)));
+    } else if (type === 'didacticCategories') {
+      this.didacticService.deleteDidacticCategory(id).subscribe(() => this.didacticCategories.update(c => c.filter(x => x.id !== id)));
+    }
+  }
+
+  saveEditItem(id: number) {
+    this.editErrorMessage.set('');
+    const type = this.selectedType();
+    const reload = () => { this.editingId.set(null); };
+
+    if (type === 'tags') {
+      this.tagService.updateTag(id, this.editName()).subscribe({ next: () => { this.loadTags(); reload(); }, error: (err) => { if (err.status === 409) this.editErrorMessage.set('Bestaat al.'); } });
+    } else if (type === 'genres') {
+      this.genreService.updateGenre(id, this.editName()).subscribe({ next: () => { this.loadGenres(); reload(); }, error: (err) => { if (err.status === 409) this.editErrorMessage.set('Bestaat al.'); } });
+    } else if (type === 'didacticCategories') {
+      this.didacticService.updateDidacticCategory(id, this.editName()).subscribe({ next: () => { this.loadDidacticCategories(); reload(); }, error: (err) => { if (err.status === 409) this.editErrorMessage.set('Bestaat al.'); } });
+    }
+  }
+
+  saveSubgenreEdit(id: number) {
+    this.subgenreService.updateSubgenre(id, this.editName()).subscribe({
+      next: () => { this.loadGenres(); this.editingId.set(null); },
+      error: (err) => { if (err.status === 409) this.editErrorMessage.set('Bestaat al.'); }
     });
   }
+
+  deleteSubgenre(subId: number, genreId: number) {
+    this.subgenreService.deleteSubgenre(subId).subscribe(() => {
+      this.genres.update(genres =>
+        genres.map(g =>
+          g.id === genreId
+            ? { ...g, subgenres: (g.subgenres ?? []).filter(s => s.id !== subId) }
+            : g
+        )
+      );
+    });
+  }
+
+  currentList = computed(() => {
+    const type = this.selectedType();
+    if (type === 'tags') return this.filteredTags();
+    if (type === 'genres') return this.filteredGenres();
+    return this.filteredDidacticCategories();
+  });
 
   startEdit(tag: Tag) {
     this.editingId.set(tag.id);

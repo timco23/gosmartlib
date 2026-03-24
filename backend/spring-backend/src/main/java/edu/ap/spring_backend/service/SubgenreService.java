@@ -33,4 +33,18 @@ public class SubgenreService {
     public List<Subgenre> getFromGenreIds(List<Long> genreIds) {
         return subgenreRepository.findAllByGenreIdIn(genreIds);
     }
+
+    public Subgenre addGenre(Subgenre newSubgenre) {
+        return subgenreRepository.save(newSubgenre);
+    }
+
+    public Subgenre updateSubgenre(Long id, Subgenre updatedsubgenre) {
+        Subgenre subgenre = subgenreRepository.findById(id).orElseThrow();
+        subgenre.setName(updatedsubgenre.getName());
+        return subgenreRepository.save(subgenre);
+    }
+
+    public void deleteSubgenre(Long id) {
+        subgenreRepository.deleteById(id);
+    }
 }

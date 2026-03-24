@@ -231,7 +231,7 @@ public class ItemService {
                 .map(genre -> new GenreDTO((long) genre.getId(), genre.getName()))
                 .toList();
         List<SubgenreDTO> subgenres = item.getSubgenres().stream()
-                .map(subgenre -> new SubgenreDTO((long) subgenre.getId(), subgenre.getName()))
+                .map(subgenre -> new SubgenreDTO((int) subgenre.getId(), subgenre.getName()))
                 .toList();
         List<DidacticCategoryDTO> didacticCategories = item.getDidacticCategories().stream()
                 .map(dc -> new DidacticCategoryDTO((long) dc.getId(), dc.getName()))

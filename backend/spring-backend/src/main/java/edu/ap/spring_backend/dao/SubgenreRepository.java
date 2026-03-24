@@ -14,4 +14,6 @@ public interface SubgenreRepository extends ListCrudRepository<Subgenre, Long> {
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 
     List<Subgenre> findAllByGenreIdIn(List<Long> genreIds);
+
+    List<Subgenre> findAllByGenreId(int genreId);
 }
