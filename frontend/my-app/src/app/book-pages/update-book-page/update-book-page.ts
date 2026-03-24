@@ -5,6 +5,8 @@ import { BookService } from '../../services/book-service';
 import { Book, Tag, School, UpdateBookPayload } from '../../../types/types';
 import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
 import { SchoolService } from '../../services/school.service';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-update-book-page',
@@ -17,6 +19,8 @@ export class UpdateBookPage implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
   schoolService = inject(SchoolService)
+  authService = inject(AuthService)
+  userService = inject(UserService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   previewUrl: string = '';
   incompleteForm: boolean = false;
@@ -35,13 +39,14 @@ export class UpdateBookPage implements OnInit {
       title: ['', [Validators.required]],
       author: ['', [Validators.required]],
       description: ['', [Validators.required]],
-      publisher: ['', [Validators.required]],
-      releaseYear: [0, [Validators.required, Validators.min(0)]],
+      publisher: [''],
+      releaseYear: [0, [Validators.min(0)]],
       language: ['', [Validators.required]],
       pageCount: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
       featured: [false, [Validators.required]],
-      campusId: ['']
+      campusId: ['0'],
+      isbn: ['', [Validators.required]]
     });
   }
 
@@ -63,7 +68,7 @@ export class UpdateBookPage implements OnInit {
     const newBook: UpdateBookPayload = {
       tags: this.selectedTags.map((t) => t.id),
       description: raw.description,
-      featured: raw.featured,
+      isbn: raw.isbn,
       title: raw.title,
       publisher: raw.publisher,
       author: raw.author,
@@ -91,9 +96,8 @@ export class UpdateBookPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.bookLoaded = true;
-        this.schoolService.getById(data.schoolId).subscribe({
-          next: (data) => { this.school = data; this.fillForm(); this.cdr.detectChanges() }
-        })
+        this.fillForm(); 
+        this.cdr.detectChanges()
       },
       error: (err) => { this.errorMessage = err; this.error = true; this.cdr.detectChanges(); }
     })
@@ -121,14 +125,27 @@ export class UpdateBookPage implements OnInit {
         pageCount: this.book!.pageCount,
         cover: this.book!.cover,
         description: this.book!.description,
-        featured: this.book!.featured,
+        isbn: this.book!.isbn,
         campusId: this.book!.campusId
       })
     }
   }
 
   ngOnInit(): void {
-    this.loadData();
+    const currentUser = this.authService.getCurrentUser();
+
+    this.userService.getUser(currentUser!.email).subscribe({
+      next: (data) => {
+        if (data.schoolName != null) {
+          this.schoolService.getByName(data.schoolName).subscribe({
+            next: (data) => {
+              this.school = data;
+              this.loadData();
+            }
+          })
+        }
+      }
+    })
   }
 }
 

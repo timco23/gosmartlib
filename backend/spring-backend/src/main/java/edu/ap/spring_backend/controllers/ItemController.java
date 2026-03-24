@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.*;
+import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.service.ItemService;
 import jakarta.validation.constraints.*;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
@@ -96,5 +97,10 @@ public class ItemController {
     @PutMapping("/books/copies/{id}")
     public ResponseEntity<SchoolItemCopy> updateCopy(@RequestBody CreateSchoolItemCopyDTO copyDTO, @PathVariable int id) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopy(id, copyDTO));
+    }
+
+    @GetMapping("/books/copies/search")
+    public ResponseEntity<SchoolItemCopy> getCopyByItemTitle(@RequestParam String title) {
+        return ResponseEntity.ok(schoolItemCopyService.getByItemTitle(title));
     }
 }

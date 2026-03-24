@@ -21,6 +21,9 @@
       <label for="description">Beschrijving</label>
       <textarea id="description" formControlName="description"></textarea>
 
+      <label for="isbn">ISBN</label>
+      <input type="text" id="isbn" formControlName="isbn" />
+
       <label for="publisher">Uitgeverij</label>
       <input id="publisher" type="text" formControlName="publisher" />
 
@@ -56,11 +59,6 @@
             @else {
             <p>Geen schoolcampussen gevonden</p>
             }
-
-      <label class="checkbox-label">
-        <input id="featured" type="checkbox" formControlName="featured" />
-        Uitgelicht
-      </label>
 
       <div class="form-buttons">
         <button type="submit" class="primary-btn">Wijzig boek</button>

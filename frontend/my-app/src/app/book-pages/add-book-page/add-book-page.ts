@@ -4,7 +4,7 @@ import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag } from '../../../types/types';
+import { Book, CreateBookPayload, LoginResponse, School, Tag } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
@@ -28,7 +28,7 @@ export class AddBookPage implements OnInit {
   error: boolean = false;
   isReadOnly: boolean = false;
   errorMessage: string = "";
-  bookAlreadyExists: boolean = false;
+  copyAlreadyExists: boolean = false;
   incompleteForm: boolean = false;
   nothingFound: boolean = false;
   missingFields: string[] = [];
@@ -39,7 +39,7 @@ export class AddBookPage implements OnInit {
   schoolErrorMessage: string = "";
   selectedTags: Tag[] = [];
 
-  globalBookList: Observable<GlobalBook[]> | null = null;
+  globalBookList: Observable<Book[]> | null = null;
   school: School | null = null;
 
   constructor(private fb: FormBuilder) {
@@ -56,12 +56,15 @@ export class AddBookPage implements OnInit {
       cover: [''],
       reviewScore: [0, [Validators.required]],
       reviewCount: [0, [Validators.required]],
-      campusId: ['0']
+      campusId: ['0'],
+      barcode: ['', [Validators.required]],
+      condition: ['NIEUW', [Validators.required]],
+      copy_status: ['BESCHIKBAAR', [Validators.required]]
     })
   }
 
   onSubmit(): void {
-    this.bookAlreadyExists = false;
+    this.copyAlreadyExists = false;
     this.incompleteForm = false;
 
     if (this.form.invalid) {
@@ -87,18 +90,21 @@ export class AddBookPage implements OnInit {
       cover: raw.cover,
       reviewScore: raw.reviewScore,
       reviewCount: raw.reviewCount,
-      campusId: parseInt(raw.campusId)
+      campusId: parseInt(raw.campusId),
+      barcode: raw.barcode,
+      copy_status: raw.copy_status,
+      condition: raw.condition
     }
 
-    this.api.getBookByTitle(newBook.title).subscribe({
+    this.api.getCopyByItemTitle(newBook.title).subscribe({
       next: (data) => {
         if (data != null) {
-          this.bookAlreadyExists = true;
+          this.copyAlreadyExists = true;
           this.cdr.detectChanges();
         }
 
-        if (!this.bookAlreadyExists) {
-          this.bookAlreadyExists = false;
+        if (!this.copyAlreadyExists) {
+          this.copyAlreadyExists = false;
           this.api.addBook(newBook).subscribe({
             next: (data) => {
               this.router.navigate(["/books", data.id])
@@ -118,7 +124,7 @@ export class AddBookPage implements OnInit {
       this.error = false;
       this.cdr.detectChanges();
 
-      this.api.getGlobalBookById(id).subscribe({
+      this.api.getBookById(id).subscribe({
         next: (data) => {
           this.form.patchValue({
             titel: data.title,
@@ -152,7 +158,10 @@ export class AddBookPage implements OnInit {
         cover: '',
         reviewScore: 0,
         reviewCount: 0,
-        campusId: '0'
+        campusId: '0',
+        barcode: "",
+        copy_status: "BESCHIKBAAR",
+        condition: "NIEUW"
       });
       this.selectedTags = [];
       this.cdr.detectChanges();
@@ -213,7 +222,7 @@ export class AddBookPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.globalBookList = this.api.getGlobalBooks();
+    this.globalBookList = this.api.getBooks();
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser?.email) {
       this.userError = true;

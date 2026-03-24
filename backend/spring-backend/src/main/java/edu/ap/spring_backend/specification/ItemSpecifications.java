@@ -57,11 +57,11 @@ public class ItemSpecifications {
                 cb.greaterThanOrEqualTo(root.get("reviewScore"), minScore);
     }
 
-    // Filters SchoolItems by one or more tags using AND logic
+    // Filters Items by one or more tags using AND logic
     // a book must have ALL specified tags
     //
     // A separate subquery is created for each tag, fetching the IDs of
-    // SchoolItems that have that tag. The main query retains only items
+    // Items that have that tag. The main query retains only items
     // that appear in every subquery
     //
     // subqueries are used because MySQL does not allow ORDER BY

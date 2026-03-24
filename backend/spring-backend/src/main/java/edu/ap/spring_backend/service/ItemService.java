@@ -50,9 +50,9 @@ public class ItemService {
         Sort sort = createSort(request.sortBy(), request.sortDirection());
         Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
 
-        Page<Item> schoolItems = itemRepository.findAll(spec, pageable);
+        Page<Item> items = itemRepository.findAll(spec, pageable);
 
-        return new PageResponseDTO<>(schoolItems.map(this::mapToItemDTO));
+        return new PageResponseDTO<>(items.map(this::mapToItemDTO));
     }
 
     // Stop illogical requests
@@ -71,11 +71,11 @@ public class ItemService {
         Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         return switch (sortBy) {
-            case "author" -> Sort.by(direction, "item.author");
-            case "year" -> Sort.by(direction, "item.releaseYear");
-            case "score" -> Sort.by(direction, "item.reviewScore");
-            case "pages" -> Sort.by(direction, "item.pageCount");
-            default -> Sort.by(direction, "item.title");
+            case "author" -> Sort.by(direction, "author");
+            case "year" -> Sort.by(direction, "releaseYear");
+            case "score" -> Sort.by(direction, "reviewScore");
+            case "pages" -> Sort.by(direction, "pageCount");
+            default -> Sort.by(direction, "title");
         };
     }
 
@@ -100,7 +100,10 @@ public class ItemService {
                 }
             }
             School school = schoolRepository.findById(itemDTO.schoolId()).orElseThrow(EntityNotFoundException::new);
-            Campus campus = campusRepository.findById(itemDTO.campusId()).orElse(null);
+            Campus campus = null;
+            if (itemDTO.campusId() != null) {
+                campus = campusRepository.findById(itemDTO.campusId()).orElse(null);
+            }
             SchoolItemCopy copy = new SchoolItemCopy(itemDTO.barcode(), itemDTO.featured(), newItem, school, campus, itemDTO.copyStatus(), itemDTO.condition());
             schoolItemCopyRepository.save(copy);
             return mapToItemDTO(newItem);

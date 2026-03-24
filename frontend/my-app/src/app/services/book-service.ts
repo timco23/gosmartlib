@@ -4,12 +4,13 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import {
   Book,
-  GlobalBook,
   CreateBookPayload,
   UpdateBookPayload,
   Page,
   Tag,
   GoogleBook,
+  SchoolItemCopy,
+  CreateSchoolItemCopyPayload,
 } from '../../types/types';
 
 @Injectable({
@@ -49,15 +50,15 @@ export class BookService {
     if (minScore !== undefined) params = params.set('minScore', minScore);
     if (tagIds && tagIds.length > 0) tagIds.forEach((id) => (params = params.append('tagIds', id)));
 
-    return this.http.get<Page<Book>>(`${this.apiBaseUrl}/books`, { params });
+    return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });
   }
 
   getFeaturedBooks(): Observable<Book[]> {
     return this.http.get<Book[]>(`${this.apiBaseUrl}/books/featured`);
   }
 
-  getGlobalBooks(): Observable<GlobalBook[]> {
-    return this.http.get<GlobalBook[]>(`${this.apiBaseUrl}/globalBooks`);
+  getBooks(): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiBaseUrl}/books`);
   }
 
   getBookById(id: number): Observable<Book> {
@@ -70,10 +71,6 @@ export class BookService {
 
   getBookByTitle(bookTitle: string): Observable<Book> {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/search`, { params: { title: bookTitle } });
-  }
-
-  getGlobalBookById(id: number): Observable<GlobalBook> {
-    return this.http.get<GlobalBook>(`${this.apiBaseUrl}/globalBooks/${id}`);
   }
 
   addBook(newBook: CreateBookPayload): Observable<Book> {
@@ -92,7 +89,7 @@ export class BookService {
     return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`);
   }
 
-  addCopy(copy: any) {
+  addCopy(copy: CreateSchoolItemCopyPayload) {
     return this.http.post(`${this.apiBaseUrl}/books/copies`, copy);
   }
 
@@ -100,8 +97,12 @@ export class BookService {
     return this.http.delete(`${this.apiBaseUrl}/books/copies/${id}`);
   }
 
-  updateCopy(copy: any) {
-    return this.http.put(`${this.apiBaseUrl}/books/copies/${copy.id}`, copy);
+  updateCopy(copy: CreateSchoolItemCopyPayload, id: number) {
+    return this.http.put(`${this.apiBaseUrl}/books/copies/${id}`, copy);
+  }
+
+  getCopyByItemTitle(bookTitle: string): Observable<SchoolItemCopy> {
+    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/search`, { params: { title: bookTitle } });
   }
 
   addToFavorites(bookId: number, email: string): Observable<any> {

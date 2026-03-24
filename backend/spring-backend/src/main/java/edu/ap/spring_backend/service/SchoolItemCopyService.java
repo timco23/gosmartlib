@@ -38,10 +38,12 @@ public class SchoolItemCopyService {
         SchoolItemCopy copy = new SchoolItemCopy();
         Item item = itemRepository.findById(copyDTO.itemId()).orElseThrow(EntityNotFoundException::new);
         School school = schoolRepository.findById(copyDTO.schoolId()).orElseThrow(EntityNotFoundException::new);
-        Campus campus = campusRepository.findById(copyDTO.campusId()).orElse(null);
+        if (copyDTO.campusId() != null) {
+            Campus campus = campusRepository.findById(copyDTO.campusId()).orElse(null);
+            copy.setCampus(campus);
+        }
         copy.setItem(item);
         copy.setSchool(school);
-        copy.setCampus(campus);
         copy.setBarcode(copyDTO.barcode());
         copy.setFeatured(copyDTO.featured());
         copy.setCopy_status(copyDTO.copy_status());
@@ -59,8 +61,10 @@ public class SchoolItemCopyService {
     public SchoolItemCopy updateCopy(int id, CreateSchoolItemCopyDTO copyDTO) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
-        Campus campus = campusRepository.findById(copyDTO.campusId()).orElse(null);
-        copy.setCampus(campus);
+        if (copyDTO.campusId() != null) {
+            Campus campus = campusRepository.findById(copyDTO.campusId()).orElse(null);
+            copy.setCampus(campus);
+        }
         copy.setCondition(copyDTO.condition());
         copy.setBarcode(copyDTO.barcode());
         copy.setCopy_status(copyDTO.copy_status());
@@ -73,6 +77,11 @@ public class SchoolItemCopyService {
                 schoolItemCopyRepository.save(schoolItemCopy);
             });
         }
+        return copy;
+    }
+
+    public SchoolItemCopy getByItemTitle(String title) {
+        SchoolItemCopy copy = schoolItemCopyRepository.findByItemTitle(title).orElse(null);
         return copy;
     }
 }
