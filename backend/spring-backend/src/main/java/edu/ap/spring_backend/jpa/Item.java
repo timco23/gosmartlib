@@ -6,7 +6,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "item")
@@ -46,23 +48,37 @@ public class Item {
 
     @Min(0)
     private int reviewCount;
+    @Column(name = "book_description", columnDefinition = "TEXT")
+    private String description;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
-    private List<SchoolItem> schoolItems;
+    //each tag is a separate row in the join table "item_id"
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "item_tag",
+            joinColumns = @JoinColumn(name = "item_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    private List<SchoolItemCopy> copies;
+
 
     public Item() {}
 
-    public Item(String title, String publisher, String author, String isbn, int releaseYear, String bookLanguage, int pageCount, String cover, double reviewScore, int reviewCount) {
-        this.title = title;
-        this.publisher = publisher;
-        this.author = author;
-        this.isbn = isbn;
-        this.releaseYear = releaseYear;
-        this.bookLanguage = bookLanguage;
-        this.pageCount = pageCount;
-        this.cover = cover;
-        this.reviewScore = reviewScore;
+    public Item(String description, int reviewCount, double reviewScore, String cover, int pageCount, String bookLanguage, int releaseYear, String isbn, String author, String publisher, String title, Set<Tag> tags) {
+        this.description = description;
         this.reviewCount = reviewCount;
+        this.reviewScore = reviewScore;
+        this.cover = cover;
+        this.pageCount = pageCount;
+        this.bookLanguage = bookLanguage;
+        this.releaseYear = releaseYear;
+        this.isbn = isbn;
+        this.author = author;
+        this.publisher = publisher;
+        this.title = title;
+        this.tags = tags;
     }
 
     public int getId() {
@@ -151,5 +167,21 @@ public class Item {
 
     public void setReviewCount(int reviewCount) {
         this.reviewCount = reviewCount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
     }
 }

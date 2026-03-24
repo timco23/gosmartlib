@@ -66,11 +66,8 @@ export interface GoogleBook {
 
 export interface Book {
   id: number;
-  schoolId: number;
   tags: Tag[];
   description: string;
-  featured: boolean;
-  itemId: number;
   title: string;
   publisher?: string;
   author: string;
@@ -88,7 +85,6 @@ export interface Book {
 export interface UpdateBookPayload {
   tags: number[];
   description: string;
-  featured: boolean;
   title: string;
   publisher: string;
   author: string;
@@ -97,6 +93,7 @@ export interface UpdateBookPayload {
   pageCount: number;
   cover: string;
   campusId: number;
+  isbn: string;
 }
 
 export interface CreateBookPayload {
@@ -116,20 +113,9 @@ export interface CreateBookPayload {
   reviewScore: number;
   reviewCount: number;
   campusId: number;
-}
-
-export interface GlobalBook {
-  id: number;
-  title: string;
-  publisher: string;
-  author: string;
-  isbn?: string;
-  releaseYear: number;
-  language: string;
-  pageCount: number;
-  cover?: string;
-  reviewScore: number;
-  reviewCount: number;
+  barcode: string;
+  copy_status: string;
+  condition: string;
 }
 
 export interface Page<T> {
@@ -146,10 +132,21 @@ export interface Page<T> {
 
 export interface SchoolItemCopy {
   id?: number;
-  schoolItemId: number;
+  itemId: number;
   condition: string;
   barcode: string;
+  featured: boolean;
   copy_status: string;
+  schoolId: number;
+}
+
+export interface CreateSchoolItemCopyPayload {
+  itemId: number,
+  barcode: string,
+  condition: string,
+  copy_status: string,
+  featured: boolean,
+  schoolId: number
 }
 
 export interface CarouselSlot {
@@ -163,4 +160,17 @@ export enum Role {
   LEERKRACHT,
   BEHEERDER,
   ADMIN
+}
+
+export enum CopyStatus {
+  BESCHIKBAAR,
+  UITGELEEND,
+  ONTBREKEND
+}
+
+export enum ItemCondition {
+  NIEUW,
+  GOED,
+  GEBRUIKT,
+  BESCHADIGD
 }

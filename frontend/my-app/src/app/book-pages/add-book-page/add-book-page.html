@@ -76,11 +76,11 @@
                         <label for="language">Taal</label>
                             <select [attr.disabled]="isReadOnly ? true : null" [ngClass]="{'readOnly': isReadOnly}" id="language" formControlName="taal">
                                 <option value="">Selecteer een taal</option>
-                                <option value="nl">Nederlands</option>
-                                <option value="en">Engels</option>
-                                <option value="fr">Frans</option>
-                                <option value="de">Duits</option>
-                                <option value="other">Andere</option>
+                                <option value="Nederlands">Nederlands</option>
+                                <option value="Engels">Engels</option>
+                                <option value="Frans">Frans</option>
+                                <option value="Duits">Duits</option>
+                                <option value="Andere">Andere</option>
                             </select>
 
                         <label for="pageCount">Aantal paginas (optioneel)</label>
@@ -123,13 +123,24 @@
                             }
                         }
 
+                        <label for="condition">Conditie exemplaar</label>
+                        <select id="condition" name="condition" formControlName="condition" required>
+                            <option value="NIEUW">Nieuw</option>
+                            <option value="GOED">Goed</option>
+                            <option value="GEBRUIKT">Gebruikt</option>
+                            <option value="BESCHADIGD">Beschadigd</option>
+                        </select>
+
+                        <label for="barcode">Barcode</label>
+                        <input id="barcode" type="text" formControlName="barcode" name="barcode" required>
+
                         <div class="form-buttons">
                             <button type="submit" class="primary-btn" >Voeg boek toe</button>
                             <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
                         </div>
 
-                        @if(bookAlreadyExists) {
-                        <p id="warning">Er bestaat al een boek met deze titel in de database.</p>
+                        @if(copyAlreadyExists) {
+                        <p id="warning">Er bestaat al een exemplaar van dit book voor deze school.</p>
                         }
 
                         @if(incompleteForm) {

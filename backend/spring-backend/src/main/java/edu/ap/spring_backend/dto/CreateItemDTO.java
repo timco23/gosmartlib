@@ -1,12 +1,12 @@
 package edu.ap.spring_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.ap.spring_backend.jpa.CopyStatus;
+import edu.ap.spring_backend.jpa.ItemCondition;
 
 import java.util.List;
 
-public record SchoolItemDTO(
-        @JsonProperty("id")
-        int id,
+public record CreateItemDTO(
         @JsonProperty("title")
         String title,
         @JsonProperty("publisher")
@@ -29,16 +29,19 @@ public record SchoolItemDTO(
         int reviewCount,
         @JsonProperty("itemId")
         int itemId,
-        @JsonProperty("schoolId")
-        int schoolId,
-        @JsonProperty("tags")
-        List<TagDTO> tags,
-        @JsonProperty("description")
+        @JsonProperty(value = "schoolId")
+        Long schoolId,
+        @JsonProperty(value = "tags")
+        List<Long> tags,
+        @JsonProperty(value = "description")
         String description,
-        @JsonProperty("featured")
+        @JsonProperty(value = "featured")
         boolean featured,
-        @JsonProperty("campusName")
-        String campusName,
         @JsonProperty("campusId")
-        int campusId
-) { }
+        Long campusId,
+        @JsonProperty("barcode")
+        String barcode,
+        @JsonProperty("copy_status")
+        CopyStatus copyStatus,
+        @JsonProperty("condition")
+        ItemCondition condition) { }

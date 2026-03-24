@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import edu.ap.spring_backend.jpa.SchoolItemCopy;
 @Repository
 public interface SchoolItemCopyRepository extends JpaRepository<SchoolItemCopy, Integer> {
 
-    List<SchoolItemCopy> findBySchoolItemId(int schoolItemId);
-
+    List<SchoolItemCopy> findByItemIdAndSchoolId(int itemId, Long schoolId);
+    boolean existsByItemTitleAndSchoolId(String title, Long schoolId);
+    Optional<SchoolItemCopy> findByItemTitleAndSchoolId(String title,  Long schoolId);
 }

@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
-import { LoginResponse, Book, CarouselSlot } from '../../types/types';
+import { LoginResponse, Book, CarouselSlot, School } from '../../types/types';
+import { SchoolService } from '../services/school.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-home-component',
@@ -16,19 +18,37 @@ export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
   private bookService = inject(BookService);
   private cdr = inject(ChangeDetectorRef);
+  private schoolService = inject(SchoolService);
+  private userService = inject(UserService);
 
   currentUser: LoginResponse | null = null;
   featuredBooks: Book[] = [];
   isLoading = true;
   error: string | null = null;
   scrollIndex = 0;
+  school: School | null = null;
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
-    });
 
-    this.bookService.getFeaturedBooks().subscribe({
+      this.userService.getUser(user!.email).subscribe({
+        next: (data) => {
+          if (data.schoolName != null) {
+            this.schoolService.getByName(data.schoolName).subscribe({
+              next: (data) => {
+                this.school = data;
+                this.getBooks();
+              }
+            })
+          }
+        }
+      })
+    });
+  }
+
+  getBooks() {
+    this.bookService.getFeaturedBooks(this.school!.id!).subscribe({
       next: (books) => {
         this.featuredBooks = books;
         this.isLoading = false;
@@ -40,6 +60,7 @@ export class HomeComponent implements OnInit {
       },
     });
   }
+  
 
   // Returns the cards that should be visible in the carousel
   // left cards + center + right cards

@@ -2,7 +2,7 @@ package edu.ap.spring_backend.dto;
 
 import java.util.List;
 
-public record SchoolItemRequestDTO(
+public record ItemRequestDTO(
         int page,
         int size,
         String sortBy,
@@ -14,5 +14,6 @@ public record SchoolItemRequestDTO(
         Integer minYear,
         Integer maxYear,
         Double minScore,
-        List<Long> tagIds
+        List<Long> tagIds,
+        Long schoolId
 ) {}
