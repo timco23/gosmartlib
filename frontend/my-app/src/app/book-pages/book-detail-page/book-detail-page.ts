@@ -8,6 +8,10 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { SchoolService } from '../../services/school.service';
 import { TagService } from '../../services/tag.service';
+import { GenreService } from '../../services/genre.service';
+import { SubgenreService } from '../../services/subgenre.service';
+import { DidacticCategoryService } from '../../services/didactic-category.service';
+import { ReadingLevelService } from '../../services/reading-level.service';
 
 @Component({
   selector: 'app-book-detail-page',
@@ -33,8 +37,16 @@ export class BookDetailPage implements OnInit {
   isFeatured: boolean = false;
 
   allTags: Tag[] = [];
+  allGenres: any[] = [];
+  allSubgenres: any[] = [];
+  allDidacticCategories: any[] = [];
+  readingLevels: any[] = [];
 
   tagService = inject(TagService);
+  genreService = inject(GenreService);
+  subgenreService = inject(SubgenreService);
+  didacticService = inject(DidacticCategoryService);
+  readingLevelService = inject(ReadingLevelService);
 
   editingCopyId: number | null = null;
   editedCopy: SchoolItemCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
@@ -57,6 +69,11 @@ export class BookDetailPage implements OnInit {
         this.allTags = tags;
       });
 
+      this.genreService.getGenres().subscribe(g => this.allGenres = g);
+      this.subgenreService.getSubgenres().subscribe(s => this.allSubgenres = s);
+      this.didacticService.getDidacticCategories().subscribe(d => this.allDidacticCategories = d);
+      this.readingLevelService.getAll().subscribe(r => this.readingLevels = r);
+
       // Only load favorites once we have a user
       this.route.paramMap.subscribe((p) => {
         const id = p.get('id');
@@ -70,6 +87,8 @@ export class BookDetailPage implements OnInit {
                     this.getBook(id);
                   }
                 })
+              } else{
+                  this.getBook(id);
               }
             }
           })
@@ -142,7 +161,32 @@ export class BookDetailPage implements OnInit {
   }
 
   getTagNames(): string {
-    return this.book?.tags.map((id) => this.getTagName(id)).join(', ') ?? '';
+    return this.book?.tags.map(tag => tag.name).join(', ') ?? '';
+  }
+
+  getGenreNames(): string {
+    return this.book?.genres
+      ?.map(id => this.allGenres.find(g => g.id === id)?.name)
+      .filter(Boolean)
+      .join(', ') ?? '';
+  }
+
+  getSubgenreNames(): string {
+    return this.book?.subgenres
+      ?.map(id => this.allSubgenres.find(s => s.id === id)?.name)
+      .filter(Boolean)
+      .join(', ') ?? '';
+  }
+
+  getDidacticCategoryNames(): string {
+    return this.book?.didacticCategories
+      ?.map(id => this.allDidacticCategories.find(d => d.id === id)?.name)
+      .filter(Boolean)
+      .join(', ') ?? '';
+  }
+
+  get readingLevelName(): string {
+    return this.readingLevels.find(r => r.id === this.book?.readingLevel)?.name ?? '';
   }
 
   deleteBook(id: number) {

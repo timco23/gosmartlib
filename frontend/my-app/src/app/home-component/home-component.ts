@@ -69,10 +69,11 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  mapTagIds(tagIds: number[]): Tag[] {
-  return tagIds
-    .map(id => this.allTags.find(t => t.id === id))
-    .filter((t): t is Tag => !!t);
+  mapTagObjects(tags: Tag[] | undefined): Tag[] {
+    return (tags ?? []).map(tag => {
+      // optioneel: vervang door object uit allTags voor volledige gegevens
+      return this.allTags.find(t => t.id === tag.id) ?? tag;
+    });
   }
 
   // Returns the cards that should be visible in the carousel

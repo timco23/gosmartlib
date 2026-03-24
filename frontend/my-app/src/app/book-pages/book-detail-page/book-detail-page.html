@@ -10,7 +10,7 @@
             <h2>{{book.title}}</h2>
 
             @if(authService.atLeastHasRole(role.BEHEERDER)) {
-                <div class="book-actions">
+            <div class="book-actions">
                 <a class="edit-button" [routerLink]="['/books', book.id, 'edit']">
                     Boek wijzigen
                 </a>
@@ -21,7 +21,7 @@
                 <button class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
                     {{isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten'}}
                 </button>
-                </div>
+            </div>
             }
         </header>
 
@@ -74,18 +74,39 @@
                     <span>{{isFeatured ? 'Ja' : 'Nee'}}</span>
                 </li>
 
+
+                <li class="info-row">
+                    <span class="label">Genres</span>
+                    <span>{{ getGenreNames() }}</span>
+                </li>
+
+                <li class="info-row">
+                    <span class="label">Subgenres</span>
+                    <span>{{ getSubgenreNames() }}</span>
+                </li>
+
                 <li class="info-row">
                     <span class="label">Tags</span>
                     <span>{{getTagNames()}}</span>
                 </li>
 
                 <li class="info-row">
+                    <span class="label">Leesniveau</span>
+                    <span>{{ readingLevelName }}</span>
+                </li>
+
+                <li class="info-row">
+                    <span class="label">Didactische categorieën</span>
+                    <span>{{ getDidacticCategoryNames() }}</span>
+                </li>
+
+                <li class="info-row">
                     <span class="label">Campus</span>
                     @if(book.campusName != null) {
-                        <span>{{book.campusName}}</span>
+                    <span>{{book.campusName}}</span>
                     }
                     @else {
-                        <span>Geen</span>
+                    <span>Geen</span>
                     }
                 </li>
 
@@ -125,14 +146,14 @@
             <h3>Exemplaren</h3>
 
             @if (editingCopyId) {
-                <h4>Exemplaar wijzigen</h4>
+            <h4>Exemplaar wijzigen</h4>
             }
 
             @if (copies.length > 0) {
 
             <table class="copies-table">
                 @if (!editingCopyId) {
-                    <div>
+                <div>
                     <thead>
                         <tr>
                             <th>Conditie</th>
@@ -148,11 +169,11 @@
                             <td>{{copy.copy_status}}</td>
                             <td>{{copy.barcode}}</td>
                             @if(authService.atLeastHasRole(role.BEHEERDER)) {
-                                <td class="copy-actions">
+                            <td class="copy-actions">
                                 <button type="button" class="DeleteButton"
                                     (click)="deleteCopy(copy.id)">Verwijderen</button>
                                 <button type="button" class="EditButton" (click)="startEdit(copy)">Wijzigen</button>
-                                </td>
+                            </td>
                             }
                         </tr>
                         }
@@ -161,7 +182,7 @@
 
                 }
                 @else {
-                    <div>
+                <div>
                     <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
                         <div class="form-row">
                             <label for="edit-condition">Conditie</label>
@@ -172,16 +193,16 @@
                                 <option value=GEBRUIKT>Gebruikt</option>
                                 <option value=BESCHADIGD>Beschadigd</option>
                             </select>
-                            </div>
+                        </div>
 
-                            <div class="form-row">
-                                <label for="edit-status">Status</label>
-                                <select id="edit-status" [(ngModel)]="editedCopy.copy_status" name="editStatus" required>
-                                    <option value=BESCHIKBAAR>Beschikbaar</option>
-                                    <option value=UITGELEEND>Uitgeleend</option>
-                                    <option value=ONTBREKEND>Ontbrekend</option>
-                                </select>
-                            </div>
+                        <div class="form-row">
+                            <label for="edit-status">Status</label>
+                            <select id="edit-status" [(ngModel)]="editedCopy.copy_status" name="editStatus" required>
+                                <option value=BESCHIKBAAR>Beschikbaar</option>
+                                <option value=UITGELEEND>Uitgeleend</option>
+                                <option value=ONTBREKEND>Ontbrekend</option>
+                            </select>
+                        </div>
 
                         <div class="form-row">
                             <label for="edit-barcode">Barcode</label>
@@ -204,11 +225,11 @@
             }
 
             @if (!(addingCopy && editingCopyId) && authService.atLeastHasRole(role.BEHEERDER)) {
-                <button (click)="showAddCopyForm()">Exemplaar toevoegen</button>
+            <button (click)="showAddCopyForm()">Exemplaar toevoegen</button>
             }
 
             @if(addingCopy && !editingCopyId) {
-                <section class="add-copy">
+            <section class="add-copy">
 
                 <h4>Nieuw exemplaar toevoegen</h4>
 
@@ -244,7 +265,7 @@
                     </button>
 
                     @if (copyError) {
-                        <p class="warning">Voer een waarde voor alle velden in.</p>
+                    <p class="warning">Voer een waarde voor alle velden in.</p>
                     }
 
                 </form>
@@ -252,7 +273,7 @@
                     Annuleren
                 </button>
 
-                </section>
+            </section>
             }
         </section>
     </main>

@@ -230,7 +230,7 @@ export class UpdateBookPage implements OnInit {
     );
 
     this.selectedTags = this.allTags.filter(tag =>
-      (this.book!.tags as number[] ?? []).includes(tag.id)
+      this.book!.tags.map(t => t.id).includes(tag.id)
     );
 
     this.selectedDidacticCategories = this.allDidacticCategories.filter(cat =>

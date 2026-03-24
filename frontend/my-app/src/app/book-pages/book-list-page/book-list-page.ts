@@ -101,11 +101,10 @@ export class BookListPage implements OnInit {
     this.loadBooks();
   }
   //sort tags alphabetically
-  sortedTags(tagIds: number[]): Tag[] {
-    return tagIds
-      .map(id => this.allTags.find(t => t.id === id))
-      .filter((t): t is Tag => !!t)
-      .sort((a, b) => a.name.localeCompare(b.name));
+  sortedTags(tags: Tag[]): Tag[] {
+  return tags
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   onSearchChange(value: string): void {

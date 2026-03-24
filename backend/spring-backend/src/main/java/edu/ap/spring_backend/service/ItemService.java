@@ -128,6 +128,12 @@ public class ItemService {
             ReadingLevel readingLevel = getReadingLevelById(itemDTO.readingLevel());
             Set<DidacticCategory> didacticCategories = getDidacticCategoriesById(itemDTO.didacticCategories());
 
+            newItem.setTags(tags);
+            newItem.setGenres(genres);
+            newItem.setSubgenres(subgenres);
+            newItem.setReadingLevel(readingLevel);
+            newItem.setDidacticCategories(didacticCategories);
+
             schoolItemCopyRepository.save(copy);
             return mapToItemDTO(newItem);
         }
@@ -148,15 +154,29 @@ public class ItemService {
 
     // Updates the details of an Item.
     public ItemDTO updateItem(int id, UpdateItemDTO itemDTO) throws EntityNotFoundException {
-        Item currentItem = itemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        Set<Tag> tags = getTagsById(itemDTO.tags());
-        Item newItem = new Item(itemDTO.description(), currentItem.getReviewCount(), currentItem.getReviewScore(),
-                itemDTO.cover(), itemDTO.pageCount(), itemDTO.bookLanguage(), itemDTO.releaseYear(),
-                itemDTO.isbn(), itemDTO.author(), itemDTO.publisher(), itemDTO.title(), tags);
-        newItem.setId(currentItem.getId());
-        itemRepository.save(newItem);
-        return mapToItemDTO(newItem);
-    }
+    Item item = itemRepository.findById(id)
+            .orElseThrow(EntityNotFoundException::new);
+
+        item.setTitle(itemDTO.title());
+        item.setAuthor(itemDTO.author());
+        item.setPublisher(itemDTO.publisher());
+        item.setIsbn(itemDTO.isbn());
+        item.setReleaseYear(itemDTO.releaseYear());
+        item.setBookLanguage(itemDTO.bookLanguage());
+        item.setPageCount(itemDTO.pageCount());
+        item.setCover(itemDTO.cover());
+        item.setDescription(itemDTO.description());
+        
+        item.setTags(getTagsById(itemDTO.tags()));
+        item.setGenres(getGenresById(itemDTO.genres()));
+        item.setSubgenres(getSubgenresById(itemDTO.subgenres()));
+        item.setReadingLevel(getReadingLevelById(itemDTO.readingLevel()));
+        item.setDidacticCategories(getDidacticCategoriesById(itemDTO.didacticCategories()));
+
+    itemRepository.save(item);
+
+    return mapToItemDTO(item);
+}
 
     public ItemDTO getItemById(int id) throws EntityNotFoundException {
         Item item = itemRepository.findById(id).orElseThrow(EntityNotFoundException::new);

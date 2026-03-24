@@ -91,7 +91,7 @@ export interface GoogleBook {
 
 export interface Book {
   id: number;
-    tags: number[];
+    tags: Tag[];
   genres: number[];
   subgenres: number[];
   readingLevel: number | null;
