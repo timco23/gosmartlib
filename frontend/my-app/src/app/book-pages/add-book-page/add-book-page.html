@@ -74,8 +74,14 @@
                             formControlName="uitgaveJaar">
 
                         <label for="language">Taal</label>
-                        <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="language" type="text"
-                            formControlName="taal">
+                            <select [attr.disabled]="isReadOnly ? true : null" [ngClass]="{'readOnly': isReadOnly}" id="language" formControlName="taal">
+                                <option value="">Selecteer een taal</option>
+                                <option value="nl">Nederlands</option>
+                                <option value="en">Engels</option>
+                                <option value="fr">Frans</option>
+                                <option value="de">Duits</option>
+                                <option value="other">Andere</option>
+                            </select>
 
                         <label for="pageCount">Aantal paginas (optioneel)</label>
                         <input [readonly]="isReadOnly" [ngClass]="{'readOnly': isReadOnly}" id="pageCount" type="number"
@@ -123,13 +129,6 @@
                             <option value="GOED">Goed</option>
                             <option value="GEBRUIKT">Gebruikt</option>
                             <option value="BESCHADIGD">Beschadigd</option>
-                        </select>
-
-                        <label for="status">Uitleenstatus exemplaar</label>
-                        <select id="status" formControlName="copy_status" name="status" required>
-                            <option value="BESCHIKBAAR">Beschikbaar</option>
-                            <option value="UITGELEEND">Uitgeleend</option>
-                            <option value="ONTBREKEND">Ontbrekend</option>
                         </select>
 
                         <label for="barcode">Barcode</label>

@@ -40,7 +40,7 @@ export class BookDetailPage implements OnInit {
     itemId: 0,
     condition: "",
     barcode: '',
-    copy_status: "",
+    copy_status: "BESCHIKBAAR",
     featured: false,
     schoolId: 0
   };
@@ -143,7 +143,7 @@ export class BookDetailPage implements OnInit {
 
   addCopy() {
     if (!this.book) return;
-    if (this.newCopy.condition == "" || this.newCopy.copy_status == "") {
+    if (this.newCopy.condition == "") {
       this.copyError = true
       return;
     }
@@ -159,7 +159,7 @@ export class BookDetailPage implements OnInit {
           itemId: this.book!.id,
           condition: "",
           barcode: '',
-          copy_status: "",
+          copy_status: "BESCHIKBAAR",
           featured: false,
           schoolId: 0
         };
@@ -171,7 +171,7 @@ export class BookDetailPage implements OnInit {
 
   cancelAddCopy() {
     this.addingCopy = false;
-    this.newCopy = { itemId: this.book!.id, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
+    this.newCopy = { itemId: this.book!.id, condition: "", barcode: '', copy_status: "BESCHIKBAAR", featured: false, schoolId: 0 };
   }
 
   showAddCopyForm() {

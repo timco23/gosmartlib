@@ -1,6 +1,10 @@
 package edu.ap.spring_backend.jpa;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.List;
@@ -9,18 +13,40 @@ import java.util.Set;
 @Entity
 @Table(name = "item")
 public class Item {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    
+    @Size(max = 255)
     private String title;
+
+    @Size(max = 255)
     private String publisher;
+
+    @NotBlank
+    @Size(max = 255)
     private String author;
+
+    @Size(max = 20)
     private String isbn;
+
+    @Min(0)
     private int releaseYear;
+
+    @NotBlank
     private String bookLanguage;
+
+    @Min(0)
     private int pageCount;
+
+    @Size(max = 255)
     private String cover;
+    
+    @Min(0) @Max(10)
     private double reviewScore;
+
+    @Min(0)
     private int reviewCount;
     @Column(name = "book_description", columnDefinition = "TEXT")
     private String description;
