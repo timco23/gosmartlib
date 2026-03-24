@@ -8,6 +8,7 @@ import {
   SchoolItemCopy,
   School,
   CreateSchoolItemCopyPayload,
+  Tag,
 } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -95,15 +96,15 @@ export class BookDetailPage implements OnInit {
 
         this.userApi.getUser(user.email).subscribe({
           next: (data) => {
-            if (data.schoolName != null) {
+            if (data.schoolName) {
               this.schoolService.getByName(data.schoolName).subscribe({
                 next: (schoolData) => {
                   this.school = schoolData;
                   this.getBook(id);
                 },
-              } else{
-                  this.getBook(id);
               });
+            } else {
+              this.getBook(id);
             }
           },
         });
