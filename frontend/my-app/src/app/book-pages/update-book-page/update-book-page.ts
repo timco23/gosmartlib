@@ -34,14 +34,14 @@ export class UpdateBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   route = inject(ActivatedRoute);
-  schoolService = inject(SchoolService);
+  schoolService = inject(SchoolService);;
   tagService = inject(TagService);
   genreService = inject(GenreService);
   subgenreService = inject(SubgenreService);
   readingLevelService = inject(ReadingLevelService);
   didacticCategoryService = inject(DidacticCategoryService);
-  authService = inject(AuthService)
-  userService = inject(UserService)
+  authService = inject(AuthService);
+  userService = inject(UserService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   previewUrl: string = '';
@@ -78,7 +78,7 @@ export class UpdateBookPage implements OnInit {
       featured: [false, [Validators.required]],
       campusId: ['0'],
       isbn: ['', [Validators.required]],
-      isDidactic: [false]
+      isDidactic: [false],
     });
   }
 
@@ -133,7 +133,7 @@ export class UpdateBookPage implements OnInit {
       language: raw.language,
       pageCount: raw.pageCount,
       cover: raw.cover,
-      campusId: raw.campusId
+      campusId: raw.campusId,
     };
 
     this.api.updateBook(newBook, this.book!.id).subscribe({

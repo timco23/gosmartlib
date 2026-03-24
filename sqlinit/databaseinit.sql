@@ -72,22 +72,19 @@ CREATE TABLE IF NOT EXISTS user (
     name VARCHAR(100) NOT NULL,
     first_name VARCHAR(100),
     email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('ADMIN', 'LEERLING','BEHEERDER','LEERKRACHT') NOT NULL,
+    password VARCHAR(255) NULL,
+    role ENUM('ADMIN', 'BIBLIOTHEEKBEHEERDER', 'LEERKRACHT', 'LEERLING') NOT NULL,
     student_number VARCHAR(50),
-    class VARCHAR(50), 
+    class VARCHAR(50),
+    smartschool_username VARCHAR(255) UNIQUE, 
     school_id BIGINT, 
     refresh_token VARCHAR(512),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL
 );
 
 -- Admin user (wachtwoord: admin321)
-INSERT INTO user (name, email, password, role, school_id) 
-VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', 1);
-
--- Leerling user (wachtwoord: leerling321) 
-INSERT INTO user (name, first_name, email, password, role, student_number, class, school_id) 
-VALUES ('Wick', 'John', 's123456@gsmartlib.tech', '$2a$12$3l8/4.y7HDg3AfY2NOuoSuY.YKV02m2a.0WeeNMo3Cc8vonEuvuOq', 'LEERLING', 's123456', '2ITSOF1', 1);
+INSERT INTO user (name, email, password, role, school_id, smartschool_username, refresh_token) 
+VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', 1, 'admin', NULL);
 
 
 -- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------

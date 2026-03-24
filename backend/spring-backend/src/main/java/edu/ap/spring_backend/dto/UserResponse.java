@@ -27,7 +27,6 @@ public class UserResponse {
      * @param studentNumber student number (null for admins)
      * @param className class name (null for admins)
      * @param schoolName school name (null for admins)
-     * @param actiefSinceDate account creation date
      * @param favoriteBooks list of user's favorite books
      */
     public UserResponse(Integer id, String name, String firstName, String email, String role, 

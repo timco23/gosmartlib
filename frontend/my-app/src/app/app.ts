@@ -16,7 +16,7 @@ import { Role } from '../types/types';
 export class App implements OnInit {
   currentUser: LoginResponse | null = null;
   dropdownOpen = false;
-  role = Role
+  role = Role;
 
   constructor(
     public authService: AuthService,
@@ -24,22 +24,45 @@ export class App implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Subscribe to user changes
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
+
+      // cleanup when logged out
+      if (!user) {
+        this.dropdownOpen = false;
+      }
     });
+
+    const isPublicRoute = (url: string) => {
+      const path = url.split('?')[0];
+      return path === '/login' || path === '/oauth-callback' || path === '/oauth/callback';
+    };
+
+    // Validate only if the token exists AND we are not on the OAuth callback
+    if (this.authService.isLoggedIn() && !isPublicRoute(this.router.url)) {
+      this.authService.me().subscribe({
+        next: () => {
+          if (this.router.url.split('?')[0] === '/login') this.router.navigate(['/home']);
+        },
+        error: () => {
+          this.authService.logout();
+          this.router.navigate(['/login'], { queryParams: { oauth: 'session_expired' } });
+        },
+      });
+    }
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       const currentUrl = this.router.url;
+      const path = currentUrl.split('?')[0];
       const isLoggedIn = this.authService.isLoggedIn();
 
-      // Als ingelogd en op login pagina → redirect naar home
-      if (isLoggedIn && currentUrl === '/login') {
+      if (isLoggedIn && path === '/login') {
         this.router.navigate(['/home']);
+        return;
       }
 
-      // Als niet ingelogd en NIET op login → redirect naar login
-      if (!isLoggedIn && currentUrl !== '/login') {
+      // IMPORTANT: oauth-callback is public
+      if (!isLoggedIn && !isPublicRoute(currentUrl)) {
         this.router.navigate(['/login']);
       }
     });
@@ -59,7 +82,7 @@ export class App implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // Sluit dropdown als je buiten klikt
+  // Close the dropdown when you click outside it
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;

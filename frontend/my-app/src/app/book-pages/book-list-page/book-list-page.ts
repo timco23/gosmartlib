@@ -46,27 +46,30 @@ export class BookListPage implements OnInit {
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
-      this.userService.getUser(user!.email).subscribe({
+      if (!user?.email) return;
+
+      this.userService.getUser(user.email).subscribe({
         next: (data) => {
           if (data.schoolName != null) {
             this.schoolService.getByName(data.schoolName).subscribe({
-              next: (data) => {
-                this.school = data;
+              next: (schoolData) => {
+                this.school = schoolData;
                 this.tagService.getTags().subscribe(tags => {
       this.allTags = tags;
     });
     this.loadBooks();
-              }
-            })
+              },
+            });
           }
-        }
-      })
+        },
+      });
     });
   }
 
   loadBooks(): void {
+    if (!this.school?.id) return;
+
     const tagIds = this.selectedTags.map((t) => t.id!);
-    console.log('tagIds:', tagIds);
     this.api
       .getBooksPaginated(
         this.currentPage,
@@ -75,7 +78,7 @@ export class BookListPage implements OnInit {
         this.sortDirection,
         this.search,
         this.languages,
-        this.school!.id!,
+        this.school.id,
         this.minPages,
         this.maxPages,
         this.minYear,
@@ -101,7 +104,7 @@ export class BookListPage implements OnInit {
     this.loadBooks();
   }
   //sort tags alphabetically
-  sortedTags(tags: Tag[]): Tag[] {
+   sortedTags(tags: Tag[]): Tag[] {
   return tags
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name));

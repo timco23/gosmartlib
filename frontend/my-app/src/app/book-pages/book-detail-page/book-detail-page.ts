@@ -1,7 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Role, LoginResponse, SchoolItemCopy, School, CreateSchoolItemCopyPayload, Tag } from '../../../types/types';
+import {
+  Book,
+  Role,
+  LoginResponse,
+  SchoolItemCopy,
+  School,
+  CreateSchoolItemCopyPayload,
+} from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
@@ -26,8 +33,8 @@ export class BookDetailPage implements OnInit {
   userApi = inject(UserService);
   router = inject(Router);
   route = inject(ActivatedRoute);
-  authService = inject(AuthService)
-  schoolService = inject(SchoolService)
+  authService = inject(AuthService);
+  schoolService = inject(SchoolService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   copies: any[] = [];
   addingCopy: boolean = false;
@@ -49,21 +56,29 @@ export class BookDetailPage implements OnInit {
   readingLevelService = inject(ReadingLevelService);
 
   editingCopyId: number | null = null;
-  editedCopy: SchoolItemCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
+  editedCopy: SchoolItemCopy = {
+    itemId: 0,
+    condition: '',
+    barcode: '',
+    copy_status: '',
+    featured: false,
+    schoolId: 0,
+  };
   isFavorite: boolean = false;
 
   newCopy: CreateSchoolItemCopyPayload = {
     itemId: 0,
-    condition: "",
+    condition: '',
     barcode: '',
-    copy_status: "BESCHIKBAAR",
+    copy_status: 'BESCHIKBAAR',
     featured: false,
-    schoolId: 0
+    schoolId: 0,
   };
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
+      if (!user?.email) return;
 
       this.tagService.getTags().subscribe(tags => {
         this.allTags = tags;
@@ -74,81 +89,69 @@ export class BookDetailPage implements OnInit {
       this.didacticService.getDidacticCategories().subscribe(d => this.allDidacticCategories = d);
       this.readingLevelService.getAll().subscribe(r => this.readingLevels = r);
 
-      // Only load favorites once we have a user
       this.route.paramMap.subscribe((p) => {
         const id = p.get('id');
-        if (id) {
-          this.userApi.getUser(user!.email).subscribe({
-            next: (data) => {
-              if (data.schoolName != null) {
-                this.schoolService.getByName(data.schoolName).subscribe({
-                  next: (data) => {
-                    this.school = data;
-                    this.getBook(id);
-                  }
-                })
+        if (!id) return;
+
+        this.userApi.getUser(user.email).subscribe({
+          next: (data) => {
+            if (data.schoolName != null) {
+              this.schoolService.getByName(data.schoolName).subscribe({
+                next: (schoolData) => {
+                  this.school = schoolData;
+                  this.getBook(id);
+                },
               } else{
                   this.getBook(id);
-              }
+              });
             }
-          })
+          },
+        });
 
-          this.userApi.getFavorites().subscribe({
-            next: (favorites) => {
-              this.isFavorite = favorites.some((fav: any) => fav.id === this.book?.id);
-              this.cdr.detectChanges();
-            }
-          });
-        }
+        this.userApi.getFavorites().subscribe({
+          next: (favorites) => {
+            this.isFavorite = favorites.some((fav: any) => fav.id === this.book?.id);
+            this.cdr.detectChanges();
+          },
+        });
       });
     });
   }
 
   addToFavorites() {
-    console.log('isFavorite:', this.isFavorite);
-    console.log('book:', this.book);
-    console.log('currentUser:', this.currentUser);
+    if (!this.book || !this.currentUser?.email) return;
 
     if (!this.isFavorite) {
-      if (!this.book || !this.currentUser) {
-        console.log('EARLY RETURN - book or currentUser is null');
-        return;
-      }
-    }
-    if (!this.isFavorite) {
-      if (!this.book || !this.currentUser) return;
-
       this.api.addToFavorites(this.book.id, this.currentUser.email).subscribe({
         next: () => {
           this.isFavorite = true;
           this.cdr.detectChanges();
         },
-        error: (err) => console.error('Probleem bij toevoegen:', err)
+        error: (err) => console.error('Probleem bij toevoegen:', err),
       });
-    }
-    else {
-      this.api.removeFromFavorites(this.book!.id, this.currentUser!.email).subscribe({
+    } else {
+      this.api.removeFromFavorites(this.book.id, this.currentUser.email).subscribe({
         next: () => {
           this.isFavorite = false;
           this.cdr.detectChanges();
         },
-        error: (err) => console.error('Probleem bij verwijderen:', err)
+        error: (err) => console.error('Probleem bij verwijderen:', err),
       });
     }
   }
 
   getBook(id: string) {
-    const data = this.api.getBookById(parseInt(id));
-    data.subscribe({
+    this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
         this.cdr.detectChanges();
-        console.log(data)
 
-        this.api.loadCopies(data.id, this.school!.id!).subscribe({
+        if (!this.school?.id) return;
+
+        this.api.loadCopies(data.id, this.school.id).subscribe({
           next: (copies) => {
             this.copies = copies;
-            if (copies[0].featured) this.isFeatured = true;
+            if (copies.length > 0 && copies[0].featured) this.isFeatured = true;
             this.cdr.detectChanges();
           },
         });
@@ -199,8 +202,8 @@ export class BookDetailPage implements OnInit {
 
   addCopy() {
     if (!this.book) return;
-    if (this.newCopy.condition == "") {
-      this.copyError = true
+    if (this.newCopy.condition == '') {
+      this.copyError = true;
       return;
     }
 
@@ -213,11 +216,11 @@ export class BookDetailPage implements OnInit {
 
         this.newCopy = {
           itemId: this.book!.id,
-          condition: "",
+          condition: '',
           barcode: '',
-          copy_status: "BESCHIKBAAR",
+          copy_status: 'BESCHIKBAAR',
           featured: false,
-          schoolId: 0
+          schoolId: 0,
         };
         this.addingCopy = false;
         this.cdr.detectChanges();
@@ -227,7 +230,14 @@ export class BookDetailPage implements OnInit {
 
   cancelAddCopy() {
     this.addingCopy = false;
-    this.newCopy = { itemId: this.book!.id, condition: "", barcode: '', copy_status: "BESCHIKBAAR", featured: false, schoolId: 0 };
+    this.newCopy = {
+      itemId: this.book!.id,
+      condition: '',
+      barcode: '',
+      copy_status: 'BESCHIKBAAR',
+      featured: false,
+      schoolId: 0,
+    };
   }
 
   showAddCopyForm() {
@@ -259,7 +269,14 @@ export class BookDetailPage implements OnInit {
 
   cancelEdit() {
     this.editingCopyId = null;
-    this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
+    this.editedCopy = {
+      itemId: 0,
+      condition: '',
+      barcode: '',
+      copy_status: '',
+      featured: false,
+      schoolId: 0,
+    };
   }
 
   saveEdit() {
@@ -271,8 +288,8 @@ export class BookDetailPage implements OnInit {
       condition: this.editedCopy.condition,
       copy_status: this.editedCopy.copy_status,
       featured: this.editedCopy.featured,
-      schoolId: this.editedCopy.schoolId
-    }
+      schoolId: this.editedCopy.schoolId,
+    };
 
     this.api.updateCopy(payload, this.editedCopy.id!).subscribe({
       next: (updatedCopy) => {
@@ -281,7 +298,14 @@ export class BookDetailPage implements OnInit {
           this.copies[index] = updatedCopy;
         }
         this.editingCopyId = null;
-        this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
+        this.editedCopy = {
+          itemId: 0,
+          condition: '',
+          barcode: '',
+          copy_status: '',
+          featured: false,
+          schoolId: 0,
+        };
         this.cdr.detectChanges();
       },
     });
@@ -290,7 +314,7 @@ export class BookDetailPage implements OnInit {
   toggleFeatured() {
     if (!this.book) return;
     const bookToBeFeatured = this.copies[0];
-    bookToBeFeatured.featured = !bookToBeFeatured.featured
+    bookToBeFeatured.featured = !bookToBeFeatured.featured;
 
     const payload: CreateSchoolItemCopyPayload = {
       itemId: bookToBeFeatured.item.id,
@@ -298,11 +322,11 @@ export class BookDetailPage implements OnInit {
       condition: bookToBeFeatured.condition,
       copy_status: bookToBeFeatured.copy_status,
       featured: bookToBeFeatured.featured,
-      schoolId: bookToBeFeatured.school.id
-    }
+      schoolId: bookToBeFeatured.school.id,
+    };
 
     this.api.updateCopy(payload, bookToBeFeatured.id!).subscribe({
-      next: () => location.reload()
-    })
+      next: () => location.reload(),
+    });
   }
 }
