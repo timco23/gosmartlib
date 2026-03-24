@@ -9,4 +9,3 @@ deploy:
     - main
   variables:
     sqlrootpwd: $sqlpwd
-
