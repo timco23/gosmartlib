@@ -96,7 +96,7 @@ export class AddBookPage implements OnInit {
       condition: raw.condition
     }
 
-    this.api.getCopyByItemTitle(newBook.title).subscribe({
+    this.api.getCopyByItemTitle(newBook.title, this.school!.id!).subscribe({
       next: (data) => {
         if (data != null) {
           this.copyAlreadyExists = true;

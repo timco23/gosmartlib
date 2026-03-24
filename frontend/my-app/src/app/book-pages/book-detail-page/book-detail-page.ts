@@ -53,7 +53,18 @@ export class BookDetailPage implements OnInit {
       this.route.paramMap.subscribe((p) => {
         const id = p.get('id');
         if (id) {
-          this.getBook(id);
+          this.userApi.getUser(user!.email).subscribe({
+            next: (data) => {
+              if (data.schoolName != null) {
+                this.schoolService.getByName(data.schoolName).subscribe({
+                  next: (data) => {
+                    this.school = data;
+                    this.getBook(id);
+                  }
+                })
+              }
+            }
+          })
 
           this.userApi.getFavorites().subscribe({
             next: (favorites) => {
@@ -63,18 +74,6 @@ export class BookDetailPage implements OnInit {
           });
         }
       });
-
-      this.userApi.getUser(user!.email).subscribe({
-        next: (data) => {
-          if (data.schoolName != null) {
-            this.schoolService.getByName(data.schoolName).subscribe({
-              next: (data) => {
-                this.school = data;
-              }
-            })
-          }
-        }
-      })
     });
   }
 
@@ -117,8 +116,8 @@ export class BookDetailPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.cdr.detectChanges();
-        
-        this.api.loadCopies(data.id).subscribe({
+
+        this.api.loadCopies(data.id, this.school!.id!).subscribe({
           next: (copies) => {
             this.copies = copies;
             if (copies[0].featured) this.isFeatured = true;
@@ -182,12 +181,12 @@ export class BookDetailPage implements OnInit {
     this.api.deleteCopy(copy!).subscribe({
       next: () => {
         this.copies = [];
-        this.api.loadCopies(this.book!.id).subscribe({
+        this.api.loadCopies(this.book!.id, this.school!.id!).subscribe({
           next: (copies) => {
             this.copies = copies;
             if (copies.length <= 0) {
               this.backToList();
-            } 
+            }
             this.cdr.detectChanges();
           },
         });
@@ -208,7 +207,7 @@ export class BookDetailPage implements OnInit {
 
   saveEdit() {
     if (!this.book) return;
-    
+
     const payload: CreateSchoolItemCopyPayload = {
       itemId: this.editedCopy.itemId,
       barcode: this.editedCopy.barcode,
@@ -235,7 +234,7 @@ export class BookDetailPage implements OnInit {
     if (!this.book) return;
     const bookToBeFeatured = this.copies[0];
     bookToBeFeatured.featured = !bookToBeFeatured.featured
-    
+
     const payload: CreateSchoolItemCopyPayload = {
       itemId: bookToBeFeatured.item.id,
       barcode: bookToBeFeatured.barcode,

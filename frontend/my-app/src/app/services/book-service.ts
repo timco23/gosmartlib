@@ -28,6 +28,7 @@ export class BookService {
     sortDirection: string = 'asc',
     search: string = '',
     languages: string[] = [],
+    schoolId: number,
     minPages?: number,
     maxPages?: number,
     minYear?: number,
@@ -39,7 +40,8 @@ export class BookService {
       .set('page', page)
       .set('size', size)
       .set('sortBy', sortBy)
-      .set('sortDirection', sortDirection);
+      .set('sortDirection', sortDirection)
+      .set('schoolId', schoolId);
 
     if (search) params = params.set('search', search);
     if (languages.length > 0) languages.forEach((l) => (params = params.append('languages', l)));
@@ -53,8 +55,8 @@ export class BookService {
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });
   }
 
-  getFeaturedBooks(): Observable<Book[]> {
-    return this.http.get<Book[]>(`${this.apiBaseUrl}/books/featured`);
+  getFeaturedBooks(schoolId: number): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiBaseUrl}/books/featured/${schoolId}`);
   }
 
   getBooks(): Observable<Book[]> {
@@ -85,8 +87,8 @@ export class BookService {
     return this.http.delete<Book>(`${this.apiBaseUrl}/books/${id}`);
   }
 
-  loadCopies(id: number) {
-    return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`);
+  loadCopies(id: number, schoolId: number) {
+    return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`, { params: { schoolId: schoolId }});
   }
 
   addCopy(copy: CreateSchoolItemCopyPayload) {
@@ -101,8 +103,8 @@ export class BookService {
     return this.http.put(`${this.apiBaseUrl}/books/copies/${id}`, copy);
   }
 
-  getCopyByItemTitle(bookTitle: string): Observable<SchoolItemCopy> {
-    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/search`, { params: { title: bookTitle } });
+  getCopyByItemTitle(bookTitle: string, schoolId: number): Observable<SchoolItemCopy> {
+    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/search`, { params: { title: bookTitle, schoolId: schoolId } });
   }
 
   addToFavorites(bookId: number, email: string): Observable<any> {

@@ -2,10 +2,12 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Page, Role, Tag } from '../../../types/types';
+import { Book, Page, Role, School, Tag } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
 import { AuthService } from '../../services/auth.service';
+import { SchoolService } from '../../services/school.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-book-list-page',
@@ -17,7 +19,9 @@ export class BookListPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
-  authService = inject(AuthService)
+  authService = inject(AuthService);
+  private schoolService = inject(SchoolService);
+  private userService = inject(UserService);
   role = Role;
 
   currentPage: number = 0;
@@ -34,9 +38,23 @@ export class BookListPage implements OnInit {
   maxYear?: number;
   minScore?: number;
   selectedTags: Tag[] = [];
+  school: School | null = null;
 
   ngOnInit(): void {
-    this.loadBooks();
+    this.authService.currentUser$.subscribe((user) => {
+      this.userService.getUser(user!.email).subscribe({
+        next: (data) => {
+          if (data.schoolName != null) {
+            this.schoolService.getByName(data.schoolName).subscribe({
+              next: (data) => {
+                this.school = data;
+                this.loadBooks();
+              }
+            })
+          }
+        }
+      })
+    });
   }
 
   loadBooks(): void {
@@ -50,6 +68,7 @@ export class BookListPage implements OnInit {
         this.sortDirection,
         this.search,
         this.languages,
+        this.school!.id!,
         this.minPages,
         this.maxPages,
         this.minYear,
