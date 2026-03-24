@@ -18,9 +18,11 @@ export class Login implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Check of user is logged in
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/home']);
+      this.authService.me().subscribe({
+        next: () => this.router.navigate(['/home']),
+        error: () => this.authService.logout(),
+      });
     }
   }
 

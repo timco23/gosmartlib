@@ -26,6 +26,11 @@ export class App implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
+
+      // cleanup when logged out
+      if (!user) {
+        this.dropdownOpen = false;
+      }
     });
 
     const isPublicRoute = (url: string) => {
