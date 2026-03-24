@@ -2,13 +2,12 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Tag, School, UpdateBookPayload, Genre, Subgenre, Readinglevel, DidacticCategory } from '../../../types/types';
+import { Book, Tag, UpdateBookPayload, Genre, Subgenre, Readinglevel, DidacticCategory } from '../../../types/types';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
 import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
-import { SchoolService } from '../../services/school.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { TagService } from '../../services/tag.service';
@@ -34,7 +33,6 @@ export class UpdateBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   route = inject(ActivatedRoute);
-  schoolService = inject(SchoolService);;
   tagService = inject(TagService);
   genreService = inject(GenreService);
   subgenreService = inject(SubgenreService);
@@ -189,12 +187,6 @@ export class UpdateBookPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.tryFillForm();
-
-        this.schoolService.getById(data.schoolId).subscribe({
-          next: (school) => {
-            this.school = school;
-          }
-        });
       },
       error: (err) => {
         this.errorMessage = err;
