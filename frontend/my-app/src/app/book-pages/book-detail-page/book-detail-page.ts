@@ -24,16 +24,16 @@ export class BookDetailPage implements OnInit {
   authService = inject(AuthService)
   schoolService = inject(SchoolService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
-  copies: any[] = [];
+  copies: SchoolItemCopy[] = [];
   addingCopy: boolean = false;
   role = Role;
   copyError: boolean = false;
   school: School | null = null;
   isFeatured: boolean = false;
-
+  deleteError: boolean = false;
 
   editingCopyId: number | null = null;
-  editedCopy: SchoolItemCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
+  editedCopy: CreateSchoolItemCopyPayload = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
   isFavorite: boolean = false;
 
   newCopy: CreateSchoolItemCopyPayload = {
@@ -42,7 +42,8 @@ export class BookDetailPage implements OnInit {
     barcode: '',
     copy_status: "BESCHIKBAAR",
     featured: false,
-    schoolId: 0
+    schoolId: 0,
+    campusId: 0
   };
 
   ngOnInit(): void {
@@ -133,7 +134,9 @@ export class BookDetailPage implements OnInit {
   }
 
   deleteBook(id: number) {
-    this.api.deleteBook(id).subscribe({ next: () => this.backToList() });
+    this.deleteError = false;
+    this.cdr.detectChanges();
+    this.api.deleteBook(id).subscribe({ next: () => this.backToList(), error: () => {this.deleteError = true ;this.cdr.detectChanges()} });
   }
 
   backToList() {
@@ -149,6 +152,7 @@ export class BookDetailPage implements OnInit {
 
     this.newCopy.itemId = this.book.id;
     this.newCopy.schoolId = this.school!.id!;
+    this.newCopy.featured = this.isFeatured;
 
     this.api.addCopy(this.newCopy).subscribe({
       next: (copy) => {
@@ -160,7 +164,8 @@ export class BookDetailPage implements OnInit {
           barcode: '',
           copy_status: "BESCHIKBAAR",
           featured: false,
-          schoolId: 0
+          schoolId: 0,
+          campusId: 0
         };
         this.addingCopy = false;
         this.cdr.detectChanges();
@@ -170,7 +175,7 @@ export class BookDetailPage implements OnInit {
 
   cancelAddCopy() {
     this.addingCopy = false;
-    this.newCopy = { itemId: this.book!.id, condition: "", barcode: '', copy_status: "BESCHIKBAAR", featured: false, schoolId: 0 };
+    this.newCopy = { itemId: this.book!.id, condition: "", barcode: '', copy_status: "BESCHIKBAAR", featured: false, schoolId: 0, campusId: 0 };
   }
 
   showAddCopyForm() {
@@ -197,34 +202,33 @@ export class BookDetailPage implements OnInit {
 
   startEdit(copy: SchoolItemCopy) {
     this.editingCopyId = copy.id!;
-    this.editedCopy = { ...copy };
+    this.editedCopy = { 
+      itemId: copy.itemId,
+      barcode: copy.barcode,
+      condition: copy.condition,
+      copy_status: copy.copy_status,
+      featured: copy.featured,
+      schoolId: copy.schoolId,
+      campusId: copy.campus ? copy.campus.id : 0
+     };
   }
 
   cancelEdit() {
     this.editingCopyId = null;
-    this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
+    this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
   }
 
   saveEdit() {
     if (!this.book) return;
 
-    const payload: CreateSchoolItemCopyPayload = {
-      itemId: this.editedCopy.itemId,
-      barcode: this.editedCopy.barcode,
-      condition: this.editedCopy.condition,
-      copy_status: this.editedCopy.copy_status,
-      featured: this.editedCopy.featured,
-      schoolId: this.editedCopy.schoolId
-    }
-
-    this.api.updateCopy(payload, this.editedCopy.id!).subscribe({
+    this.api.updateCopy(this.editedCopy, this.editingCopyId!).subscribe({
       next: (updatedCopy) => {
         const index = this.copies.findIndex((c) => c.id === this.editingCopyId);
         if (index > -1) {
           this.copies[index] = updatedCopy;
         }
         this.editingCopyId = null;
-        this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0 };
+        this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
         this.cdr.detectChanges();
       },
     });
@@ -236,12 +240,13 @@ export class BookDetailPage implements OnInit {
     bookToBeFeatured.featured = !bookToBeFeatured.featured
 
     const payload: CreateSchoolItemCopyPayload = {
-      itemId: bookToBeFeatured.item.id,
+      itemId: bookToBeFeatured.itemId,
       barcode: bookToBeFeatured.barcode,
       condition: bookToBeFeatured.condition,
       copy_status: bookToBeFeatured.copy_status,
       featured: bookToBeFeatured.featured,
-      schoolId: bookToBeFeatured.school.id
+      schoolId: bookToBeFeatured.schoolId,
+      campusId: bookToBeFeatured.campus ? bookToBeFeatured.campus.id : 0
     }
 
     this.api.updateCopy(payload, bookToBeFeatured.id!).subscribe({

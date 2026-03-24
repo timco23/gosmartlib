@@ -83,8 +83,6 @@ export interface Book {
   cover?: string;
   reviewScore: number;
   reviewCount: number;
-  campusName: string;
-  campusId: number;
 }
 
 export interface UpdateBookPayload {
@@ -97,7 +95,6 @@ export interface UpdateBookPayload {
   language: string;
   pageCount: number;
   cover: string;
-  campusId: number;
   isbn: string;
 }
 
@@ -136,13 +133,18 @@ export interface Page<T> {
 }
 
 export interface SchoolItemCopy {
-  id?: number;
+  id: number;
   itemId: number;
   condition: string;
   barcode: string;
   featured: boolean;
   copy_status: string;
   schoolId: number;
+  campus?: 
+    {
+      id: number,
+      name: string
+    };
 }
 
 export interface CreateSchoolItemCopyPayload {
@@ -151,7 +153,8 @@ export interface CreateSchoolItemCopyPayload {
   condition: string,
   copy_status: string,
   featured: boolean,
-  schoolId: number
+  schoolId: number,
+  campusId: number
 }
 
 export interface CarouselSlot {

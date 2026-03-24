@@ -87,20 +87,20 @@ export class BookService {
     return this.http.delete<Book>(`${this.apiBaseUrl}/books/${id}`);
   }
 
-  loadCopies(id: number, schoolId: number) {
-    return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`, { params: { schoolId: schoolId }});
+  loadCopies(id: number, schoolId: number): Observable<SchoolItemCopy[]> {
+    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${id}`, { params: { schoolId: schoolId }});
   }
 
-  addCopy(copy: CreateSchoolItemCopyPayload) {
-    return this.http.post(`${this.apiBaseUrl}/books/copies`, copy);
+  addCopy(copy: CreateSchoolItemCopyPayload): Observable<SchoolItemCopy> {
+    return this.http.post<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies`, copy);
   }
 
-  deleteCopy(id: number) {
-    return this.http.delete(`${this.apiBaseUrl}/books/copies/${id}`);
+  deleteCopy(id: number): Observable<SchoolItemCopy> {
+    return this.http.delete<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${id}`);
   }
 
-  updateCopy(copy: CreateSchoolItemCopyPayload, id: number) {
-    return this.http.put(`${this.apiBaseUrl}/books/copies/${id}`, copy);
+  updateCopy(copy: CreateSchoolItemCopyPayload, id: number): Observable<SchoolItemCopy> {
+    return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${id}`, copy);
   }
 
   getCopyByItemTitle(bookTitle: string, schoolId: number): Observable<SchoolItemCopy> {

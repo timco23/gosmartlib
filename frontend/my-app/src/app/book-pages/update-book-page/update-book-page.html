@@ -53,20 +53,6 @@
         (tagsChanged)="onTagsChanged($event)"
       />
 
-            <label for="campus">Selecteer een campus (optioneel)</label>
-
-            @if (school?.campuses!.length > 0) {
-            <select id="campus" formControlName="campusId">
-                <option value="0">Geen</option>
-                @for(campus of school?.campuses; track $index) {
-                <option [value]="campus.id">{{campus.name}}</option>
-                }
-            </select>
-            }
-            @else {
-            <p>Geen schoolcampussen gevonden</p>
-            }
-
       <div class="form-buttons">
         <button type="submit" class="primary-btn">Wijzig boek</button>
         <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>

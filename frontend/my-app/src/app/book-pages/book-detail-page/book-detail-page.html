@@ -24,6 +24,10 @@
                 </div>
             }
         </header>
+        @if (deleteError) {
+                    <p class="warning">Een school heeft dit boek momenteel als exemplaar. 
+                        Verwijder alle exemplaren van dit boek om het boek te kunnen verwijderen.</p>
+                }
 
         <div class="book-detail-body">
 
@@ -79,16 +83,6 @@
                     <span>{{getTagNames()}}</span>
                 </li>
 
-                <li class="info-row">
-                    <span class="label">Campus</span>
-                    @if(book.campusName != null) {
-                        <span>{{book.campusName}}</span>
-                    }
-                    @else {
-                        <span>Geen</span>
-                    }
-                </li>
-
                 <li class="description">
                     <span class="label">Beschrijving</span>
                     <p>{{book.description}}</p>
@@ -138,6 +132,7 @@
                             <th>Conditie</th>
                             <th>Status</th>
                             <th>Barcode</th>
+                            <th>Campus</th>
                         </tr>
                     </thead>
 
@@ -147,6 +142,7 @@
                             <td>{{copy.condition}}</td>
                             <td>{{copy.copy_status}}</td>
                             <td>{{copy.barcode}}</td>
+                            <td>{{copy.campus ? copy.campus.name : "Geen"}}</td>
                             @if(authService.atLeastHasRole(role.BEHEERDER)) {
                                 <td class="copy-actions">
                                 <button type="button" class="DeleteButton"
@@ -182,6 +178,19 @@
                                     <option value=ONTBREKEND>Ontbrekend</option>
                                 </select>
                             </div>
+
+                            <label for="campus">Selecteer een campus (optioneel)</label>
+                            @if (school?.campuses!.length > 0) {
+                            <select id="campus" [(ngModel)]="editedCopy.campusId">
+                                <option value="0">Geen</option>
+                                @for(campus of school?.campuses; track $index) {
+                                <option [value]="campus.id">{{campus.name}}</option>
+                                }
+                            </select>
+                            }   
+                            @else {
+                            <p>Geen schoolcampussen gevonden</p>
+                            }
 
                         <div class="form-row">
                             <label for="edit-barcode">Barcode</label>
@@ -233,6 +242,16 @@
                         <option value="ONTBREKEND">Ontbrekend</option>
                     </select>
                     </div> -->
+
+                    <label for="campus">Selecteer een campus (optioneel)</label>
+                    @if (school?.campuses!.length > 0) {
+                        <select id="campus" [(ngModel)]="newCopy.campusId">
+                            <option value="0">Geen</option>
+                            @for(campus of school?.campuses; track $index) {
+                            <option [value]="campus.id">{{campus.name}}</option>
+                            }
+                        </select>
+                    }
 
                     <div class="form-row">
                         <label for="barcode">Barcode</label>

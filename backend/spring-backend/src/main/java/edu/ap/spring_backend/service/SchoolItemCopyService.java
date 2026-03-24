@@ -84,7 +84,10 @@ public class SchoolItemCopyService {
 
     public SchoolItemCopyDTO getByItemTitleAndSchoolId(String title, Long schoolId) {
         SchoolItemCopy copy = schoolItemCopyRepository.findByItemTitleAndSchoolId(title, schoolId).orElse(null);
-        return mapToDTO(copy);
+        if (copy != null) {
+            return mapToDTO(copy);
+        }
+        return null;
     }
 
     public SchoolItemCopyDTO mapToDTO(SchoolItemCopy copy) {
