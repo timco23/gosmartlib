@@ -9,6 +9,8 @@ import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subge
 import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { SchoolService } from '../../services/school.service';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 import { TagService } from '../../services/tag.service';
 import { GenreService } from '../../services/genre.service';
 import { SubgenreService } from '../../services/subgenre.service';
@@ -38,6 +40,8 @@ export class UpdateBookPage implements OnInit {
   subgenreService = inject(SubgenreService);
   readingLevelService = inject(ReadingLevelService);
   didacticCategoryService = inject(DidacticCategoryService);
+  authService = inject(AuthService)
+  userService = inject(UserService)
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   previewUrl: string = '';
@@ -66,13 +70,14 @@ export class UpdateBookPage implements OnInit {
       title: ['', [Validators.required]],
       author: ['', [Validators.required]],
       description: ['', [Validators.required]],
-      publisher: ['', [Validators.required]],
-      releaseYear: [0, [Validators.required, Validators.min(0)]],
+      publisher: [''],
+      releaseYear: [0, [Validators.min(0)]],
       language: ['', [Validators.required]],
       pageCount: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
       featured: [false, [Validators.required]],
-      campusId: [''],
+      campusId: ['0'],
+      isbn: ['', [Validators.required]],
       isDidactic: [false]
     });
   }
@@ -120,7 +125,7 @@ export class UpdateBookPage implements OnInit {
       didacticCategories: this.selectedDidacticCategories.map(d => d.id),
       isDidactic: raw.isDidactic,
       description: raw.description,
-      featured: raw.featured,
+      isbn: raw.isbn,
       title: raw.title,
       publisher: raw.publisher,
       author: raw.author,

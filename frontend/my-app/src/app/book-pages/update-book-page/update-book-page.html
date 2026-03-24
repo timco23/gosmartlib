@@ -14,12 +14,23 @@
       <input id="author" type="text" formControlName="author" />
       <label for="description">Beschrijving</label>
       <textarea id="description" formControlName="description"></textarea>
+
+      <label for="isbn">ISBN</label>
+      <input type="text" id="isbn" formControlName="isbn" />
+
       <label for="publisher">Uitgeverij</label>
       <input id="publisher" type="text" formControlName="publisher" />
       <label for="releaseYear">Uitgavejaar</label>
       <input id="releaseYear" type="number" formControlName="releaseYear" />
       <label for="language">Taal</label>
-      <input id="language" type="text" formControlName="language" />
+      <select id="language" formControlName="language">
+        <option value="">Selecteer een taal</option>
+        <option value="Nederlands">Nederlands</option>
+        <option value="Engels">Engels</option>
+        <option value="Frans">Frans</option>
+        <option value="Duits">Duits</option>
+        <option value="Andere">Andere</option>
+      </select>
       <label for="pageCount">Aantal paginas</label>
       <input id="pageCount" type="number" formControlName="pageCount" />
       <label for="cover">Cover URL</label>
@@ -72,11 +83,6 @@
       } @else {
         <p>Geen schoolcampussen gevonden</p>
       }
-
-      <label class="checkbox-label">
-        <input id="featured" type="checkbox" formControlName="featured" />
-        Uitgelicht
-      </label>
 
       <div class="form-buttons">
         <button type="submit" class="primary-btn">Wijzig boek</button>
