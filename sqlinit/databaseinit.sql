@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS campus (
 -- Replace ReviewScore and ReviewCount later on with generated columns that calculate these values based on the SchoolItems that use this id
 create table if not exists item 
 (
-	id int primary key not null auto_increment,
+	id BIGINT primary key not null auto_increment,
 	title varchar(255) not null,
 	publisher varchar(100) null,
 	author varchar(255) not null,
@@ -113,7 +113,7 @@ insert into item(title,publisher,author,isbn,release_year,book_language,page_cou
 -- table for the fysical copies of a school item, with unique barcode and status
 CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    item_id INT not null,
+    item_id BIGINT not null,
     school_id bigint not null,
     barcode VARCHAR(255),
     copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND'),
