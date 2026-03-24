@@ -101,7 +101,7 @@ public class SmartschoolOAuthController {
             + "?response_type=code"
             + "&client_id=" + url(clientId)
             + "&redirect_uri=" + url(effectiveRedirectUri)
-            + "&scope=" + url("fulluserinfo")   // CHANGED
+            + "&scope=" + url("fulluserinfo")
             + "&state=" + url(state);
 
     response.setStatus(302);
@@ -193,7 +193,7 @@ public class SmartschoolOAuthController {
             user.setRole(mapSmartschoolRole(info.getBasisrol()));
             user.setPassword("{noop}oauth");
 
-            // unique email conflict vermijden
+            // Avoid unique email conflicts
             if (hasIncomingEmail && !userRepository.existsByEmail(incomingEmail)) {
                 user.setEmail(incomingEmail);
             } else {
@@ -202,12 +202,12 @@ public class SmartschoolOAuthController {
 
             user = userRepository.save(user);
         } else {
-            // sync bij elke login
+            // Sync on every login
             user.setFirstName(info.getName());
             user.setName(info.getSurname());
             user.setRole(mapSmartschoolRole(info.getBasisrol()));
 
-            // update email alleen als niet in gebruik door andere user
+            // Update the email only if it is not currently in use by another user
             if (hasIncomingEmail && !userRepository.existsByEmailAndIdNot(incomingEmail, user.getId())) {
                 user.setEmail(incomingEmail);
             }

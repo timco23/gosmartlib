@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO for the Smartschool "userinfo" response.
+ * DTO for the Smartschool "fulluserinfo" response.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SmartschoolUserInfo {
