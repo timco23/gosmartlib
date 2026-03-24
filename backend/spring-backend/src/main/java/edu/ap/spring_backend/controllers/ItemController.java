@@ -81,27 +81,27 @@ public class ItemController {
     }
 
     @GetMapping("/books/copies/{itemId}")
-    public ResponseEntity<List<SchoolItemCopy>> getCopiesByItemIdAndSchoolId(@PathVariable int itemId, @RequestParam Long schoolId) {
+    public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByItemIdAndSchoolId(@PathVariable int itemId, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopiesByItemIdAndSchoolId(itemId, schoolId));
     }
 
     @PostMapping("/books/copies")
-    public ResponseEntity<SchoolItemCopy> addCopy(@RequestBody CreateSchoolItemCopyDTO copyDTO) {
+    public ResponseEntity<SchoolItemCopyDTO> addCopy(@RequestBody CreateSchoolItemCopyDTO copyDTO) {
         return ResponseEntity.ok(schoolItemCopyService.addCopy(copyDTO));
     }
 
     @DeleteMapping("/books/copies/{id}")
-    public ResponseEntity<SchoolItemCopy> deleteCopy(@PathVariable int id) {
+    public ResponseEntity<SchoolItemCopyDTO> deleteCopy(@PathVariable int id) {
         return ResponseEntity.ok(schoolItemCopyService.deleteCopy(id));
     }
 
     @PutMapping("/books/copies/{id}")
-    public ResponseEntity<SchoolItemCopy> updateCopy(@RequestBody CreateSchoolItemCopyDTO copyDTO, @PathVariable int id) {
+    public ResponseEntity<SchoolItemCopyDTO> updateCopy(@RequestBody CreateSchoolItemCopyDTO copyDTO, @PathVariable int id) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopy(id, copyDTO));
     }
 
     @GetMapping("/books/copies/search")
-    public ResponseEntity<SchoolItemCopy> getCopyByItemTitle(@RequestParam String title, @RequestParam Long schoolId) {
+    public ResponseEntity<SchoolItemCopyDTO> getCopyByItemTitle(@RequestParam String title, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getByItemTitleAndSchoolId(title, schoolId));
     }
 }

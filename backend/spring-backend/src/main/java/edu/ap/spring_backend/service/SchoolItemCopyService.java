@@ -30,11 +30,13 @@ public class SchoolItemCopyService {
         this.campusRepository = campusRepository;
     }
 
-    public List<SchoolItemCopy> getCopiesByItemIdAndSchoolId(int itemId, Long schoolId) {
-        return schoolItemCopyRepository.findByItemIdAndSchoolId(itemId, schoolId);
+    public List<SchoolItemCopyDTO> getCopiesByItemIdAndSchoolId(int itemId, Long schoolId) {
+        return schoolItemCopyRepository.findByItemIdAndSchoolId(itemId, schoolId)
+                .stream()
+                .map((copy) -> mapToDTO(copy)).toList();
     }
 
-    public SchoolItemCopy addCopy(CreateSchoolItemCopyDTO copyDTO) {
+    public SchoolItemCopyDTO addCopy(CreateSchoolItemCopyDTO copyDTO) {
         SchoolItemCopy copy = new SchoolItemCopy();
         Item item = itemRepository.findById(copyDTO.itemId()).orElseThrow(EntityNotFoundException::new);
         School school = schoolRepository.findById(copyDTO.schoolId()).orElseThrow(EntityNotFoundException::new);
@@ -48,17 +50,17 @@ public class SchoolItemCopyService {
         copy.setFeatured(copyDTO.featured());
         copy.setCopy_status(copyDTO.copy_status());
         copy.setCondition(copyDTO.condition());
-        return schoolItemCopyRepository.save(copy);
+        return mapToDTO(schoolItemCopyRepository.save(copy));
     }
 
-    public SchoolItemCopy deleteCopy(int id) {
+    public SchoolItemCopyDTO deleteCopy(int id) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
         schoolItemCopyRepository.delete(copy);
-        return copy;
+        return mapToDTO(copy);
     }
 
-    public SchoolItemCopy updateCopy(int id, CreateSchoolItemCopyDTO copyDTO) {
+    public SchoolItemCopyDTO updateCopy(int id, CreateSchoolItemCopyDTO copyDTO) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
         if (copyDTO.campusId() != null) {
@@ -71,17 +73,30 @@ public class SchoolItemCopyService {
         schoolItemCopyRepository.save(copy);
         if (copy.isFeatured() != copyDTO.featured()) {
             copy.setFeatured(copyDTO.featured());
-            List<SchoolItemCopy> schoolItemCopies = getCopiesByItemIdAndSchoolId(copyDTO.itemId(), copyDTO.schoolId());
+            List<SchoolItemCopy> schoolItemCopies = schoolItemCopyRepository.findByItemIdAndSchoolId(copyDTO.itemId(), copyDTO.schoolId());
             schoolItemCopies.forEach(schoolItemCopy -> {
                 schoolItemCopy.setFeatured(copyDTO.featured());
                 schoolItemCopyRepository.save(schoolItemCopy);
             });
         }
-        return copy;
+        return mapToDTO(copy);
     }
 
-    public SchoolItemCopy getByItemTitleAndSchoolId(String title, Long schoolId) {
+    public SchoolItemCopyDTO getByItemTitleAndSchoolId(String title, Long schoolId) {
         SchoolItemCopy copy = schoolItemCopyRepository.findByItemTitleAndSchoolId(title, schoolId).orElse(null);
-        return copy;
+        return mapToDTO(copy);
+    }
+
+    public SchoolItemCopyDTO mapToDTO(SchoolItemCopy copy) {
+        return new SchoolItemCopyDTO(
+                copy.getId(),
+                copy.getItem().getId(),
+                copy.getBarcode(),
+                copy.getCondition(),
+                copy.getCopy_status(),
+                copy.isFeatured(),
+                copy.getSchool().getId(),
+                copy.getCampus()
+        );
     }
 }
