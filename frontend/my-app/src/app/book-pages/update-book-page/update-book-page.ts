@@ -18,9 +18,9 @@ export class UpdateBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   route = inject(ActivatedRoute);
-  schoolService = inject(SchoolService)
-  authService = inject(AuthService)
-  userService = inject(UserService)
+  schoolService = inject(SchoolService);
+  authService = inject(AuthService);
+  userService = inject(UserService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   previewUrl: string = '';
   incompleteForm: boolean = false;
@@ -46,7 +46,7 @@ export class UpdateBookPage implements OnInit {
       cover: [''],
       featured: [false, [Validators.required]],
       campusId: ['0'],
-      isbn: ['', [Validators.required]]
+      isbn: ['', [Validators.required]],
     });
   }
 
@@ -56,7 +56,6 @@ export class UpdateBookPage implements OnInit {
 
   onSubmit(): void {
     this.incompleteForm = false;
-
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -76,8 +75,8 @@ export class UpdateBookPage implements OnInit {
       language: raw.language,
       pageCount: raw.pageCount,
       cover: raw.cover,
-      campusId: raw.campusId
-    }
+      campusId: raw.campusId,
+    };
 
     this.api.updateBook(newBook, this.book!.id).subscribe({
       next: (data) => {
@@ -96,11 +95,15 @@ export class UpdateBookPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.bookLoaded = true;
-        this.fillForm(); 
-        this.cdr.detectChanges()
+        this.fillForm();
+        this.cdr.detectChanges();
       },
-      error: (err) => { this.errorMessage = err; this.error = true; this.cdr.detectChanges(); }
-    })
+      error: (err) => {
+        this.errorMessage = err;
+        this.error = true;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   loadData() {
@@ -126,26 +129,32 @@ export class UpdateBookPage implements OnInit {
         cover: this.book!.cover,
         description: this.book!.description,
         isbn: this.book!.isbn,
-        campusId: this.book!.campusId
-      })
+        campusId: this.book!.campusId,
+      });
     }
   }
 
+  // ...existing code...
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.email) {
+      this.error = true;
+      this.errorMessage = 'Geen gebruiker ingelogd';
+      this.cdr.detectChanges();
+      return;
+    }
 
-    this.userService.getUser(currentUser!.email).subscribe({
+    this.userService.getUser(currentUser.email).subscribe({
       next: (data) => {
         if (data.schoolName != null) {
           this.schoolService.getByName(data.schoolName).subscribe({
-            next: (data) => {
-              this.school = data;
+            next: (schoolData) => {
+              this.school = schoolData;
               this.loadData();
-            }
-          })
+            },
+          });
         }
-      }
-    })
+      },
+    });
   }
 }
-

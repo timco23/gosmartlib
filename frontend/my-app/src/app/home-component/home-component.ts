@@ -32,23 +32,27 @@ export class HomeComponent implements OnInit {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
 
-      this.userService.getUser(user!.email).subscribe({
+      if (!user?.email) return;
+
+      this.userService.getUser(user.email).subscribe({
         next: (data) => {
           if (data.schoolName != null) {
             this.schoolService.getByName(data.schoolName).subscribe({
-              next: (data) => {
-                this.school = data;
+              next: (schoolData) => {
+                this.school = schoolData;
                 this.getBooks();
-              }
-            })
+              },
+            });
           }
-        }
-      })
+        },
+      });
     });
   }
 
   getBooks() {
-    this.bookService.getFeaturedBooks(this.school!.id!).subscribe({
+    if (!this.school?.id) return;
+
+    this.bookService.getFeaturedBooks(this.school.id).subscribe({
       next: (books) => {
         this.featuredBooks = books;
         this.isLoading = false;
@@ -60,7 +64,6 @@ export class HomeComponent implements OnInit {
       },
     });
   }
-  
 
   // Returns the cards that should be visible in the carousel
   // left cards + center + right cards
