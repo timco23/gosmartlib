@@ -8,4 +8,4 @@ deploy:
   only:
     - main
   variables:
-    sqlrootpwd: $sqlpwd
+    sqlrootpwd: $sqlrootpwd
