@@ -137,7 +137,7 @@ insert into item(title,publisher,author,isbn,release_year,book_language,page_cou
 -- FROM school_item si, tag t
 -- WHERE t.name = 'Algemeen';
 
--- table for the fysical copies of a school item, with unique barcode and status
+-- table for the physical copies of a school item, with unique barcode and status
 CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
     item_id INT not null,
@@ -308,7 +308,7 @@ INSERT INTO reading_level (name) VALUES
 ('C'),
 ('D');
 
--- didactic gategory of a book
+-- didactic category of a book
 CREATE TABLE IF NOT EXISTS didactic_category (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE

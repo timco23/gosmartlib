@@ -47,7 +47,7 @@ class ItemServiceTest {
         MockitoAnnotations.openMocks(this);
 
         testTag = new Tag();
-        testTag.setId((int) 1L);
+        testTag.setId(1L);
         testTag.setName("Science Fiction");
 
         testItem = new Item(

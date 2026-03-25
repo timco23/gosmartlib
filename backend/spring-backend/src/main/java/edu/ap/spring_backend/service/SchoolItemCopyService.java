@@ -6,6 +6,7 @@ import edu.ap.spring_backend.dao.CampusRepository;
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemCopyDTO;
+import edu.ap.spring_backend.dto.SchoolItemCopyDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Campus;
 import edu.ap.spring_backend.jpa.Item;

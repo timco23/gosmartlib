@@ -59,6 +59,7 @@ export class BookDetailPage implements OnInit {
   editingCopyId: number | null = null;
   editedCopy: CreateSchoolItemCopyPayload = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
   isFavorite: boolean = false;
+  favorites: any[] = [];
 
   newCopy: CreateSchoolItemCopyPayload = {
     itemId: 0,
@@ -105,12 +106,20 @@ export class BookDetailPage implements OnInit {
 
         this.userApi.getFavorites().subscribe({
           next: (favorites) => {
-            this.isFavorite = favorites.some((fav: any) => fav.id === this.book?.id);
+            this.favorites = favorites;
+            this.checkIfFavorite();
+            console.log(favorites)
             this.cdr.detectChanges();
           },
         });
       });
     });
+  }
+
+  checkIfFavorite() {
+    if (this.book && this.favorites) {
+      this.isFavorite = this.favorites.some((fav: any) => fav.id === this.book?.id);
+    }
   }
 
   addToFavorites() {
@@ -139,6 +148,7 @@ export class BookDetailPage implements OnInit {
     this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
+        this.checkIfFavorite();
         this.cdr.detectChanges();
 
         if (!this.school?.id) return;

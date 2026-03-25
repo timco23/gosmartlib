@@ -15,5 +15,5 @@ public interface SubgenreRepository extends ListCrudRepository<Subgenre, Long> {
 
     List<Subgenre> findAllByGenreIdIn(List<Long> genreIds);
 
-    List<Subgenre> findAllByGenreId(int genreId);
+    List<Subgenre> findAllByGenreId(Long genreId);
 }

@@ -1,11 +1,15 @@
 package edu.ap.spring_backend.service;
 
+import edu.ap.spring_backend.dto.ItemDTO;
+import edu.ap.spring_backend.dto.TagDTO;
 import org.springframework.stereotype.Service;
 
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.User;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -17,10 +21,10 @@ public class UserService {
         this.itemRepository = itemRepository;
     }
 
-    public Item[] getFavoriteBooks(String email) {
+    public ItemDTO[] getFavoriteBooks(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getFavoriteBooks().toArray(new Item[0]);
+        return user.getFavoriteBooks().stream().map(item -> mapToItemDTO(item)).toArray(ItemDTO[]::new);
     }
 
     public void addFavoriteBook(String email, Integer itemId) {
@@ -39,5 +43,37 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Item not found"));
         user.getFavoriteBooks().remove(item);
         userRepository.save(user);
+    }
+
+    private ItemDTO mapToItemDTO(Item item) {
+        List<TagDTO> tags = item.getTags().stream()
+                .map(tag -> new TagDTO((long) tag.getId(), tag.getName()))
+                .toList();
+        return new ItemDTO(
+                item.getId(),
+                item.getTitle(),
+                item.getPublisher(),
+                item.getAuthor(),
+                item.getIsbn(),
+                item.getReleaseYear(),
+                item.getBookLanguage(),
+                item.getPageCount(),
+                item.getCover(),
+                item.getReviewScore(),
+                item.getReviewCount(),
+                item.getDescription(),
+                tags,
+                item.getGenres() != null ? item.getGenres().stream().map(g -> (long) g.getId()).toList() : List.of(),
+                item.getSubgenres() != null ? item.getSubgenres().stream().map(s -> (long) s.getId()).toList()
+                        : List.of(),
+                item.getReadingLevel() != null ? (long) item.getReadingLevel().getId() : null,
+                item.getDidacticCategories() != null
+                        ? item.getDidacticCategories().stream().map(d -> (long) d.getId()).toList()
+                        : List.of(),
+                null, // schoolId (of juiste waarde)
+                false, // featured (of uit copy halen)
+                item.isDidactic(),
+                null // campusId
+        );
     }
 }
