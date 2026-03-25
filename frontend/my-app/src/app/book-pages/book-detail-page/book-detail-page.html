@@ -1,240 +1,231 @@
 <body class="book-detail-container">
+  <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
 
-    <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
-
-    @if (book) {
-
+  @if (book) {
     <main class="book-detail-card">
+      <header class="book-detail-header">
+        <h2>{{ book.title }}</h2>
 
-        <header class="book-detail-header">
-            <h2>{{book.title}}</h2>
+        @if (authService.atLeastHasRole(role.BEHEERDER)) {
+          <div class="book-actions">
+            <a class="edit-button" [routerLink]="['/books', book.id, 'edit']">Wijzigen</a>
 
-            @if(authService.atLeastHasRole(role.BEHEERDER)) {
-                <div class="book-actions">
-                <a class="edit-button" [routerLink]="['/books', book.id, 'edit']">
-                    Boek wijzigen
-                </a>
+            <a class="delete-button" (click)="deleteBook(book!.id!)">Verwijderen</a>
+          </div>
+        }
+      </header>
 
-                <button class="delete-button" (click)="deleteBook(book!.id!)">
-                    Verwijder boek
-                </button>
-                </div>
+      <div class="book-detail-body">
+        <ul class="book-info">
+          <li class="info-row">
+            <span class="label">Auteur(s)</span>
+            <span>{{ book.author }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Uitgeverij</span>
+            <span>{{ book.publisher }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">ISBN</span>
+            <span>{{ book.isbn }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Uitgavejaar</span>
+            <span>{{ book.releaseYear }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Taal</span>
+            <span>{{ book.language }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Pagina's</span>
+            <span>{{ book.pageCount }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Review score</span>
+            <span>{{ book.reviewScore }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Aantal reviews</span>
+            <span>{{ book.reviewCount }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">School ID</span>
+            <span>{{ book.schoolId }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Item ID</span>
+            <span>{{ book.itemId }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Uitgelicht</span>
+            <span>{{ book.featured ? 'Ja' : 'Nee' }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Tags</span>
+            <span>{{ getTagNames() }}</span>
+          </li>
+
+          <li class="info-row">
+            <span class="label">Campus</span>
+            @if (book.campusName != null) {
+              <span>{{ book.campusName }}</span>
+            } @else {
+              <span>Geen</span>
             }
-        </header>
+          </li>
 
-        <div class="book-detail-body">
+          <li class="description">
+            <span class="label">Beschrijving</span>
+            <p>{{ book.description }}</p>
+          </li>
+        </ul>
 
-            <ul class="book-info">
+        <div class="book-cover">
+          <p>Cover</p>
 
-                <li class="info-row">
-                    <span class="label">Auteur(s)</span>
-                    <span>{{book.author}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Uitgeverij</span>
-                    <span>{{book.publisher}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">ISBN</span>
-                    <span>{{book.isbn}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Uitgavejaar</span>
-                    <span>{{book.releaseYear}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Taal</span>
-                    <span>{{book.language}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Pagina's</span>
-                    <span>{{book.pageCount}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Review score</span>
-                    <span>{{book.reviewScore}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Aantal reviews</span>
-                    <span>{{book.reviewCount}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">School ID</span>
-                    <span>{{book.schoolId}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Item ID</span>
-                    <span>{{book.itemId}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Uitgelicht</span>
-                    <span>{{book.featured ? 'Ja' : 'Nee'}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Tags</span>
-                    <span>{{getTagNames()}}</span>
-                </li>
-
-                <li class="info-row">
-                    <span class="label">Campus</span>
-                    @if(book.campusName != null) {
-                        <span>{{book.campusName}}</span>
-                    }
-                    @else {
-                        <span>Geen</span>
-                    }
-                </li>
-
-                <li class="description">
-                    <span class="label">Beschrijving</span>
-                    <p>{{book.description}}</p>
-                </li>
-
-            </ul>
-
-            <div class="book-cover">
-
-                <p>Cover</p>
-
-                @if(book.cover == "" || book.cover == null) {
-                <div class="no-cover">
-                    Geen afbeelding
-                </div>
-                }
-                @else {
-                <img [src]="book.cover" alt="Book cover">
-                }
-
-            </div>
-
-            <div class="add-favorite">
-
-                <button (click)="addToFavorites()">
-                    {{isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten'}}
-                </button>
-            </div>
+          @if (book.cover == '' || book.cover == null) {
+            <div class="no-cover">Geen afbeelding</div>
+          } @else {
+            <img [src]="book.cover" alt="Book cover" />
+          }
         </div>
 
+        <div class="add-favorite">
+          <button (click)="addToFavorites()">
+            {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
+          </button>
+        </div>
+      </div>
 
-        <section class="copies-section">
+      <section class="copies-section">
+        <h3>Exemplaren</h3>
 
-            <h3>Exemplaren</h3>
+        @if (editingCopyId) {
+          <h4>Exemplaar wijzigen</h4>
+        }
 
-            @if (editingCopyId) {
-                <h4>Exemplaar wijzigen</h4>
+        @if (copies.length > 0) {
+          <table class="copies-table">
+            @if (!editingCopyId) {
+              <div>
+                <thead>
+                  <tr>
+                    <th>Conditie</th>
+                    <th>Status</th>
+                    <th>Barcode</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (copy of copies; track copy.id) {
+                    <tr>
+                      <td>{{ copy.condition }}</td>
+                      <td>{{ copy.copy_status }}</td>
+                      <td>{{ copy.barcode }}</td>
+                      @if (authService.atLeastHasRole(role.BEHEERDER)) {
+                        <td class="copy-actions">
+                          <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
+                            Verwijderen
+                          </button>
+                          <button type="button" class="EditButton" (click)="startEdit(copy)">
+                            Wijzigen
+                          </button>
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </div>
+            } @else {
+              <div>
+                <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
+                  <div class="form-row">
+                    <label for="edit-condition">Conditie</label>
+                    <select
+                      id="edit-condition"
+                      [(ngModel)]="editedCopy.condition"
+                      name="editCondition"
+                      required
+                    >
+                      <option value="">-- Kies conditie --</option>
+                      <option value="Nieuw">Nieuw</option>
+                      <option value="Goed">Goed</option>
+                      <option value="Gebruikt">Gebruikt</option>
+                      <option value="Beschadigd">Beschadigd</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <label for="edit-status">Status</label>
+                    <select
+                      id="edit-status"
+                      [(ngModel)]="editedCopy.copy_status"
+                      name="editStatus"
+                      required
+                    >
+                      <option value="">-- Kies status --</option>
+                      <option value="Beschikbaar">Beschikbaar</option>
+                      <option value="Uitgeleend">Uitgeleend</option>
+                      <option value="Niet beschikbaar">Niet beschikbaar</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <label for="edit-barcode">Barcode</label>
+                    <input
+                      id="edit-barcode"
+                      type="text"
+                      [(ngModel)]="editedCopy.barcode"
+                      name="editBarcode"
+                      required
+                    />
+                  </div>
+
+                  <button type="submit" class="save-button" [disabled]="editForm.invalid">
+                    Opslaan
+                  </button>
+                  <button type="button" (click)="cancelEdit()">Annuleren</button>
+                </form>
+              </div>
             }
+          </table>
+        } @else {
+          <p>Geen exemplaren gevonden.</p>
+        }
 
-            @if (copies.length > 0) {
+        @if (!(addingCopy && editingCopyId) && authService.atLeastHasRole(role.BEHEERDER)) {
+          <button (click)="showAddCopyForm()">Exemplaar toevoegen</button>
+        }
 
-            <table class="copies-table">
-                @if (!editingCopyId) {
-                    <div>
-                    <thead>
-                        <tr>
-                            <th>Conditie</th>
-                            <th>Status</th>
-                            <th>Barcode</th>
-                        </tr>
-                    </thead>
+        @if (addingCopy && !editingCopyId) {
+          <section class="add-copy">
+            <h4>Nieuw exemplaar toevoegen</h4>
 
-                    <tbody>
-                        @for (copy of copies; track copy.id) {
-                        <tr>
-                            <td>{{copy.condition}}</td>
-                            <td>{{copy.copy_status}}</td>
-                            <td>{{copy.barcode}}</td>
-                            @if(authService.atLeastHasRole(role.BEHEERDER)) {
-                                <td class="copy-actions">
-                                <button type="button" class="DeleteButton"
-                                    (click)="deleteCopy(copy.id)">Verwijderen</button>
-                                <button type="button" class="EditButton" (click)="startEdit(copy)">Wijzigen</button>
-                                </td>
-                            }
-                        </tr>
-                        }
-                    </tbody>
-                </div>
+            <form (ngSubmit)="addCopy()" #copyForm="ngForm">
+              <div class="form-row">
+                <label for="condition">Conditie</label>
+                <select id="condition" [(ngModel)]="newCopy.condition" name="condition" required>
+                  <option value="">-- Kies conditie --</option>
+                  <option value="Nieuw">Nieuw</option>
+                  <option value="Goed">Goed</option>
+                  <option value="Gebruikt">Gebruikt</option>
+                  <option value="Beschadigd">Beschadigd</option>
+                </select>
+              </div>
 
-                }
-                @else {
-                    <div>
-                    <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
-                        <div class="form-row">
-                            <label for="edit-condition">Conditie</label>
-                            <select id="edit-condition" [(ngModel)]="editedCopy.condition" name="editCondition"
-                                required>
-                                <option value="">-- Kies conditie --</option>
-                                <option value="Nieuw">Nieuw</option>
-                                <option value="Goed">Goed</option>
-                                <option value="Gebruikt">Gebruikt</option>
-                                <option value="Beschadigd">Beschadigd</option>
-                            </select>
-                            </div>
-
-                            <div class="form-row">
-                                <label for="edit-status">Status</label>
-                                <select id="edit-status" [(ngModel)]="editedCopy.copy_status" name="editStatus" required>
-                                    <option value="">-- Kies status --</option>
-                                    <option value="Beschikbaar">Beschikbaar</option>
-                                    <option value="Uitgeleend">Uitgeleend</option>
-                                    <option value="Niet beschikbaar">Niet beschikbaar</option>
-                                </select>
-                            </div>
-
-                        <div class="form-row">
-                            <label for="edit-barcode">Barcode</label>
-                            <input id="edit-barcode" type="text" [(ngModel)]="editedCopy.barcode" name="editBarcode"
-                                required>
-                        </div>
-
-                        <button type="submit" class="save-button" [disabled]="editForm.invalid">Opslaan</button>
-                        <button type="button" (click)="cancelEdit()">
-                            Annuleren
-                        </button>
-                    </form>
-                </div>
-                }
-            </table>
-
-            }
-            @else {
-            <p>Geen exemplaren gevonden.</p>
-            }
-
-            @if (!(addingCopy && editingCopyId) && authService.atLeastHasRole(role.BEHEERDER)) {
-                <button (click)="showAddCopyForm()">Exemplaar toevoegen</button>
-            }
-
-            @if(addingCopy && !editingCopyId) {
-                <section class="add-copy">
-
-                <h4>Nieuw exemplaar toevoegen</h4>
-
-                <form (ngSubmit)="addCopy()" #copyForm="ngForm">
-
-                    <div class="form-row">
-                        <label for="condition">Conditie</label>
-                        <select id="condition" [(ngModel)]="newCopy.condition" name="condition" required>
-                            <option value="">-- Kies conditie --</option>
-                            <option value="Nieuw">Nieuw</option>
-                            <option value="Goed">Goed</option>
-                            <option value="Gebruikt">Gebruikt</option>
-                            <option value="Beschadigd">Beschadigd</option>
-                        </select>
-                    </div>
-
-                    <!-- <div class="form-row"><label for="status">Status</label>
+              <!-- <div class="form-row"><label for="status">Status</label>
                     <select id="status" [(ngModel)]="newCopy.copy_status" name="status" required>
                         <option value="">-- Kies status --</option>
                         <option value="Beschikbaar">Beschikbaar</option>
@@ -243,28 +234,27 @@
                     </select>
                     </div> -->
 
-                    <div class="form-row">
-                        <label for="barcode">Barcode</label>
-                        <input id="barcode" type="text" [(ngModel)]="newCopy.barcode" name="barcode" required>
-                    </div>
+              <div class="form-row">
+                <label for="barcode">Barcode</label>
+                <input
+                  id="barcode"
+                  type="text"
+                  [(ngModel)]="newCopy.barcode"
+                  name="barcode"
+                  required
+                />
+              </div>
 
-                    <button type="submit" class="add-button" [disabled]="copyForm.invalid">
-                        Toevoegen
-                    </button>
-
-                </form>
-                <button (click)="cancelAddCopy()">
-                    Annuleren
-                </button>
-
-                </section>
-            }
-        </section>
+              <button type="submit" class="add-button" [disabled]="copyForm.invalid">
+                Toevoegen
+              </button>
+            </form>
+            <button (click)="cancelAddCopy()">Annuleren</button>
+          </section>
+        }
+      </section>
     </main>
-
-    }
-    @else {
+  } @else {
     <h3>Loading...</h3>
-    }
-
+  }
 </body>

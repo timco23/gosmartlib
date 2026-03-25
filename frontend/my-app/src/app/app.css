@@ -1,22 +1,3 @@
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-
-app-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  height: 100%;
-}
-
-.content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -25,6 +6,7 @@ app-root {
   padding: 0 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   height: 90px;
+  flex-shrink: 0;
 }
 
 .nav-logo a {
@@ -57,7 +39,7 @@ app-root {
 
 .nav-link:hover {
   color: #8c1b3f;
-  background: #c2e569;
+  background: #eedcdc;
 }
 
 .nav-link.active {
@@ -88,7 +70,7 @@ app-root {
 
 .user-trigger:hover {
   color: #8c1b3f;
-  background: #c2e569;
+  background: #eedcdc;
 }
 
 .dropdown-arrow {
@@ -132,7 +114,7 @@ app-root {
 
 .dropdown-item:hover {
   color: #8c1b3f;
-  background: #c2e569;
+  background: #eedcdc;
 }
 
 .dropdown-item--logout {
@@ -143,7 +125,7 @@ app-root {
 
 .dropdown-item--logout:hover {
   color: #8c1b3f;
-  background: #c2e569;
+  background: #eedcdc;
 }
 
 .footer {

@@ -6,12 +6,6 @@
   background: #f0efe4;
   border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
 }
 
 h1 {
@@ -20,8 +14,6 @@ h1 {
   font-weight: 600;
   color: #8c1b3f;
 }
-
-/* Add + filter row */
 
 .add-row {
   display: flex;
@@ -92,7 +84,7 @@ li {
 }
 
 li:hover {
-  background: #f0efe4;
+  background: #faf7f4;
 }
 
 /* Left content */
@@ -167,7 +159,7 @@ li button:last-of-type:hover {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  background: #c2e569;
+  background: #bfbfe8;
   color: black;
   border-radius: 999px;
   white-space: nowrap;

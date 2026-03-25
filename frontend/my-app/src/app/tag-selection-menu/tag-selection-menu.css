@@ -21,7 +21,7 @@
 
 .filter-row input:focus {
   outline: none;
-  border-color: #d6822b;
+  border-color: #6f1532;
   box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
 }
 
@@ -68,7 +68,7 @@
 .tag-item input[type='checkbox'] {
   width: 15px;
   height: 15px;
-  accent-color: #d6822b;
+  accent-color: #6f1532;
   cursor: pointer;
 }
 
@@ -79,6 +79,6 @@
   font-size: 0.75rem;
   font-weight: 500;
   background: #e0e7ff;
-  color: #3730a3;
+  color: black;
   border-radius: 999px;
 }
