@@ -1,8 +1,8 @@
-import { Component, inject, input, output, SimpleChanges } from '@angular/core';
-import { Role, Tag } from '../../types/types';
-import { TagService } from '../services/tag.service';
+import { Component, EventEmitter, inject, Input, input, Output, output, SimpleChanges } from '@angular/core';
+import { Role, Tag } from '../../../types/types';
+import { TagService } from '../../services/tag.service';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 /**
  * Displays all available tags and lets the user toggle which tags
@@ -20,8 +20,8 @@ export class TagSelectionMenu {
   role = Role;
 
   bookId = input<number | null>(null);
-  initialTags = input<Tag[]>([]);
-  tagsChanged = output<Tag[]>();
+  @Input() initialTags: Tag[] = [];
+  @Output() tagsChanged = new EventEmitter<Tag[]>();
 
   tags: Tag[] = [];
   filterInput: string = '';
@@ -37,17 +37,16 @@ export class TagSelectionMenu {
     return this.selectedTags.length;
   }
 
-  //loads the checkbox states correctly
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialTags']) {
-      this.selectedTags = [...this.initialTags()];
-    }
+  if (changes['initialTags'] && this.initialTags) {
+    this.selectedTags = [...this.initialTags];
   }
+}
 
   ngOnInit(): void {
     this.tagService.getTags().subscribe((tags) => {
       this.tags = tags;
-      this.selectedTags = [...this.initialTags()];
+      this.selectedTags = [...this.initialTags];
     });
   }
 

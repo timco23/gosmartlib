@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
-import { LoginResponse, Book, CarouselSlot } from '../../types/types';
+import { LoginResponse, Book, CarouselSlot, School, Tag } from '../../types/types';
+import { SchoolService } from '../services/school.service';
+import { UserService } from '../services/user.service';
+import { TagService } from '../services/tag.service';
 
 @Component({
   selector: 'app-home-component',
@@ -16,19 +19,48 @@ export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
   private bookService = inject(BookService);
   private cdr = inject(ChangeDetectorRef);
+  private schoolService = inject(SchoolService);
+  private userService = inject(UserService);
 
   currentUser: LoginResponse | null = null;
   featuredBooks: Book[] = [];
   isLoading = true;
   error: string | null = null;
   scrollIndex = 0;
+  school: School | null = null;
+  
+  tagService = inject(TagService);
+  allTags: Tag[] = [];
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
-      this.currentUser = user;
+    this.tagService.getTags().subscribe(tags => {
+      this.allTags = tags;
     });
 
-    this.bookService.getFeaturedBooks().subscribe({
+    this.authService.currentUser$.subscribe((user) => {
+      this.currentUser = user;
+
+      if (!user?.email) return;
+
+      this.userService.getUser(user.email).subscribe({
+        next: (data) => {
+          if (data.schoolName != null) {
+            this.schoolService.getByName(data.schoolName).subscribe({
+              next: (schoolData) => {
+                this.school = schoolData;
+                this.getBooks();
+              },
+            });
+          }
+        },
+      });
+    });
+  }
+
+  getBooks() {
+    if (!this.school?.id) return;
+
+    this.bookService.getFeaturedBooks(this.school.id).subscribe({
       next: (books) => {
         this.featuredBooks = books;
         this.isLoading = false;
@@ -38,6 +70,13 @@ export class HomeComponent implements OnInit {
         this.error = 'Kon uitgelichte boeken niet laden.';
         this.isLoading = false;
       },
+    });
+  }
+
+  mapTagObjects(tags: Tag[] | undefined): Tag[] {
+    return (tags ?? []).map(tag => {
+      // optioneel: vervang door object uit allTags voor volledige gegevens
+      return this.allTags.find(t => t.id === tag.id) ?? tag;
     });
   }
 

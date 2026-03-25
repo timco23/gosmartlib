@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.User;
@@ -65,13 +66,13 @@ public class UserController {
     }
 
     @GetMapping("/favorites")
-    public ResponseEntity<Item[]> getFavoriteBooks(@RequestParam String email) {
-        Item[] favoriteBooks = userService.getFavoriteBooks(email);
+    public ResponseEntity<ItemDTO[]> getFavoriteBooks(@RequestParam String email) {
+        ItemDTO[] favoriteBooks = userService.getFavoriteBooks(email);
         return ResponseEntity.ok(favoriteBooks);
     }
 
     @PostMapping("/favorites")
-    public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Integer itemId) {
+    public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Long itemId) {
         try {
             userService.addFavoriteBook(email, itemId);
             return ResponseEntity.ok("Book added to favorites");
@@ -81,7 +82,7 @@ public class UserController {
     }
 
     @DeleteMapping("/favorites")
-    public ResponseEntity<String> deleteFavoriteBook(@RequestParam String email, @RequestParam Integer itemId) {
+    public ResponseEntity<String> deleteFavoriteBook(@RequestParam String email, @RequestParam Long itemId) {
         try {
             userService.deleteFavoriteBook(email, itemId);
             return ResponseEntity.ok("Book removed from favorites");

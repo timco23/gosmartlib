@@ -1,34 +1,50 @@
-package edu.ap.spring_backend.jpa;
+    package edu.ap.spring_backend.jpa;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Setter;
+    import jakarta.persistence.*;
+    import lombok.Getter;
+    import lombok.Setter;
 
-@Getter
-@Setter
-@Entity
-public class SchoolItemCopy {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Getter
+    @Setter
+    @Entity
+    @Table(name = "school_item_copy")
+    public class SchoolItemCopy {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private int id;
 
-    private int schoolItemId;
-    private String barcode;
-    private String copy_status;
+        private String barcode;
+        private boolean featured;
 
-    @Column(name = "item_condition")
-    private String condition;
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name = "item_id")
+        private Item item;
 
-    public SchoolItemCopy() {
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name = "school_id")
+        private School school;
+
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name = "campus_id")
+        private Campus campus;
+
+        @Enumerated(EnumType.STRING)
+        private CopyStatus copy_status;
+
+        @Enumerated(EnumType.STRING)
+        @Column(name = "item_condition")
+        private ItemCondition condition;
+
+        public SchoolItemCopy() {
+        }
+
+        public SchoolItemCopy(String barcode, boolean featured, Item item, School school, Campus campus, CopyStatus copy_status, ItemCondition condition) {
+            this.barcode = barcode;
+            this.featured = featured;
+            this.item = item;
+            this.school = school;
+            this.campus = campus;
+            this.copy_status = copy_status;
+            this.condition = condition;
+        }
     }
-
-    public SchoolItemCopy(int schoolItemId, String barcode, String condition) {
-        this.schoolItemId = schoolItemId;
-        this.barcode = barcode;
-        this.condition = condition;
-    }
-}

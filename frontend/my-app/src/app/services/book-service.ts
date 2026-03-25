@@ -4,12 +4,13 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import {
   Book,
-  GlobalBook,
   CreateBookPayload,
   UpdateBookPayload,
   Page,
   Tag,
   GoogleBook,
+  SchoolItemCopy,
+  CreateSchoolItemCopyPayload,
 } from '../../types/types';
 
 @Injectable({
@@ -27,6 +28,7 @@ export class BookService {
     sortDirection: string = 'asc',
     search: string = '',
     languages: string[] = [],
+    schoolId: number,
     minPages?: number,
     maxPages?: number,
     minYear?: number,
@@ -38,7 +40,8 @@ export class BookService {
       .set('page', page)
       .set('size', size)
       .set('sortBy', sortBy)
-      .set('sortDirection', sortDirection);
+      .set('sortDirection', sortDirection)
+      .set('schoolId', schoolId);
 
     if (search) params = params.set('search', search);
     if (languages.length > 0) languages.forEach((l) => (params = params.append('languages', l)));
@@ -49,15 +52,15 @@ export class BookService {
     if (minScore !== undefined) params = params.set('minScore', minScore);
     if (tagIds && tagIds.length > 0) tagIds.forEach((id) => (params = params.append('tagIds', id)));
 
-    return this.http.get<Page<Book>>(`${this.apiBaseUrl}/books`, { params });
+    return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });
   }
 
-  getFeaturedBooks(): Observable<Book[]> {
-    return this.http.get<Book[]>(`${this.apiBaseUrl}/books/featured`);
+  getFeaturedBooks(schoolId: number): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiBaseUrl}/books/featured/${schoolId}`);
   }
 
-  getGlobalBooks(): Observable<GlobalBook[]> {
-    return this.http.get<GlobalBook[]>(`${this.apiBaseUrl}/globalBooks`);
+  getBooks(): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiBaseUrl}/books`);
   }
 
   getBookById(id: number): Observable<Book> {
@@ -72,10 +75,6 @@ export class BookService {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/search`, { params: { title: bookTitle } });
   }
 
-  getGlobalBookById(id: number): Observable<GlobalBook> {
-    return this.http.get<GlobalBook>(`${this.apiBaseUrl}/globalBooks/${id}`);
-  }
-
   addBook(newBook: CreateBookPayload): Observable<Book> {
     return this.http.post<Book>(`${this.apiBaseUrl}/books`, newBook);
   }
@@ -88,20 +87,24 @@ export class BookService {
     return this.http.delete<Book>(`${this.apiBaseUrl}/books/${id}`);
   }
 
-  loadCopies(id: number) {
-    return this.http.get<any[]>(`${this.apiBaseUrl}/books/copies/${id}`);
+  loadCopies(id: number, schoolId: number): Observable<SchoolItemCopy[]> {
+    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${id}`, { params: { schoolId: schoolId }});
   }
 
-  addCopy(copy: any) {
-    return this.http.post(`${this.apiBaseUrl}/books/copies`, copy);
+  addCopy(copy: CreateSchoolItemCopyPayload): Observable<SchoolItemCopy> {
+    return this.http.post<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies`, copy);
   }
 
-  deleteCopy(id: number) {
-    return this.http.delete(`${this.apiBaseUrl}/books/copies/${id}`);
+  deleteCopy(id: number): Observable<SchoolItemCopy> {
+    return this.http.delete<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${id}`);
   }
 
-  updateCopy(copy: any) {
-    return this.http.put(`${this.apiBaseUrl}/books/copies/${copy.id}`, copy);
+  updateCopy(copy: CreateSchoolItemCopyPayload, id: number): Observable<SchoolItemCopy> {
+    return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${id}`, copy);
+  }
+
+  getCopyByItemTitle(bookTitle: string, schoolId: number): Observable<SchoolItemCopy> {
+    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/search`, { params: { title: bookTitle, schoolId: schoolId } });
   }
 
   addToFavorites(bookId: number, email: string): Observable<any> {

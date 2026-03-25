@@ -1,6 +1,5 @@
 <body class="form-container">
   <h1>Boek toevoegen</h1>
-
   <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
     <main class="form-left">
       @if (userError) {
@@ -36,11 +35,9 @@
             >
               Haal gegevens op
             </button>
-
             @if (nothingFound) {
               <p id="warning">Geen boek met deze ISBN gevonden</p>
             }
-
             @if (missingFields.length > 0) {
               <p id="warning">
                 De volgende velden konden niet automatisch ingevuld worden, vul deze zelf in om het
@@ -48,7 +45,6 @@
                 {{ missingFields.join(', ') }}
               </p>
             }
-
             <label for="itemId">Selecteer een boek (optioneel)</label>
             <select id="itemId" (change)="loadBookDetails()" formControlName="itemId">
               <option value="0">Geen</option>
@@ -56,14 +52,12 @@
                 <option [value]="globalBook.id">{{ globalBook.title }}</option>
               }
             </select>
-
             @if (error) {
               <p id="warning">
                 Er was een probleem met het ophalen van de boekgegevens. Error bericht:
                 {{ errorMessage }}
               </p>
             }
-
             <label for="title">Titel</label>
             <input
               [readonly]="isReadOnly"
@@ -72,7 +66,6 @@
               type="text"
               formControlName="titel"
             />
-
             <label for="author">Auteur(s)</label>
             <input
               [readonly]="isReadOnly"
@@ -81,10 +74,8 @@
               type="text"
               formControlName="auteur"
             />
-
             <label for="description">Beschrijving</label>
             <textarea id="description" formControlName="beschrijving"></textarea>
-
             <label for="publisher">Uitgeverij (optioneel)</label>
             <input
               [readonly]="isReadOnly"
@@ -102,7 +93,6 @@
               type="number"
               formControlName="uitgaveJaar"
             />
-
             <label for="language">Taal</label>
             <select
               [attr.disabled]="isReadOnly ? true : null"
@@ -111,13 +101,12 @@
               formControlName="taal"
             >
               <option value="">Selecteer een taal</option>
-              <option value="nl">Nederlands</option>
-              <option value="en">Engels</option>
-              <option value="fr">Frans</option>
-              <option value="de">Duits</option>
-              <option value="other">Andere</option>
+              <option value="Nederlands">Nederlands</option>
+              <option value="Engels">Engels</option>
+              <option value="Frans">Frans</option>
+              <option value="Duits">Duits</option>
+              <option value="Andere">Andere</option>
             </select>
-
             <label for="pageCount">Aantal paginas (optioneel)</label>
             <input
               [readonly]="isReadOnly"
@@ -126,7 +115,6 @@
               type="number"
               formControlName="paginaAantal"
             />
-
             <label for="cover">Cover URL (optioneel)</label>
             <input
               [readonly]="isReadOnly"
@@ -135,7 +123,6 @@
               type="url"
               formControlName="cover"
             />
-
             <label for="reviewScore">Review score</label>
             <input
               [readonly]="isReadOnly"
@@ -144,7 +131,6 @@
               type="number"
               formControlName="reviewScore"
             />
-
             <label for="reviewCount">Aantal reviews</label>
             <input
               [readonly]="isReadOnly"
@@ -153,13 +139,34 @@
               type="number"
               formControlName="reviewCount"
             />
-
             <label>Tags</label>
             <app-tag-selection-menu
               [initialTags]="selectedTags"
               (tagsChanged)="onTagsChanged($event)"
             />
+            <label>Genres</label>
+            <app-genre-selection-menu
+              [initialGenres]="selectedGenres"
+              (tagsChanged)="onGenresChanged($event)"
+            />
 
+            <label>Subgenres</label>
+            <app-subgenre-selection-menu
+              [initialSubgenres]="selectedSubgenres"
+              [genreIds]="selectedGenres"
+              (subgenresChanged)="onSubgenresChanged($event)"
+            />
+            <label>Leesniveau</label>
+            <app-reading-level (selectedReadingLevel)="onReadingLevelChanged($event)" />
+            <label> <input type="checkbox" formControlName="isDidactic" /> Didactisch boek </label>
+
+            @if (form.get('isDidactic')?.value) {
+              <label>Didactische categorieën</label>
+              <app-didactic-category-selection-menu
+                [initialCategories]="selectedDidacticCategories"
+                (tagsChanged)="onDidacticCategoriesChanged($event)"
+              />
+            }
             <label for="campus">Selecteer een campus (optioneel)</label>
             @if (campusLoading) {
               <p>Schoolcampussen laden....</p>
@@ -175,16 +182,22 @@
                 <p>Geen schoolcampussen gevonden</p>
               }
             }
-
+            <label for="condition">Conditie exemplaar</label>
+            <select id="condition" name="condition" formControlName="condition" required>
+              <option value="NIEUW">Nieuw</option>
+              <option value="GOED">Goed</option>
+              <option value="GEBRUIKT">Gebruikt</option>
+              <option value="BESCHADIGD">Beschadigd</option>
+            </select>
+            <label for="barcode">Barcode</label>
+            <input id="barcode" type="text" formControlName="barcode" name="barcode" required />
             <div class="form-buttons">
               <button type="submit" class="primary-btn">Voeg boek toe</button>
-              <button type="button" class="secondary-btn" (click)="backToList()">Annuleren</button>
+              <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
             </div>
-
-            @if (bookAlreadyExists) {
-              <p id="warning">Er bestaat al een boek met deze titel in de database.</p>
+            @if (copyAlreadyExists) {
+              <p id="warning">Er bestaat al een exemplaar van dit book voor deze school.</p>
             }
-
             @if (incompleteForm) {
               <p id="warning">Vul alle niet optionele velden juist in.</p>
             }
@@ -192,10 +205,8 @@
         }
       }
     </main>
-
     <div class="form-right">
       <p class="preview-title">Preview van coverafbeelding</p>
-
       @if (!form.get('cover')?.value) {
         <div class="no-cover">Voer een juiste URL in</div>
       } @else {

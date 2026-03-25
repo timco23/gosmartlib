@@ -4,15 +4,20 @@ import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { GlobalBook, CreateBookPayload, LoginResponse, School, Tag } from '../../../types/types';
+import { Book, CreateBookPayload, LoginResponse, School, Tag, Genre, Subgenre, Readinglevel } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
-import { TagSelectionMenu } from '../../tag-selection-menu/tag-selection-menu';
+import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
+import { GenreSelectionMenuComponent } from "../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component";
+import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
+import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
+import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
+import { DidacticCategory } from '../../../types/types';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu],
+  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent, SubgenreSelectionMenuComponent, ReadingLevelSelectionMenuComponent, DidacticCategorySelectionMenuComponent],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
@@ -25,21 +30,29 @@ export class AddBookPage implements OnInit {
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   form: FormGroup;
-  error: boolean = false;
   isReadOnly: boolean = false;
+  isDidactic: boolean = false;
+  
+  error: boolean = false;
   errorMessage: string = "";
-  bookAlreadyExists: boolean = false;
+  copyAlreadyExists: boolean = false;
   incompleteForm: boolean = false;
   nothingFound: boolean = false;
   missingFields: string[] = [];
+  
   campusLoading: boolean = true;
   userError: boolean = false;
   schoolError: boolean = false;
   userHasNoSchoolError: boolean = false;
   schoolErrorMessage: string = "";
-  selectedTags: Tag[] = [];
 
-  globalBookList: Observable<GlobalBook[]> | null = null;
+  selectedTags: Tag[] = [];
+  selectedGenres: Genre[] = [];
+  selectedSubgenres: Subgenre[] = [];
+  selectedReadingLevel: Readinglevel | null = null;
+  selectedDidacticCategories: DidacticCategory[] = [];
+
+  globalBookList: Observable<Book[]> | null = null;
   school: School | null = null;
 
   constructor(private fb: FormBuilder) {
@@ -56,12 +69,16 @@ export class AddBookPage implements OnInit {
       cover: ['', [Validators.maxLength(255)]],
       reviewScore: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
       reviewCount: [0, [Validators.required, Validators.min(0)]],
-      campusId: ['0', [Validators.required]]
+      campusId: ['0', [Validators.required]],
+      barcode: ['', [Validators.required]],
+      condition: ['NIEUW', [Validators.required]],
+      copy_status: ['BESCHIKBAAR', [Validators.required]],
+      isDidactic: [false, [Validators.required]]
     })
   }
 
   onSubmit(): void {
-    this.bookAlreadyExists = false;
+    this.copyAlreadyExists = false;
     this.incompleteForm = false;
 
     if (this.form.invalid) {
@@ -74,6 +91,11 @@ export class AddBookPage implements OnInit {
     const newBook: CreateBookPayload = {
       schoolId: this.school!.id!,
       tags: this.selectedTags.map((t) => t.id),
+      genres: this.selectedGenres.map((g) => g.id),
+      subgenres: this.selectedSubgenres.map((s) => s.id),
+      readingLevel: this.selectedReadingLevel?.id ?? null,
+      didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
+      isDidactic: raw.isDidactic,
       description: raw.beschrijving,
       featured: false,
       itemId: parseInt(raw.itemId),
@@ -87,18 +109,21 @@ export class AddBookPage implements OnInit {
       cover: raw.cover,
       reviewScore: raw.reviewScore,
       reviewCount: raw.reviewCount,
-      campusId: parseInt(raw.campusId)
+      campusId: parseInt(raw.campusId),
+      barcode: raw.barcode,
+      copy_status: raw.copy_status,
+      condition: raw.condition
     }
 
-    this.api.getBookByTitle(newBook.title).subscribe({
+    this.api.getCopyByItemTitle(newBook.title, this.school!.id!).subscribe({
       next: (data) => {
         if (data != null) {
-          this.bookAlreadyExists = true;
+          this.copyAlreadyExists = true;
           this.cdr.detectChanges();
         }
 
-        if (!this.bookAlreadyExists) {
-          this.bookAlreadyExists = false;
+        if (!this.copyAlreadyExists) {
+          this.copyAlreadyExists = false;
           this.api.addBook(newBook).subscribe({
             next: (data) => {
               this.router.navigate(["/books", data.id])
@@ -107,8 +132,6 @@ export class AddBookPage implements OnInit {
         }
       }
     })
-
-
   }
 
   loadBookDetails() {
@@ -118,7 +141,7 @@ export class AddBookPage implements OnInit {
       this.error = false;
       this.cdr.detectChanges();
 
-      this.api.getGlobalBookById(id).subscribe({
+      this.api.getBookById(id).subscribe({
         next: (data) => {
           this.form.patchValue({
             titel: data.title,
@@ -152,7 +175,10 @@ export class AddBookPage implements OnInit {
         cover: '',
         reviewScore: 0,
         reviewCount: 0,
-        campusId: '0'
+        campusId: '0',
+        barcode: "",
+        copy_status: "BESCHIKBAAR",
+        condition: "NIEUW"
       });
       this.selectedTags = [];
       this.cdr.detectChanges();
@@ -166,6 +192,26 @@ export class AddBookPage implements OnInit {
 
   onTagsChanged(tags: Tag[]): void {
     this.selectedTags = tags;
+    this.cdr.detectChanges();
+  }
+
+  onGenresChanged(genres: Genre[]): void {
+    this.selectedGenres = [...genres];
+    this.cdr.detectChanges();
+  }
+
+  onSubgenresChanged(subgenres: Subgenre[]): void {
+    this.selectedSubgenres = subgenres;
+    this.cdr.detectChanges();
+  }
+
+  onReadingLevelChanged(level: Readinglevel | null): void {
+    this.selectedReadingLevel = level;
+  }
+
+  onDidacticCategoriesChanged(categories: DidacticCategory[]): void {
+    this.selectedDidacticCategories = [...categories];
+    this.cdr.detectChanges();
   }
 
   loadDetailsViaISBN() {
@@ -213,7 +259,7 @@ export class AddBookPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.globalBookList = this.api.getGlobalBooks();
+    this.globalBookList = this.api.getBooks();
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser?.email) {
       this.userError = true;

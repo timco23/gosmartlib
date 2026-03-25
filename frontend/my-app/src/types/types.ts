@@ -1,8 +1,3 @@
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 export interface LoginResponse {
   name: string;
   role: string;
@@ -23,7 +18,27 @@ export interface UserProfile {
 export interface Tag {
   id: number;
   name: string;
-  default: boolean;
+}
+
+export interface Genre {
+  id: number;
+  name: string;
+  subgenres?: Subgenre[];
+}
+
+export interface Subgenre {
+  id: number;
+  name: string;
+}
+
+export interface Readinglevel {
+  id: number;
+  name: string;
+}
+
+export interface DidacticCategory {
+  id: number;
+  name: string;
 }
 
 export interface School {
@@ -71,11 +86,13 @@ export interface GoogleBook {
 
 export interface Book {
   id: number;
-  schoolId: number;
-  tags: Tag[];
+    tags: Tag[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
-  featured: boolean;
-  itemId: number;
   title: string;
   publisher?: string;
   author: string;
@@ -86,14 +103,16 @@ export interface Book {
   cover?: string;
   reviewScore: number;
   reviewCount: number;
-  campusName: string;
-  campusId: number;
 }
 
 export interface UpdateBookPayload {
   tags: number[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
-  featured: boolean;
   title: string;
   publisher: string;
   author: string;
@@ -101,12 +120,17 @@ export interface UpdateBookPayload {
   language: string;
   pageCount: number;
   cover: string;
-  campusId: number;
+  isbn: string;
 }
 
 export interface CreateBookPayload {
   schoolId: number;
   tags: number[];
+  genres: number[];
+  subgenres: number[];
+  readingLevel: number | null;
+  didacticCategories: number[];
+  isDidactic: boolean;
   description: string;
   featured: boolean;
   itemId: number;
@@ -121,20 +145,9 @@ export interface CreateBookPayload {
   reviewScore: number;
   reviewCount: number;
   campusId: number;
-}
-
-export interface GlobalBook {
-  id: number;
-  title: string;
-  publisher: string;
-  author: string;
-  isbn?: string;
-  releaseYear: number;
-  language: string;
-  pageCount: number;
-  cover?: string;
-  reviewScore: number;
-  reviewCount: number;
+  barcode: string;
+  copy_status: string;
+  condition: string;
 }
 
 export interface Page<T> {
@@ -150,11 +163,28 @@ export interface Page<T> {
 }
 
 export interface SchoolItemCopy {
-  id?: number;
-  schoolItemId: number;
+  id: number;
+  itemId: number;
   condition: string;
   barcode: string;
+  featured: boolean;
   copy_status: string;
+  schoolId: number;
+  campus?: 
+    {
+      id: number,
+      name: string
+    };
+}
+
+export interface CreateSchoolItemCopyPayload {
+  itemId: number,
+  barcode: string,
+  condition: string,
+  copy_status: string,
+  featured: boolean,
+  schoolId: number,
+  campusId: number
 }
 
 export interface CarouselSlot {
@@ -168,4 +198,17 @@ export enum Role {
   LEERKRACHT,
   BEHEERDER,
   ADMIN
+}
+
+export enum CopyStatus {
+  BESCHIKBAAR,
+  UITGELEEND,
+  ONTBREKEND
+}
+
+export enum ItemCondition {
+  NIEUW,
+  GOED,
+  GEBRUIKT,
+  BESCHADIGD
 }

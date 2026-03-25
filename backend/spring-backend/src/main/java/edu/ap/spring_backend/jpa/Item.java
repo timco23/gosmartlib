@@ -5,17 +5,23 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "item")
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    
+    private Long id;
+
     @Size(max = 255)
     private String title;
 
@@ -40,116 +46,59 @@ public class Item {
 
     @Size(max = 255)
     private String cover;
-    
-    @Min(0) @Max(10)
+
+    @Min(0)
+    @Max(10)
     private double reviewScore;
 
     @Min(0)
     private int reviewCount;
+    @Column(name = "book_description", columnDefinition = "TEXT")
+    private String description;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
-    private List<SchoolItem> schoolItems;
+    // each tag is a separate row in the join table "item_id"
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "item_tag", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags = new HashSet<>();
 
-    public Item() {}
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    private List<SchoolItemCopy> copies;
 
-    public Item(String title, String publisher, String author, String isbn, int releaseYear, String bookLanguage, int pageCount, String cover, double reviewScore, int reviewCount) {
-        this.title = title;
-        this.publisher = publisher;
-        this.author = author;
-        this.isbn = isbn;
-        this.releaseYear = releaseYear;
-        this.bookLanguage = bookLanguage;
-        this.pageCount = pageCount;
-        this.cover = cover;
-        this.reviewScore = reviewScore;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "item_genre", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    private Set<Genre> genres = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "item_subgenre", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "subgenre_id"))
+    private Set<Subgenre> subgenres = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "reading_level_id")
+    private ReadingLevel readingLevel;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "item_didactic_category", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "didactic_category_id"))
+    private Set<DidacticCategory> didacticCategories = new HashSet<>();
+
+    private boolean isDidactic;
+
+    public Item() {
+    }
+
+    public Item(String description, int reviewCount, double reviewScore, String cover, int pageCount,
+            String bookLanguage, int releaseYear, String isbn, String author, String publisher, String title,
+            Set<Tag> tags) {
+        this.description = description;
         this.reviewCount = reviewCount;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getPublisher() {
-        return publisher;
-    }
-
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
-    public int getReleaseYear() {
-        return releaseYear;
-    }
-
-    public void setReleaseYear(int releaseYear) {
-        this.releaseYear = releaseYear;
-    }
-
-    public String getBookLanguage() {
-        return bookLanguage;
-    }
-
-    public void setBookLanguage(String bookLanguage) {
-        this.bookLanguage = bookLanguage;
-    }
-
-    public int getPageCount() {
-        return pageCount;
-    }
-
-    public void setPageCount(int pageCount) {
-        this.pageCount = pageCount;
-    }
-
-    public String getCover() {
-        return cover;
-    }
-
-    public void setCover(String cover) {
-        this.cover = cover;
-    }
-
-    public double getReviewScore() {
-        return reviewScore;
-    }
-
-    public void setReviewScore(double reviewScore) {
         this.reviewScore = reviewScore;
-    }
-
-    public int getReviewCount() {
-        return reviewCount;
-    }
-
-    public void setReviewCount(int reviewCount) {
-        this.reviewCount = reviewCount;
+        this.cover = cover;
+        this.pageCount = pageCount;
+        this.bookLanguage = bookLanguage;
+        this.releaseYear = releaseYear;
+        this.isbn = isbn;
+        this.author = author;
+        this.publisher = publisher;
+        this.title = title;
+        this.tags = tags;
     }
 }

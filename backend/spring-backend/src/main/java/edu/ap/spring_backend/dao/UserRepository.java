@@ -22,4 +22,28 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @return true if user exists, false otherwise
      */
     boolean existsByEmail(String email);
+
+     /**
+     * Finds a user by their Smartschool username.
+     * @param smartschoolUsername Smartschool username to search for
+     * @return Optional containing the Smartschool username if found, empty otherwise
+     */
+    Optional<User> findBySmartschoolUsername(String smartschoolUsername);
+
+    /**
+     * Checks if a Smartschool username exists.
+     * @param smartschoolUsername Smartschool username to check
+     * @return true if Smartschool username exists, false otherwise
+     */
+    boolean existsBySmartschoolUsername(String smartschoolUsername);
+
+    /**
+     * Checks if a refresh token exists.
+     * @param refreshToken Refresh token to check
+     * @return true if refresh token exists, false otherwise
+     */
+    Optional<User> findByRefreshToken(String refreshToken);
+    
+    
+    boolean existsByEmailAndIdNot(String email, Integer id);    
 }

@@ -68,6 +68,27 @@
   background-color: #333;
 }
 
+.feature-button {
+  background-color: #f1c40f;
+  color: #333;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: auto;
+  margin-top: 0;
+}
+
+.feature-button:hover {
+  background-color: #f39c12;
+}
+
+.feature-button.active {
+  background-color: #333;
+  color: white;
+}
+
 .book-detail-body {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -283,4 +304,8 @@ button:active {
 .copy-actions button {
   padding: 4px 8px;
   font-size: 13px;
+}
+
+.warning {
+  color: red;
 }
