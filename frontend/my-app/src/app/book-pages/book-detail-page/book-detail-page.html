@@ -10,10 +10,10 @@
           <div class="book-actions">
             <a class="edit-button" [routerLink]="['/books', book.id, 'edit']"> Boek wijzigen </a>
 
-            <button class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</button>
-            <button class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
+            <a class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</a>
+            <a class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
               {{ isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten' }}
-            </button>
+            </a>
           </div>
         }
       </header>
