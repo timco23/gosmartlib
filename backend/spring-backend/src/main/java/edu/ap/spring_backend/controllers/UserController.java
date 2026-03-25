@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @PostMapping("/favorites")
-    public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Integer itemId) {
+    public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Long itemId) {
         try {
             userService.addFavoriteBook(email, itemId);
             return ResponseEntity.ok("Book added to favorites");
@@ -82,7 +82,7 @@ public class UserController {
     }
 
     @DeleteMapping("/favorites")
-    public ResponseEntity<String> deleteFavoriteBook(@RequestParam String email, @RequestParam Integer itemId) {
+    public ResponseEntity<String> deleteFavoriteBook(@RequestParam String email, @RequestParam Long itemId) {
         try {
             userService.deleteFavoriteBook(email, itemId);
             return ResponseEntity.ok("Book removed from favorites");

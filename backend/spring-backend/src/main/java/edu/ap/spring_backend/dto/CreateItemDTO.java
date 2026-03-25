@@ -28,7 +28,7 @@ public record CreateItemDTO(
         @JsonProperty("reviewCount")
         int reviewCount,
         @JsonProperty("itemId")
-        int itemId,
+        Long itemId,
         @JsonProperty(value = "schoolId")
         Long schoolId,
         @JsonProperty(value = "tags")

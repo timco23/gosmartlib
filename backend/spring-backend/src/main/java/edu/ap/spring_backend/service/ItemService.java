@@ -141,7 +141,7 @@ public class ItemService {
     }
 
     // Deletes an Item from the database.
-    public ItemDTO deleteItem(int id) throws EntityNotFoundException {
+    public ItemDTO deleteItem(Long id) throws EntityNotFoundException {
         Item schoolItem = itemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         itemRepository.delete(schoolItem);
         return mapToItemDTO(schoolItem);
@@ -153,7 +153,7 @@ public class ItemService {
     }
 
     // Updates the details of an Item.
-    public ItemDTO updateItem(int id, UpdateItemDTO itemDTO) throws EntityNotFoundException {
+    public ItemDTO updateItem(Long id, UpdateItemDTO itemDTO) throws EntityNotFoundException {
     Item item = itemRepository.findById(id)
             .orElseThrow(EntityNotFoundException::new);
 
@@ -178,7 +178,7 @@ public class ItemService {
     return mapToItemDTO(item);
 }
 
-    public ItemDTO getItemById(int id) throws EntityNotFoundException {
+    public ItemDTO getItemById(Long id) throws EntityNotFoundException {
         Item item = itemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         return mapToItemDTO(item);
     }

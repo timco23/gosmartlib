@@ -6,7 +6,7 @@ import edu.ap.spring_backend.jpa.ItemCondition;
 
 public record CreateSchoolItemCopyDTO(
         @JsonProperty("itemId")
-        int itemId,
+        Long itemId,
 
         @JsonProperty("barcode")
         String barcode,

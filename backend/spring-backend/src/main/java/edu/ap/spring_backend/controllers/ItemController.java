@@ -28,7 +28,7 @@ public class ItemController {
     }
 
     @GetMapping("/books/{id}")
-    public ResponseEntity<ItemDTO> getItemById(@PathVariable int id) {
+    public ResponseEntity<ItemDTO> getItemById(@PathVariable Long id) {
         return ResponseEntity.ok(itemService.getItemById(id));
     }
 
@@ -69,18 +69,18 @@ public class ItemController {
     }
 
     @DeleteMapping("/books/{id}")
-    public ResponseEntity<ItemDTO> deleteItem(@PathVariable Integer id) {
+    public ResponseEntity<ItemDTO> deleteItem(@PathVariable Long id) {
         return ResponseEntity.ok(itemService.deleteItem(id));
     }
 
     @PutMapping("/books/{id}")
     public ResponseEntity<ItemDTO> updateItem(@RequestBody UpdateItemDTO itemDTO,
-            @PathVariable int id) {
+            @PathVariable Long id) {
         return ResponseEntity.ok(itemService.updateItem(id, itemDTO));
     }
 
     @GetMapping("/books/copies/{itemId}")
-    public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByItemIdAndSchoolId(@PathVariable int itemId, @RequestParam Long schoolId) {
+    public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByItemIdAndSchoolId(@PathVariable Long itemId, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopiesByItemIdAndSchoolId(itemId, schoolId));
     }
 

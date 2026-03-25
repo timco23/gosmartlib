@@ -27,7 +27,7 @@ public class UserService {
         return user.getFavoriteBooks().stream().map(item -> mapToItemDTO(item)).toArray(ItemDTO[]::new);
     }
 
-    public void addFavoriteBook(String email, Integer itemId) {
+    public void addFavoriteBook(String email, Long itemId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Item item = itemRepository.findById(itemId)
@@ -36,7 +36,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void deleteFavoriteBook(String email, Integer itemId) {
+    public void deleteFavoriteBook(String email, Long itemId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Item item = itemRepository.findById(itemId)

@@ -63,7 +63,7 @@ class ItemServiceTest {
                 "Test Publisher",
                 "Test Title",
                 new HashSet<>(Collections.singletonList(testTag)));
-        testItem.setId(1);
+        testItem.setId(1L);
 
         testSchool = new School();
         testSchool.setId(1L);
@@ -125,7 +125,7 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), // genres
                 List.of(), // subgenres
@@ -156,13 +156,13 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 1, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 1L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), List.of(), null, List.of(), false);
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
-        when(itemRepository.findById(1)).thenReturn(Optional.of(testItem));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
         when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
 
@@ -180,7 +180,7 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), List.of(), null, List.of(), false);
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
@@ -203,7 +203,7 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), // genres
                 List.of(), // subgenres
@@ -223,7 +223,7 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), // genres
                 List.of(), // subgenres
@@ -234,7 +234,7 @@ class ItemServiceTest {
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
-        when(itemRepository.findById(1)).thenReturn(Optional.of(testItem));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
         when(schoolRepository.findById(1L)).thenReturn(Optional.empty());
 
         // When & Then
@@ -246,10 +246,10 @@ class ItemServiceTest {
     @Test
     void givenExistingId_whenDeleteItem_thenDeleteAndReturnDTO() {
         // Given
-        when(itemRepository.findById(1)).thenReturn(Optional.of(testItem));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
 
         // When
-        ItemDTO result = itemService.deleteItem(1);
+        ItemDTO result = itemService.deleteItem(1L);
 
         // Then
         assertNotNull(result);
@@ -260,10 +260,10 @@ class ItemServiceTest {
     @Test
     void givenNonExistingId_whenDeleteItem_thenThrowEntityNotFoundException() {
         // Given
-        when(itemRepository.findById(1)).thenReturn(Optional.empty());
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(EntityNotFoundException.class, () -> itemService.deleteItem(1));
+        assertThrows(EntityNotFoundException.class, () -> itemService.deleteItem(1L));
     }
 
     // ---------------- getAllItems ----------------
@@ -303,11 +303,11 @@ class ItemServiceTest {
                 null,
                 List.of(),
                 false);
-        when(itemRepository.findById(1)).thenReturn(Optional.of(testItem));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
         when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
 
         // When
-        ItemDTO result = itemService.updateItem(1, dto);
+        ItemDTO result = itemService.updateItem(1L, dto);
 
         // Then
         assertNotNull(result);
@@ -336,10 +336,10 @@ class ItemServiceTest {
                 List.of(),
                 false
         );
-        when(itemRepository.findById(1)).thenReturn(Optional.empty());
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1, dto));
+        assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, dto));
     }
 
     // ---------------- getItemById ----------------
@@ -347,10 +347,10 @@ class ItemServiceTest {
     @Test
     void givenExistingId_whenGetItemById_thenReturnDTO() {
         // Given
-        when(itemRepository.findById(1)).thenReturn(Optional.of(testItem));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
 
         // When
-        ItemDTO result = itemService.getItemById(1);
+        ItemDTO result = itemService.getItemById(1L);
 
         // Then
         assertNotNull(result);
@@ -360,10 +360,10 @@ class ItemServiceTest {
     @Test
     void givenNonExistingId_whenGetItemById_thenThrowEntityNotFoundException() {
         // Given
-        when(itemRepository.findById(1)).thenReturn(Optional.empty());
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(EntityNotFoundException.class, () -> itemService.getItemById(1));
+        assertThrows(EntityNotFoundException.class, () -> itemService.getItemById(1L));
     }
 
     // ---------------- getItemByTitle ----------------

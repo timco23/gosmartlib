@@ -10,7 +10,7 @@ public record SchoolItemCopyDTO(
         int id,
 
         @JsonProperty("itemId")
-        int itemId,
+        Long itemId,
 
         @JsonProperty("barcode")
         String barcode,

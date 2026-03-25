@@ -30,7 +30,7 @@ public class SchoolItemCopyService {
         this.campusRepository = campusRepository;
     }
 
-    public List<SchoolItemCopyDTO> getCopiesByItemIdAndSchoolId(int itemId, Long schoolId) {
+    public List<SchoolItemCopyDTO> getCopiesByItemIdAndSchoolId(Long itemId, Long schoolId) {
         return schoolItemCopyRepository.findByItemIdAndSchoolId(itemId, schoolId)
                 .stream()
                 .map((copy) -> mapToDTO(copy)).toList();

@@ -6,7 +6,7 @@ import java.util.List;
 
 public record ItemDTO(
         @JsonProperty("id")
-        int id,
+        Long id,
         @JsonProperty("title")
         String title,
         @JsonProperty("publisher")
