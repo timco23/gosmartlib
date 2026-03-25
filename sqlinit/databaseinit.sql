@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS campus (
 -- Replace ReviewScore and ReviewCount later on with generated columns that calculate these values based on the SchoolItems that use this id
 create table if not exists item 
 (
-	id int primary key not null auto_increment,
+	id BIGINT primary key not null auto_increment,
 	title varchar(255) not null,
 	publisher varchar(100) null,
 	author varchar(255) not null,
@@ -86,15 +86,6 @@ CREATE TABLE IF NOT EXISTS user (
 INSERT INTO user (name, email, password, role, school_id, smartschool_username, refresh_token) 
 VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', 1, 'admin', NULL);
 
-
--- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
--- CREATE TABLE IF NOT EXISTS tag (
---     id BIGINT AUTO_INCREMENT PRIMARY KEY,
---     name VARCHAR(255) NOT NULL UNIQUE,
---     is_default BOOLEAN NOT NULL DEFAULT FALSE
--- );
-
-
 -- Testbooks
 insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count,book_description) values
 ('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9082410613-M.jpg',4.2,1250,'Een aangrijpende roman over trauma en jeugd.'),
@@ -119,28 +110,10 @@ insert into item(title,publisher,author,isbn,release_year,book_language,page_cou
 ('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',4.8,154320,'Een jongen ontdekt dat hij een tovenaar is.'),
 ('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',4.3,67891,'Een liefdesverhaal tussen twee zieke tieners.');
 
-
--- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
--- Koppeltabel die de school_item en tag tabellen nodig hebben voor de FK's
--- CREATE TABLE IF NOT EXISTS school_item_tag (
---     school_item_id INT UNSIGNED NOT NULL,
---     tag_id BIGINT NOT NULL,
---     PRIMARY KEY (school_item_id, tag_id),
---     FOREIGN KEY (school_item_id) REFERENCES school_item(id) ON DELETE CASCADE,
---     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
--- );
-
--- REMOVE AFTER TESTING ----------------------------------------------------------------------------------------------------------
--- Koppel de 'Algemeen' tag aan alle school items
--- INSERT INTO school_item_tag (school_item_id, tag_id)
--- SELECT si.id, t.id
--- FROM school_item si, tag t
--- WHERE t.name = 'Algemeen';
-
 -- table for the physical copies of a school item, with unique barcode and status
 CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    item_id INT not null,
+    item_id BIGINT not null,
     school_id bigint not null,
     barcode VARCHAR(255),
     copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND'),
