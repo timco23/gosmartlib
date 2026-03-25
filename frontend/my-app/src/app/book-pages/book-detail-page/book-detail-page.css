@@ -17,6 +17,7 @@
 .book-detail-card {
   background: #f0efe4;
   border-radius: 10px;
+  border: 1px solid #8c1b3f;
   padding: 30px;
   margin-top: 15px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
@@ -81,7 +82,7 @@
 }
 
 .feature-button:hover {
-  background-color: #f39c12;
+  background-color: #c2e569;
 }
 
 .feature-button.active {
@@ -193,7 +194,15 @@ select {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
-  background: white;
+  background: #f0efe4;
+}
+
+.copies-table tbody tr {
+  background-color: white;
+}
+
+.copies-table tbody tr:hover {
+  background-color: #f0efe4;
 }
 
 .copies-table thead {

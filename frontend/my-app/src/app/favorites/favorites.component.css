@@ -8,6 +8,7 @@ main {
 .books-card {
   background: white;
   border-radius: 0.625rem;
+  border: 1px solid #8c1b3f;
   padding: 1.5625rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }

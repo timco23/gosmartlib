@@ -17,7 +17,7 @@
     <div class="user-menu">
       <div class="user-info" (click)="toggleDropdown()">
         <strong>{{ currentUser?.name }}</strong> ({{ currentUser?.role }})
-        <span class="dropdown-arrow">▼</span>
+        <span class="dropdown-arrow" [class.open]="dropdownOpen">▼</span>
       </div>
 
       @if (dropdownOpen) {
@@ -32,9 +32,7 @@
   </div>
 }
 
-<div class="content">
-  <router-outlet></router-outlet>
-</div>
+<router-outlet></router-outlet>
 
 <footer class="footer">
   <div class="footer__widgets">

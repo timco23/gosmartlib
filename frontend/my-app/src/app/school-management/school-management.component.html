@@ -175,14 +175,16 @@
           <button type="button" class="cancel-button" (click)="cancelForm()">Annuleren</button>
           <button type="submit">Opslaan</button>
         </div>
-        <button
-          type="button"
-          class="DeleteButton"
-          style="width: 100%; margin-top: 8px"
-          (click)="confirmDelete()"
-        >
-          School verwijderen
-        </button>
+        @if (editingSchool) {
+          <button
+            type="button"
+            class="DeleteButton"
+            style="width: 100%; margin-top: 8px"
+            (click)="confirmDelete()"
+          >
+            School verwijderen
+          </button>
+        }
       </form>
     </div>
   }

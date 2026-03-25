@@ -22,7 +22,7 @@
 .filter-row input:focus {
   outline: none;
   border-color: #6f1532;
-  box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
+  box-shadow: 0 0 3px rgba(140, 27, 63, 0.4);
 }
 
 /* Tag count */
@@ -68,7 +68,7 @@
 .tag-item input[type='checkbox'] {
   width: 15px;
   height: 15px;
-  accent-color: #6f1532;
+  accent-color: #8c1b3f;
   cursor: pointer;
 }
 

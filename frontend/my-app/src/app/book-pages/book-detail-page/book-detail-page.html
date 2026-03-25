@@ -129,37 +129,38 @@
         @if (copies.length > 0) {
           <table class="copies-table">
             @if (!editingCopyId) {
-              <div>
-                <thead>
-                  <tr>
-                    <th>Conditie</th>
-                    <th>Status</th>
-                    <th>Barcode</th>
-                    <th>Campus</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  @for (copy of copies; track copy.id) {
-                    <tr>
-                      <td>{{ copy.condition }}</td>
-                      <td>{{ copy.copy_status }}</td>
-                      <td>{{ copy.barcode }}</td>
-                      <td>{{ copy.campus ? copy.campus.name : 'Geen' }}</td>
-                      @if (authService.atLeastHasRole(role.BEHEERDER)) {
-                        <td class="copy-actions">
-                          <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
-                            Verwijderen
-                          </button>
-                          <button type="button" class="EditButton" (click)="startEdit(copy)">
-                            Wijzigen
-                          </button>
-                        </td>
-                      }
-                    </tr>
+              <thead>
+                <tr>
+                  <th>Conditie</th>
+                  <th>Status</th>
+                  <th>Barcode</th>
+                  <th>Campus</th>
+                  @if (authService.atLeastHasRole(role.BEHEERDER)) {
+                    <th></th>
                   }
-                </tbody>
-              </div>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (copy of copies; track copy.id) {
+                  <tr>
+                    <td>{{ copy.condition }}</td>
+                    <td>{{ copy.copy_status }}</td>
+                    <td>{{ copy.barcode }}</td>
+                    <td>{{ copy.campus ? copy.campus.name : 'Geen' }}</td>
+                    @if (authService.atLeastHasRole(role.BEHEERDER)) {
+                      <td class="copy-actions">
+                        <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
+                          Verwijderen
+                        </button>
+                        <button type="button" class="EditButton" (click)="startEdit(copy)">
+                          Wijzigen
+                        </button>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
             } @else {
               <div>
                 <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
@@ -255,16 +256,6 @@
                         <option value="ONTBREKEND">Ontbrekend</option>
                     </select>
                     </div> -->
-
-              <label for="campus">Selecteer een campus (optioneel)</label>
-              @if (school?.campuses!.length > 0) {
-                <select id="campus" [(ngModel)]="newCopy.campusId">
-                  <option value="0">Geen</option>
-                  @for (campus of school?.campuses; track $index) {
-                    <option [value]="campus.id">{{ campus.name }}</option>
-                  }
-                </select>
-              }
 
               <label for="campus">Selecteer een campus (optioneel)</label>
               @if (school?.campuses!.length > 0) {

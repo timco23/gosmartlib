@@ -62,15 +62,9 @@ h1 {
 }
 
 .browse-link {
-  font-size: 0.875rem;
-  color: #8c1b3f;
   text-decoration: none;
+  color: black;
   font-weight: 500;
-  padding: 0.4rem 0.9rem;
-  border-radius: 6px;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
 }
 
 .browse-link:hover {
@@ -103,6 +97,7 @@ h1 {
   max-width: 44rem;
   background: #f0efe4;
   border-radius: 10px;
+  border: 1px solid #8c1b3f;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;

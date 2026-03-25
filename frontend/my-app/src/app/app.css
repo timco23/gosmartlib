@@ -1,3 +1,9 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -52,7 +58,7 @@
   position: relative;
 }
 
-.user-trigger {
+.user-info {
   color: #000000;
   padding: 10px 16px;
   cursor: pointer;
@@ -68,7 +74,7 @@
   gap: 8px;
 }
 
-.user-trigger:hover {
+.user-info:hover {
   color: #8c1b3f;
   background: #eedcdc;
 }
@@ -78,7 +84,7 @@
   transition: transform 0.2s ease;
 }
 
-.user-menu:hover .dropdown-arrow {
+.dropdown-arrow.open {
   transform: rotate(180deg);
 }
 
@@ -117,13 +123,13 @@
   background: #eedcdc;
 }
 
-.dropdown-item--logout {
+.btn-logout {
   color: #8c1b3f;
   font-weight: 500;
   border-top: 1px solid #e1e8ed;
 }
 
-.dropdown-item--logout:hover {
+.btn-logout:hover {
   color: #8c1b3f;
   background: #eedcdc;
 }
