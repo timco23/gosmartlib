@@ -27,7 +27,7 @@ public class GenreService {
                         genre.getName(),
                         subgenreRepository.findAllByGenreId(genre.getId())
                                 .stream()
-                                .map(s -> new SubgenreDTO(s.getId(), s.getName()))
+                                .map(s -> new SubgenreDTO(s.getId(), s.getName(), s.getGenre().getId()))
                                 .toList()))
                 .toList();
     }
@@ -44,5 +44,9 @@ public class GenreService {
 
     public void deleteGenre(Long id) {
         genreRepository.deleteById(id);
+    }
+
+    public Genre getById(Long id) {
+        return genreRepository.findById(id).orElseThrow();
     }
 }

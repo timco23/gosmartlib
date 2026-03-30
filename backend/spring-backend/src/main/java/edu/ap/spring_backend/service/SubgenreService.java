@@ -12,9 +12,11 @@ import edu.ap.spring_backend.jpa.Subgenre;
 public class SubgenreService {
 
     private final SubgenreRepository subgenreRepository;
+    private final GenreService genreService;
 
-    public SubgenreService(SubgenreRepository subgenreRepository) {
+    public SubgenreService(SubgenreRepository subgenreRepository, GenreService genreService) {
         this.subgenreRepository = subgenreRepository;
+        this.genreService = genreService;
     }
 
     public List<Subgenre> GetAll() {
@@ -27,6 +29,7 @@ public class SubgenreService {
         }
         Subgenre subgenre = new Subgenre();
         subgenre.setName(newSubgenre.name());
+        subgenre.setGenre(genreService.getById(newSubgenre.genreId()));
         return subgenreRepository.save(subgenre);
     }
 
