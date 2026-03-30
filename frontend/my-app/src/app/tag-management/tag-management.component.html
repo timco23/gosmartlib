@@ -25,6 +25,27 @@
   <button (click)="addItem()">Toevoegen</button>
 </div>
 
+@if(selectedType() === "genres") {
+  <div class="add-row">
+    <select
+      [ngModel]="selectedParentGenreId()"
+      (ngModelChange)="selectedParentGenreId.set($event)"
+    >
+      <option [value]="null" disabled>Kies een genre...</option>
+      @for (genre of currentList(); track genre.id) {
+        <option [value]="genre.id">{{ genre.name }}</option>
+      }
+    </select>
+    <input
+      [ngModel]="newSubgenreName()"
+      (ngModelChange)="newSubgenreName.set($event)"
+      placeholder="Nieuw subgenre..."
+      (keyup.enter)="addSubgenre()"
+    />
+    <button (click)="addSubgenre()">Toevoegen</button>
+  </div>
+}
+
 @if (addErrorMessage()) {
   <p class="error">{{ addErrorMessage() }}</p>
 }

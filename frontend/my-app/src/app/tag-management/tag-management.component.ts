@@ -32,6 +32,9 @@ export class TagManagement {
 
   selectedType = signal<'tags' | 'genres' | 'didacticCategories'>('tags');
 
+  selectedParentGenreId = signal<string | null>(null);
+  newSubgenreName = signal<string>('');
+
   //case-insensitive keyword filtering
   filteredTags = computed(() => {
     const filter = this.filterInput().toLowerCase();
@@ -119,6 +122,29 @@ export class TagManagement {
         error: (err) => { if (err.status === 409) this.addErrorMessage.set('Bestaat al.'); }
       });
     }
+  }
+
+  addSubgenre() {
+    const parentId = this.selectedParentGenreId();
+    const name = this.newSubgenreName().trim();
+
+    if (!parentId || !name) return;
+      this.subgenreService.addSubgenre(name, +parentId).subscribe({
+        next: (subgenre) => {
+          this.genres.update(genres =>
+            genres.map(g =>
+              g.id === +parentId
+                ? { ...g, subgenres: [...(g.subgenres ?? []), subgenre] }
+                : g
+            )
+          );
+          this.newSubgenreName.set('');
+        },
+        error: (err) => {
+          if (err.status === 409) this.addErrorMessage.set('Bestaat al.');
+        }
+      });
+      this.newSubgenreName.set('');
   }
 
   deleteItem(id: number) {

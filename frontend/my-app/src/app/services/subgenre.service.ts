@@ -17,7 +17,7 @@ export class SubgenreService {
   }
 
   addSubgenre(name: string, genreId: number): Observable<Subgenre> {
-    return this.http.post<Subgenre>(this.apiUrl, { name });
+    return this.http.post<Subgenre>(this.apiUrl, { name, genreId });
   }
 
   updateSubgenre(id: number, name: string): Observable<Subgenre> {
