@@ -28,6 +28,7 @@
 @if(selectedType() === "genres") {
   <div class="add-row">
     <select
+      class="addSubgenre"
       [ngModel]="selectedParentGenreId()"
       (ngModelChange)="selectedParentGenreId.set($event)"
     >
