@@ -46,10 +46,9 @@ public class Lending {
     public Lending() {
     }
     
-    public Lending(User borrower, SchoolItemCopy book, LocalDate lendingDate, LocalDate returnDate, Boolean returned,
-        LocalDate dateReturned) {
-            this.borrower = borrower;
-            this.book = book;
+    public Lending(User borrower, SchoolItemCopy book, LocalDate lendingDate, LocalDate returnDate, Boolean returned, LocalDate dateReturned) {
+        this.borrower = borrower;
+        this.book = book;
         this.lendingDate = lendingDate;
         this.returnDate = returnDate;
         this.returned = returned;
