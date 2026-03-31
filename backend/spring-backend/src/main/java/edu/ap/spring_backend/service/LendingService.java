@@ -20,10 +20,10 @@ public class LendingService {
         return lendingRepository.findAll().stream()
             .map(lending -> new LendingDTO(
                 lending.getId(),
-                lending.getBorrower().getFirstName(),
+                lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
                 lending.getBook().getItem().getTitle(),
                 lending.getBook().getItem().getAuthor(),
-                lending.getSchool().getName(),
+                lending.getSchool().getId(),
                 lending.getLendingDate().toString(),
                 lending.getReturnDate().toString(),
                 lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,
@@ -55,10 +55,10 @@ public class LendingService {
         return lendingRepository.findById(id)
             .map(lending -> new LendingDTO(
                 lending.getId(),
-                lending.getBorrower().getFirstName(),
+                lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
                 lending.getBook().getItem().getTitle(),
                 lending.getBook().getItem().getAuthor(),
-                lending.getSchool().getName(),
+                lending.getSchool().getId(),
                 lending.getLendingDate().toString(),
                 lending.getReturnDate().toString(),
                 lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,

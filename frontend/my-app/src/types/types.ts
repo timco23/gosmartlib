@@ -193,6 +193,18 @@ export interface CarouselSlot {
   position: 'left-2' | 'left-1' | 'center' | 'right-1' | 'right-2';
 }
 
+export interface Lending {
+  id: number;
+  borrowerName: string;
+  bookTitle: string;
+  bookAuthor: string;
+  schoolId: number;
+  lendingDate: string;
+  returnDate: string;
+  dateReturned: string | null;
+  returned: boolean;
+}
+
 export enum Role {
   LEERLING,
   LEERKRACHT,
