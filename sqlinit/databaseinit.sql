@@ -292,3 +292,19 @@ INSERT INTO didactic_category (name) VALUES
 ('Didactische handboeken'),
 ('Evaluatiemateriaal'),
 ('Naslagwerken');
+
+CREATE TABLE IF NOT EXISTS reading_list (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    list_description TEXT NULL,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS reading_list_item (
+	reading_list_id BIGINT,
+    item_id BIGINT NOT NULL,
+    PRIMARY KEY (reading_list_id, item_id),
+    FOREIGN KEY (reading_list_id) REFERENCES reading_list(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
+);

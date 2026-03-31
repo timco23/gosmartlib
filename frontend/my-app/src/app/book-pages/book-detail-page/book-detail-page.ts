@@ -108,7 +108,6 @@ export class BookDetailPage implements OnInit {
           next: (favorites) => {
             this.favorites = favorites;
             this.checkIfFavorite();
-            console.log(favorites)
             this.cdr.detectChanges();
           },
         });
