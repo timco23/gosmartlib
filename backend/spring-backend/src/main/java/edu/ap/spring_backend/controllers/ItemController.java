@@ -3,7 +3,6 @@ package edu.ap.spring_backend.controllers;
 import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.service.ItemService;
 import jakarta.validation.constraints.*;
-import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

@@ -1,120 +1,124 @@
 .form-container {
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 20px;
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
 }
 
 .book-form {
-    display: flex;
-    gap: 40px;
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  gap: 40px;
+  background-color: #f0efe4;
+  padding: 30px;
+  border-radius: 10px;
+  border: 1px solid #8c1b3f;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
 .form-left {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .form-right {
-    flex: 1;
-    text-align: center;
+  flex: 1;
+  text-align: center;
+}
+h1 {
+  color: #8c1b3f;
 }
 
 label {
-    font-weight: 600;
-    margin-top: 8px;
+  font-weight: 600;
+  margin-top: 8px;
 }
 
 input,
 select,
 textarea {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
 }
 
 textarea {
-    min-height: 100px;
-    resize: vertical;
+  min-height: 100px;
+  resize: vertical;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-    outline: none;
-    border-color: #d6822b;
-    box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
+  outline: none;
+  border-color: #d6822b;
+  box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
 }
 
 .form-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .primary-btn {
-    background: #d6822b;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
+  background: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
 }
 
 .primary-btn.readOnly {
-    background-color: lightgray;
+  background-color: lightgray;
 }
 
 .primary-btn.readOnly:hover {
-    background-color: lightgray;
+  background-color: lightgray;
 }
 
 .primary-btn:hover {
-    background: #b86c20;
+  background: #8c1b3f;
 }
 
 .secondary-btn {
-    background: #333;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .secondary-btn:hover {
-    background: black;
+  background: black;
 }
 
 .preview-title {
-    font-weight: 600;
-    margin-bottom: 10px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .form-right img {
-    max-width: 220px;
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  max-width: 220px;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .no-cover {
-    padding: 40px;
-    background: #f2f2f2;
-    border-radius: 8px;
-    color: #777;
+  padding: 40px;
+  background: #f2f2f2;
+  border-radius: 8px;
+  color: #777;
 }
 
 #warning {
-    color: red;
+  color: red;
 }
 
 .readOnly {
-    background-color: lightgray;
+  background-color: lightgray;
 }
