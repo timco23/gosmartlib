@@ -14,7 +14,8 @@ import edu.ap.spring_backend.service.LendingService;
 @RestController
 @RequestMapping("/lendings")
 public class LendingController {
-    public LendingService lendingService;
+
+    private LendingService lendingService;
 
     public LendingController(LendingService lendingService) {
         this.lendingService = lendingService;
@@ -26,7 +27,7 @@ public class LendingController {
     }
 
     @GetMapping("/{id}")
-    public Object getLendingById(Long id) {
+    public Object getLendingById(@PathVariable Long id) {
         return lendingService.getById(id);
     }
 
