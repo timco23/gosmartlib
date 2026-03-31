@@ -1,1 +1,23 @@
-component
+<body class="lendings-container">
+    <header class="lendings-header">
+        <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+    
+        <div class="header-actions">
+        <h2>Uitleningen</h2>
+        </div>
+    </header>
+    
+    @for (lending of lendings; track lending.id) {
+        <div class="lending-card">
+            <h3>{{ lending.bookTitle }}</h3>
+            <p>Uitgeleend aan: {{ lending.borrowerName }}</p>
+            <p>Uitgeleend op: {{ lending.bookTitle }}</p>
+            <p>Terug te brengen op: {{ lending.bookAuthor }}</p>
+            <p>Uitgeleend op: {{ lending.lendingDate }}</p>
+            <p>Terug te brengen op: {{ lending.returnDate }}</p>
+        </div>
+    }
+    <div class="lendings-content">
+        <p>Hier komen alle uitleningen te staan.</p>
+    </div>
+</body>
