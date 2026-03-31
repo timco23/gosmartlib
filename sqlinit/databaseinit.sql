@@ -309,17 +309,17 @@ CREATE TABLE IF NOT EXISTS lending (
 );
 
 INSERT INTO lending (borrower_id, book_id, school_id, lending_date, return_date, returned, date_returned) VALUES
--- Actieve uitleningen (nog niet teruggebracht)
+-- Active lendings (not returned yet)
 (1, 1, 1, '2026-03-01', '2026-03-15', FALSE, NULL),
 (1, 2, 1, '2026-03-05', '2026-03-19', FALSE, NULL),
 (1, 3, 1, '2026-03-10', '2026-03-24', FALSE, NULL),
 
--- Teruggebrachte uitleningen
+-- Returned on time
 (1, 4, 1, '2026-02-01', '2026-02-15', TRUE, '2026-02-14'),
 (1, 5, 1, '2026-02-10', '2026-02-24', TRUE, '2026-02-20'),
 
--- Te laat teruggebracht
+-- Returned late
 (1, 6, 1, '2026-01-01', '2026-01-15', TRUE, '2026-01-20'),
 
--- Nog niet teruggebracht en over tijd
+-- Not returned and overdue
 (1, 7, 1, '2026-02-01', '2026-02-15', FALSE, NULL);
