@@ -298,10 +298,12 @@ CREATE TABLE IF NOT EXISTS lending (
     id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     borrower_id INT NOT NULL,
     book_id INT NOT NULL,
+    school_id BIGINT NOT NULL,
     lending_date DATE NOT NULL,
     return_date DATE,
     returned BOOLEAN DEFAULT FALSE,
     date_returned DATE,
     FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE RESTRICT,
-    FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT
+    FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
+    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
