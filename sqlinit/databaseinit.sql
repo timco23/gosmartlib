@@ -292,3 +292,16 @@ INSERT INTO didactic_category (name) VALUES
 ('Didactische handboeken'),
 ('Evaluatiemateriaal'),
 ('Naslagwerken');
+
+-- uitleningen van schoolitems aan gebruikers, met datum van uitlening en terugkeer, en status of het item is teruggebracht of niet
+CREATE TABLE IF NOT EXISTS lending (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    borrower_id INT NOT NULL,
+    book_id INT NOT NULL,
+    lending_date DATE NOT NULL,
+    return_date DATE,
+    returned BOOLEAN DEFAULT FALSE,
+    date_returned DATE,
+    FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE RESTRICT,
+    FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT
+);
