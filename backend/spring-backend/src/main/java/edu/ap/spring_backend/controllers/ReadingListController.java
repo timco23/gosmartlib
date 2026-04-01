@@ -32,7 +32,7 @@ public class ReadingListController {
     }
 
     @GetMapping("/exists/{itemId}")
-    public ResponseEntity<Boolean> existsByItemid(@PathVariable Long itemId) {
+    public ResponseEntity<Boolean> existsByItemId(@PathVariable Long itemId) {
         return ResponseEntity.ok(readingListService.isItemInAnyReadingList(itemId));
     }
 
