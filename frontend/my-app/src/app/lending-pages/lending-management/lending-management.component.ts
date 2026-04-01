@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { Lending } from '../../types/types';
-import { LendingService } from '../services/lending.service';
+import { Lending } from '../../../types/types';
+import { LendingService } from '../../services/lending.service';
 import { RouterLink } from '@angular/router';
 
 @Component({

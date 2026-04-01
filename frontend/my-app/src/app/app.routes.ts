@@ -11,7 +11,8 @@ import { SchoolManagementComponent } from './school-management/school-management
 import { TagManagement } from './tag-management/tag-management.component';
 import { FavoritesComponent } from './favorites/favorites.component';
 import { OauthCallback } from './oauth-callback/oauth-callback';
-import { LendingManagementComponent } from './lending-management/lending-management.component';
+import { LendingManagementComponent } from './lending-pages/lending-management/lending-management.component';
+import { LendBookComponent } from './lending-pages/lend-book/lend-book.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,5 +29,6 @@ export const routes: Routes = [
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: 'tags', component: TagManagement, canActivate: [authGuard] },
   { path: 'lendings', component: LendingManagementComponent, canActivate: [authGuard] },
+  { path: 'lendings/lend', component: LendBookComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' },
 ];
