@@ -3,12 +3,12 @@
     <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
     <div class="header-actions">
       <h2>Uitleningen</h2>
+      <a class="add-button" [routerLink]="['/home']">Boek uitlenen</a>
     </div>
   </header>
 
   <div class="lendings-card">
     <h3>Huidige uitleningen</h3>
-
     <ul class="lending-list">
       @for (lending of lendings; track lending.id) {
         <li class="lending-item">
