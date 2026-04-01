@@ -72,11 +72,16 @@ public class ItemController {
         return ResponseEntity.ok(itemService.addItem(itemDTO));
     }
 
-    @PostMapping("/books/import")
-    public ResponseEntity<CsvImportDTO> importBooks(
+    @PostMapping("/books/import/preview")
+    public ResponseEntity<CsvPreviewDTO> previewImport(
             @RequestParam("file") MultipartFile file,
             @RequestParam Long schoolId) {
-        return ResponseEntity.ok(bookCsvImportService.importBooks(file, schoolId));
+        return ResponseEntity.ok(bookCsvImportService.previewImport(file, schoolId));
+    }
+
+    @PostMapping("/books/import/confirm")
+    public ResponseEntity<CsvImportDTO> confirmImport(@RequestBody CsvConfirmDTO dto) {
+        return ResponseEntity.ok(bookCsvImportService.confirmImport(dto));
     }
 
     @DeleteMapping("/books/{id}")

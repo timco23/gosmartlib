@@ -7,7 +7,9 @@ import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.BookImportRow;
+import edu.ap.spring_backend.dto.CsvConfirmDTO;
 import edu.ap.spring_backend.dto.CsvImportDTO;
+import edu.ap.spring_backend.dto.CsvPreviewDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.*;
 import org.apache.commons.csv.CSVFormat;
@@ -30,17 +32,20 @@ import java.util.*;
  * Service responsible for bulk-importing books from a semicolon-delimited CSV file.
  * The expected CSV columns are:
  * Titel;Auteur;ISBN;Exemplaar_aantal;Conditie_nieuw;Conditie_goed;Conditie_gebruikt;Conditie_beschadigd;Campus;Taal;Beschrijving
+ *
  * Import follows a two-phase approach:
- *   Validation phase
+ *   Preview phase (previewImport):
+ *       Parses and validates all rows
  *       All errors are collected and returned together
- *       a single error aborts the entire import
- *   Import phase
- *       For each row the service attempts to reuse an existing Item matched by title.
+ *       Returns the parsed rows so the caller can optionally enrich them
+ *   Confirm phase (confirmImport):
+ *       Accepts the rows and adds them to the db
+ *       For each row the service attempts to reuse an existing Item matched by title
  *       If no match is found and an ISBN is present, it calls the Google Books API to autofill
- *       optional metadata (publisher, description, page count, release year, cover).
- *       Any fields still empty after both recovery steps receive a default value.
+ *       optional metadata (publisher, description, page count, release year, cover)
+ *       Any fields still empty after both recovery steps receive the default value
  *       One SchoolItemCopy is created per requested copy, distributed across the
- *       supplied condition counts, remaining copies receive condition ONGEDEFINIEERD
+ *       given condition counts; remaining copies receive condition ONGEDEFINIEERD
  */
 @Service
 public class BookCsvImportService {
@@ -69,21 +74,20 @@ public class BookCsvImportService {
     }
 
     /**
-     * Parses, validates, and imports books from the given CSV file into the specified school
-     * If any validation error is found the method returns immediately with an errors list and an empty importedTitles list
-     * On success, errors is empty and importedTitles lists every imported title
+     * Validates the CSV file without writing anything to the db
+     * If any validation error is found the returned DTO contains the error list and an empty rows list
+     * On success, error list is empty and rows contains one entry per CSV row
      *
      * @param file     the uploaded semicolon-delimited CSV file
-     * @param schoolId the ID of the school whose catalogue receives the imported copies
-     * @return a CsvImportDTO containing either validation errors or the imported titles
+     * @param schoolId the ID of the school whose catalogue the rows will be imported into
+     * @return a CsvPreviewDTO containing either validation errors or the parsed rows
      */
-    @Transactional
-    public CsvImportDTO importBooks(MultipartFile file, Long schoolId) {
+    public CsvPreviewDTO previewImport(MultipartFile file, Long schoolId) {
         School school = schoolRepository.findById(schoolId).orElseThrow(EntityNotFoundException::new);
 
         List<String> errors = new ArrayList<>();
         List<BookImportRow> rows = new ArrayList<>();
-        Set<String> seenTitles = new HashSet<>();
+        Set<String> seenKeys = new HashSet<>();
 
         try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
                 CSVParser parser = CSVFormat.DEFAULT.builder()
@@ -137,7 +141,7 @@ public class BookCsvImportService {
                     errors.add("Rij " + rowNum + ": 'ISBN' moet exact 13 cijfers bevatten.");
                 }
 
-                // copy amount
+                // Copy amount
                 int copies = 1;
                 if (!copiesStr.isEmpty()) {
                     try {
@@ -167,9 +171,10 @@ public class BookCsvImportService {
                     errors.add("Rij " + rowNum + ": campus '" + campus + "' niet gevonden voor deze school.");
                 }
 
-                // Duplicate within file
-                if (!title.isEmpty() && !seenTitles.add(title.toLowerCase())) {
-                    errors.add("Rij " + rowNum + ": '" + title + "' komt meerdere keren voor in het bestand.");
+                // Duplicate within the same file: same title + campus combination
+                String duplicateKey = title.toLowerCase() + "|" + campus;
+                if (!title.isEmpty() && !seenKeys.add(duplicateKey)) {
+                    errors.add("Rij " + rowNum + ": titel + campus komt meerdere keren voor in het bestand.");
                 }
 
                 rows.add(new BookImportRow(rowNum, title, author, isbn,
@@ -177,30 +182,43 @@ public class BookCsvImportService {
             }
 
         } catch (Exception e) {
-            return new CsvImportDTO(
+            return new CsvPreviewDTO(
                     List.of("Fout bij verwerken van CSV-bestand: " + e.getMessage()), List.of());
         }
 
         if (!errors.isEmpty()) {
-            return new CsvImportDTO(errors, List.of());
+            return new CsvPreviewDTO(errors, List.of());
         }
 
-        // All rows valid, start import
-        List<String> importedTitles = new ArrayList<>();
+        return new CsvPreviewDTO(List.of(), rows);
+    }
 
-        for (BookImportRow row : rows) {
+    /**
+     * Adds a list of already-validated book import rows to the db
+     * For each row the service reuses an existing Item (matched by title) or creates a new one,
+     * then creates the requested number of SchoolItemCopy records
+     *
+     * @param dto contains the schoolId and the list of rows to import
+     * @return a CsvImportDTO with the count of imported books and copies
+     */
+    @Transactional
+    public CsvImportDTO confirmImport(CsvConfirmDTO dto) {
+        School school = schoolRepository.findById(dto.schoolId()).orElseThrow(EntityNotFoundException::new);
+
+        int totalCopies = 0;
+        for (BookImportRow row : dto.rows()) {
             Item item = findOrCreateItem(row);
             createCopies(item, school, row);
-            importedTitles.add(row.title());
+            totalCopies += row.copies();
         }
 
-        return new CsvImportDTO(List.of(), importedTitles);
+        return new CsvImportDTO(List.of(), dto.rows().size(), totalCopies);
     }
 
     /**
      * Returns an existing Item matched by title, or creates a new one
      * When creating a new item, optional metadata is requested from the Google Books API
-     * using the row's ISBN. Fields not returned by the API keep their default values.
+     * using the row's ISBN. Fields not returned by the API keep their default values
      */
     private Item findOrCreateItem(BookImportRow row) {
         Optional<Item> existing = itemRepository.findByTitle(row.title());
@@ -208,7 +226,7 @@ public class BookCsvImportService {
             return existing.get();
         }
 
-        //defaults
+        // defaults
         String publisher = "Niet ingesteld";
         String description = row.description();
         int releaseYear = 0;
@@ -281,8 +299,6 @@ public class BookCsvImportService {
         saveNCopies(item, school, campus, remaining, ItemCondition.ONGEDEFINIEERD);
     }
 
-    // REPLACE WITH GENERATED BARCODES
-    // currently generates a random number
     private void saveNCopies(Item item, School school, Campus campus, int count, ItemCondition condition) {
         for (int i = 0; i < count; i++) {
             String barcode = String.valueOf(RANDOM.nextLong(1_000_000_000L, 10_000_000_000L));

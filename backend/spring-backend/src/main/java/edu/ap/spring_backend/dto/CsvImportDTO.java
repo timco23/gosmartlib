@@ -4,5 +4,6 @@ import java.util.List;
 
 public record CsvImportDTO(
         List<String> errors,
-        List<String> importedTitles) {
+        int importedBooks,
+        int importedCopies) {
 }
