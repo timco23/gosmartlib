@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     school_id bigint not null,
     barcode VARCHAR(255),
     copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND'),
-    item_condition ENUM('NIEUW', 'GOED','GEBRUIKT','BESCHADIGD'),
+    item_condition ENUM('NIEUW', 'GOED','GEBRUIKT','BESCHADIGD','ONGEDEFINIEERD'),
     featured boolean not null,
     campus_id bigint null,
     foreign key (item_id) references item(id) on delete restrict,
