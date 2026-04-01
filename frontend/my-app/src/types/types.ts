@@ -193,6 +193,22 @@ export interface CarouselSlot {
   position: 'left-2' | 'left-1' | 'center' | 'right-1' | 'right-2';
 }
 
+export interface ReadingList {
+  id: number,
+  title: string,
+  description: string,
+  userFirstName: string,
+  userLastName: string,
+  items: Book[]
+}
+
+export interface CreateReadingListPayload {
+  title: string,
+  description: string,
+  userId: number,
+  itemIds: number[]
+}
+
 export enum Role {
   LEERLING,
   LEERKRACHT,
