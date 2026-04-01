@@ -187,6 +187,11 @@ export interface CreateSchoolItemCopyPayload {
   campusId: number
 }
 
+export interface CsvImportDTO {
+  errors: string[];
+  importedTitles: string[];
+}
+
 export interface CarouselSlot {
   book: Book;
   index: number;

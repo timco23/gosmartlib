@@ -1,5 +1,46 @@
 <body class="form-container">
-  <h1>Boek toevoegen</h1>
+  <div class="page-header">
+    <h1>Boek toevoegen</h1>
+    <input
+      type="file"
+      accept=".csv"
+      #csvInput
+      (change)="onCsvFileSelected($event)"
+      style="display: none"
+    />
+    <button
+      type="button"
+      class="secondary-btn"
+      (click)="csvInput.click()"
+      [disabled]="!school || importLoading"
+    >
+      {{ importLoading ? 'Importeren...' : 'Bulk import' }}
+    </button>
+  </div>
+  @if (importErrors.length > 0) {
+    <div class="import-result-box">
+      <p class="import-result-title import-result-error">
+        Import mislukt: {{ importErrors.length }} fout(en) gevonden
+      </p>
+      <ul class="import-result-list import-result-error">
+        @for (error of importErrors; track $index) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    </div>
+  }
+  @if (importedTitles.length > 0) {
+    <div class="import-result-box">
+      <p class="import-result-title import-result-success">
+        {{ importedTitles.length }} boek(en) succesvol geïmporteerd:
+      </p>
+      <ul class="import-result-list">
+        @for (title of importedTitles; track $index) {
+          <li>{{ title }}</li>
+        }
+      </ul>
+    </div>
+  }
   <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
     <main class="form-left">
       @if (userError) {

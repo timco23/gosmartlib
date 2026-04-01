@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import {
   Book,
   CreateBookPayload,
+  CsvImportDTO,
   UpdateBookPayload,
   Page,
   Tag,
@@ -77,6 +78,13 @@ export class BookService {
 
   addBook(newBook: CreateBookPayload): Observable<Book> {
     return this.http.post<Book>(`${this.apiBaseUrl}/books`, newBook);
+  }
+
+  importBooks(file: File, schoolId: number): Observable<CsvImportDTO> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('schoolId', schoolId.toString());
+    return this.http.post<CsvImportDTO>(`${this.apiBaseUrl}/books/import`, formData);
   }
 
   updateBook(newBook: UpdateBookPayload, id: number): Observable<Book> {
