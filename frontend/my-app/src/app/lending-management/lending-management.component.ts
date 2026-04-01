@@ -1,12 +1,11 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { Lending } from '../../types/types';
 import { LendingService } from '../services/lending.service';
-import { DatePipe, JsonPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-lending-management',
-  imports: [DatePipe, JsonPipe, RouterLink],
+  imports: [RouterLink],
   templateUrl: './lending-management.component.html',
   styleUrl: './lending-management.component.css'
 })
