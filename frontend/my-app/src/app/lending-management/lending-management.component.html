@@ -32,6 +32,10 @@
             <span class="label">Terug te brengen op</span>
             <span class="value">{{ lending.returnDate }}</span>
           </div>
+          <div class="lend-actions">
+            <a class="add-button" id="extend-button" [routerLink]="['/home']">Verlengen</a>
+            <a class="add-button" [routerLink]="['/home']">Terugbrengen</a>
+          </div>
         </li>
       }
     </ul>

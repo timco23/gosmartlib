@@ -102,3 +102,6 @@
 .add-button:hover {
   background-color: #6f1532;
 }
+#extend-button {
+  margin-right: .5rem;
+}
