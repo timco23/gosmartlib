@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BookService } from '../../services/book-service';
-import { Book, School, SchoolItemCopy, UserProfile } from '../../../types/types';
+import { Book, Lending, School, SchoolItemCopy, UserProfile } from '../../../types/types';
 import { SchoolService } from '../../services/school.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { LendingService } from '../../services/lending.service';
 
 @Component({
   selector: 'app-lend-book',
@@ -17,9 +18,11 @@ export class LendBookComponent {
   public currentSchoolCopy: SchoolItemCopy | null = null;
   public currentCopies: SchoolItemCopy[] = [];
   public currentBook: Book | null = null;
+  public users: UserProfile[] = [];
   school: School | null = null;
   public books: Book[] = [];
-  public users: UserProfile[] = [];
+  public currentLending: Lending | null = null;
+  public currentUser: UserProfile | null = null;
 
   public bookSelected: boolean = false;
   public barcode: string = '';
@@ -28,6 +31,8 @@ export class LendBookComponent {
   private schoolService = inject(SchoolService);
   private authService = inject(AuthService);
   private userService = inject(UserService);
+  private lendingService = inject(LendingService);
+  private router = inject(Router);
 
   constructor(private bookService: BookService) { }
 
@@ -153,6 +158,33 @@ export class LendBookComponent {
 
   onUserSelect(event: Event): void {
     const userId = (event.target as HTMLSelectElement).value;
+    if (!userId) {
+      this.currentUser = null;
+      this.cdr.detectChanges();
+      return;
+    }
+    this.currentUser = this.users.find(u => u.id === +userId) ?? null;
     this.cdr.detectChanges();
+  }
+
+  onSubmit(): void {
+    const request = {
+      borrowerId: this.currentUser?.id ?? -1,
+      copyBarcode: this.currentSchoolCopy?.barcode ?? '',
+      schoolId: this.school?.id ?? -1,
+      lendingDate: new Date().toISOString().split('T')[0],
+      returnDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    };
+
+    this.lendingService.createLending(request).subscribe({
+      next: () => {
+        alert('Lending created successfully!');
+        this.router.navigate(['/lendings']);
+      },
+      error: (err) => {
+        console.error('Error creating lending:', err);
+        alert('Failed to create lending. Please try again.');
+      }
+    });
   }
 }

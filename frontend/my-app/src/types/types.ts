@@ -206,6 +206,14 @@ export interface Lending {
   copyBarcode: string;
 }
 
+export interface LendingRequest {
+  borrowerId: number;
+  copyBarcode: string;
+  schoolId: number;
+  lendingDate: string;
+  returnDate: string;
+}
+
 export enum Role {
   LEERLING,
   LEERKRACHT,

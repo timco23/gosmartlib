@@ -6,14 +6,14 @@
     </div>
   </header>
   <div class="lending-card">
-    <form action="lending">
+    <form (ngSubmit)="onSubmit()" action="lending">
 
       <div class="form-group">
         <label for="user">Uitlenen aan</label>
         <select id="user" name="user" (change)="onUserSelect($event)">
           <option value="" disabled selected>Kies een lener</option>
           @for (user of users; track user.id) {
-          <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+            <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
           }
         </select>
       </div>

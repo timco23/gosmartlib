@@ -5,38 +5,70 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.ap.spring_backend.dao.LendingRepository;
+import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
+import edu.ap.spring_backend.dao.SchoolRepository;
+import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.LendingDTO;
+import edu.ap.spring_backend.dto.LendingRequestDTO;
 import edu.ap.spring_backend.jpa.Lending;
 
 @Service
 public class LendingService {
     private final LendingRepository lendingRepository;
+    private final UserRepository userRepository;
+    private final SchoolItemCopyRepository copyRepository;
+    private final SchoolRepository schoolRepository;
 
-    public LendingService(LendingRepository repository){
+    public LendingService(LendingRepository repository, UserRepository userRepository,
+            SchoolItemCopyRepository copyRepository, SchoolRepository schoolRepository) {
         lendingRepository = repository;
+        this.userRepository = userRepository;
+        this.copyRepository = copyRepository;
+        this.schoolRepository = schoolRepository;
     }
 
-    public List<LendingDTO> getAll(){
+    public List<LendingDTO> getAll() {
         return lendingRepository.findAll().stream()
-            .map(lending -> new LendingDTO(
-                lending.getId(),
-                lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
-                lending.getBook().getItem().getTitle(),
-                lending.getBook().getItem().getAuthor(),
-                lending.getSchool().getId(),
-                lending.getLendingDate().toString(),
-                lending.getReturnDate().toString(),
-                lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,
-                lending.getReturned(),
-                lending.getBook().getBarcode()
-            )).toList();
+                .map(lending -> new LendingDTO(
+                        lending.getId(),
+                        lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
+                        lending.getBook().getItem().getTitle(),
+                        lending.getBook().getItem().getAuthor(),
+                        lending.getSchool().getId(),
+                        lending.getLendingDate().toString(),
+                        lending.getReturnDate().toString(),
+                        lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,
+                        lending.getReturned(),
+                        lending.getBook().getBarcode()))
+                .toList();
     }
 
-    public Lending addLending(Lending newLending){
-        return lendingRepository.save(newLending);
+    public LendingDTO addLending(LendingRequestDTO request) {
+        Lending lending = new Lending();
+        lending.setBorrower(userRepository.findById(request.borrowerId()).orElseThrow());
+        lending.setBook(copyRepository.findByBarcode(request.copyBarcode()).orElseThrow());
+        lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow());
+        lending.setLendingDate(request.lendingDate());
+        lending.setReturnDate(request.returnDate());
+        lending.setReturned(false);
+        lending.setDateReturned(null);
+
+        Lending saved = lendingRepository.save(lending);
+
+        return new LendingDTO(
+                saved.getId(),
+                saved.getBorrower() != null ? saved.getBorrower().getSmartschoolUsername() : null,
+                saved.getBook().getItem().getTitle(),
+                saved.getBook().getItem().getAuthor(),
+                saved.getSchool().getId(),
+                saved.getLendingDate().toString(),
+                saved.getReturnDate().toString(),
+                null,
+                false,
+                saved.getBook().getBarcode());
     }
 
-    public Lending updateLending(Long id, Lending updatedLending){
+    public Lending updateLending(Long id, Lending updatedLending) {
         Lending lending = lendingRepository.findById(id).orElseThrow();
         lending.setBorrower(updatedLending.getBorrower());
         lending.setBook(updatedLending.getBook());
@@ -48,23 +80,23 @@ public class LendingService {
         return lendingRepository.save(lending);
     }
 
-    public void deleteLending(Long id){
+    public void deleteLending(Long id) {
         lendingRepository.deleteById(id);
     }
 
-    public LendingDTO getById(Long id){
+    public LendingDTO getById(Long id) {
         return lendingRepository.findById(id)
-            .map(lending -> new LendingDTO(
-                lending.getId(),
-                lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
-                lending.getBook().getItem().getTitle(),
-                lending.getBook().getItem().getAuthor(),
-                lending.getSchool().getId(),
-                lending.getLendingDate().toString(),
-                lending.getReturnDate().toString(),
-                lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,
-                lending.getReturned(),
-                lending.getBook().getBarcode()
-            )).orElseThrow();
+                .map(lending -> new LendingDTO(
+                        lending.getId(),
+                        lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
+                        lending.getBook().getItem().getTitle(),
+                        lending.getBook().getItem().getAuthor(),
+                        lending.getSchool().getId(),
+                        lending.getLendingDate().toString(),
+                        lending.getReturnDate().toString(),
+                        lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,
+                        lending.getReturned(),
+                        lending.getBook().getBarcode()))
+                .orElseThrow();
     }
 }
