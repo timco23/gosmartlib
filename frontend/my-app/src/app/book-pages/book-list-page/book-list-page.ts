@@ -55,9 +55,9 @@ export class BookListPage implements OnInit {
               next: (schoolData) => {
                 this.school = schoolData;
                 this.tagService.getTags().subscribe(tags => {
-      this.allTags = tags;
-    });
-    this.loadBooks();
+                  this.allTags = tags;
+                });
+                this.loadBooks();
               },
             });
           }

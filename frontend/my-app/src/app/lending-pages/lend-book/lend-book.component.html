@@ -10,8 +10,25 @@
     <form action="lending">
         <div class="form-group">
             <label for="book">Boek</label>
-            <input type="text" id="book" name="book" placeholder="Barcode" required />
-        </div>
+            <select (change)="onBookSelect($event)">
+                <option value="" disabled selected>Kies een boek</option>
+                @for (book of books; track book.id) {
+                  <option [value]="book.id">{{ book.title }}</option>
+                }
+                </select>
+                </div>
+                
+                @if (currentCopies.length > 0) {
+                <div class="form-group">
+                  <label for="copy">Exemplaar</label>
+                  <select id="copy" name="copy" (change)="onCopySelect($event)">
+                    <option value="" disabled selected>Kies een exemplaar</option>
+                    @for (copy of currentCopies; track copy.barcode) {
+                    <option [value]="copy.barcode">{{ copy.barcode }} — {{ copy.condition }}</option>
+                    }
+                  </select>
+                </div>
+                }
     
         <div class="form-group">
           <label for="book">Boek</label>
