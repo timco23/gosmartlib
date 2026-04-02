@@ -73,6 +73,57 @@ class BookCsvImportServiceTest {
                 title, new HashSet<>());
     }
 
+    // previewImport — file validation
+
+    @Test
+    void givenFileLargerThan1MB_whenPreviewImport_thenReturnsError() {
+        byte[] largeContent = new byte[1024 * 1024 + 1];
+        MockMultipartFile largeFile = new MockMultipartFile("file", "import.csv", "text/csv", largeContent);
+
+        CsvPreviewDTO result = service.previewImport(largeFile, 1L);
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().get(0).contains("te groot"));
+    }
+
+    @Test
+    void givenNonCsvExtension_whenPreviewImport_thenReturnsError() {
+        MockMultipartFile txtFile = new MockMultipartFile("file", "import.txt", "text/plain",
+                (HEADER + "\nBoek;Auteur;;1;0;0;0;0;").getBytes(StandardCharsets.UTF_8));
+
+        CsvPreviewDTO result = service.previewImport(txtFile, 1L);
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().get(0).contains("Ongeldig bestandstype"));
+    }
+
+    @Test
+    void givenNoFilename_whenPreviewImport_thenReturnsError() {
+        MockMultipartFile noNameFile = new MockMultipartFile("file", null, "text/csv",
+                (HEADER + "\nBoek;Auteur;;1;0;0;0;0;").getBytes(StandardCharsets.UTF_8));
+
+        CsvPreviewDTO result = service.previewImport(noNameFile, 1L);
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().get(0).contains("Ongeldig bestandstype"));
+    }
+
+    @Test
+    void givenTooManyRows_whenPreviewImport_thenReturnsError() {
+        mockSchool();
+        when(itemRepository.findByTitle(any())).thenReturn(Optional.empty());
+
+        String[] lines = new String[1002]; // header + 1001 data rows
+        lines[0] = HEADER;
+        for (int i = 1; i <= 1001; i++) {
+            lines[i] = "Boek " + i + ";Auteur;;1;0;0;0;0;";
+        }
+
+        CsvPreviewDTO result = service.previewImport(csv(lines), 1L);
+
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("meer dan")));
+    }
+
     // previewImport — success cases
 
     @Test
@@ -717,6 +768,133 @@ class BookCsvImportServiceTest {
 
         assertThrows(EntityNotFoundException.class,
                 () -> service.confirmImport(new CsvConfirmDTO(99L, List.of())));
+    }
+
+    // confirmImport — re-validation
+
+    @Test
+    void givenMissingTitle_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "", "Auteur", "", 1, 0, 0, 0, 0, "", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Titel' is verplicht")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenMissingAuthor_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "", "", 1, 0, 0, 0, 0, "", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Auteur' is verplicht")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenInvalidIsbn_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "123", 1, 0, 0, 0, 0, "", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("'ISBN' moet exact 13 cijfers bevatten")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenCopiesZero_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "", 0, 0, 0, 0, 0, "", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Exemplaar_aantal' moet een positief getal zijn")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenNegativeCondition_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "", 3, -1, 0, 0, 0, "", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("mag niet negatief zijn")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenConditionSumExceedsCopies_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "", 2, 2, 1, 0, 0, "", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("som van conditie-aantallen")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenUnknownCampus_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+        school.getCampuses().add(campus);
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "", 1, 0, 0, 0, 0, "onbekendcampus", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("niet gevonden voor deze school")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenDuplicateTitleSameCampus_whenConfirmImport_thenReturnsErrors() {
+        mockSchool();
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "", 1, 0, 0, 0, 0, "", "", false),
+                new BookImportRow(3, "Boek", "Auteur", "", 1, 0, 0, 0, 0, "", "", false))));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().stream().anyMatch(e -> e.contains("titel + campus komt meerdere keren voor")));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenTooManyRows_whenConfirmImport_thenReturnsError() {
+        mockSchool();
+
+        List<BookImportRow> rows = new ArrayList<>();
+        for (int i = 0; i < 1001; i++) {
+            rows.add(new BookImportRow(i + 2, "Boek " + i, "Auteur", "", 1, 0, 0, 0, 0, "", "", false));
+        }
+
+        CsvImportDTO result = service.confirmImport(new CsvConfirmDTO(1L, rows));
+
+        assertFalse(result.errors().isEmpty());
+        assertTrue(result.errors().get(0).contains("Te veel rijen"));
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
+    }
+
+    @Test
+    void givenValidationErrors_whenConfirmImport_thenNothingWrittenToDb() {
+        mockSchool();
+
+        // Multiple invalid rows — none should reach the DB
+        service.confirmImport(new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "", "", "bad-isbn", 0, -1, 0, 0, 0, "", "", false))));
+
+        verifyNoInteractions(itemRepository, schoolItemCopyRepository);
     }
 
     @Test
