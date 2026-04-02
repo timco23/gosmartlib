@@ -84,3 +84,8 @@
 .add-button:hover {
     background: #6f1532;
 }
+
+input:disabled {
+  cursor: not-allowed;
+  background-color: var(--color-background-secondary, #f5f5f5);
+}

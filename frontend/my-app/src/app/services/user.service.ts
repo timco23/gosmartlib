@@ -32,4 +32,10 @@ export class UserService {
       params: { email: user.email }
     });
   }
+
+  getFromSchool(schoolId: number): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(`${environment.apiUrl}/schools/users`, {
+      params: { schoolId: schoolId.toString() }
+    });
+  }
 }

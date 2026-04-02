@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BookService } from '../../services/book-service';
-import { Book, School, SchoolItemCopy } from '../../../types/types';
+import { Book, School, SchoolItemCopy, UserProfile } from '../../../types/types';
 import { SchoolService } from '../../services/school.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
@@ -15,15 +15,19 @@ import { UserService } from '../../services/user.service';
 })
 export class LendBookComponent {
   public currentSchoolCopy: SchoolItemCopy | null = null;
-  public currentBook: Book | null = null;
-  public barcode: string = '';
-  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
-  public books: Book[] = [];
   public currentCopies: SchoolItemCopy[] = [];
+  public currentBook: Book | null = null;
+  school: School | null = null;
+  public books: Book[] = [];
+  public users: UserProfile[] = [];
+
+  public bookSelected: boolean = false;
+  public barcode: string = '';
+
+  cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private schoolService = inject(SchoolService);
   private authService = inject(AuthService);
   private userService = inject(UserService);
-  school: School | null = null;
 
   constructor(private bookService: BookService) { }
 
@@ -37,6 +41,13 @@ export class LendBookComponent {
             this.schoolService.getByName(data.schoolName).subscribe({
               next: (schoolData) => {
                 this.school = schoolData;
+
+                this.userService.getFromSchool(this.school?.id ?? -1).subscribe({
+                  next: (users) => {
+                    this.users = users;
+                    this.cdr.detectChanges();
+                  }
+                });
               }
             });
           }
@@ -99,12 +110,15 @@ export class LendBookComponent {
   onBookSelect(event: Event): void {
     const id = (event.target as HTMLSelectElement).value;
     if (!id) {
+      this.bookSelected = false;
       this.currentBook = null;
       this.currentSchoolCopy = null;
       this.currentCopies = [];
+      this.barcode = '';
       this.cdr.detectChanges();
       return;
     }
+    this.bookSelected = true;
 
     const selected = this.books.find(b => b.id === +id);
     this.currentBook = selected ?? null;
@@ -135,6 +149,12 @@ export class LendBookComponent {
     }
 
     this.currentSchoolCopy = this.currentCopies.find(c => c.barcode === barcode) ?? null;
+    this.cdr.detectChanges();
+  }
+
+  onUserSelect(event: Event): void {
+    const userId = (event.target as HTMLSelectElement).value;
+    console.log('Selected user ID:', userId);
     this.cdr.detectChanges();
   }
 }

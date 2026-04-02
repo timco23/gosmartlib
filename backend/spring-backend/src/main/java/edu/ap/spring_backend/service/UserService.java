@@ -2,6 +2,8 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.TagDTO;
+import edu.ap.spring_backend.dto.UserResponse;
+
 import org.springframework.stereotype.Service;
 
 import edu.ap.spring_backend.dao.ItemRepository;
@@ -76,4 +78,20 @@ public class UserService {
                 null // campusId
         );
     }
+
+        public List<UserResponse> getUsersBySchool(Long schoolId) {
+                return userRepository.findBySchoolId(schoolId).stream()
+                        .map(user -> new UserResponse(
+                                user.getId(),
+                                user.getName(),
+                                user.getFirstName(),
+                                user.getEmail(),
+                                user.getRole().name(),
+                                user.getStudentNumber(),
+                                user.getClassName(),
+                                user.getSchool() != null ? user.getSchool().getName() : null,
+                                user.getFavoriteBooks().toArray(new Item[0])
+                        ))
+                        .toList();
+        }
 }
