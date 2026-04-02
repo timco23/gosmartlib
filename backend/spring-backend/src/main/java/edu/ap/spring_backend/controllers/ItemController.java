@@ -1,12 +1,14 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.*;
+import edu.ap.spring_backend.service.BookCsvImportService;
 import edu.ap.spring_backend.service.ItemService;
 import jakarta.validation.constraints.*;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,10 +17,13 @@ import java.util.List;
 public class ItemController {
     private final ItemService itemService;
     private final SchoolItemCopyService schoolItemCopyService;
+    private final BookCsvImportService bookCsvImportService;
 
-    public ItemController(ItemService itemService, SchoolItemCopyService schoolItemCopyService) {
+    public ItemController(ItemService itemService, SchoolItemCopyService schoolItemCopyService,
+            BookCsvImportService bookCsvImportService) {
         this.itemService = itemService;
         this.schoolItemCopyService = schoolItemCopyService;
+        this.bookCsvImportService = bookCsvImportService;
     }
 
     @GetMapping("/books")
@@ -65,6 +70,18 @@ public class ItemController {
     @PostMapping("/books")
     public ResponseEntity<ItemDTO> addItem(@RequestBody CreateItemDTO itemDTO) {
         return ResponseEntity.ok(itemService.addItem(itemDTO));
+    }
+
+    @PostMapping("/books/import/preview")
+    public ResponseEntity<CsvPreviewDTO> previewImport(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam Long schoolId) {
+        return ResponseEntity.ok(bookCsvImportService.previewImport(file, schoolId));
+    }
+
+    @PostMapping("/books/import/confirm")
+    public ResponseEntity<CsvImportDTO> confirmImport(@RequestBody CsvConfirmDTO dto) {
+        return ResponseEntity.ok(bookCsvImportService.confirmImport(dto));
     }
 
     @DeleteMapping("/books/{id}")

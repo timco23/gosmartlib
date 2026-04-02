@@ -2,49 +2,86 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { Observable } from 'rxjs';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AsyncPipe, NgClass } from '@angular/common';
-import { Book, CreateBookPayload, LoginResponse, School, Tag, Genre, Subgenre, Readinglevel } from '../../../types/types';
+import {
+  Book,
+  BookImportRow,
+  CreateBookPayload,
+  CsvConfirmDTO,
+  CsvImportDTO,
+  CsvPreviewDTO,
+  School,
+  Tag,
+  Genre,
+  Subgenre,
+  Readinglevel,
+} from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
-import { GenreSelectionMenuComponent } from "../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component";
+import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
 import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { DidacticCategory } from '../../../types/types';
+import { BookImportEnrichmentComponent } from '../book-import-enrichment/book-import-enrichment.component';
 
 @Component({
   selector: 'app-add-book-page',
-  imports: [ReactiveFormsModule, AsyncPipe, FormsModule, NgClass, TagSelectionMenu, GenreSelectionMenuComponent, SubgenreSelectionMenuComponent, ReadingLevelSelectionMenuComponent, DidacticCategorySelectionMenuComponent],
+  imports: [
+    ReactiveFormsModule,
+    AsyncPipe,
+    FormsModule,
+    NgClass,
+    TagSelectionMenu,
+    GenreSelectionMenuComponent,
+    SubgenreSelectionMenuComponent,
+    ReadingLevelSelectionMenuComponent,
+    DidacticCategorySelectionMenuComponent,
+    BookImportEnrichmentComponent,
+  ],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
 })
 export class AddBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
-  authService = inject(AuthService)
-  userService = inject(UserService)
-  schoolService = inject(SchoolService)
+  authService = inject(AuthService);
+  userService = inject(UserService);
+  schoolService = inject(SchoolService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   form: FormGroup;
   isReadOnly: boolean = false;
   isDidactic: boolean = false;
-  
+
   error: boolean = false;
-  errorMessage: string = "";
+  errorMessage: string = '';
   copyAlreadyExists: boolean = false;
   incompleteForm: boolean = false;
   nothingFound: boolean = false;
   missingFields: string[] = [];
-  
+
+  previewErrors: string[] = [];
+  previewRows: BookImportRow[] | null = null;
+  showEnrichment: boolean = false;
+  importResult: CsvImportDTO | null = null;
+  importLoading: boolean = false;
+  importLoadingMessage: string = '';
+
   campusLoading: boolean = true;
   userError: boolean = false;
   schoolError: boolean = false;
   userHasNoSchoolError: boolean = false;
-  schoolErrorMessage: string = "";
+  schoolErrorMessage: string = '';
 
   selectedTags: Tag[] = [];
   selectedGenres: Genre[] = [];
@@ -73,8 +110,8 @@ export class AddBookPage implements OnInit {
       barcode: ['', [Validators.required]],
       condition: ['NIEUW', [Validators.required]],
       copy_status: ['BESCHIKBAAR', [Validators.required]],
-      isDidactic: [false, [Validators.required]]
-    })
+      isDidactic: [false, [Validators.required]],
+    });
   }
 
   onSubmit(): void {
@@ -112,8 +149,8 @@ export class AddBookPage implements OnInit {
       campusId: parseInt(raw.campusId),
       barcode: raw.barcode,
       copy_status: raw.copy_status,
-      condition: raw.condition
-    }
+      condition: raw.condition,
+    };
 
     this.api.getCopyByItemTitle(newBook.title, this.school!.id!).subscribe({
       next: (data) => {
@@ -126,16 +163,16 @@ export class AddBookPage implements OnInit {
           this.copyAlreadyExists = false;
           this.api.addBook(newBook).subscribe({
             next: (data) => {
-              this.router.navigate(["/books", data.id])
-            }
-          })
+              this.router.navigate(['/books', data.id]);
+            },
+          });
         }
-      }
-    })
+      },
+    });
   }
 
   loadBookDetails() {
-    const id = parseInt(this.form.get('itemId')?.value)
+    const id = parseInt(this.form.get('itemId')?.value);
 
     if (id != 0) {
       this.error = false;
@@ -153,14 +190,17 @@ export class AddBookPage implements OnInit {
             paginaAantal: data.pageCount,
             cover: data.cover,
             reviewScore: data.reviewScore,
-            reviewCount: data.reviewCount
-          })
-        }
-        , error: (err) => { this.error = true; this.errorMessage = err; this.cdr.detectChanges(); }
-      })
+            reviewCount: data.reviewCount,
+          });
+        },
+        error: (err) => {
+          this.error = true;
+          this.errorMessage = err;
+          this.cdr.detectChanges();
+        },
+      });
       this.isReadOnly = true;
-    }
-    else {
+    } else {
       this.isReadOnly = false;
       this.form.reset({
         itemId: '0',
@@ -176,18 +216,110 @@ export class AddBookPage implements OnInit {
         reviewScore: 0,
         reviewCount: 0,
         campusId: '0',
-        barcode: "",
-        copy_status: "BESCHIKBAAR",
-        condition: "NIEUW"
+        barcode: '',
+        copy_status: 'BESCHIKBAAR',
+        condition: 'NIEUW',
       });
       this.selectedTags = [];
       this.cdr.detectChanges();
     }
+  }
 
+  onCsvFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length || !this.school?.id) return;
+
+    this.previewErrors = [];
+    this.previewRows = null;
+    this.showEnrichment = false;
+    this.importResult = null;
+    this.importLoading = true;
+    this.importLoadingMessage = '';
+    this.cdr.detectChanges();
+
+    this.api.previewImport(input.files[0], this.school.id).subscribe({
+      next: (result: CsvPreviewDTO) => {
+        this.importLoading = false;
+        if (result.errors.length > 0) {
+          this.previewErrors = result.errors;
+        } else {
+          this.previewRows = result.rows;
+          const needsEnrichment = result.rows.some((row) => this.rowNeedsEnrichment(row));
+          if (needsEnrichment) {
+            this.showEnrichment = true;
+          } else {
+            this.confirmImport(result.rows);
+          }
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.previewErrors = ['Er is een onverwachte fout opgetreden bij het importeren.'];
+        this.importLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+
+    input.value = '';
+  }
+
+  rowNeedsEnrichment(row: BookImportRow): boolean {
+    const conditionSum =
+      row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd;
+    const missingCampus = row.campus === '' && (this.school?.campuses?.length ?? 0) > 1;
+    const hasExistingIsbn = row.existingIsbn != null;
+    const isbnConflict = hasExistingIsbn && row.existingIsbn !== row.isbn;
+    return missingCampus || conditionSum < row.copies || isbnConflict;
+  }
+
+  onEnrichmentConfirmed(rows: BookImportRow[]): void {
+    this.showEnrichment = false;
+    this.confirmImport(rows);
+  }
+
+  onEnrichmentSkipped(): void {
+    this.showEnrichment = false;
+    this.confirmImport(this.previewRows!);
+  }
+
+  onEnrichmentCancelled(): void {
+    this.showEnrichment = false;
+    this.previewRows = null;
+    this.previewErrors = [];
+    this.importResult = null;
+    this.cdr.detectChanges();
+  }
+
+  private confirmImport(rows: BookImportRow[]): void {
+    if (!this.school?.id) return;
+
+    const totalCopies = rows.reduce((sum, row) => sum + row.copies, 0);
+    this.importLoading = true;
+    this.importLoadingMessage = `${rows.length} ${rows.length === 1 ? 'boek' : 'boeken'} en ${totalCopies} ${totalCopies === 1 ? 'exemplaar' : 'exemplaren'} worden geïmporteerd. Dit kan een tijd duren...`;
+    this.previewRows = null;
+    this.cdr.detectChanges();
+
+    const dto: CsvConfirmDTO = { schoolId: this.school.id, rows };
+    this.api.confirmImport(dto).subscribe({
+      next: (result: CsvImportDTO) => {
+        this.importResult = result;
+        this.importLoading = false;
+        this.importLoadingMessage = '';
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.previewErrors = [
+          'Er is een onverwachte fout opgetreden bij het bevestigen van de import.',
+        ];
+        this.importLoading = false;
+        this.importLoadingMessage = '';
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   backToList() {
-    this.router.navigate(["/books"]);
+    this.router.navigate(['/books']);
   }
 
   onTagsChanged(tags: Tag[]): void {
@@ -215,7 +347,7 @@ export class AddBookPage implements OnInit {
   }
 
   loadDetailsViaISBN() {
-    const isbn: string = this.form.controls["isbn"].value;
+    const isbn: string = this.form.controls['isbn'].value;
     this.nothingFound = false;
     this.missingFields = [];
     this.cdr.detectChanges();
@@ -230,12 +362,12 @@ export class AddBookPage implements OnInit {
             const fetchedBook = {
               titel: book.title,
               uitgeverij: book.publisher,
-              auteur: book.authors?.join(", "),
+              auteur: book.authors?.join(', '),
               beschrijving: book.description,
               uitgaveJaar: book.publishedDate?.substring(0, 4),
               taal: book.language,
               paginaAantal: book.pageCount,
-              cover: book.imageLinks?.thumbnail
+              cover: book.imageLinks?.thumbnail,
             };
 
             Object.entries(fetchedBook).forEach(([key, value]) => {
@@ -248,13 +380,12 @@ export class AddBookPage implements OnInit {
 
             this.cdr.detectChanges();
             this.form.patchValue(patch);
-          }
-          else {
-            this.nothingFound = true
+          } else {
+            this.nothingFound = true;
             this.cdr.detectChanges();
           }
-        }
-      })
+        },
+      });
     }
   }
 
@@ -275,21 +406,19 @@ export class AddBookPage implements OnInit {
               this.school = data;
               this.campusLoading = false;
               this.cdr.detectChanges();
-            }, error: (err) => {
+            },
+            error: (err) => {
               this.schoolError = true;
               this.campusLoading = false;
               this.schoolErrorMessage = err;
               this.cdr.detectChanges();
-            }
-          })
-        }
-        else {
+            },
+          });
+        } else {
           this.userHasNoSchoolError = true;
           this.cdr.detectChanges();
         }
-      }
-    })
+      },
+    });
   }
 }
-
-
