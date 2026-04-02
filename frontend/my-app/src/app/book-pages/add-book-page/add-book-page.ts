@@ -12,8 +12,11 @@ import {
 import { AsyncPipe, NgClass } from '@angular/common';
 import {
   Book,
+  BookImportRow,
   CreateBookPayload,
+  CsvConfirmDTO,
   CsvImportDTO,
+  CsvPreviewDTO,
   School,
   Tag,
   Genre,
@@ -29,6 +32,7 @@ import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subge
 import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { DidacticCategory } from '../../../types/types';
+import { BookImportEnrichmentComponent } from '../book-import-enrichment/book-import-enrichment.component';
 
 @Component({
   selector: 'app-add-book-page',
@@ -42,6 +46,7 @@ import { DidacticCategory } from '../../../types/types';
     SubgenreSelectionMenuComponent,
     ReadingLevelSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
+    BookImportEnrichmentComponent,
   ],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
@@ -65,8 +70,10 @@ export class AddBookPage implements OnInit {
   nothingFound: boolean = false;
   missingFields: string[] = [];
 
-  importErrors: string[] = [];
-  importedTitles: string[] = [];
+  previewErrors: string[] = [];
+  previewRows: BookImportRow[] | null = null;
+  showEnrichment: boolean = false;
+  importResult: CsvImportDTO | null = null;
   importLoading: boolean = false;
 
   campusLoading: boolean = true;
@@ -221,26 +228,85 @@ export class AddBookPage implements OnInit {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length || !this.school?.id) return;
 
-    this.importErrors = [];
-    this.importedTitles = [];
+    this.previewErrors = [];
+    this.previewRows = null;
+    this.showEnrichment = false;
+    this.importResult = null;
     this.importLoading = true;
     this.cdr.detectChanges();
 
-    this.api.importBooks(input.files[0], this.school.id).subscribe({
-      next: (result: CsvImportDTO) => {
-        this.importErrors = result.errors;
-        this.importedTitles = result.importedTitles;
+    this.api.previewImport(input.files[0], this.school.id).subscribe({
+      next: (result: CsvPreviewDTO) => {
         this.importLoading = false;
+        if (result.errors.length > 0) {
+          this.previewErrors = result.errors;
+        } else {
+          this.previewRows = result.rows;
+          const needsEnrichment = result.rows.some((row) => this.rowNeedsEnrichment(row));
+          if (needsEnrichment) {
+            this.showEnrichment = true;
+          } else {
+            this.confirmImport(result.rows);
+          }
+        }
         this.cdr.detectChanges();
       },
       error: () => {
-        this.importErrors = ['Er is een onverwachte fout opgetreden bij het importeren.'];
+        this.previewErrors = ['Er is een onverwachte fout opgetreden bij het importeren.'];
         this.importLoading = false;
         this.cdr.detectChanges();
       },
     });
 
     input.value = '';
+  }
+
+  rowNeedsEnrichment(row: BookImportRow): boolean {
+    const conditionSum =
+      row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd;
+    const missingCampus = row.campus === '' && (this.school?.campuses?.length ?? 0) > 1;
+    return missingCampus || conditionSum < row.copies;
+  }
+
+  onEnrichmentConfirmed(rows: BookImportRow[]): void {
+    this.showEnrichment = false;
+    this.confirmImport(rows);
+  }
+
+  onEnrichmentSkipped(): void {
+    this.showEnrichment = false;
+    this.confirmImport(this.previewRows!);
+  }
+
+  onEnrichmentCancelled(): void {
+    this.showEnrichment = false;
+    this.previewRows = null;
+    this.previewErrors = [];
+    this.importResult = null;
+    this.cdr.detectChanges();
+  }
+
+  private confirmImport(rows: BookImportRow[]): void {
+    if (!this.school?.id) return;
+    this.importLoading = true;
+    this.cdr.detectChanges();
+
+    const dto: CsvConfirmDTO = { schoolId: this.school.id, rows };
+    this.api.confirmImport(dto).subscribe({
+      next: (result: CsvImportDTO) => {
+        this.importResult = result;
+        this.importLoading = false;
+        this.previewRows = null;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.previewErrors = [
+          'Er is een onverwachte fout opgetreden bij het bevestigen van de import.',
+        ];
+        this.importLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   backToList() {

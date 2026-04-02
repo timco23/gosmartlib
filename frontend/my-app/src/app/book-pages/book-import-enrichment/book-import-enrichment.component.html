@@ -1,0 +1,75 @@
+<div class="enrichment-container">
+  <div class="enrichment-header">
+    <h2>Importgegevens aanvullen</h2>
+    <p>
+      De onderstaande rijen bevatten ontbrekende informatie. Vul de lege velden in of sla over om te
+      importeren zonder aanpassingen.
+    </p>
+  </div>
+
+  @for (state of enrichableStates; track state.original.rowNumber) {
+    <div class="enrichment-row" [ngClass]="{ 'has-error': state.validationError }">
+      <div class="row-title">
+        <strong>Rij {{ state.original.rowNumber }}: {{ state.original.title }}</strong>
+        <span class="row-author">{{ state.original.author }}</span>
+        <span class="row-copies"
+          >{{ state.original.copies }}
+          {{ state.original.copies === 1 ? 'exemplaar' : 'exemplaren' }}</span
+        >
+      </div>
+
+      @if (school.campuses.length > 1) {
+        <div class="field-group">
+          <label>Campus</label>
+          <select [(ngModel)]="state.campusInput">
+            <option value="">Geen</option>
+            @for (campus of school.campuses; track campus.id) {
+              <option [value]="campus.name.toLowerCase().replace(' ', '')">
+                {{ campus.name }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (conditionSum(state) < state.original.copies || conditionSum(state) > 0) {
+        <div class="condition-group">
+          <label class="condition-label"
+            >Conditieverdeling (totaal: {{ state.original.copies }})</label
+          >
+          <div class="condition-inputs">
+            <div class="condition-input">
+              <label>Nieuw</label>
+              <input type="number" min="0" [(ngModel)]="state.conditionNieuw" />
+            </div>
+            <div class="condition-input">
+              <label>Goed</label>
+              <input type="number" min="0" [(ngModel)]="state.conditionGoed" />
+            </div>
+            <div class="condition-input">
+              <label>Gebruikt</label>
+              <input type="number" min="0" [(ngModel)]="state.conditionGebruikt" />
+            </div>
+            <div class="condition-input">
+              <label>Beschadigd</label>
+              <input type="number" min="0" [(ngModel)]="state.conditionBeschadigd" />
+            </div>
+          </div>
+          <p class="condition-remaining">
+            Ongedefinieerd: {{ state.original.copies - conditionSum(state) }}
+          </p>
+        </div>
+      }
+
+      @if (state.validationError) {
+        <p class="row-error">{{ state.validationError }}</p>
+      }
+    </div>
+  }
+
+  <div class="enrichment-buttons">
+    <button type="button" class="primary-btn" (click)="onConfirm()">Bevestigen</button>
+    <button type="button" class="secondary-btn" (click)="onSkip()">Aanpassingen overslaan</button>
+    <button type="button" class="cancel-btn" (click)="onCancel()">Bulk import annuleren</button>
+  </div>
+</div>

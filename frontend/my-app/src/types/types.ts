@@ -187,9 +187,35 @@ export interface CreateSchoolItemCopyPayload {
   campusId: number
 }
 
+export interface BookImportRow {
+  rowNumber: number;
+  title: string;
+  author: string;
+  isbn: string;
+  copies: number;
+  conditionNieuw: number;
+  conditionGoed: number;
+  conditionGebruikt: number;
+  conditionBeschadigd: number;
+  campus: string;
+  language: string;
+  description: string;
+}
+
+export interface CsvPreviewDTO {
+  errors: string[];
+  rows: BookImportRow[];
+}
+
+export interface CsvConfirmDTO {
+  schoolId: number;
+  rows: BookImportRow[];
+}
+
 export interface CsvImportDTO {
   errors: string[];
-  importedTitles: string[];
+  importedBooks: number;
+  importedCopies: number;
 }
 
 export interface CarouselSlot {
