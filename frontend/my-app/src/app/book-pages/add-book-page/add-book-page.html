@@ -19,6 +19,9 @@
       }
       {{ importLoading ? 'Importeren...' : 'Bulk import via CSV' }}
     </button>
+    @if (importLoadingMessage) {
+      <p class="import-loading-info">{{ importLoadingMessage }}</p>
+    }
   </div>
   @if (previewErrors.length > 0) {
     <div class="import-result-box">

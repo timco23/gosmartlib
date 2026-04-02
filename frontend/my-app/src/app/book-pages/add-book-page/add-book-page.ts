@@ -75,6 +75,7 @@ export class AddBookPage implements OnInit {
   showEnrichment: boolean = false;
   importResult: CsvImportDTO | null = null;
   importLoading: boolean = false;
+  importLoadingMessage: string = '';
 
   campusLoading: boolean = true;
   userError: boolean = false;
@@ -233,6 +234,7 @@ export class AddBookPage implements OnInit {
     this.showEnrichment = false;
     this.importResult = null;
     this.importLoading = true;
+    this.importLoadingMessage = '';
     this.cdr.detectChanges();
 
     this.api.previewImport(input.files[0], this.school.id).subscribe({
@@ -290,7 +292,11 @@ export class AddBookPage implements OnInit {
 
   private confirmImport(rows: BookImportRow[]): void {
     if (!this.school?.id) return;
+
+    const totalCopies = rows.reduce((sum, row) => sum + row.copies, 0);
     this.importLoading = true;
+    this.importLoadingMessage = `${rows.length} ${rows.length === 1 ? 'boek' : 'boeken'} en ${totalCopies} ${totalCopies === 1 ? 'exemplaar' : 'exemplaren'} worden geïmporteerd. Dit kan een tijd duren...`;
+    this.previewRows = null;
     this.cdr.detectChanges();
 
     const dto: CsvConfirmDTO = { schoolId: this.school.id, rows };
@@ -298,7 +304,7 @@ export class AddBookPage implements OnInit {
       next: (result: CsvImportDTO) => {
         this.importResult = result;
         this.importLoading = false;
-        this.previewRows = null;
+        this.importLoadingMessage = '';
         this.cdr.detectChanges();
       },
       error: () => {
@@ -306,6 +312,7 @@ export class AddBookPage implements OnInit {
           'Er is een onverwachte fout opgetreden bij het bevestigen van de import.',
         ];
         this.importLoading = false;
+        this.importLoadingMessage = '';
         this.cdr.detectChanges();
       },
     });

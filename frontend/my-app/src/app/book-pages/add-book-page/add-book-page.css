@@ -175,6 +175,12 @@ textarea:focus {
   color: green;
 }
 
+.import-loading-info {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 6px;
+}
+
 .readOnly {
   background-color: lightgray;
 }
