@@ -31,36 +31,38 @@ import java.util.*;
 /**
  * Service responsible for bulk-importing books from a semicolon-delimited CSV file.
  * The expected CSV columns are:
- * Titel;Auteur;ISBN;Exemplaar_aantal;Conditie_nieuw;Conditie_goed;Conditie_gebruikt;Conditie_beschadigd;Campus;Taal;Beschrijving
+ * Titel;Auteur;ISBN;Exemplaar_aantal;Conditie_nieuw;Conditie_goed;Conditie_gebruikt;Conditie_beschadigd;Campus
  *
  * Import follows a two-phase approach:
  *   Preview phase (previewImport):
  *       Parses and validates all rows
  *       All errors are collected and returned together
  *       Returns the parsed rows so the caller can optionally enrich them
+ *       If a row's ISBN conflicts with an existing Item's ISBN, the existingIsbn field is set
  *   Confirm phase (confirmImport):
  *       Accepts the rows and adds them to the db
  *       For each row the service attempts to reuse an existing Item matched by title
  *       If no match is found and an ISBN is present, it calls the Google Books API to autofill
  *       optional metadata (publisher, description, page count, release year, cover)
  *       Any fields still empty after both recovery steps receive the default value
+ *       If updateExistingIsbn is true on a row, the existing Item's ISBN is updated
  *       One SchoolItemCopy is created per requested copy, distributed across the
  *       given condition counts; remaining copies receive condition ONGEDEFINIEERD
  */
 @Service
 public class BookCsvImportService {
 
-    private static final Set<String> VALID_LANGUAGES = Set.of(
-            "NEDERLANDS", "FRANS", "ENGELS", "DUITS", "ANDERE");
-    private static final String DEFAULT_LANGUAGE = "NEDERLANDS";
-    private static final int EXPECTED_COLUMN_COUNT = 11;
-    private static final String GOOGLE_BOOKS_URL =
-            "https://www.googleapis.com/books/v1/volumes?q=isbn:";
+    private static final int EXPECTED_COLUMN_COUNT = 9;
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Random RANDOM = new Random();
 
+    private static final String GOOGLE_BOOKS_URL =
+            "https://www.googleapis.com/books/v1/volumes?q=isbn:";
+    private static final long GOOGLE_API_DELAY_MS = 1000;
+    private static long lastGoogleApiCallTime = 0;
+    private static final Object GOOGLE_API_LOCK = new Object();
     private final ItemRepository itemRepository;
     private final SchoolItemCopyRepository schoolItemCopyRepository;
     private final SchoolRepository schoolRepository;
@@ -118,23 +120,12 @@ public class BookCsvImportService {
                 String condGebruiktStr = getColumnValue(record, "Conditie_gebruikt");
                 String condBeschadigdStr = getColumnValue(record, "Conditie_beschadigd");
                 String campus = getColumnValue(record, "Campus").toLowerCase().replace(" ", "");
-                String language = getColumnValue(record, "Taal").toUpperCase();
-                String description = getColumnValue(record, "Beschrijving");
 
                 // Required fields
                 if (title.isEmpty())
                     errors.add("Rij " + rowNum + ": 'Titel' is verplicht.");
                 if (author.isEmpty())
                     errors.add("Rij " + rowNum + ": 'Auteur' is verplicht.");
-
-                // Language: optional, defaults to NEDERLANDS
-                if (!language.isEmpty() && !VALID_LANGUAGES.contains(language)) {
-                    errors.add("Rij " + rowNum + ": ongeldige taal '" + language
-                            + "'. Geldige waarden: " + String.join(", ", VALID_LANGUAGES) + ".");
-                }
-                if (language.isEmpty()) {
-                    language = DEFAULT_LANGUAGE;
-                }
 
                 // ISBN format
                 if (!isbn.isEmpty() && !isbn.matches("\\d{13}")) {
@@ -177,8 +168,20 @@ public class BookCsvImportService {
                     errors.add("Rij " + rowNum + ": titel + campus komt meerdere keren voor in het bestand.");
                 }
 
+                // ISBN conflict: existing item has a different ISBN
+                String existingIsbn = "";
+                if (!title.isEmpty() && !isbn.isEmpty()) {
+                    Optional<Item> existingItem = itemRepository.findByTitle(title);
+                    if (existingItem.isPresent()) {
+                        String itemIsbn = existingItem.get().getIsbn();
+                        if (itemIsbn != null && !itemIsbn.isEmpty() && !itemIsbn.equals(isbn)) {
+                            existingIsbn = itemIsbn;
+                        }
+                    }
+                }
+
                 rows.add(new BookImportRow(rowNum, title, author, isbn,
-                        copies, condNieuw, condGoed, condGebruikt, condBeschadigd, campus, language, description));
+                        copies, condNieuw, condGoed, condGebruikt, condBeschadigd, campus, existingIsbn, false));
             }
 
         } catch (Exception e) {
@@ -208,6 +211,10 @@ public class BookCsvImportService {
         int totalCopies = 0;
         for (BookImportRow row : dto.rows()) {
             Item item = findOrCreateItem(row);
+            if (row.updateExistingIsbn() && !row.isbn().isEmpty()) {
+                item.setIsbn(row.isbn());
+                itemRepository.save(item);
+            }
             createCopies(item, school, row);
             totalCopies += row.copies();
         }
@@ -227,14 +234,17 @@ public class BookCsvImportService {
         }
 
         // defaults
+        String language = "NEDERLANDS";
         String publisher = "Niet ingesteld";
-        String description = row.description();
+        String description = "";
         int releaseYear = 0;
         int pageCount = 0;
         String cover = "";
 
         if (!row.isbn().isEmpty()) {
             try {
+                throttleGoogleApi(); // rate limit protection
+
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(GOOGLE_BOOKS_URL + row.isbn()))
                         .GET()
@@ -271,7 +281,7 @@ public class BookCsvImportService {
         }
 
         Item newItem = new Item(description, 0, 0.0, cover, pageCount,
-                row.language(), releaseYear, row.isbn(), row.author(), publisher, row.title(),
+                language, releaseYear, row.isbn(), row.author(), publisher, row.title(),
                 new HashSet<>());
         itemRepository.save(newItem);
         return newItem;
@@ -328,6 +338,19 @@ public class BookCsvImportService {
             return record.get(column).trim();
         } catch (IllegalArgumentException e) {
             return "";
+        }
+    }
+
+    // keep GET requests under the 1 call/second threshold
+    private void throttleGoogleApi() {
+        synchronized (GOOGLE_API_LOCK) {
+            long now = System.currentTimeMillis();
+            long waitTime = GOOGLE_API_DELAY_MS - (now - lastGoogleApiCallTime);
+            if (waitTime > 0) {
+                try { Thread.sleep(waitTime); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            }
+            lastGoogleApiCallTime = System.currentTimeMillis();
         }
     }
 }

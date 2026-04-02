@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 class BookCsvImportServiceTest {
 
     private static final String HEADER =
-            "Titel;Auteur;ISBN;Exemplaar_aantal;Conditie_nieuw;Conditie_goed;Conditie_gebruikt;Conditie_beschadigd;Campus;Taal;Beschrijving";
+            "Titel;Auteur;ISBN;Exemplaar_aantal;Conditie_nieuw;Conditie_goed;Conditie_gebruikt;Conditie_beschadigd;Campus";
 
     @Mock private ItemRepository itemRepository;
     @Mock private SchoolItemCopyRepository schoolItemCopyRepository;
@@ -68,14 +68,20 @@ class BookCsvImportServiceTest {
                 title, new HashSet<>());
     }
 
-    // previewImport
+    private Item stubItemWithIsbn(String title, String isbn) {
+        return new Item("desc", 0, 0.0, "", 0, "NEDERLANDS", 0, isbn, "Auteur", "Publisher",
+                title, new HashSet<>());
+    }
+
+    // previewImport — success cases
 
     @Test
     void givenValidRow_whenPreviewImport_thenRowParsedCorrectly() {
         mockSchool();
+        when(itemRepository.findByTitle("De Kleine Prins")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "De Kleine Prins;Saint-Exupéry;;1;0;0;0;0;;NEDERLANDS;Een klassieker"), 1L);
+                csv(HEADER, "De Kleine Prins;Saint-Exupéry;;1;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().isEmpty());
         assertEquals(1, result.rows().size());
@@ -83,50 +89,28 @@ class BookCsvImportServiceTest {
         assertEquals("De Kleine Prins", row.title());
         assertEquals("Saint-Exupéry", row.author());
         assertEquals(1, row.copies());
-        assertEquals("NEDERLANDS", row.language());
-        assertEquals("Een klassieker", row.description());
-    }
-
-    @Test
-    void givenEmptyLanguage_whenPreviewImport_thenDefaultsToNederlands() {
-        mockSchool();
-
-        CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;;;"), 1L);
-
-        assertTrue(result.errors().isEmpty());
-        assertEquals("NEDERLANDS", result.rows().get(0).language());
+        assertEquals("", row.existingIsbn());
     }
 
     @Test
     void givenEmptyCopies_whenPreviewImport_thenDefaultsToOne() {
         mockSchool();
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().isEmpty());
         assertEquals(1, result.rows().get(0).copies());
     }
 
     @Test
-    void givenValidLanguage_whenPreviewImport_thenNoError() {
-        mockSchool();
-        String[] languages = {"NEDERLANDS", "ENGELS", "FRANS", "DUITS", "ANDERE"};
-
-        for (String lang : languages) {
-            CsvPreviewDTO result = service.previewImport(
-                    csv(HEADER, "Boek;Auteur;;1;0;0;0;0;;" + lang + ";"), 1L);
-            assertTrue(result.errors().isEmpty(), "Expected no error for language: " + lang);
-        }
-    }
-
-    @Test
     void givenValidIsbn13_whenPreviewImport_thenNoIsbnError() {
         mockSchool();
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;9780140328721;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;9780140328721;1;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().isEmpty());
         assertEquals("9780140328721", result.rows().get(0).isbn());
@@ -135,9 +119,10 @@ class BookCsvImportServiceTest {
     @Test
     void givenEmptyIsbn_whenPreviewImport_thenNoIsbnError() {
         mockSchool();
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().noneMatch(e -> e.contains("ISBN")));
     }
@@ -145,9 +130,10 @@ class BookCsvImportServiceTest {
     @Test
     void givenConditionSumEqualsCopies_whenPreviewImport_thenNoError() {
         mockSchool();
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;4;1;1;1;1;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;4;1;1;1;1;"), 1L);
 
         assertTrue(result.errors().isEmpty());
     }
@@ -155,9 +141,10 @@ class BookCsvImportServiceTest {
     @Test
     void givenConditionColumns_whenPreviewImport_thenConditionsParsedCorrectly() {
         mockSchool();
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;5;1;2;1;1;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;5;1;2;1;1;"), 1L);
 
         assertTrue(result.errors().isEmpty());
         BookImportRow row = result.rows().get(0);
@@ -170,11 +157,12 @@ class BookCsvImportServiceTest {
     @Test
     void givenMultipleValidRows_whenPreviewImport_thenAllRowsReturned() {
         mockSchool();
+        when(itemRepository.findByTitle(any())).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(csv(
                 HEADER,
-                "Boek Een;Auteur A;;2;1;1;0;0;;NEDERLANDS;",
-                "Boek Twee;Auteur B;;3;0;0;0;0;;ENGELS;"),
+                "Boek Een;Auteur A;;2;1;1;0;0;",
+                "Boek Twee;Auteur B;;3;0;0;0;0;"),
                 1L);
 
         assertTrue(result.errors().isEmpty());
@@ -186,11 +174,12 @@ class BookCsvImportServiceTest {
     @Test
     void givenMultipleRows_whenPreviewImport_thenRowNumbersStartAtTwo() {
         mockSchool();
+        when(itemRepository.findByTitle(any())).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(csv(
                 HEADER,
-                "Boek A;Auteur;;1;0;0;0;0;;NEDERLANDS;",
-                "Boek B;Auteur;;1;0;0;0;0;;ENGELS;"),
+                "Boek A;Auteur;;1;0;0;0;0;",
+                "Boek B;Auteur;;1;0;0;0;0;"),
                 1L);
 
         assertEquals(2, result.rows().get(0).rowNumber());
@@ -201,9 +190,10 @@ class BookCsvImportServiceTest {
     void givenKnownCampus_whenPreviewImport_thenNoError() {
         mockSchool();
         school.getCampuses().add(campus);
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;Ellermanstraat;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;Ellermanstraat"), 1L);
 
         assertTrue(result.errors().isEmpty());
     }
@@ -214,9 +204,10 @@ class BookCsvImportServiceTest {
         Campus spaced = new Campus();
         spaced.setName("Ellerman Straat");
         school.getCampuses().add(spaced);
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;Ellerman Straat;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;Ellerman Straat"), 1L);
 
         assertTrue(result.errors().isEmpty());
     }
@@ -228,25 +219,82 @@ class BookCsvImportServiceTest {
         Campus campusB = new Campus(); campusB.setName("Campus B");
         school.getCampuses().add(campusA);
         school.getCampuses().add(campusB);
+        when(itemRepository.findByTitle(any())).thenReturn(Optional.empty());
 
         CsvPreviewDTO result = service.previewImport(csv(
                 HEADER,
-                "Boek;Auteur;;1;0;0;0;0;Campus A;NEDERLANDS;",
-                "Boek;Auteur;;1;0;0;0;0;Campus B;NEDERLANDS;"),
+                "Boek;Auteur;;1;0;0;0;0;Campus A",
+                "Boek;Auteur;;1;0;0;0;0;Campus B"),
                 1L);
 
         assertTrue(result.errors().isEmpty());
         assertEquals(2, result.rows().size());
     }
 
-    // previewImport
+    // previewImport — ISBN conflict detection
+
+    @Test
+    void givenIsbnConflict_whenPreviewImport_thenExistingIsbnPopulatedOnRow() {
+        mockSchool();
+        when(itemRepository.findByTitle("Bestaand Boek"))
+                .thenReturn(Optional.of(stubItemWithIsbn("Bestaand Boek", "9780000000001")));
+
+        CsvPreviewDTO result = service.previewImport(
+                csv(HEADER, "Bestaand Boek;Auteur;9780000000002;1;0;0;0;0;"), 1L);
+
+        assertTrue(result.errors().isEmpty());
+        BookImportRow row = result.rows().get(0);
+        assertEquals("9780000000001", row.existingIsbn());
+        assertFalse(row.updateExistingIsbn());
+    }
+
+    @Test
+    void givenNoIsbnConflict_whenPreviewImport_thenExistingIsbnEmpty() {
+        mockSchool();
+        when(itemRepository.findByTitle("Boek"))
+                .thenReturn(Optional.of(stubItemWithIsbn("Boek", "9780140328721")));
+
+        CsvPreviewDTO result = service.previewImport(
+                csv(HEADER, "Boek;Auteur;9780140328721;1;0;0;0;0;"), 1L);
+
+        assertTrue(result.errors().isEmpty());
+        assertEquals("", result.rows().get(0).existingIsbn());
+    }
+
+    @Test
+    void givenExistingItemWithEmptyIsbn_whenPreviewImport_thenNoIsbnConflict() {
+        mockSchool();
+        when(itemRepository.findByTitle("Boek"))
+                .thenReturn(Optional.of(stubItemWithIsbn("Boek", "")));
+
+        CsvPreviewDTO result = service.previewImport(
+                csv(HEADER, "Boek;Auteur;9780140328721;1;0;0;0;0;"), 1L);
+
+        assertTrue(result.errors().isEmpty());
+        assertEquals("", result.rows().get(0).existingIsbn());
+    }
+
+    @Test
+    void givenNoIsbnInCsv_whenPreviewImport_thenNoIsbnConflictCheck() {
+        mockSchool();
+        when(itemRepository.findByTitle("Boek"))
+                .thenReturn(Optional.of(stubItemWithIsbn("Boek", "9780000000001")));
+
+        CsvPreviewDTO result = service.previewImport(
+                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;"), 1L);
+
+        assertTrue(result.errors().isEmpty());
+        assertEquals("", result.rows().get(0).existingIsbn());
+    }
+
+    // previewImport — error cases
 
     @Test
     void givenMissingTitle_whenPreviewImport_thenReturnsError() {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, ";Auteur;;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, ";Auteur;;1;0;0;0;0;"), 1L);
 
         assertFalse(result.errors().isEmpty());
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Titel' is verplicht")));
@@ -257,7 +305,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;;;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;;;1;0;0;0;0;"), 1L);
 
         assertFalse(result.errors().isEmpty());
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Auteur' is verplicht")));
@@ -268,21 +316,10 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, ";;;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, ";;;1;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Titel' is verplicht")));
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Auteur' is verplicht")));
-    }
-
-    @Test
-    void givenInvalidLanguage_whenPreviewImport_thenReturnsError() {
-        mockSchool();
-
-        CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;;KLINGON;"), 1L);
-
-        assertFalse(result.errors().isEmpty());
-        assertTrue(result.errors().stream().anyMatch(e -> e.contains("ongeldige taal 'KLINGON'")));
     }
 
     @Test
@@ -290,7 +327,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;123;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;123;1;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'ISBN' moet exact 13 cijfers bevatten")));
     }
@@ -300,7 +337,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;978ABC3456789;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;978ABC3456789;1;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'ISBN' moet exact 13 cijfers bevatten")));
     }
@@ -310,7 +347,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;0;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;0;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Exemplaar_aantal' moet een positief getal zijn")));
     }
@@ -320,7 +357,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;-3;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;-3;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Exemplaar_aantal' moet een positief getal zijn")));
     }
@@ -330,7 +367,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;abc;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;abc;0;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Exemplaar_aantal' moet een getal zijn")));
     }
@@ -340,7 +377,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;2;2;1;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;2;2;1;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("som van conditie-aantallen")));
     }
@@ -350,7 +387,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;3;-1;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;3;-1;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("mag niet negatief zijn")));
     }
@@ -360,7 +397,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;3;abc;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;3;abc;0;0;0;"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("'Conditie_nieuw' moet een getal zijn")));
     }
@@ -370,7 +407,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;10;x;y;z;w;;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;10;x;y;z;w;"), 1L);
 
         assertEquals(4, result.errors().stream()
                 .filter(e -> e.contains("moet een getal zijn")).count());
@@ -382,7 +419,7 @@ class BookCsvImportServiceTest {
         school.getCampuses().add(campus);
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;onbekendcampus;NEDERLANDS;"), 1L);
+                csv(HEADER, "Boek;Auteur;;1;0;0;0;0;onbekendcampus"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("niet gevonden voor deze school")));
     }
@@ -393,8 +430,8 @@ class BookCsvImportServiceTest {
 
         CsvPreviewDTO result = service.previewImport(csv(
                 HEADER,
-                "Boek;Auteur;;1;0;0;0;0;;NEDERLANDS;",
-                "Boek;Auteur;;1;0;0;0;0;;NEDERLANDS;"),
+                "Boek;Auteur;;1;0;0;0;0;",
+                "Boek;Auteur;;1;0;0;0;0;"),
                 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("titel + campus komt meerdere keren voor")));
@@ -406,8 +443,8 @@ class BookCsvImportServiceTest {
 
         CsvPreviewDTO result = service.previewImport(csv(
                 HEADER,
-                "boek;Auteur;;1;0;0;0;0;;NEDERLANDS;",
-                "BOEK;Auteur;;1;0;0;0;0;;NEDERLANDS;"),
+                "boek;Auteur;;1;0;0;0;0;",
+                "BOEK;Auteur;;1;0;0;0;0;"),
                 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("titel + campus komt meerdere keren voor")));
@@ -418,7 +455,7 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, "Boek;Auteur;te;veel;kolom;men;hier;echt;te;veel;zeker;extra"), 1L);
+                csv(HEADER, "Boek;Auteur;te;veel;kolom;men;hier;echt;te;veel"), 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("incorrecte hoeveelheid kolommen")));
     }
@@ -429,8 +466,8 @@ class BookCsvImportServiceTest {
 
         CsvPreviewDTO result = service.previewImport(csv(
                 HEADER,
-                "Boek;Auteur;te;veel;kolommen;hier;echt;te;veel;zeker;extra;twaalf",
-                ";Auteur;;1;0;0;0;0;;NEDERLANDS;"),
+                "Boek;Auteur;te;veel;kolommen;hier;echt;te;veel;extra",
+                ";Auteur;;1;0;0;0;0;"),
                 1L);
 
         assertTrue(result.errors().stream().anyMatch(e -> e.contains("incorrecte hoeveelheid kolommen")));
@@ -441,11 +478,11 @@ class BookCsvImportServiceTest {
     void givenMultipleErrorsOnSameRow_whenPreviewImport_thenAllErrorsCollected() {
         mockSchool();
 
-        // Missing title, missing author, invalid language, copies=0, negative condition
+        // Missing title, missing author, copies=0, negative condition
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, ";;;0;-1;0;0;0;;KLINGON;"), 1L);
+                csv(HEADER, ";;;0;-1;0;0;0;"), 1L);
 
-        assertTrue(result.errors().size() >= 4);
+        assertTrue(result.errors().size() >= 3);
     }
 
     @Test
@@ -453,7 +490,7 @@ class BookCsvImportServiceTest {
         when(schoolRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
-                () -> service.previewImport(csv(HEADER, "Boek;Auteur;;1;0;0;0;0;;NEDERLANDS;"), 99L));
+                () -> service.previewImport(csv(HEADER, "Boek;Auteur;;1;0;0;0;0;"), 99L));
     }
 
     @Test
@@ -461,13 +498,13 @@ class BookCsvImportServiceTest {
         mockSchool();
 
         CsvPreviewDTO result = service.previewImport(
-                csv(HEADER, ";Auteur;;1;0;0;0;0;;NEDERLANDS;"), 1L);
+                csv(HEADER, ";Auteur;;1;0;0;0;0;"), 1L);
 
         assertFalse(result.errors().isEmpty());
         assertTrue(result.rows().isEmpty());
     }
 
-    // ── confirmImport ─────────────────────────────────────────────────────────
+    // confirmImport
 
     @Test
     void givenNewItem_whenConfirmImport_thenItemSavedAndCopyCreated() {
@@ -477,7 +514,7 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Nieuw Boek", "Auteur", "", 1, 1, 0, 0, 0, "", "NEDERLANDS", "desc")));
+                new BookImportRow(2, "Nieuw Boek", "Auteur", "", 1, 1, 0, 0, 0, "", "", false)));
 
         CsvImportDTO result = service.confirmImport(dto);
 
@@ -495,10 +532,43 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Bestaand Boek", "Auteur", "", 1, 1, 0, 0, 0, "", "NEDERLANDS", "")));
+                new BookImportRow(2, "Bestaand Boek", "Auteur", "", 1, 1, 0, 0, 0, "", "", false)));
 
         service.confirmImport(dto);
 
+        verify(itemRepository, never()).save(any());
+    }
+
+    @Test
+    void givenIsbnConflictWithUpdateTrue_whenConfirmImport_thenExistingItemIsbnUpdated() {
+        mockSchool();
+        Item existingItem = stubItemWithIsbn("Boek", "9780000000001");
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.of(existingItem));
+        when(itemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "9780000000002", 1, 0, 0, 0, 0, "", "9780000000001", true)));
+
+        service.confirmImport(dto);
+
+        assertEquals("9780000000002", existingItem.getIsbn());
+        verify(itemRepository).save(existingItem);
+    }
+
+    @Test
+    void givenIsbnConflictWithUpdateFalse_whenConfirmImport_thenIsbnNotUpdated() {
+        mockSchool();
+        Item existingItem = stubItemWithIsbn("Boek", "9780000000001");
+        when(itemRepository.findByTitle("Boek")).thenReturn(Optional.of(existingItem));
+        when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
+                new BookImportRow(2, "Boek", "Auteur", "9780000000002", 1, 0, 0, 0, 0, "", "9780000000001", false)));
+
+        service.confirmImport(dto);
+
+        assertEquals("9780000000001", existingItem.getIsbn());
         verify(itemRepository, never()).save(any());
     }
 
@@ -510,7 +580,7 @@ class BookCsvImportServiceTest {
 
         // 5 copies: 1 NIEUW, 1 GOED, 1 GEBRUIKT, 1 BESCHADIGD, 1 ONGEDEFINIEERD remainder
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Boek", "Auteur", "", 5, 1, 1, 1, 1, "", "NEDERLANDS", "")));
+                new BookImportRow(2, "Boek", "Auteur", "", 5, 1, 1, 1, 1, "", "", false)));
 
         service.confirmImport(dto);
 
@@ -533,7 +603,7 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Boek", "Auteur", "", 3, 0, 0, 0, 0, "", "NEDERLANDS", "")));
+                new BookImportRow(2, "Boek", "Auteur", "", 3, 0, 0, 0, 0, "", "", false)));
 
         service.confirmImport(dto);
 
@@ -551,7 +621,7 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Boek", "Auteur", "", 1, 1, 0, 0, 0, "ellermanstraat", "NEDERLANDS", "")));
+                new BookImportRow(2, "Boek", "Auteur", "", 1, 1, 0, 0, 0, "ellermanstraat", "", false)));
 
         service.confirmImport(dto);
 
@@ -568,7 +638,7 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Boek", "Auteur", "", 1, 0, 0, 0, 0, "", "NEDERLANDS", "")));
+                new BookImportRow(2, "Boek", "Auteur", "", 1, 0, 0, 0, 0, "", "", false)));
 
         service.confirmImport(dto);
 
@@ -585,8 +655,8 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Boek A", "A1", "", 3, 0, 0, 0, 0, "", "NEDERLANDS", ""),
-                new BookImportRow(3, "Boek B", "A2", "", 2, 0, 0, 0, 0, "", "ENGELS", "")));
+                new BookImportRow(2, "Boek A", "A1", "", 3, 0, 0, 0, 0, "", "", false),
+                new BookImportRow(3, "Boek B", "A2", "", 2, 0, 0, 0, 0, "", "", false)));
 
         CsvImportDTO result = service.confirmImport(dto);
 
@@ -601,7 +671,7 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Boek", "Auteur", "", 2, 1, 1, 0, 0, "", "NEDERLANDS", "")));
+                new BookImportRow(2, "Boek", "Auteur", "", 2, 1, 1, 0, 0, "", "", false)));
 
         service.confirmImport(dto);
 
@@ -612,14 +682,14 @@ class BookCsvImportServiceTest {
     }
 
     @Test
-    void givenNewItem_whenConfirmImport_thenItemCreatedWithRowMetadata() {
+    void givenNewItem_whenConfirmImport_thenItemCreatedWithDefaultLanguage() {
         mockSchool();
         when(itemRepository.findByTitle("Mijn Boek")).thenReturn(Optional.empty());
         when(itemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Mijn Boek", "Schrijver", "", 1, 0, 0, 0, 0, "", "ENGELS", "Mooie beschrijving")));
+                new BookImportRow(2, "Mijn Boek", "Schrijver", "", 1, 0, 0, 0, 0, "", "", false)));
 
         service.confirmImport(dto);
 
@@ -627,8 +697,7 @@ class BookCsvImportServiceTest {
         verify(itemRepository).save(captor.capture());
         assertEquals("Mijn Boek", captor.getValue().getTitle());
         assertEquals("Schrijver", captor.getValue().getAuthor());
-        assertEquals("ENGELS", captor.getValue().getBookLanguage());
-        assertEquals("Mooie beschrijving", captor.getValue().getDescription());
+        assertEquals("NEDERLANDS", captor.getValue().getBookLanguage());
     }
 
     @Test
@@ -657,7 +726,7 @@ class BookCsvImportServiceTest {
         when(schoolItemCopyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CsvConfirmDTO dto = new CsvConfirmDTO(1L, List.of(
-                new BookImportRow(2, "Boek", "Auteur", "", 4, 2, 1, 0, 0, "", "NEDERLANDS", "")));
+                new BookImportRow(2, "Boek", "Auteur", "", 4, 2, 1, 0, 0, "", "", false)));
 
         service.confirmImport(dto);
 

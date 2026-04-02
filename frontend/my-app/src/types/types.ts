@@ -86,7 +86,7 @@ export interface GoogleBook {
 
 export interface Book {
   id: number;
-    tags: Tag[];
+  tags: Tag[];
   genres: number[];
   subgenres: number[];
   readingLevel: number | null;
@@ -170,21 +170,20 @@ export interface SchoolItemCopy {
   featured: boolean;
   copy_status: string;
   schoolId: number;
-  campus?: 
-    {
-      id: number,
-      name: string
-    };
+  campus?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface CreateSchoolItemCopyPayload {
-  itemId: number,
-  barcode: string,
-  condition: string,
-  copy_status: string,
-  featured: boolean,
-  schoolId: number,
-  campusId: number
+  itemId: number;
+  barcode: string;
+  condition: string;
+  copy_status: string;
+  featured: boolean;
+  schoolId: number;
+  campusId: number;
 }
 
 export interface BookImportRow {
@@ -198,8 +197,19 @@ export interface BookImportRow {
   conditionGebruikt: number;
   conditionBeschadigd: number;
   campus: string;
-  language: string;
-  description: string;
+  existingIsbn: string;
+  updateExistingIsbn: boolean;
+}
+
+export interface EnrichedRowState {
+  original: BookImportRow;
+  campusInput: string;
+  conditionNieuw: number;
+  conditionGoed: number;
+  conditionGebruikt: number;
+  conditionBeschadigd: number;
+  updateExistingIsbn: boolean;
+  validationError: string;
 }
 
 export interface CsvPreviewDTO {
@@ -228,18 +238,18 @@ export enum Role {
   LEERLING,
   LEERKRACHT,
   BEHEERDER,
-  ADMIN
+  ADMIN,
 }
 
 export enum CopyStatus {
   BESCHIKBAAR,
   UITGELEEND,
-  ONTBREKEND
+  ONTBREKEND,
 }
 
 export enum ItemCondition {
   NIEUW,
   GOED,
   GEBRUIKT,
-  BESCHADIGD
+  BESCHADIGD,
 }

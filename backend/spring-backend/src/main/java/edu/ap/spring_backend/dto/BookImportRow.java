@@ -11,6 +11,6 @@ public record BookImportRow(
         int conditionGebruikt,
         int conditionBeschadigd,
         String campus,
-        String language,
-        String description) {
+        String existingIsbn,
+        boolean updateExistingIsbn) {
 }

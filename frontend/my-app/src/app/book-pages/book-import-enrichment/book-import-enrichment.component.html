@@ -32,6 +32,36 @@
         </div>
       }
 
+      @if (state.original.existingIsbn) {
+        <div class="field-group isbn-conflict-group">
+          <label class="isbn-conflict-label">ISBN-conflict</label>
+          <p class="isbn-conflict-desc">
+            Het bestaande item heeft ISBN <strong>{{ state.original.existingIsbn }}</strong>, maar de CSV bevat
+            <strong>{{ state.original.isbn }}</strong>. Wat moet er gebeuren?
+          </p>
+          <div class="isbn-conflict-options">
+            <label class="isbn-radio-label">
+              <input
+                type="radio"
+                name="isbnChoice_{{ state.original.rowNumber }}"
+                [value]="false"
+                [(ngModel)]="state.updateExistingIsbn"
+              />
+              Bestaand ISBN behouden ({{ state.original.existingIsbn }})
+            </label>
+            <label class="isbn-radio-label">
+              <input
+                type="radio"
+                name="isbnChoice_{{ state.original.rowNumber }}"
+                [value]="true"
+                [(ngModel)]="state.updateExistingIsbn"
+              />
+              Bijwerken met CSV ISBN ({{ state.original.isbn }})
+            </label>
+          </div>
+        </div>
+      }
+
       @if (conditionSum(state) < state.original.copies || conditionSum(state) > 0) {
         <div class="condition-group">
           <label class="condition-label"

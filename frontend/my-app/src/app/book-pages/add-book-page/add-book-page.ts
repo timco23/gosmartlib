@@ -265,7 +265,9 @@ export class AddBookPage implements OnInit {
     const conditionSum =
       row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd;
     const missingCampus = row.campus === '' && (this.school?.campuses?.length ?? 0) > 1;
-    return missingCampus || conditionSum < row.copies;
+    const hasExistingIsbn = row.existingIsbn != null;
+    const isbnConflict = hasExistingIsbn && row.existingIsbn !== row.isbn;
+    return missingCampus || conditionSum < row.copies || isbnConflict;
   }
 
   onEnrichmentConfirmed(rows: BookImportRow[]): void {

@@ -1,17 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
-import { BookImportRow, School } from '../../../types/types';
-
-interface EnrichedRowState {
-  original: BookImportRow;
-  campusInput: string;
-  conditionNieuw: number;
-  conditionGoed: number;
-  conditionGebruikt: number;
-  conditionBeschadigd: number;
-  validationError: string;
-}
+import { BookImportRow, EnrichedRowState, School } from '../../../types/types';
 
 @Component({
   selector: 'app-book-import-enrichment',
@@ -39,6 +29,7 @@ export class BookImportEnrichmentComponent implements OnInit {
         conditionGoed: row.conditionGoed,
         conditionGebruikt: row.conditionGebruikt,
         conditionBeschadigd: row.conditionBeschadigd,
+        updateExistingIsbn: false,
         validationError: '',
       }));
   }
@@ -48,7 +39,8 @@ export class BookImportEnrichmentComponent implements OnInit {
       row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd;
     const missingCampus = row.campus === '' && this.school.campuses.length > 1;
     const missingConditions = conditionSum < row.copies;
-    return missingCampus || missingConditions;
+    const isbnConflict = !!row.existingIsbn && row.existingIsbn !== row.isbn;
+    return missingCampus || missingConditions || isbnConflict;
   }
 
   conditionSum(state: EnrichedRowState): number {
@@ -65,8 +57,7 @@ export class BookImportEnrichmentComponent implements OnInit {
     for (const state of this.enrichableStates) {
       state.validationError = '';
       if (this.conditionSum(state) > state.original.copies) {
-        state.validationError =
-          `Som van conditie-aantallen (${this.conditionSum(state)}) overschrijdt exemplaar_aantal (${state.original.copies}).`;
+        state.validationError = `Som van conditie-aantallen (${this.conditionSum(state)}) overschrijdt exemplaar_aantal (${state.original.copies}).`;
         hasErrors = true;
       }
     }
@@ -87,6 +78,7 @@ export class BookImportEnrichmentComponent implements OnInit {
         conditionGoed: state.conditionGoed || 0,
         conditionGebruikt: state.conditionGebruikt || 0,
         conditionBeschadigd: state.conditionBeschadigd || 0,
+        updateExistingIsbn: state.updateExistingIsbn,
       };
     });
 
