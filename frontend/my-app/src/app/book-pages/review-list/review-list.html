@@ -34,7 +34,7 @@
         <p class="review-description">{{ review.description }}</p>
       }
 
-      @if (canDeleteReview(review)) {
+      @if (canDelete(review)) {
         <button class="delete-btn" type="button" (click)="onDeleteReview(review)">
           Verwijderen
         </button>

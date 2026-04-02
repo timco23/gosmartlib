@@ -102,8 +102,6 @@ public class ReviewService {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
     }
 
- 
-
     /**
      * Returns all reviews for one item.
      * @param itemId id of the item
@@ -174,7 +172,7 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review hoort niet bij dit item");
         }
 
-        boolean isOwner = review.getAuthor() != null && review.getAuthor().getId().equals(actor.getId());
+        boolean isOwner = review.getAuthor() != null && isSameUser(review.getAuthor(), actor);
         String role = String.valueOf(actor.getRole());
         boolean isAdminOrManager = "ADMIN".equals(role) || "BIBLIOTHEEKBEHEERDER".equals(role);
 
@@ -185,6 +183,17 @@ public class ReviewService {
         Item item = review.getItem();
         reviewRepository.delete(review);
         updateItemReviewStats(item);
+    }
+
+    private boolean isSameUser(User a, User b) {
+        if (a == null || b == null) return false;
+        if (a.getId() != null && a.getId().equals(b.getId())) return true;
+        if (equalsIgnoreCaseSafe(a.getEmail(), b.getEmail())) return true;
+        return equalsIgnoreCaseSafe(a.getSmartschoolUsername(), b.getSmartschoolUsername());
+    }
+
+    private boolean equalsIgnoreCaseSafe(String x, String y) {
+        return x != null && y != null && x.trim().equalsIgnoreCase(y.trim());
     }
 
     /**
@@ -242,7 +251,9 @@ public class ReviewService {
                 review.getDescription(),
                 review.getStars(),
                 review.getCreatedAt(),
-                authorName
+                authorName,
+                review.getAuthor().getEmail(),
+                review.getAuthor().getSmartschoolUsername()
         );
     }
 

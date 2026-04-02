@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Review } from '../../../types/types';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-review-list',
@@ -19,6 +20,29 @@ export class ReviewList {
   confirmMessage: string | null = null;
   private pendingAction: (() => void) | null = null;
 
+  constructor(private authService: AuthService) {}
+
+  canDelete(review: Review): boolean {
+    const u: any = this.authService.getCurrentUser?.();
+    if (!u) return false;
+
+    const role = (u.role ?? '').toUpperCase();
+    const isAdminOrBib = role === 'ADMIN' || role === 'BIBLIOTHEEKBEHEERDER';
+
+    const userEmail = (u.email ?? '').toLowerCase();
+    const userSs = (
+      u.smartschoolUsername ??
+      u.smartschool_username ??
+      u.username ??
+      ''
+    ).toLowerCase();
+
+    const ownerByEmail = (review.authorEmail ?? '').toLowerCase() === userEmail;
+    const ownerBySs = !!userSs && (review.authorSmartschoolUsername ?? '').toLowerCase() === userSs;
+
+    return isAdminOrBib || ownerByEmail || ownerBySs;
+  }
+
   get isAdminOrBeheerder(): boolean {
     const r = this.userRole?.toUpperCase();
     return r === 'ADMIN' || r === 'BIBLIOTHEEKBEHEERDER';
@@ -28,16 +52,8 @@ export class ReviewList {
     return [1, 2, 3, 4, 5];
   }
 
-  canDeleteReview(review: Review): boolean {
-    if (this.isAdminOrBeheerder) return true;
-
-    const author = (review.authorName ?? '').trim().toLowerCase();
-    const current = (this.currentUserName ?? '').trim().toLowerCase();
-    return !!author && !!current && author === current;
-  }
-
   onDeleteReview(review: Review): void {
-    if (!this.canDeleteReview(review)) return;
+    if (!this.canDelete(review)) return;
 
     this.confirmMessage = 'Weet u zeker dat u deze review wilt verwijderen?';
     this.pendingAction = () => this.deleteReview.emit(review.id);

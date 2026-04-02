@@ -219,6 +219,8 @@ export interface Review {
   stars: number;
   createdAt: string;
   authorName: string;
+  authorEmail?: string;
+  authorSmartschoolUsername?: string;
 }
 
 export interface CreateReview {
