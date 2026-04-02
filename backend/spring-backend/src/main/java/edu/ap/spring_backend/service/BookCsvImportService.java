@@ -107,7 +107,7 @@ public class BookCsvImportService {
                 CSVParser parser = CSVFormat.DEFAULT.builder()
                         .setHeader()
                         .setSkipHeaderRecord(true)
-                        .setDelimiter(';')
+                        .setDelimiter(";")
                         .setTrim(true)
                         .setIgnoreEmptyLines(true)
                         .build()
@@ -132,9 +132,8 @@ public class BookCsvImportService {
                 String author = getColumnValue(record, "Auteur");
                 String isbn = getColumnValue(record, "ISBN");
                 String copiesStr = getColumnValue(record, "Exemplaar_aantal");
-                String campus = getColumnValue(record, "Campus").toLowerCase().replace(" ", "");
+                String campus = getColumnValue(record, "Campus");
 
-                // Parse copy amount (format error here; value validation delegated to validateRow)
                 int copies = 1;
                 if (!copiesStr.isEmpty()) {
                     try {
@@ -144,7 +143,6 @@ public class BookCsvImportService {
                     }
                 }
 
-                // Parse condition columns (format errors here; value validation delegated to validateRow)
                 int condNieuw    = parseCount(getColumnValue(record, "Conditie_nieuw"),      "Conditie_nieuw",      rowNum, errors);
                 int condGoed     = parseCount(getColumnValue(record, "Conditie_goed"),       "Conditie_goed",       rowNum, errors);
                 int condGebruikt = parseCount(getColumnValue(record, "Conditie_gebruikt"),   "Conditie_gebruikt",   rowNum, errors);
@@ -277,7 +275,7 @@ public class BookCsvImportService {
      */
     private void createCopies(Item item, School school, BookImportRow row) {
         Campus campus = school.getCampuses().stream()
-                .filter(c -> c.getName().toLowerCase().replace(" ", "").equals(row.campus()))
+                .filter(c -> normalize(c.getName()).equals(normalize(row.campus())))
                 .findFirst()
                 .orElse(null);
 
@@ -336,10 +334,10 @@ public class BookCsvImportService {
                     + ") overschrijdt 'Exemplaar_aantal' (" + row.copies() + ").");
 
         if (!row.campus().isEmpty() && school.getCampuses().stream()
-                .noneMatch(c -> c.getName().toLowerCase().replace(" ", "").equals(row.campus())))
+                .noneMatch(c -> normalize(c.getName()).equals(normalize(row.campus()))))
             errors.add("Rij " + rowNum + ": campus '" + row.campus() + "' niet gevonden voor deze school.");
 
-        String duplicateKey = row.title().toLowerCase() + "|" + row.campus();
+        String duplicateKey = row.title().toLowerCase() + "|" + normalize(row.campus());
         if (!row.title().isEmpty() && !seenKeys.add(duplicateKey))
             errors.add("Rij " + rowNum + ": titel + campus komt meerdere keren voor in het bestand.");
     }
@@ -354,6 +352,10 @@ public class BookCsvImportService {
                 .map(Item::getIsbn)
                 .filter(existing -> existing != null && !existing.isEmpty() && !existing.equals(isbn))
                 .orElse("");
+    }
+
+    private static String normalize(String s) {
+        return s.toLowerCase().replace(" ", "");
     }
 
     private int parseCount(String value, String fieldName, int rowNum, List<String> errors) {

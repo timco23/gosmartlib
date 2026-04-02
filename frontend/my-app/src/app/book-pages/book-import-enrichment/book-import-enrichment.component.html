@@ -36,8 +36,9 @@
         <div class="field-group isbn-conflict-group">
           <label class="isbn-conflict-label">ISBN-conflict</label>
           <p class="isbn-conflict-desc">
-            Het bestaande item heeft ISBN <strong>{{ state.original.existingIsbn }}</strong>, maar de CSV bevat
-            <strong>{{ state.original.isbn }}</strong>. Wat moet er gebeuren?
+            Het bestaande item heeft ISBN <strong>{{ state.original.existingIsbn }}</strong
+            >, maar de CSV bevat <strong>{{ state.original.isbn }}</strong
+            >. Wat moet er gebeuren?
           </p>
           <div class="isbn-conflict-options">
             <label class="isbn-radio-label">
@@ -47,7 +48,7 @@
                 [value]="false"
                 [(ngModel)]="state.updateExistingIsbn"
               />
-              Bestaand ISBN behouden ({{ state.original.existingIsbn }})
+              Bestaand ISBN behouden
             </label>
             <label class="isbn-radio-label">
               <input
@@ -56,7 +57,7 @@
                 [value]="true"
                 [(ngModel)]="state.updateExistingIsbn"
               />
-              Bijwerken met CSV ISBN ({{ state.original.isbn }})
+              Bijwerken met CSV ISBN
             </label>
           </div>
         </div>

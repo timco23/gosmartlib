@@ -97,6 +97,25 @@ textarea:focus {
   background: black;
 }
 
+.csv-import-btn {
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #21a366;
+}
+
+.csv-import-btn:hover {
+  background: #1a8a54;
+}
+
+.csv-import-btn i {
+  font-size: 17px;
+}
+
 .preview-title {
   font-weight: 600;
   margin-bottom: 10px;
@@ -149,7 +168,7 @@ textarea:focus {
 }
 
 .import-result-error {
-  color: black;
+  color: #8c1b3f;
 }
 
 .import-result-success {

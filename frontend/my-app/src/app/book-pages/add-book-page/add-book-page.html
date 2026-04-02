@@ -1,6 +1,6 @@
 <body class="form-container">
   <div class="page-header">
-    <h1>Boek toevoegen</h1>
+    <h1>Boek(en) toevoegen</h1>
     <input
       type="file"
       accept=".csv"
@@ -10,11 +10,14 @@
     />
     <button
       type="button"
-      class="secondary-btn"
+      class="secondary-btn csv-import-btn"
       (click)="csvInput.click()"
       [disabled]="!school || importLoading"
     >
-      {{ importLoading ? 'Importeren...' : 'Bulk import' }}
+      @if (!importLoading) {
+        <i class="fas fa-file-csv"></i>
+      }
+      {{ importLoading ? 'Importeren...' : 'Bulk import via CSV' }}
     </button>
   </div>
   @if (previewErrors.length > 0) {
@@ -42,225 +45,229 @@
     <div class="import-result-box">
       <p class="import-result-title import-result-success">
         Import geslaagd:
-        {{ importResult.importedBooks }} {{ importResult.importedBooks === 1 ? 'boek' : 'boeken' }} en
-        {{ importResult.importedCopies }} {{ importResult.importedCopies === 1 ? 'exemplaar' : 'exemplaren' }} geïmporteerd.
+        {{ importResult.importedBooks }}
+        {{ importResult.importedBooks === 1 ? 'boek' : 'boeken' }} en
+        {{ importResult.importedCopies }}
+        {{ importResult.importedCopies === 1 ? 'exemplaar' : 'exemplaren' }} geïmporteerd.
       </p>
     </div>
   }
   @if (!showEnrichment) {
-  <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-    <main class="form-left">
-      @if (userError) {
-        <p id="warning">Er was een probleem met het ophalen van je gebruikersgegevens.</p>
-      } @else {
-        @if (userHasNoSchoolError) {
-          <p id="warning">De gebruiker is niet aan een school gekoppeld.</p>
+    <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <main class="form-left">
+        @if (userError) {
+          <p id="warning">Er was een probleem met het ophalen van je gebruikersgegevens.</p>
         } @else {
-          @if (schoolError) {
-            <p id="warning">
-              Er was een probleem met het ophalen van je schoolgegevens. Error:
-              {{ schoolErrorMessage }}
-            </p>
+          @if (userHasNoSchoolError) {
+            <p id="warning">De gebruiker is niet aan een school gekoppeld.</p>
           } @else {
-            <label for="isbn">ISBN (optioneel)</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="isbn"
-              type="text"
-              formControlName="isbn"
-            />
-            <p>
-              Gebruik deze knop om te proberen de bovenstaande ISBN te gebruiken om onderstaande
-              velden automatisch in te vullen.
-            </p>
-            <button
-              type="button"
-              (click)="loadDetailsViaISBN()"
-              class="primary-btn"
-              [disabled]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-            >
-              Haal gegevens op
-            </button>
-            @if (nothingFound) {
-              <p id="warning">Geen boek met deze ISBN gevonden</p>
-            }
-            @if (missingFields.length > 0) {
+            @if (schoolError) {
               <p id="warning">
-                De volgende velden konden niet automatisch ingevuld worden, vul deze zelf in om het
-                boek toe te voegen:
-                {{ missingFields.join(', ') }}
+                Er was een probleem met het ophalen van je schoolgegevens. Error:
+                {{ schoolErrorMessage }}
               </p>
-            }
-            <label for="itemId">Selecteer een boek (optioneel)</label>
-            <select id="itemId" (change)="loadBookDetails()" formControlName="itemId">
-              <option value="0">Geen</option>
-              @for (globalBook of globalBookList | async; track $index) {
-                <option [value]="globalBook.id">{{ globalBook.title }}</option>
-              }
-            </select>
-            @if (error) {
-              <p id="warning">
-                Er was een probleem met het ophalen van de boekgegevens. Error bericht:
-                {{ errorMessage }}
-              </p>
-            }
-            <label for="title">Titel</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="title"
-              type="text"
-              formControlName="titel"
-            />
-            <label for="author">Auteur(s)</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="author"
-              type="text"
-              formControlName="auteur"
-            />
-            <label for="description">Beschrijving</label>
-            <textarea id="description" formControlName="beschrijving"></textarea>
-            <label for="publisher">Uitgeverij (optioneel)</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="publisher"
-              type="text"
-              formControlName="uitgeverij"
-            />
-
-            <label for="releaseYear">Uitgavejaar (optioneel)</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="releaseYear"
-              type="number"
-              formControlName="uitgaveJaar"
-            />
-            <label for="language">Taal</label>
-            <select
-              [attr.disabled]="isReadOnly ? true : null"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="language"
-              formControlName="taal"
-            >
-              <option value="">Selecteer een taal</option>
-              <option value="Nederlands">Nederlands</option>
-              <option value="Engels">Engels</option>
-              <option value="Frans">Frans</option>
-              <option value="Duits">Duits</option>
-              <option value="Andere">Andere</option>
-            </select>
-            <label for="pageCount">Aantal paginas (optioneel)</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="pageCount"
-              type="number"
-              formControlName="paginaAantal"
-            />
-            <label for="cover">Cover URL (optioneel)</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="cover"
-              type="url"
-              formControlName="cover"
-            />
-            <label for="reviewScore">Review score</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="reviewScore"
-              type="number"
-              formControlName="reviewScore"
-            />
-            <label for="reviewCount">Aantal reviews</label>
-            <input
-              [readonly]="isReadOnly"
-              [ngClass]="{ readOnly: isReadOnly }"
-              id="reviewCount"
-              type="number"
-              formControlName="reviewCount"
-            />
-            <label>Tags</label>
-            <app-tag-selection-menu
-              [initialTags]="selectedTags"
-              (tagsChanged)="onTagsChanged($event)"
-            />
-            <label>Genres</label>
-            <app-genre-selection-menu
-              [initialGenres]="selectedGenres"
-              (tagsChanged)="onGenresChanged($event)"
-            />
-
-            <label>Subgenres</label>
-            <app-subgenre-selection-menu
-              [initialSubgenres]="selectedSubgenres"
-              [genreIds]="selectedGenres"
-              (subgenresChanged)="onSubgenresChanged($event)"
-            />
-            <label>Leesniveau</label>
-            <app-reading-level (selectedReadingLevel)="onReadingLevelChanged($event)" />
-            <label> <input type="checkbox" formControlName="isDidactic" /> Didactisch boek </label>
-
-            @if (form.get('isDidactic')?.value) {
-              <label>Didactische categorieën</label>
-              <app-didactic-category-selection-menu
-                [initialCategories]="selectedDidacticCategories"
-                (tagsChanged)="onDidacticCategoriesChanged($event)"
-              />
-            }
-            <label for="campus">Selecteer een campus (optioneel)</label>
-            @if (campusLoading) {
-              <p>Schoolcampussen laden....</p>
             } @else {
-              @if (school?.campuses!.length > 0) {
-                <select id="campus" formControlName="campusId">
-                  <option value="0">Geen</option>
-                  @for (campus of school?.campuses; track $index) {
-                    <option [value]="campus.id">{{ campus.name }}</option>
-                  }
-                </select>
-              } @else {
-                <p>Geen schoolcampussen gevonden</p>
+              <label for="isbn">ISBN (optioneel)</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="isbn"
+                type="text"
+                formControlName="isbn"
+              />
+              <p>
+                Gebruik deze knop om te proberen de bovenstaande ISBN te gebruiken om onderstaande
+                velden automatisch in te vullen.
+              </p>
+              <button
+                type="button"
+                (click)="loadDetailsViaISBN()"
+                class="primary-btn"
+                [disabled]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+              >
+                Haal gegevens op
+              </button>
+              @if (nothingFound) {
+                <p id="warning">Geen boek met deze ISBN gevonden</p>
               }
-            }
-            <label for="condition">Conditie exemplaar</label>
-            <select id="condition" name="condition" formControlName="condition" required>
-              <option value="NIEUW">Nieuw</option>
-              <option value="GOED">Goed</option>
-              <option value="GEBRUIKT">Gebruikt</option>
-              <option value="BESCHADIGD">Beschadigd</option>
-            </select>
-            <label for="barcode">Barcode</label>
-            <input id="barcode" type="text" formControlName="barcode" name="barcode" required />
-            <div class="form-buttons">
-              <button type="submit" class="primary-btn">Voeg boek toe</button>
-              <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
-            </div>
-            @if (copyAlreadyExists) {
-              <p id="warning">Er bestaat al een exemplaar van dit book voor deze school.</p>
-            }
-            @if (incompleteForm) {
-              <p id="warning">Vul alle niet optionele velden juist in.</p>
+              @if (missingFields.length > 0) {
+                <p id="warning">
+                  De volgende velden konden niet automatisch ingevuld worden, vul deze zelf in om
+                  het boek toe te voegen:
+                  {{ missingFields.join(', ') }}
+                </p>
+              }
+              <label for="itemId">Selecteer een boek (optioneel)</label>
+              <select id="itemId" (change)="loadBookDetails()" formControlName="itemId">
+                <option value="0">Geen</option>
+                @for (globalBook of globalBookList | async; track $index) {
+                  <option [value]="globalBook.id">{{ globalBook.title }}</option>
+                }
+              </select>
+              @if (error) {
+                <p id="warning">
+                  Er was een probleem met het ophalen van de boekgegevens. Error bericht:
+                  {{ errorMessage }}
+                </p>
+              }
+              <label for="title">Titel</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="title"
+                type="text"
+                formControlName="titel"
+              />
+              <label for="author">Auteur(s)</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="author"
+                type="text"
+                formControlName="auteur"
+              />
+              <label for="description">Beschrijving</label>
+              <textarea id="description" formControlName="beschrijving"></textarea>
+              <label for="publisher">Uitgeverij (optioneel)</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="publisher"
+                type="text"
+                formControlName="uitgeverij"
+              />
+
+              <label for="releaseYear">Uitgavejaar (optioneel)</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="releaseYear"
+                type="number"
+                formControlName="uitgaveJaar"
+              />
+              <label for="language">Taal</label>
+              <select
+                [attr.disabled]="isReadOnly ? true : null"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="language"
+                formControlName="taal"
+              >
+                <option value="">Selecteer een taal</option>
+                <option value="Nederlands">Nederlands</option>
+                <option value="Engels">Engels</option>
+                <option value="Frans">Frans</option>
+                <option value="Duits">Duits</option>
+                <option value="Andere">Andere</option>
+              </select>
+              <label for="pageCount">Aantal paginas (optioneel)</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="pageCount"
+                type="number"
+                formControlName="paginaAantal"
+              />
+              <label for="cover">Cover URL (optioneel)</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="cover"
+                type="url"
+                formControlName="cover"
+              />
+              <label for="reviewScore">Review score</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="reviewScore"
+                type="number"
+                formControlName="reviewScore"
+              />
+              <label for="reviewCount">Aantal reviews</label>
+              <input
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+                id="reviewCount"
+                type="number"
+                formControlName="reviewCount"
+              />
+              <label>Tags</label>
+              <app-tag-selection-menu
+                [initialTags]="selectedTags"
+                (tagsChanged)="onTagsChanged($event)"
+              />
+              <label>Genres</label>
+              <app-genre-selection-menu
+                [initialGenres]="selectedGenres"
+                (tagsChanged)="onGenresChanged($event)"
+              />
+
+              <label>Subgenres</label>
+              <app-subgenre-selection-menu
+                [initialSubgenres]="selectedSubgenres"
+                [genreIds]="selectedGenres"
+                (subgenresChanged)="onSubgenresChanged($event)"
+              />
+              <label>Leesniveau</label>
+              <app-reading-level (selectedReadingLevel)="onReadingLevelChanged($event)" />
+              <label>
+                <input type="checkbox" formControlName="isDidactic" /> Didactisch boek
+              </label>
+
+              @if (form.get('isDidactic')?.value) {
+                <label>Didactische categorieën</label>
+                <app-didactic-category-selection-menu
+                  [initialCategories]="selectedDidacticCategories"
+                  (tagsChanged)="onDidacticCategoriesChanged($event)"
+                />
+              }
+              <label for="campus">Selecteer een campus (optioneel)</label>
+              @if (campusLoading) {
+                <p>Schoolcampussen laden....</p>
+              } @else {
+                @if (school?.campuses!.length > 0) {
+                  <select id="campus" formControlName="campusId">
+                    <option value="0">Geen</option>
+                    @for (campus of school?.campuses; track $index) {
+                      <option [value]="campus.id">{{ campus.name }}</option>
+                    }
+                  </select>
+                } @else {
+                  <p>Geen schoolcampussen gevonden</p>
+                }
+              }
+              <label for="condition">Conditie exemplaar</label>
+              <select id="condition" name="condition" formControlName="condition" required>
+                <option value="NIEUW">Nieuw</option>
+                <option value="GOED">Goed</option>
+                <option value="GEBRUIKT">Gebruikt</option>
+                <option value="BESCHADIGD">Beschadigd</option>
+              </select>
+              <label for="barcode">Barcode</label>
+              <input id="barcode" type="text" formControlName="barcode" name="barcode" required />
+              <div class="form-buttons">
+                <button type="submit" class="primary-btn">Voeg boek toe</button>
+                <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
+              </div>
+              @if (copyAlreadyExists) {
+                <p id="warning">Er bestaat al een exemplaar van dit book voor deze school.</p>
+              }
+              @if (incompleteForm) {
+                <p id="warning">Vul alle niet optionele velden juist in.</p>
+              }
             }
           }
         }
-      }
-    </main>
-    <div class="form-right">
-      <p class="preview-title">Preview van coverafbeelding</p>
-      @if (!form.get('cover')?.value) {
-        <div class="no-cover">Voer een juiste URL in</div>
-      } @else {
-        <img [src]="form.get('cover')?.value" />
-      }
-    </div>
-  </form>
+      </main>
+      <div class="form-right">
+        <p class="preview-title">Preview van coverafbeelding</p>
+        @if (!form.get('cover')?.value) {
+          <div class="no-cover">Voer een juiste URL in</div>
+        } @else {
+          <img [src]="form.get('cover')?.value" />
+        }
+      </div>
+    </form>
   }
 </body>
