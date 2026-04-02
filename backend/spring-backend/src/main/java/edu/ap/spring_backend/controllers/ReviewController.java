@@ -12,7 +12,10 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -23,6 +26,7 @@ import java.util.List;
 @RequestMapping("/books/{itemId}/reviews")
 public class ReviewController {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final ReviewService reviewService;
 
     /**
@@ -111,21 +115,82 @@ public class ReviewController {
         if (authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
-            return authentication.getName();
+            String name = authentication.getName();
+            if (name != null && !name.isBlank() && !"anonymousUser".equalsIgnoreCase(name)) {
+                return name.trim();
+            }
         }
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7).trim();
-            return switch (token) {
-                case "DEV_ADMIN_TOKEN" -> "admin@gsmartlib.tech";
-                case "DEV_STUDENT_TOKEN" -> "leerling.dev@gsmartlib.tech";
-                case "DEV_TEACHER_TOKEN" -> "leerkracht.dev@gsmartlib.tech";
-                case "DEV_BIBLIOTHEEKBEHEERDER_TOKEN" -> "bibliotheekbeheerder.dev@gsmartlib.tech";
-                default -> throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Niet aangemeld");
-            };
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Niet aangemeld");
         }
 
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Niet aangemeld");
+        String token = header.substring(7).trim();
+        return switch (token) {
+            case "DEV_ADMIN_TOKEN" -> "admin@gsmartlib.tech";
+            case "DEV_STUDENT_TOKEN" -> "leerling.dev@gsmartlib.tech";
+            case "DEV_TEACHER_TOKEN" -> "leerkracht.dev@gsmartlib.tech";
+            case "DEV_BIBLIOTHEEKBEHEERDER_TOKEN" -> "bibliotheekbeheerder.dev@gsmartlib.tech";
+            default -> extractPrincipalFromJwt(token);
+        };
+    }
+
+    /**
+     * Extracts the user identifier from a JWT token.
+     * @param token JWT token
+     * @return extracted identifier (e.g. email or username)
+     * @throws ResponseStatusException if token is invalid
+     */
+    private String extractPrincipalFromJwt(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ongeldige token");
+            }
+
+            String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> payload = objectMapper.readValue(payloadJson, Map.class);
+
+            String value = firstNonBlank(
+                    asString(payload.get("email")),
+                    asString(payload.get("preferred_username")),
+                    asString(payload.get("upn")),
+                    asString(payload.get("smartschool_username")),
+                    asString(payload.get("sub"))
+            );
+
+            if (value == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token zonder identiteit");
+            }
+
+            return value;
+        } catch (ResponseStatusException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ongeldige token");
+        }
+    }
+
+    /**
+     * Converts an object to a trimmed string.
+     * @param value object to convert
+     * @return trimmed string or null if value is null
+     */
+    private String asString(Object value) {
+        return value == null ? null : value.toString().trim();
+    }
+
+    /**
+     * Returns the first non-blank value from the given list.
+     * @param values values to check
+     * @return first non-blank value or null if none found
+     */
+    private String firstNonBlank(String... values) {
+        for (String v : values) {
+            if (v != null && !v.isBlank()) return v;
+        }
+        return null;
     }
 }

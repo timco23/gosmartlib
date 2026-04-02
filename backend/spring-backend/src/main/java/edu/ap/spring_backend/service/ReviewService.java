@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Service containing business logic for item reviews.
@@ -42,13 +45,73 @@ public class ReviewService {
     }
 
     /**
+     * Resolves a user based on different identifier formats.
+     * @param identifier email, username or ID
+     * @return resolved User
+     * @throws ResponseStatusException if user is not found
+     */
+    private User resolveUser(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
+        }
+
+        Set<String> candidates = new LinkedHashSet<>();
+        String raw = identifier.trim();
+        candidates.add(raw);
+        candidates.add(raw.toLowerCase(Locale.ROOT));
+
+        if (raw.contains("|")) {
+            String part = raw.substring(raw.lastIndexOf('|') + 1).trim();
+            if (!part.isBlank()) {
+                candidates.add(part);
+                candidates.add(part.toLowerCase(Locale.ROOT));
+            }
+        }
+
+        if (raw.contains("\\")) {
+            String part = raw.substring(raw.lastIndexOf('\\') + 1).trim();
+            if (!part.isBlank()) {
+                candidates.add(part);
+                candidates.add(part.toLowerCase(Locale.ROOT));
+            }
+        }
+
+        if (raw.contains("@")) {
+            String localPart = raw.substring(0, raw.indexOf('@')).trim();
+            if (!localPart.isBlank()) {
+                candidates.add(localPart);
+                candidates.add(localPart.toLowerCase(Locale.ROOT));
+            }
+        }
+
+        for (String c : candidates) {
+            var byEmail = userRepository.findByEmailIgnoreCase(c);
+            if (byEmail.isPresent()) return byEmail.get();
+
+            var bySs = userRepository.findBySmartschoolUsernameIgnoreCase(c);
+            if (bySs.isPresent()) return bySs.get();
+        }
+
+        for (String c : candidates) {
+            if (c.matches("\\d+")) {
+                var byId = userRepository.findById(Integer.parseInt(c));
+                if (byId.isPresent()) return byId.get();
+            }
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
+    }
+
+ 
+
+    /**
      * Returns all reviews for one item.
      * @param itemId id of the item
      * @param userEmail email of the requesting user (must exist)
      * @return list of review DTOs
      */
     public List<ReviewDTO> getReviewsForItem(Long itemId, String userEmail) {
-        userRepository.findByEmail(userEmail).orElseThrow(EntityNotFoundException::new);
+        resolveUser(userEmail);
         return reviewRepository.findByItemId(itemId).stream().map(this::mapToDTO).toList();
     }
 
@@ -74,7 +137,7 @@ public class ReviewService {
      */
     @Transactional
     public ReviewDTO createReview(Long itemId, CreateReviewDTO dto, String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(EntityNotFoundException::new);
+        User user = resolveUser(userEmail);
         Item item = itemRepository.findById(itemId).orElseThrow(EntityNotFoundException::new);
 
         String title = hasText(dto.title()) ? dto.title().trim() : null;
@@ -102,8 +165,7 @@ public class ReviewService {
      */
     @Transactional
     public void deleteReview(Long itemId, Long reviewId, String requesterEmail) {
-        User actor = userRepository.findByEmail(requesterEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden"));
+        User actor = resolveUser(requesterEmail);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review niet gevonden"));
@@ -133,8 +195,7 @@ public class ReviewService {
      */
     @Transactional
     public void deleteAllReviewsForItem(Long itemId, String requesterEmail) {
-        User actor = userRepository.findByEmail(requesterEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden"));
+        User actor = resolveUser(requesterEmail);
 
         String role = String.valueOf(actor.getRole());
         boolean isAdminOrManager = "ADMIN".equals(role) || "BIBLIOTHEEKBEHEERDER".equals(role);
@@ -185,6 +246,11 @@ public class ReviewService {
         );
     }
 
+    /**
+     * Checks if a string contains non-whitespace text.
+     * @param s string to check
+     * @return true if not null and not empty
+     */
     private boolean hasText(String s) {
         return s != null && !s.trim().isEmpty();
     }
