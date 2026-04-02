@@ -102,4 +102,12 @@ public class SchoolItemCopyService {
                 copy.getCampus()
         );
     }
+
+    public SchoolItemCopyDTO getCopyByBarcode(String barcode) {
+        SchoolItemCopy copy = schoolItemCopyRepository.findByBarcode(barcode).orElse(null);
+        if (copy != null) {
+            return mapToDTO(copy);
+        }
+        return null;
+    }
 }

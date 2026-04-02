@@ -120,4 +120,8 @@ export class BookService {
       responseType: 'text'
     });
   }
+
+  getByBarcode(barcode: string): Observable<SchoolItemCopy> {
+    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/barcode/${barcode}`);
+  }
 }

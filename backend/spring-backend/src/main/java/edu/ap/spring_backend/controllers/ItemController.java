@@ -102,4 +102,9 @@ public class ItemController {
     public ResponseEntity<SchoolItemCopyDTO> getCopyByItemTitle(@RequestParam String title, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getByItemTitleAndSchoolId(title, schoolId));
     }
+
+    @GetMapping("/books/copies/barcode/{barcode}")
+    public ResponseEntity<SchoolItemCopyDTO> getCopyByBarcode(@PathVariable String barcode) {
+        return ResponseEntity.ok(schoolItemCopyService.getCopyByBarcode(barcode));
+    }
 }

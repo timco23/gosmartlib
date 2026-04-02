@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
 );
 
 INSERT INTO school_item_copy (school_id, item_id, barcode, copy_status, item_condition, featured, campus_id)
-SELECT 1, id, 12345, 'BESCHIKBAAR', 'NIEUW', FALSE, NULL
+SELECT 1, id, CONCAT('BC', LPAD(id, 6, '0')), 'BESCHIKBAAR', 'NIEUW', FALSE, NULL
 FROM item;
 
 -- the main genre of a book
