@@ -128,4 +128,8 @@ export class BookService {
   getCopiesByBookId(bookId: number, schoolId: number): Observable<SchoolItemCopy[]> {
     return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${bookId}`, { params: { schoolId: schoolId } });
   }
+
+  getCopyById(copyId: number): Observable<SchoolItemCopy> {
+    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/id/${copyId}`);
+  }
 }

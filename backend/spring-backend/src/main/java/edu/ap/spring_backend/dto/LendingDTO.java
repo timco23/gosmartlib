@@ -9,5 +9,6 @@ public record LendingDTO(
     String lendingDate,
     String returnDate,
     String dateReturned,
-    Boolean returned
+    Boolean returned,
+    String copyBarcode
 ) { }

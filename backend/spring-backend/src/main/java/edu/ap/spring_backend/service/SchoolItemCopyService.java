@@ -110,4 +110,10 @@ public class SchoolItemCopyService {
         }
         return null;
     }
+
+    public SchoolItemCopyDTO getCopyById(int copyId) {
+        SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
+                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+        return mapToDTO(copy);
+    }
 }

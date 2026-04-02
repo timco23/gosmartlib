@@ -13,6 +13,7 @@ import { FavoritesComponent } from './favorites/favorites.component';
 import { OauthCallback } from './oauth-callback/oauth-callback';
 import { LendingManagementComponent } from './lending-pages/lending-management/lending-management.component';
 import { LendBookComponent } from './lending-pages/lend-book/lend-book.component';
+import { ReturnBookComponent } from './lending-pages/return-book/return-book.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,5 +31,6 @@ export const routes: Routes = [
   { path: 'tags', component: TagManagement, canActivate: [authGuard] },
   { path: 'lendings', component: LendingManagementComponent, canActivate: [authGuard] },
   { path: 'lendings/lend', component: LendBookComponent, canActivate: [authGuard] },
+  { path: 'lendings/return', component: ReturnBookComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' },
 ];

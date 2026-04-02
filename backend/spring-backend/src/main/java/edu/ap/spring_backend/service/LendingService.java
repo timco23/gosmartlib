@@ -27,7 +27,8 @@ public class LendingService {
                 lending.getLendingDate().toString(),
                 lending.getReturnDate().toString(),
                 lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,
-                lending.getReturned()
+                lending.getReturned(),
+                lending.getBook().getBarcode()
             )).toList();
     }
 
@@ -62,7 +63,8 @@ public class LendingService {
                 lending.getLendingDate().toString(),
                 lending.getReturnDate().toString(),
                 lending.getDateReturned() != null ? lending.getDateReturned().toString() : null,
-                lending.getReturned()
+                lending.getReturned(),
+                lending.getBook().getBarcode()
             )).orElseThrow();
     }
 }

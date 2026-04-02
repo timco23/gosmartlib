@@ -78,6 +78,11 @@ public class ItemController {
         return ResponseEntity.ok(itemService.updateItem(id, itemDTO));
     }
 
+    @GetMapping("/books/copies/id/{copyId}")
+    public ResponseEntity<SchoolItemCopyDTO> getCopyById(@PathVariable int copyId) {
+        return ResponseEntity.ok(schoolItemCopyService.getCopyById(copyId));
+    }
+
     @GetMapping("/books/copies/{itemId}")
     public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByItemIdAndSchoolId(@PathVariable Long itemId, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopiesByItemIdAndSchoolId(itemId, schoolId));

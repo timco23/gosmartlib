@@ -203,6 +203,7 @@ export interface Lending {
   returnDate: string;
   dateReturned: string | null;
   returned: boolean;
+  copyBarcode: string;
 }
 
 export enum Role {

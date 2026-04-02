@@ -58,7 +58,6 @@ export class LendBookComponent {
     this.bookService.getBooks().subscribe({
       next: (books) => {
         this.books = books;
-        console.log('Books loaded:', this.books);
         this.cdr.detectChanges();
       },
       error: () => {
@@ -154,7 +153,6 @@ export class LendBookComponent {
 
   onUserSelect(event: Event): void {
     const userId = (event.target as HTMLSelectElement).value;
-    console.log('Selected user ID:', userId);
     this.cdr.detectChanges();
   }
 }
