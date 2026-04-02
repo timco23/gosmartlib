@@ -318,3 +318,33 @@ button:active {
 .warning {
   color: red;
 }
+
+.reviews-section {
+  margin-top: 40px;
+}
+
+.reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reviews-header h3 {
+  margin: 0;
+}
+
+.add-review-btn {
+  background-color: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: auto;
+  margin: 0;
+}
+
+.add-review-btn:hover {
+  background-color: #6f1532;
+}

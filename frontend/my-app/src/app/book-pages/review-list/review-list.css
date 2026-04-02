@@ -1,0 +1,163 @@
+.review-list {
+  margin-top: 16px;
+}
+
+.review-list-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.delete-all-btn {
+  background-color: #fddede;
+  color: #8c1b3f;
+  border: 1px solid #8c1b3f;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: auto;
+  margin: 0;
+}
+
+.delete-all-btn:hover {
+  background-color: #f5c0c0;
+}
+
+.no-reviews {
+  color: #888;
+  font-style: italic;
+}
+
+.review-card {
+  background: white;
+  border: 1px solid #bfbfe8;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.review-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.review-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.review-author {
+  font-weight: 600;
+  color: #333;
+}
+
+.review-date {
+  font-size: 13px;
+  color: #888;
+}
+
+.review-stars {
+  font-size: 18px;
+}
+
+.star {
+  color: #ccc;
+}
+
+.star.filled {
+  color: #f5a623;
+}
+
+.review-title {
+  margin: 0 0 6px 0;
+  color: #8c1b3f;
+}
+
+.review-description {
+  margin: 0 0 10px 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.delete-btn {
+  background-color: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  width: auto;
+  margin: 0;
+}
+
+.delete-btn:hover {
+  background-color: #6f1532;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-dialog {
+  background: white;
+  border-radius: 10px;
+  padding: 28px 32px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-dialog p {
+  margin: 0 0 20px 0;
+  font-size: 15px;
+  color: #333;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.confirm-btn {
+  background-color: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: auto;
+  margin: 0;
+}
+
+.confirm-btn:hover {
+  background-color: #6f1532;
+}
+
+.cancel-btn {
+  background-color: #f0efe4;
+  color: #333;
+  border: 1px solid #bfbfe8;
+  padding: 9px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: auto;
+  margin: 0;
+}
+
+.cancel-btn:hover {
+  background-color: #e0dfcf;
+}
