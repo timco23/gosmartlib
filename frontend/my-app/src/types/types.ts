@@ -86,7 +86,7 @@ export interface GoogleBook {
 
 export interface Book {
   id: number;
-    tags: Tag[];
+  tags: Tag[];
   genres: number[];
   subgenres: number[];
   readingLevel: number | null;
@@ -170,21 +170,20 @@ export interface SchoolItemCopy {
   featured: boolean;
   copy_status: string;
   schoolId: number;
-  campus?: 
-    {
-      id: number,
-      name: string
-    };
+  campus?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface CreateSchoolItemCopyPayload {
-  itemId: number,
-  barcode: string,
-  condition: string,
-  copy_status: string,
-  featured: boolean,
-  schoolId: number,
-  campusId: number
+  itemId: number;
+  barcode: string;
+  condition: string;
+  copy_status: string;
+  featured: boolean;
+  schoolId: number;
+  campusId: number;
 }
 
 export interface CarouselSlot {
@@ -197,18 +196,33 @@ export enum Role {
   LEERLING,
   LEERKRACHT,
   BEHEERDER,
-  ADMIN
+  ADMIN,
 }
 
 export enum CopyStatus {
   BESCHIKBAAR,
   UITGELEEND,
-  ONTBREKEND
+  ONTBREKEND,
 }
 
 export enum ItemCondition {
   NIEUW,
   GOED,
   GEBRUIKT,
-  BESCHADIGD
+  BESCHADIGD,
+}
+
+export interface Review {
+  id: number;
+  title: string | null;
+  description: string | null;
+  stars: number;
+  createdAt: string;
+  authorName: string;
+}
+
+export interface CreateReview {
+  title?: string | null;
+  description?: string;
+  stars: number;
 }

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -40,6 +39,39 @@ export class Login implements OnInit {
       role: 'ADMIN',
       email: 'admin@gsmartlib.tech',
     });
+    this.router.navigate(['/home']);
+  }
+
+  loginAsStudent() {
+    this.authService.setToken('DEV_STUDENT_TOKEN');
+    this.authService.setCurrentUser({
+      name: 'Test',
+      first_name: 'Leerling',
+      role: 'LEERLING',
+      email: 'leerling.dev@gsmartlib.tech',
+    } as any);
+    this.router.navigate(['/home']);
+  }
+
+  loginAsTeacher() {
+    this.authService.setToken('DEV_TEACHER_TOKEN');
+    this.authService.setCurrentUser({
+      name: 'Test',
+      first_name: 'Leerkracht',
+      role: 'LEERKRACHT',
+      email: 'leerkracht.dev@gsmartlib.tech',
+    } as any);
+    this.router.navigate(['/home']);
+  }
+
+  loginAsLibraryAdministrator() {
+    this.authService.setToken('DEV_BIBLIOTHEEKBEHEERDER_TOKEN');
+    this.authService.setCurrentUser({
+      name: 'Test',
+      first_name: 'Bibliotheekbeheerder',
+      role: 'BIBLIOTHEEKBEHEERDER',
+      email: 'bibliotheekbeheerder.dev@gsmartlib.tech',
+    } as any);
     this.router.navigate(['/home']);
   }
 }

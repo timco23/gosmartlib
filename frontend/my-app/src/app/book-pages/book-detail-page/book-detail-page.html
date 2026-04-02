@@ -1,4 +1,4 @@
-<body class="book-detail-container">
+<div class="book-detail-container">
   <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
 
   @if (book) {
@@ -118,6 +118,35 @@
           </button>
         </div>
       </div>
+
+      <section class="reviews-section">
+        <div class="reviews-header">
+          <h3>Recensies</h3>
+          @if (!showReviewForm) {
+            <button class="add-review-btn" type="button" (click)="showReviewForm = true">
+              Recensie schrijven
+            </button>
+          }
+        </div>
+
+        @if (showReviewForm) {
+          <app-review-form (submitted)="submitReview($event)" (cancelled)="showReviewForm = false">
+          </app-review-form>
+        }
+
+        @if (reviewServerError) {
+          <p class="warning">{{ reviewServerError }}</p>
+        }
+
+        <app-review-list
+          [reviews]="reviews"
+          [userRole]="userRoleForReviews"
+          [currentUserName]="currentUserNameForReviews"
+          (deleteReview)="onDeleteReview($event)"
+          (deleteAll)="onDeleteAllReviews()"
+        >
+        </app-review-list>
+      </section>
 
       <section class="copies-section">
         <h3>Exemplaren</h3>
@@ -294,4 +323,4 @@
   } @else {
     <h3>Loading...</h3>
   }
-</body>
+</div>
