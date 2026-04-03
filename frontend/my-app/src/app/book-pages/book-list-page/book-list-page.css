@@ -47,23 +47,22 @@
   font-weight: 500;
 }
 
+.add-button:hover {
+  background-color: #6f1532;
+}
+
 .secondary-button {
-  background-color: white;
-  color: black;
-  border: 1px solid #bfbfe8;
+  background-color: #2f2f2f;
+  color: white;
+  border: none;
   padding: 10px 18px;
   border-radius: 6px;
   text-decoration: none;
   font-weight: 500;
 }
 
-.add-button:hover {
-  background-color: #6f1532;
-}
-
 .secondary-button:hover {
-  border-color: #8c1b3f;
-  color: #8c1b3f;
+  background-color: #333;
 }
 
 /* Layout */
@@ -253,15 +252,14 @@
   flex-direction: column;
   gap: 0.3125rem;
   min-width: 0;
+  max-width: 40%;
 }
 
 .book-title {
   font-weight: 600;
   font-size: 0.9375rem;
   color: black;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .book-meta {
@@ -273,8 +271,10 @@
 .book-badges {
   display: flex;
   flex-wrap: wrap;
+  align-self: center;
   gap: 0.375rem;
   margin-top: 0.125rem;
+  max-width: 40%;
 }
 
 .badge {

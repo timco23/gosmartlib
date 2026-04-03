@@ -287,6 +287,73 @@ INSERT INTO tag (name) VALUES
 ('Overleven'),
 ('Toekomst & technologie');
 
+-- junction table linking items to tags
+CREATE TABLE IF NOT EXISTS item_tag (
+    item_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    PRIMARY KEY (item_id, tag_id),
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
+);
+
+-- Default tags for imported books
+-- Tags: 1=Liefde & relaties, 2=Vriendschap, 3=Identiteit & zelfbeeld, 4=Gender & seksualiteit,
+--       5=Diversiteit & inclusie, 6=Mentale gezondheid, 7=Rouw & verlies, 8=Familie,
+--       9=School & prestatiedruk, 10=Sociale media, 11=Migratie & afkomst,
+--       12=Armoede & ongelijkheid, 13=Macht & onrecht, 14=Avontuur & ontdekking,
+--       15=Overleven, 16=Toekomst & technologie
+-- Books (by insert order): 1=Het smelt, 2=De donkere kamer van Damokles, 3=De aanslag,
+--   4=Turks fruit, 5=De ontdekking van de hemel, 6=Oorlogswinter, 7=The Great Gatsby,
+--   8=To Kill a Mockingbird, 9=1984, 10=The Catcher in the Rye, 11=Brave New World,
+--   12=Sapiens, 13=Een kleine geschiedenis van de wereld, 14=Het korte geheugen,
+--   15=Le Petit Prince, 16=L'Étranger, 17=Der Vorleser, 18=Die Verwandlung,
+--   19=Het dagboek van een muts, 20=Harry Potter en de Steen der Wijzen, 21=De schuld van de sterren
+INSERT INTO item_tag (item_id, tag_id)
+SELECT i.id, t.tag_id FROM (
+    SELECT 1 AS seq, 1 AS tag_id UNION ALL  -- Het smelt: Liefde & relaties
+    SELECT 1, 7 UNION ALL
+    SELECT 1, 8 UNION ALL                    -- Familie
+    SELECT 2, 3 UNION ALL                    -- De donkere kamer: Identiteit & zelfbeeld
+    SELECT 2, 15 UNION ALL                   -- Overleven
+    SELECT 3, 7 UNION ALL                    -- De aanslag: Rouw & verlies
+    SELECT 3, 13 UNION ALL                   -- Macht & onrecht
+    SELECT 4, 1 UNION ALL                    -- Turks fruit: Liefde & relaties
+    SELECT 4, 7 UNION ALL                    -- Rouw & verlies
+    SELECT 5, 16 UNION ALL                   -- De ontdekking van de hemel: Toekomst & technologie
+    SELECT 5, 13 UNION ALL                   -- Macht & onrecht
+    SELECT 6, 15 UNION ALL                   -- Oorlogswinter: Overleven
+    SELECT 6, 8 UNION ALL                    -- Familie
+    SELECT 7, 1 UNION ALL                    -- The Great Gatsby: Liefde & relaties
+    SELECT 7, 12 UNION ALL                   -- Armoede & ongelijkheid
+    SELECT 8, 13 UNION ALL                   -- To Kill a Mockingbird: Macht & onrecht
+    SELECT 8, 5 UNION ALL                    -- Diversiteit & inclusie
+    SELECT 9, 13 UNION ALL                   -- 1984: Macht & onrecht
+    SELECT 9, 16 UNION ALL                   -- Toekomst & technologie
+    SELECT 10, 3 UNION ALL                   -- The Catcher in the Rye: Identiteit & zelfbeeld
+    SELECT 10, 9 UNION ALL                   -- School & prestatiedruk
+    SELECT 11, 13 UNION ALL                  -- Brave New World: Macht & onrecht
+    SELECT 11, 16 UNION ALL                  -- Toekomst & technologie
+    SELECT 12, 5 UNION ALL                   -- Sapiens: Diversiteit & inclusie
+    SELECT 12, 14 UNION ALL                  -- Avontuur & ontdekking
+    SELECT 13, 14 UNION ALL                  -- Een kleine geschiedenis: Avontuur & ontdekking
+    SELECT 14, 13 UNION ALL                  -- Het korte geheugen: Macht & onrecht
+    SELECT 15, 3 UNION ALL                   -- Le Petit Prince: Identiteit & zelfbeeld
+    SELECT 15, 2 UNION ALL                   -- Vriendschap
+    SELECT 16, 3 UNION ALL                   -- L'Étranger: Identiteit & zelfbeeld
+    SELECT 16, 6 UNION ALL                   -- Mentale gezondheid
+    SELECT 17, 1 UNION ALL                   -- Der Vorleser: Liefde & relaties
+    SELECT 17, 7 UNION ALL                   -- Rouw & verlies
+    SELECT 18, 3 UNION ALL                   -- Die Verwandlung: Identiteit & zelfbeeld
+    SELECT 18, 6 UNION ALL                   -- Mentale gezondheid
+    SELECT 19, 2 UNION ALL                   -- Het dagboek van een muts: Vriendschap
+    SELECT 19, 9 UNION ALL                   -- School & prestatiedruk
+    SELECT 20, 2 UNION ALL                   -- Harry Potter: Vriendschap
+    SELECT 20, 14 UNION ALL                  -- Avontuur & ontdekking
+    SELECT 21, 1 UNION ALL                   -- De schuld van de sterren: Liefde & relaties
+    SELECT 21, 7                             -- Rouw & verlies
+) AS t
+JOIN item i ON i.id = t.seq;
+
 -- reading level of a book (A, B, C or D. increasing difficulty)
 CREATE TABLE IF NOT EXISTS reading_level (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

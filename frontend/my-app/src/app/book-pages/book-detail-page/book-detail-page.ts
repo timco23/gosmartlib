@@ -338,7 +338,7 @@ export class BookDetailPage implements OnInit {
   }
 
   backToList() {
-    this.router.navigate(['/books']);
+    this.router.navigate(['/books'], { replaceUrl: true });
   }
 
   addCopy() {
