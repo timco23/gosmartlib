@@ -59,7 +59,7 @@ services:
       - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolalloworiginlist=https://gsmartlib.tech,https://www.gsmartlib.tech"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,PATCH"
-      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowheaders=Authorization,Content-Type,Accept,X-Requested-With"
       - "traefik.http.middlewares.cors-prod.headers.accesscontrolallowcredentials=true"
       - "traefik.docker.network=traefik"
 
