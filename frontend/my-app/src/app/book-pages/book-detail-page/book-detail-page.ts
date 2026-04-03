@@ -88,6 +88,8 @@ export class BookDetailPage implements OnInit {
     campusId: 0,
   };
 
+  ratingLevels: number[] = [5, 4, 3, 2, 1];
+
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
@@ -133,6 +135,23 @@ export class BookDetailPage implements OnInit {
         });
       });
     });
+  }
+
+  get displayedReviewCount(): number {
+    return this.reviews?.length ?? 0;
+  }
+
+  get displayedReviewScore(): number {
+    if (!this.reviews?.length) return this.book?.reviewScore ?? 0;
+    const avg = this.reviews.reduce((sum, r) => sum + r.stars, 0) / this.reviews.length;
+    return Math.round(avg * 10) / 10;
+  }
+
+  getReviewPercent(stars: number): number {
+    const total = this.reviews?.length ?? 0;
+    if (!total) return 0;
+    const count = this.reviews.filter((r) => r.stars === stars).length;
+    return Math.round((count / total) * 100);
   }
 
   get userRoleForReviews(): string {

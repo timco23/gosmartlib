@@ -1,7 +1,133 @@
 .book-detail-container {
-  max-width: 1000px;
+  max-width: 1250px;
   margin: 40px auto;
   padding: 20px;
+}
+
+.book-top-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr 260px;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #b7b7b7;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.panel-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.cover-panel {
+  min-height: 320px;
+  text-align: center;
+}
+
+.cover-panel img {
+  max-width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+.center-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title-panel {
+  font-weight: 700;
+  text-align: center;
+}
+
+.meta-row {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 10px;
+}
+
+.pages-panel {
+  text-align: center;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stars {
+  letter-spacing: 2px;
+  color: #222;
+}
+
+.muted {
+  color: #555;
+  font-size: 14px;
+}
+
+.mini-btn {
+  margin-left: auto;
+  width: auto;
+  padding: 8px 12px;
+  background: #bfbfe8;
+  color: #222;
+}
+
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-btn {
+  width: 100%;
+  margin: 0;
+}
+
+.side-box {
+  min-height: 120px;
+}
+
+.modern-reviews {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+}
+
+.reviews-summary h3 {
+  margin-top: 0;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 38px;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.bar {
+  height: 9px;
+  border: 1px solid #999;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.fill {
+  height: 100%;
+  background: #8c1b3f;
+}
+
+.reviews-content {
+  min-width: 0;
 }
 
 .back-link {
@@ -25,9 +151,11 @@
 
 .book-detail-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 12px;
   margin-bottom: 25px;
+  text-align: center;
 }
 
 .book-detail-header h2 {
@@ -38,6 +166,8 @@
 .book-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -175,6 +305,10 @@ select {
   color: black;
 }
 
+.add-favorite {
+  align-self: center;
+}
+
 .add-favorite button {
   background: #c2e569;
   color: black;
@@ -184,6 +318,21 @@ select {
   grid-column: 2/3;
   grid-row: 2/3;
   background: #a8d94e;
+}
+
+.meta-label {
+  font-weight: 700;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+.details-grid div {
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #d8d8d8;
 }
 
 .copies-section {
@@ -347,4 +496,19 @@ button:active {
 
 .add-review-btn:hover {
   background-color: #6f1532;
+}
+
+@media (max-width: 1100px) {
+  .book-top-grid,
+  .modern-reviews {
+    grid-template-columns: 1fr;
+  }
+
+  .meta-row {
+    grid-template-columns: 1fr;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
 }
