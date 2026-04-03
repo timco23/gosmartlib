@@ -206,6 +206,7 @@ export interface Lending {
   dateReturned: string | null;
   returned: boolean;
   copyBarcode: string;
+  extended: boolean;
 }
 
 export interface LendingRequest {

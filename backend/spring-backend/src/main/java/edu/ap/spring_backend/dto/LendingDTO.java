@@ -11,5 +11,6 @@ public record LendingDTO(
     String returnDate,
     String dateReturned,
     Boolean returned,
-    String copyBarcode
+    String copyBarcode,
+    Boolean extended
 ) { }

@@ -34,7 +34,7 @@
             <span class="value">{{ lending.returnDate }}</span>
           </div>
           <div class="lend-actions">
-            <a class="add-button" id="extend-button" [routerLink]="['/home']">Verlengen</a>
+            <button class="add-button" id="extend-button" (click)="onExtend(lending)">Verlengen</button>
             <a class="add-button" [routerLink]="['/lendings/return']" [queryParams]="{ barcode: lending.copyBarcode }">Terugbrengen</a>
           </div>
         </li>

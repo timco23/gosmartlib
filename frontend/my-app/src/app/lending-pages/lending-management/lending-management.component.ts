@@ -26,4 +26,28 @@ export class LendingManagementComponent {
       this.cdr.detectChanges();
     });
   }
+
+  onExtend(lending: Lending): void {
+    if (lending.extended) {
+      alert('Deze lening is al verlengd.');
+      return;
+    }
+
+    const bevestigd = confirm(`Bent u zeker dat u de lening van "${lending.bookTitle}" voor ${lending.borrowerName} wilt verlengen?`);
+    if (!bevestigd) return;
+
+    this.lendingService.extendLending(lending.id).subscribe({
+      next: (updatedLending) => {
+        const index = this.lendings.findIndex(l => l.id === lending.id);
+        if (index !== -1) {
+          this.lendings[index] = updatedLending;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.error('Fout bij verlengen van lening:', err);
+        alert('Er is een fout opgetreden bij het verlengen van de lening. Probeer het later opnieuw.');
+      }
+    });
+  }
 }

@@ -31,4 +31,8 @@ export class LendingService {
   getLendingById(id: number) {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
+
+  extendLending(id: number): Observable<Lending> {
+    return this.http.post<Lending>(`${this.apiUrl}/${id}/extend`, {});
+  }
 }

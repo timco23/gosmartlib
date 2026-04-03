@@ -47,4 +47,9 @@ public class LendingController {
     public LendingDTO updateLending(@PathVariable Long id, @RequestBody LendingDTO dto) {
         return lendingService.updateLending(id, dto);
     }
+
+    @PostMapping("/{id}/extend")
+    public LendingDTO extendLending(@PathVariable Long id) {
+        return lendingService.extendLending(id);
+    }
 }

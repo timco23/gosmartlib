@@ -32,6 +32,9 @@ public class Lending {
     @Column()
     private LocalDate dateReturned;
     
+    @Column()
+    private Boolean extended;
+
     @ManyToOne
     @JoinColumn(name = "borrower_id", nullable = false)
     private User borrower;
