@@ -104,9 +104,21 @@
 
 .info-row {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
   padding: 10px 0;
   border-bottom: 1px solid #bfbfe8;
+}
+
+.info-row .label {
+  min-width: 175px;
+  flex-shrink: 0;
+}
+
+.info-row > span:not(.label) {
+  flex: 1;
+  text-align: right;
 }
 
 .label {

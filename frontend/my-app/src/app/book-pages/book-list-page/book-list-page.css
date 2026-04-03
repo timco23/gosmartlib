@@ -252,15 +252,14 @@
   flex-direction: column;
   gap: 0.3125rem;
   min-width: 0;
+  max-width: 40%;
 }
 
 .book-title {
   font-weight: 600;
   font-size: 0.9375rem;
   color: black;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .book-meta {
@@ -272,8 +271,10 @@
 .book-badges {
   display: flex;
   flex-wrap: wrap;
+  align-self: center;
   gap: 0.375rem;
   margin-top: 0.125rem;
+  max-width: 40%;
 }
 
 .badge {
