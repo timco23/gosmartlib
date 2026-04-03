@@ -12,7 +12,7 @@
       }
       <a routerLink="/books" class="nav-link">Boeken</a>
       <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
-      @if (authService.atLeastHasRole(role.ADMIN)) {
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
         <a routerLink="/lendings" class="nav-link" routerLinkActive="active">Uitleenbeheer</a>
       }
     </div>
