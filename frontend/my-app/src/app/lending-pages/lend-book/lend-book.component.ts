@@ -37,7 +37,6 @@ export class LendBookComponent {
   constructor(private bookService: BookService) { }
 
   public ngOnInit(): void {
-
     this.authService.currentUser$.subscribe((user) => {
       if (!user?.email) return;
       this.userService.getUser(user.email).subscribe({
@@ -46,11 +45,35 @@ export class LendBookComponent {
             this.schoolService.getByName(data.schoolName).subscribe({
               next: (schoolData) => {
                 this.school = schoolData;
+                const schoolId = this.school!.id!;
 
-                this.userService.getFromSchool(this.school?.id ?? -1).subscribe({
+                this.userService.getFromSchool(schoolId).subscribe({
                   next: (users) => {
                     this.users = users;
                     this.cdr.detectChanges();
+                  }
+                });
+
+                this.bookService.getBooks().subscribe({
+                  next: (books) => {
+                    const bookChecks = books.map(book =>
+                      this.bookService.getCopiesByBookId(book.id, schoolId).toPromise()
+                        .then(copies => {
+                          console.log('copy statuses for book', book.title, ':', copies?.map(c => c.copy_status));
+                          return {
+                            book,
+                            hasAvailable: copies?.some(c => c.copy_status === 'BESCHIKBAAR') ?? false
+                          };
+                        })
+                    );
+
+                    Promise.all(bookChecks).then(results => {
+                      console.log('available books:', results.filter(r => r.hasAvailable).length);
+                      this.books = results
+                        .filter(r => r.hasAvailable)
+                        .map(r => r.book);
+                      this.cdr.detectChanges();
+                    });
                   }
                 });
               }
@@ -58,31 +81,6 @@ export class LendBookComponent {
           }
         }
       });
-    });
-
-    this.bookService.getBooks().subscribe({
-      next: (books) => {
-        if (!this.school?.id) {
-          this.books = [];
-          return;
-        }
-
-        const schoolId = this.school.id;
-        const bookChecks = books.map(book =>
-          this.bookService.getCopiesByBookId(book.id, schoolId).toPromise()
-            .then(copies => ({
-              book,
-              hasAvailable: copies?.some(c => c.copy_status === 'BESCHIKBAAR') ?? false
-            }))
-        );
-
-        Promise.all(bookChecks).then(results => {
-          this.books = results
-            .filter(r => r.hasAvailable)
-            .map(r => r.book);
-          this.cdr.detectChanges();
-        });
-      }
     });
   }
 
@@ -202,7 +200,7 @@ export class LendBookComponent {
           this.bookService.setCopyStatus(this.currentSchoolCopy!.id, 'UITGELEEND').subscribe({
             next: () => {
               console.log('Copy status updated');
-              },
+            },
             error: (err) => {
               console.error('Error updating copy status:', err);
               alert('Lening aanmaken mislukt, probeer later opnieuw.');
