@@ -40,20 +40,18 @@ public class ItemController {
     public ResponseEntity<PageResponseDTO<ItemDTO>> getAllFilteredItems(
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "10") @Min(1) @Max(10) int size,
-            @RequestParam(defaultValue = "title") @Pattern(regexp = "title|author|year|score|pages") String sortBy,
+            @RequestParam(defaultValue = "title") @Pattern(regexp = "title|author|score|pages") String sortBy,
             @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE) String sortDirection,
             @RequestParam Long schoolId,
             @RequestParam(required = false) @Size(max = 100) String search,
             @RequestParam(required = false) @Size(max = 10) List<String> languages,
             @RequestParam(required = false) @Min(0) Integer minPages,
             @RequestParam(required = false) @Min(0) Integer maxPages,
-            @RequestParam(required = false) @Min(1500) @Max(2050) Integer minYear,
-            @RequestParam(required = false) @Min(1500) @Max(2050) Integer maxYear,
             @RequestParam(required = false) @DecimalMin("0.0") @DecimalMax("5.0") Double minScore,
             @RequestParam(required = false) List<Long> tagIds) {
         ItemRequestDTO request = new ItemRequestDTO(
                 page, size, sortBy, sortDirection,
-                search, languages, minPages, maxPages, minYear, maxYear, minScore, tagIds, schoolId);
+                search, languages, minPages, maxPages, minScore, tagIds, schoolId);
         return ResponseEntity.ok(itemService.getFilteredItems(request));
     }
 

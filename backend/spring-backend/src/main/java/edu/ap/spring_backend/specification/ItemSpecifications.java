@@ -42,17 +42,7 @@ public class ItemSpecifications {
                 cb.lessThanOrEqualTo(root.get("pageCount"), maxPages);
     }
 
-    public static Specification<Item> withMinYear(Integer minYear) {
-        return (root, query, cb) -> minYear == null ? null :
-                cb.greaterThanOrEqualTo(root.get("releaseYear"), minYear);
-    }
-
-    public static Specification<Item> withMaxYear(Integer maxYear) {
-        return (root, query, cb) -> maxYear == null ? null :
-                cb.lessThanOrEqualTo(root.get("releaseYear"), maxYear);
-    }
-
-    public static Specification<Item> withMinScore(Double minScore) {
+public static Specification<Item> withMinScore(Double minScore) {
         return (root, query, cb) -> minScore == null ? null :
                 cb.greaterThanOrEqualTo(root.get("reviewScore"), minScore);
     }

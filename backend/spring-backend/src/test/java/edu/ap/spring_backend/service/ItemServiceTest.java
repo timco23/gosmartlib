@@ -82,7 +82,7 @@ class ItemServiceTest {
         // Given
         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", "Test", List.of("English"),
-                100, 500, 2000, 2025, 4.0, List.of(1L), 1L);
+                100, 500, 4.0, List.of(1L), 1L);
         Page<Item> page = new PageImpl<>(List.of(testItem));
         when(itemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
@@ -101,24 +101,13 @@ class ItemServiceTest {
         // Given
         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", null, null,
-                500, 100, null, null, null, null, 1L);
+                500, 100, null, null, 1L);
 
         // When & Then
         assertThrows(IllegalArgumentException.class, () -> itemService.getFilteredItems(request));
     }
 
-    @Test
-    void givenInvalidYears_whenGetSchoolItems_thenThrowIllegalArgumentException() {
-        // Given
-        ItemRequestDTO request = new ItemRequestDTO(
-                0, 10, "title", "asc", null, null,
-                null, null, 2025, 2020, null, null, 1L);
-
-        // When & Then
-        assertThrows(IllegalArgumentException.class, () -> itemService.getFilteredItems(request));
-    }
-
-    // ---------------- addItem ----------------
+// ---------------- addItem ----------------
 
     @Test
     void givenNewItem_whenAddItem_thenCreateItemAndCopy() {

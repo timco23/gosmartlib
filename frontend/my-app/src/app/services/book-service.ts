@@ -34,8 +34,6 @@ export class BookService {
     schoolId: number,
     minPages?: number,
     maxPages?: number,
-    minYear?: number,
-    maxYear?: number,
     minScore?: number,
     tagIds?: number[],
   ): Observable<Page<Book>> {
@@ -50,9 +48,7 @@ export class BookService {
     if (languages.length > 0) languages.forEach((l) => (params = params.append('languages', l)));
     if (minPages !== undefined) params = params.set('minPages', minPages);
     if (maxPages !== undefined) params = params.set('maxPages', maxPages);
-    if (minYear !== undefined) params = params.set('minYear', minYear);
-    if (maxYear !== undefined) params = params.set('maxYear', maxYear);
-    if (minScore !== undefined) params = params.set('minScore', minScore);
+if (minScore !== undefined) params = params.set('minScore', minScore);
     if (tagIds && tagIds.length > 0) tagIds.forEach((id) => (params = params.append('tagIds', id)));
 
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });
