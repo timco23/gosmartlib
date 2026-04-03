@@ -394,16 +394,3 @@ CREATE TABLE IF NOT EXISTS lending (
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
-
-INSERT INTO lending (borrower_id, book_id, school_id, lending_date, return_date, returned, date_returned, extended) VALUES
--- Active lendings (not returned yet)
-(1, 1, 1, '2026-03-01', '2026-03-15', FALSE, NULL, FALSE),
-(1, 2, 1, '2026-03-05', '2026-03-19', FALSE, NULL, FALSE),
-(1, 3, 1, '2026-03-10', '2026-03-24', FALSE, NULL, FALSE),
--- Returned on time
-(1, 4, 1, '2026-02-01', '2026-02-15', TRUE, '2026-02-14', FALSE),
-(1, 5, 1, '2026-02-10', '2026-02-24', TRUE, '2026-02-20', FALSE),
--- Returned late
-(1, 6, 1, '2026-01-01', '2026-01-15', TRUE, '2026-01-20', FALSE),
--- Not returned and overdue
-(1, 7, 1, '2026-02-01', '2026-02-15', FALSE, NULL, FALSE);
