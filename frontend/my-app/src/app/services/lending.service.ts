@@ -17,7 +17,7 @@ export class LendingService {
   }
 
   createLending(request: LendingRequest): Observable<any> {
-    return this.http.post('/api/lendings', request);
+    return this.http.post(this.apiUrl, request);
   }
 
   updateLending(id: number, lending: any) {

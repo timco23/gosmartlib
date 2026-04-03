@@ -59,7 +59,6 @@ export class LendBookComponent {
                     const bookChecks = books.map(book =>
                       this.bookService.getCopiesByBookId(book.id, schoolId).toPromise()
                         .then(copies => {
-                          console.log('copy statuses for book', book.title, ':', copies?.map(c => c.copy_status));
                           return {
                             book,
                             hasAvailable: copies?.some(c => c.copy_status === 'BESCHIKBAAR') ?? false
