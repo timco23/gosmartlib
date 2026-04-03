@@ -5,7 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { BookService } from '../../services/book-service';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LendingService } from '../../services/lending.service';
 
 @Component({
@@ -33,11 +33,12 @@ export class ReturnBookComponent {
   private userService = inject(UserService);
   private lendingService = inject(LendingService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   constructor(private bookService: BookService) { }
 
   public ngOnInit(): void {
-
+    this.cdr.detectChanges();
     this.authService.currentUser$.subscribe((user) => {
       if (!user?.email) return;
       this.userService.getUser(user.email).subscribe({
@@ -62,8 +63,15 @@ export class ReturnBookComponent {
 
     this.lendingService.getLendings().subscribe({
       next: (lendings) => {
-        this.lendings = lendings;
+        this.lendings = lendings.filter(l => !l.returned);
         this.cdr.detectChanges();
+
+        this.route.queryParams.subscribe(params => {
+          if (params['barcode']) {
+            this.barcode = params['barcode'];
+            this.onBarcodeChange(this.barcode);
+          }
+        });
       },
       error: () => {
         this.lendings = [];
@@ -79,13 +87,6 @@ export class ReturnBookComponent {
       error: () => {
         this.books = [];
         this.cdr.detectChanges();
-      }
-    });
-
-    this.route.queryParams.subscribe(params => {
-      if (params['barcode']) {
-        this.barcode = params['barcode'];
-        this.onBarcodeChange(this.barcode);
       }
     });
   }
@@ -139,8 +140,8 @@ export class ReturnBookComponent {
   }
 
   onBookSelect(event: Event): void {
-    const id = (event.target as HTMLSelectElement).value;
-    if (!id) {
+    const lendingId = (event.target as HTMLSelectElement).value;
+    if (!lendingId) {
       this.bookSelected = false;
       this.currentBook = null;
       this.currentSchoolCopy = null;
@@ -152,9 +153,7 @@ export class ReturnBookComponent {
     }
 
     this.bookSelected = true;
-    const selected = this.books.find(b => b.id === +id);
-    this.currentBook = selected ?? null;
-    this.currentLending = this.lendings.find(l => l.bookTitle === selected?.title) ?? null;
+    this.currentLending = this.lendings.find(l => l.id === +lendingId) ?? null;
 
     if (this.currentLending?.copyBarcode) {
       this.barcode = this.currentLending.copyBarcode;
@@ -179,5 +178,42 @@ export class ReturnBookComponent {
   onUserSelect(event: Event): void {
     const userId = (event.target as HTMLSelectElement).value;
     this.cdr.detectChanges();
+  }
+
+  onSubmit(): void {
+    if (!this.currentSchoolCopy || !this.currentLending) {
+      alert('Selecteer eerst een boek.');
+      return;
+    }
+
+    this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
+      next: () => {
+        console.log('Copy status updated');
+        this.lendingService.updateLending(this.currentLending.id, { returned: true, dateReturned: new Date().toISOString() }).subscribe({
+          next: () => {
+            console.log('Lending updated');
+
+            this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
+              next: () => {
+                console.log('User borrowed count updated');
+                this.router.navigate(['/lendings']);
+              },
+              error: (err) => {
+                console.error('Error updating user borrowed count:', err);
+              }
+            });
+            
+          },
+          error: (err) => {
+            console.error('Error updating lending:', err);
+            alert('Boek retourneren mislukt, probeer later opnieuw.');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error updating copy status:', err);
+        alert('Boek retourneren mislukt, probeer later opnieuw.');
+      }
+    });
   }
 }

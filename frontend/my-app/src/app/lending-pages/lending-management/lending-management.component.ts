@@ -20,9 +20,9 @@ export class LendingManagementComponent {
 
   public ngOnInit(): void {
     this.lendingService.getLendings().subscribe((data: Lending[]) => {
-      this.lendings = data.sort((a, b) =>
-        new Date(a.returnDate).getTime() - new Date(b.returnDate).getTime()
-      );
+      this.lendings = data
+        .filter(l => !l.returned)
+        .sort((a, b) => new Date(a.returnDate).getTime() - new Date(b.returnDate).getTime());
       this.cdr.detectChanges();
     });
   }

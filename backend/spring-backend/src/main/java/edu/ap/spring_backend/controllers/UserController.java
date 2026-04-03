@@ -102,4 +102,14 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PutMapping("/removeBorrowed")
+    public ResponseEntity<UserResponse> removeBorrowedItem(@RequestParam Integer userId) {
+        try {
+            UserResponse response = userService.removeFromItemsBorrowed(userId);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

@@ -32,6 +32,7 @@ public class LendingService {
                 .map(lending -> new LendingDTO(
                         lending.getId(),
                         lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
+                        lending.getBorrower() != null ? lending.getBorrower().getId().longValue() : null,
                         lending.getBook().getItem().getTitle(),
                         lending.getBook().getItem().getAuthor(),
                         lending.getSchool().getId(),
@@ -58,6 +59,7 @@ public class LendingService {
         return new LendingDTO(
                 saved.getId(),
                 saved.getBorrower() != null ? saved.getBorrower().getSmartschoolUsername() : null,
+                lending.getBorrower() != null ? lending.getBorrower().getId().longValue() : null,
                 saved.getBook().getItem().getTitle(),
                 saved.getBook().getItem().getAuthor(),
                 saved.getSchool().getId(),
@@ -68,16 +70,25 @@ public class LendingService {
                 saved.getBook().getBarcode());
     }
 
-    public Lending updateLending(Long id, Lending updatedLending) {
+    public LendingDTO updateLending(Long id, LendingDTO dto) {
         Lending lending = lendingRepository.findById(id).orElseThrow();
-        lending.setBorrower(updatedLending.getBorrower());
-        lending.setBook(updatedLending.getBook());
-        lending.setSchool(updatedLending.getSchool());
-        lending.setLendingDate(updatedLending.getLendingDate());
-        lending.setReturnDate(updatedLending.getReturnDate());
-        lending.setReturned(updatedLending.getReturned());
-        lending.setDateReturned(updatedLending.getDateReturned());
-        return lendingRepository.save(lending);
+        lending.setReturned(dto.returned());
+        lending.setDateReturned(
+                dto.dateReturned() != null ? java.time.LocalDate.parse(dto.dateReturned().substring(0, 10)) : null);
+        Lending saved = lendingRepository.save(lending);
+
+        return new LendingDTO(
+                saved.getId(),
+                saved.getBorrower() != null ? saved.getBorrower().getSmartschoolUsername() : null,
+                lending.getBorrower() != null ? lending.getBorrower().getId().longValue() : null,
+                saved.getBook().getItem().getTitle(),
+                saved.getBook().getItem().getAuthor(),
+                saved.getSchool().getId(),
+                saved.getLendingDate().toString(),
+                saved.getReturnDate().toString(),
+                saved.getDateReturned() != null ? saved.getDateReturned().toString() : null,
+                saved.getReturned(),
+                saved.getBook().getBarcode());
     }
 
     public void deleteLending(Long id) {
@@ -89,6 +100,7 @@ public class LendingService {
                 .map(lending -> new LendingDTO(
                         lending.getId(),
                         lending.getBorrower() != null ? lending.getBorrower().getSmartschoolUsername() : null,
+                        lending.getBorrower() != null ? lending.getBorrower().getId().longValue() : null,
                         lending.getBook().getItem().getTitle(),
                         lending.getBook().getItem().getAuthor(),
                         lending.getSchool().getId(),

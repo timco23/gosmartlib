@@ -197,6 +197,7 @@ export interface CarouselSlot {
 export interface Lending {
   id: number;
   borrowerName: string;
+  borrowerId: number;
   bookTitle: string;
   bookAuthor: string;
   schoolId: number;

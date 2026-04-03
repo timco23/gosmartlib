@@ -44,4 +44,10 @@ export class UserService {
       params: { userId: userId.toString() }
     });
   }
+
+  removeBorrowedItem(userId: number): Observable<void> {
+    return this.http.put<void>(`${environment.apiUrl}/user/removeBorrowed`, null, {
+      params: { userId: userId.toString() }
+    });
+  }
 }
