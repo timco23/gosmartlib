@@ -9,6 +9,8 @@ import {
   School,
   CreateSchoolItemCopyPayload,
   Tag,
+  Review,
+  CreateReview,
 } from '../../../types/types';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -20,10 +22,13 @@ import { GenreService } from '../../services/genre.service';
 import { SubgenreService } from '../../services/subgenre.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { ReadingLevelService } from '../../services/reading-level.service';
+import { ReviewService } from '../../services/review.service';
+import { ReviewList } from '../review-list/review-list';
+import { ReviewForm } from '../review-form/review-form';
 
 @Component({
   selector: 'app-book-detail-page',
-  imports: [RouterLink, FormsModule, CommonModule],
+  imports: [RouterLink, FormsModule, CommonModule, ReviewForm, ReviewList],
   templateUrl: './book-detail-page.html',
   styleUrl: './book-detail-page.css',
 })
@@ -36,6 +41,7 @@ export class BookDetailPage implements OnInit {
   route = inject(ActivatedRoute);
   authService = inject(AuthService);
   schoolService = inject(SchoolService);
+  reviewService = inject(ReviewService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   copies: SchoolItemCopy[] = [];
   addingCopy: boolean = false;
@@ -49,6 +55,9 @@ export class BookDetailPage implements OnInit {
   allSubgenres: any[] = [];
   allDidacticCategories: any[] = [];
   readingLevels: any[] = [];
+  reviews: Review[] = [];
+  showReviewForm: boolean = false;
+  reviewServerError = '';
 
   tagService = inject(TagService);
   genreService = inject(GenreService);
@@ -57,7 +66,15 @@ export class BookDetailPage implements OnInit {
   readingLevelService = inject(ReadingLevelService);
 
   editingCopyId: number | null = null;
-  editedCopy: CreateSchoolItemCopyPayload = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
+  editedCopy: CreateSchoolItemCopyPayload = {
+    itemId: 0,
+    condition: '',
+    barcode: '',
+    copy_status: '',
+    featured: false,
+    schoolId: 0,
+    campusId: 0,
+  };
   isFavorite: boolean = false;
   favorites: any[] = [];
 
@@ -68,22 +85,26 @@ export class BookDetailPage implements OnInit {
     copy_status: 'BESCHIKBAAR',
     featured: false,
     schoolId: 0,
-    campusId: 0
+    campusId: 0,
   };
+
+  ratingLevels: number[] = [5, 4, 3, 2, 1];
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
       if (!user?.email) return;
 
-      this.tagService.getTags().subscribe(tags => {
+      this.tagService.getTags().subscribe((tags) => {
         this.allTags = tags;
       });
 
-      this.genreService.getGenres().subscribe(g => this.allGenres = g);
-      this.subgenreService.getSubgenres().subscribe(s => this.allSubgenres = s);
-      this.didacticService.getDidacticCategories().subscribe(d => this.allDidacticCategories = d);
-      this.readingLevelService.getAll().subscribe(r => this.readingLevels = r);
+      this.genreService.getGenres().subscribe((g) => (this.allGenres = g));
+      this.subgenreService.getSubgenres().subscribe((s) => (this.allSubgenres = s));
+      this.didacticService
+        .getDidacticCategories()
+        .subscribe((d) => (this.allDidacticCategories = d));
+      this.readingLevelService.getAll().subscribe((r) => (this.readingLevels = r));
 
       this.route.paramMap.subscribe((p) => {
         const id = p.get('id');
@@ -108,11 +129,111 @@ export class BookDetailPage implements OnInit {
           next: (favorites) => {
             this.favorites = favorites;
             this.checkIfFavorite();
-            console.log(favorites)
+            console.log(favorites);
             this.cdr.detectChanges();
           },
         });
       });
+    });
+  }
+
+  get displayedReviewCount(): number {
+    return this.reviews?.length ?? 0;
+  }
+
+  get displayedReviewScore(): number {
+    if (!this.reviews?.length) return this.book?.reviewScore ?? 0;
+    const avg = this.reviews.reduce((sum, r) => sum + r.stars, 0) / this.reviews.length;
+    return Math.round(avg * 10) / 10;
+  }
+
+  getReviewPercent(stars: number): number {
+    const total = this.reviews?.length ?? 0;
+    if (!total) return 0;
+    const count = this.reviews.filter((r) => r.stars === stars).length;
+    return Math.round((count / total) * 100);
+  }
+
+  get userRoleForReviews(): string {
+    const raw = (this.currentUser as any)?.role;
+
+    let roleName = '';
+    if (typeof raw === 'string') {
+      roleName = raw.toUpperCase();
+    } else if (typeof raw === 'number') {
+      roleName = String(Role[raw] ?? '').toUpperCase();
+    }
+
+    return roleName === 'BEHEERDER' ? 'BIBLIOTHEEKBEHEERDER' : roleName;
+  }
+
+  get currentUserNameForReviews(): string {
+    const u = this.currentUser as any;
+    return (
+      [u?.firstName ?? u?.first_name, u?.name]
+        .filter((v: string | undefined) => !!v && v.trim().length > 0)
+        .join(' ')
+        .trim() ||
+      u?.name ||
+      ''
+    );
+  }
+
+  loadReviews(): void {
+    if (!this.book) return;
+    this.reviewService.getReviews(this.book.id).subscribe({
+      next: (reviews) => {
+        this.reviews = reviews;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  submitReview(review: CreateReview): void {
+    if (!this.book) return;
+
+    this.reviewServerError = '';
+    this.reviewService.createReview(this.book.id, review).subscribe({
+      next: () => {
+        this.showReviewForm = false;
+        this.reviewServerError = '';
+        this.loadReviews();
+        this.api.getBookById(this.book!.id).subscribe((b) => {
+          this.book = b;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.reviewServerError =
+          err?.error?.message ?? 'Slechte woorden mogen niet gebruikt worden.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  onDeleteReview(reviewId: number): void {
+    if (!this.book) return;
+    this.reviewService.deleteReview(this.book.id, reviewId).subscribe({
+      next: () => {
+        this.loadReviews();
+        this.api.getBookById(this.book!.id).subscribe((b) => {
+          this.book = b;
+          this.cdr.detectChanges();
+        });
+      },
+    });
+  }
+
+  onDeleteAllReviews(): void {
+    if (!this.book) return;
+    this.reviewService.deleteAllReviews(this.book.id).subscribe({
+      next: () => {
+        this.loadReviews();
+        this.api.getBookById(this.book!.id).subscribe((b) => {
+          this.book = b;
+          this.cdr.detectChanges();
+        });
+      },
     });
   }
 
@@ -148,6 +269,7 @@ export class BookDetailPage implements OnInit {
     this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
+        this.loadReviews();
         this.checkIfFavorite();
         this.cdr.detectChanges();
 
@@ -165,46 +287,58 @@ export class BookDetailPage implements OnInit {
   }
 
   getTagName(id: number): string {
-    return this.allTags.find(t => t.id === id)?.name ?? '';
+    return this.allTags.find((t) => t.id === id)?.name ?? '';
   }
 
   getTagNames(): string {
-    return this.book?.tags.map(tag => tag.name).join(', ') ?? '';
+    return this.book?.tags.map((tag) => tag.name).join(', ') ?? '';
   }
 
   getGenreNames(): string {
-    return this.book?.genres
-      ?.map(id => this.allGenres.find(g => g.id === id)?.name)
-      .filter(Boolean)
-      .join(', ') ?? '';
+    return (
+      this.book?.genres
+        ?.map((id) => this.allGenres.find((g) => g.id === id)?.name)
+        .filter(Boolean)
+        .join(', ') ?? ''
+    );
   }
 
   getSubgenreNames(): string {
-    return this.book?.subgenres
-      ?.map(id => this.allSubgenres.find(s => s.id === id)?.name)
-      .filter(Boolean)
-      .join(', ') ?? '';
+    return (
+      this.book?.subgenres
+        ?.map((id) => this.allSubgenres.find((s) => s.id === id)?.name)
+        .filter(Boolean)
+        .join(', ') ?? ''
+    );
   }
 
   getDidacticCategoryNames(): string {
-    return this.book?.didacticCategories
-      ?.map(id => this.allDidacticCategories.find(d => d.id === id)?.name)
-      .filter(Boolean)
-      .join(', ') ?? '';
+    return (
+      this.book?.didacticCategories
+        ?.map((id) => this.allDidacticCategories.find((d) => d.id === id)?.name)
+        .filter(Boolean)
+        .join(', ') ?? ''
+    );
   }
 
   get readingLevelName(): string {
-    return this.readingLevels.find(r => r.id === this.book?.readingLevel)?.name ?? '';
+    return this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.name ?? '';
   }
 
   deleteBook(id: number) {
     this.deleteError = false;
     this.cdr.detectChanges();
-    this.api.deleteBook(id).subscribe({ next: () => this.backToList(), error: () => {this.deleteError = true ;this.cdr.detectChanges()} });
+    this.api.deleteBook(id).subscribe({
+      next: () => this.backToList(),
+      error: () => {
+        this.deleteError = true;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   backToList() {
-    this.router.navigate(['/books']);
+    this.router.navigate(['/books'], { replaceUrl: true });
   }
 
   addCopy() {
@@ -229,7 +363,7 @@ export class BookDetailPage implements OnInit {
           copy_status: 'BESCHIKBAAR',
           featured: false,
           schoolId: 0,
-          campusId: 0
+          campusId: 0,
         };
         this.addingCopy = false;
         this.cdr.detectChanges();
@@ -239,7 +373,15 @@ export class BookDetailPage implements OnInit {
 
   cancelAddCopy() {
     this.addingCopy = false;
-    this.newCopy = { itemId: this.book!.id, condition: "", barcode: '', copy_status: "BESCHIKBAAR", featured: false, schoolId: 0, campusId: 0 };
+    this.newCopy = {
+      itemId: this.book!.id,
+      condition: '',
+      barcode: '',
+      copy_status: 'BESCHIKBAAR',
+      featured: false,
+      schoolId: 0,
+      campusId: 0,
+    };
   }
 
   showAddCopyForm() {
@@ -266,20 +408,28 @@ export class BookDetailPage implements OnInit {
 
   startEdit(copy: SchoolItemCopy) {
     this.editingCopyId = copy.id!;
-    this.editedCopy = { 
+    this.editedCopy = {
       itemId: copy.itemId,
       barcode: copy.barcode,
       condition: copy.condition,
       copy_status: copy.copy_status,
       featured: copy.featured,
       schoolId: copy.schoolId,
-      campusId: copy.campus ? copy.campus.id : 0
-     };
+      campusId: copy.campus ? copy.campus.id : 0,
+    };
   }
 
   cancelEdit() {
     this.editingCopyId = null;
-    this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
+    this.editedCopy = {
+      itemId: 0,
+      condition: '',
+      barcode: '',
+      copy_status: '',
+      featured: false,
+      schoolId: 0,
+      campusId: 0,
+    };
   }
 
   saveEdit() {
@@ -292,7 +442,15 @@ export class BookDetailPage implements OnInit {
           this.copies[index] = updatedCopy;
         }
         this.editingCopyId = null;
-        this.editedCopy = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
+        this.editedCopy = {
+          itemId: 0,
+          condition: '',
+          barcode: '',
+          copy_status: '',
+          featured: false,
+          schoolId: 0,
+          campusId: 0,
+        };
         this.cdr.detectChanges();
       },
     });
@@ -310,8 +468,8 @@ export class BookDetailPage implements OnInit {
       copy_status: bookToBeFeatured.copy_status,
       featured: bookToBeFeatured.featured,
       schoolId: bookToBeFeatured.schoolId,
-      campusId: bookToBeFeatured.campus ? bookToBeFeatured.campus.id : 0
-    }
+      campusId: bookToBeFeatured.campus ? bookToBeFeatured.campus.id : 0,
+    };
 
     this.api.updateCopy(payload, bookToBeFeatured.id!).subscribe({
       next: () => location.reload(),

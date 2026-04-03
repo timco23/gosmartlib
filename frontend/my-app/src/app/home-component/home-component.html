@@ -1,74 +1,106 @@
 <div class="container">
-  <h1>Welkom bij GO! smartlib</h1>
+  <h1>Welkom bij GO!SmartLib</h1>
 
   @if (currentUser) {
     <div class="user-card">
       <h2>Welkom, {{ currentUser.name }}!</h2>
-      <p>Rol: {{ currentUser.role }}</p>
     </div>
   }
 
-  <section class="featured-section">
-    <div class="section-header">
-      <h2>Uitgelichte boeken</h2>
-      <a class="browse-link" [routerLink]="['/books']">Alle boeken bekijken →</a>
-    </div>
+  @if (featuredBooks.length > 0) {
+    <section class="featured-section">
+      <div class="section-header">
+        <h2>Uitgelichte boeken</h2>
+        <a class="browse-link" [routerLink]="['/books']">Alle boeken bekijken →</a>
+      </div>
 
-    @if (isLoading) {
-      <div class="state-message">Boeken laden…</div>
-    } @else if (error) {
-      <div class="state-message error">{{ error }}</div>
-    } @else if (featuredBooks.length === 0) {
-      <div class="state-message">Geen uitgelichte boeken gevonden.</div>
-    } @else if (featuredBooks.length < 3) {
-      <div class="static-cards" [class.single]="featuredBooks.length === 1">
-        @for (book of featuredBooks; track book.id) {
-          <div class="static-card">
-            <div class="center-top">
-              <div class="card-cover">
-                @if (book.cover) {
-                  <img [src]="book.cover" [alt]="book.title" class="cover-img" />
-                } @else {
-                  <div class="cover-placeholder">📖</div>
-                }
-              </div>
-              <div class="card-description-col">
-                <p class="card-description">{{ book.description }}</p>
-                <a class="details-button" [routerLink]="['/books', book.id]">Details</a>
-              </div>
-            </div>
-            <div class="card-footer">
-              <div class="footer-left">
-                <h3 class="card-title">{{ book.title }}</h3>
-                <p class="card-author">{{ book.author }} · {{ book.releaseYear }}</p>
-              </div>
-              <div class="footer-right">
-                <div class="card-badges">
-                  <span class="badge badge-language">{{ book.language }}</span>
-                  @for (tag of book.tags; track tag.id) {
-                    <span class="badge badge-tag">{{ tag.name }}</span>
+      @if (isLoading) {
+        <div class="state-message">Boeken laden…</div>
+      } @else if (error) {
+        <div class="state-message error">{{ error }}</div>
+      } @else if (featuredBooks.length === 0) {
+        <div class="state-message">Geen uitgelichte boeken gevonden.</div>
+      } @else if (featuredBooks.length < 3) {
+        <div class="static-cards" [class.single]="featuredBooks.length === 1">
+          @for (book of featuredBooks; track book.id) {
+            <div class="static-card">
+              <div class="center-top">
+                <div class="card-cover">
+                  @if (book.cover) {
+                    <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                  } @else {
+                    <div class="cover-placeholder">📖</div>
                   }
                 </div>
-                <span class="score-value">⭐ {{ book.reviewScore | number: '1.1-1' }}</span>
+                <div class="card-description-col">
+                  <p class="card-description">{{ book.description }}</p>
+                  <a class="details-button" [routerLink]="['/books', book.id]">Details</a>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="footer-left">
+                  <h3 class="card-title">{{ book.title }}</h3>
+                  <p class="card-author">{{ book.author }} · {{ book.releaseYear }}</p>
+                </div>
+                <div class="footer-right">
+                  <div class="card-badges">
+                    <span class="badge badge-language">{{ book.language }}</span>
+                    @for (tag of book.tags; track tag.id) {
+                      <span class="badge badge-tag">{{ tag.name }}</span>
+                    }
+                  </div>
+                  <span class="score-value">⭐ {{ book.reviewScore | number: '1.1-1' }}</span>
+                </div>
               </div>
             </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="carousel-outer">
-        <button class="carousel-arrow" (click)="prevCard()"><</button>
+          }
+        </div>
+      } @else {
+        <div class="carousel-outer">
+          <button class="carousel-arrow" (click)="prevCard()"><</button>
 
-        <div class="carousel-viewport">
-          @for (slot of visibleSlots; track slot.position) {
-            <div
-              class="carousel-card"
-              [class.is-center]="slot.position === 'center'"
-              [class.is-side]="slot.position !== 'center'"
-              (click)="slot.position !== 'center' && goToSlide(slot.index)"
-            >
-              @if (slot.position === 'center') {
-                <div class="center-top">
+          <div class="carousel-viewport">
+            @for (slot of visibleSlots; track slot.position) {
+              <div
+                class="carousel-card"
+                [class.is-center]="slot.position === 'center'"
+                [class.is-side]="slot.position !== 'center'"
+                (click)="slot.position !== 'center' && goToSlide(slot.index)"
+              >
+                @if (slot.position === 'center') {
+                  <div class="center-top">
+                    <div class="card-cover">
+                      @if (slot.book.cover) {
+                        <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                      } @else {
+                        <div class="cover-placeholder">📖</div>
+                      }
+                    </div>
+                    <div class="card-description-col">
+                      <p class="card-description">{{ slot.book.description }}</p>
+                      <a class="details-button" [routerLink]="['/books', slot.book.id]">Details</a>
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <div class="footer-left">
+                      <h3 class="card-title">{{ slot.book.title }}</h3>
+                      <p class="card-author">
+                        {{ slot.book.author }} · {{ slot.book.releaseYear }}
+                      </p>
+                    </div>
+                    <div class="footer-right">
+                      <div class="card-badges">
+                        <span class="badge badge-language">{{ slot.book.language }}</span>
+                        @for (tag of slot.book.tags; track tag.id) {
+                          <span class="badge badge-tag">{{ tag.name }}</span>
+                        }
+                      </div>
+                      <span class="score-value"
+                        >Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span
+                      >
+                    </div>
+                  </div>
+                } @else {
                   <div class="card-cover">
                     @if (slot.book.cover) {
                       <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
@@ -76,53 +108,24 @@
                       <div class="cover-placeholder">📖</div>
                     }
                   </div>
-                  <div class="card-description-col">
-                    <p class="card-description">{{ slot.book.description }}</p>
-                    <a class="details-button" [routerLink]="['/books', slot.book.id]">Details</a>
+                  <div class="side-footer">
+                    <span class="side-title">{{ slot.book.title }}</span>
+                    <span class="side-author">{{ slot.book.author }}</span>
                   </div>
-                </div>
-                <div class="card-footer">
-                  <div class="footer-left">
-                    <h3 class="card-title">{{ slot.book.title }}</h3>
-                    <p class="card-author">{{ slot.book.author }} · {{ slot.book.releaseYear }}</p>
-                  </div>
-                  <div class="footer-right">
-                    <div class="card-badges">
-                      <span class="badge badge-language">{{ slot.book.language }}</span>
-                      @for (tag of slot.book.tags; track tag.id) {
-                        <span class="badge badge-tag">{{ tag.name }}</span>
-                      }
-                    </div>
-                    <span class="score-value"
-                      >Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span
-                    >
-                  </div>
-                </div>
-              } @else {
-                <div class="card-cover">
-                  @if (slot.book.cover) {
-                    <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
-                  } @else {
-                    <div class="cover-placeholder">📖</div>
-                  }
-                </div>
-                <div class="side-footer">
-                  <span class="side-title">{{ slot.book.title }}</span>
-                  <span class="side-author">{{ slot.book.author }}</span>
-                </div>
-              }
-            </div>
-          }
+                }
+              </div>
+            }
+          </div>
+
+          <button class="carousel-arrow" (click)="nextCard()">></button>
         </div>
 
-        <button class="carousel-arrow" (click)="nextCard()">></button>
-      </div>
-
-      <div class="carousel-dots">
-        @for (book of featuredBooks; track book.id; let i = $index) {
-          <button class="dot" [class.active]="i === scrollIndex" (click)="goToSlide(i)"></button>
-        }
-      </div>
-    }
-  </section>
+        <div class="carousel-dots">
+          @for (book of featuredBooks; track book.id; let i = $index) {
+            <button class="dot" [class.active]="i === scrollIndex" (click)="goToSlide(i)"></button>
+          }
+        </div>
+      }
+    </section>
+  }
 </div>

@@ -11,8 +11,6 @@ public record ItemRequestDTO(
         List<String> languages,
         Integer minPages,
         Integer maxPages,
-        Integer minYear,
-        Integer maxYear,
         Double minScore,
         List<Long> tagIds,
         Long schoolId

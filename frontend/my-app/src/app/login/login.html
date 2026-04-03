@@ -1,10 +1,26 @@
 <div class="login-container">
   <div class="login-card">
     <img src="logo_go_antwerpen.svg" alt="GO! Antwerpen" />
-    <button class="btn-login" (click)="loginWithSmartschool()">Log in met Smartschool</button>
+    <button class="btn-smartschool" (click)="loginWithSmartschool()">
+      <span class="btn-smartschool__logo">
+        <img src="s_logo_12x18.svg" alt="Smartschool" />
+      </span>
+      <span class="btn-smartschool__divider"></span>
+      <span class="btn-smartschool__text">Aanmelden met Smartschool</span>
+    </button>
+    <p class="login-tagline">GO!SmartLib - AP Hogeschool</p>
     <br />
     <div class="dev-login">
       <button (click)="loginAsAdmin()">Dev: Admin</button>
+    </div>
+    <div class="dev-login">
+      <button (click)="loginAsStudent()">Dev: Leerling</button>
+    </div>
+    <div class="dev-login">
+      <button (click)="loginAsTeacher()">Dev: Leerkracht</button>
+    </div>
+    <div class="dev-login">
+      <button (click)="loginAsLibraryAdministrator()">Dev: Bibliotheekbeheerder</button>
     </div>
   </div>
 </div>

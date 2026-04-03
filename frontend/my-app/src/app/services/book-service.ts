@@ -5,6 +5,9 @@ import { Observable } from 'rxjs';
 import {
   Book,
   CreateBookPayload,
+  CsvImportDTO,
+  CsvPreviewDTO,
+  CsvConfirmDTO,
   UpdateBookPayload,
   Page,
   Tag,
@@ -31,8 +34,6 @@ export class BookService {
     schoolId: number,
     minPages?: number,
     maxPages?: number,
-    minYear?: number,
-    maxYear?: number,
     minScore?: number,
     tagIds?: number[],
   ): Observable<Page<Book>> {
@@ -47,9 +48,7 @@ export class BookService {
     if (languages.length > 0) languages.forEach((l) => (params = params.append('languages', l)));
     if (minPages !== undefined) params = params.set('minPages', minPages);
     if (maxPages !== undefined) params = params.set('maxPages', maxPages);
-    if (minYear !== undefined) params = params.set('minYear', minYear);
-    if (maxYear !== undefined) params = params.set('maxYear', maxYear);
-    if (minScore !== undefined) params = params.set('minScore', minScore);
+if (minScore !== undefined) params = params.set('minScore', minScore);
     if (tagIds && tagIds.length > 0) tagIds.forEach((id) => (params = params.append('tagIds', id)));
 
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });
@@ -77,6 +76,17 @@ export class BookService {
 
   addBook(newBook: CreateBookPayload): Observable<Book> {
     return this.http.post<Book>(`${this.apiBaseUrl}/books`, newBook);
+  }
+
+  previewImport(file: File, schoolId: number): Observable<CsvPreviewDTO> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('schoolId', schoolId.toString());
+    return this.http.post<CsvPreviewDTO>(`${this.apiBaseUrl}/books/import/preview`, formData);
+  }
+
+  confirmImport(dto: CsvConfirmDTO): Observable<CsvImportDTO> {
+    return this.http.post<CsvImportDTO>(`${this.apiBaseUrl}/books/import/confirm`, dto);
   }
 
   updateBook(newBook: UpdateBookPayload, id: number): Observable<Book> {

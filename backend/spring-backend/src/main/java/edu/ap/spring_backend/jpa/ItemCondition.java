@@ -4,5 +4,6 @@ public enum ItemCondition {
     NIEUW,
     GOED,
     GEBRUIKT,
-    BESCHADIGD
+    BESCHADIGD,
+    ONGEDEFINIEERD
 }

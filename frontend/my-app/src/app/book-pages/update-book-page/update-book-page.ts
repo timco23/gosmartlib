@@ -74,7 +74,7 @@ export class UpdateBookPage implements OnInit {
       pageCount: [0, [Validators.required, Validators.min(0)]],
       cover: [''],
       featured: [false, [Validators.required]],
-      isbn: ['', [Validators.required]],
+      isbn: [''],
       isDidactic: [false],
     });
   }
@@ -243,6 +243,7 @@ export class UpdateBookPage implements OnInit {
       pageCount: this.book.pageCount,
       cover: this.book.cover,
       description: this.book.description,
+      isbn: this.book.isbn ?? '',
       isDidactic: this.book.isDidactic ?? false
     });
   }
