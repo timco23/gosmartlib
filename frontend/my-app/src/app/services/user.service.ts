@@ -38,4 +38,10 @@ export class UserService {
       params: { schoolId: schoolId.toString() }
     });
   }
+
+  addBorrowedItem(userId: number): Observable<void> {
+    return this.http.put<void>(`${environment.apiUrl}/user/addBorrowed`, null, {
+      params: { userId: userId.toString() }
+    });
+  }
 }

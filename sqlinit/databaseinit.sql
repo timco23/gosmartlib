@@ -79,7 +79,8 @@ CREATE TABLE IF NOT EXISTS user (
     smartschool_username VARCHAR(255) UNIQUE, 
     school_id BIGINT, 
     refresh_token VARCHAR(512),
-    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL
+    FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
+    items_borrowed INT NOT NULL DEFAULT 0
 );
 
 -- Admin user (wachtwoord: admin321)
@@ -299,7 +300,7 @@ CREATE TABLE IF NOT EXISTS lending (
     borrower_id INT NOT NULL,
     book_id INT NOT NULL,
     school_id BIGINT NOT NULL,
-    lending_date DATE NOT NULL,
+    lending_date DATE,
     return_date DATE,
     returned BOOLEAN DEFAULT FALSE,
     date_returned DATE,

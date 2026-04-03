@@ -178,12 +178,17 @@ export class LendBookComponent {
 
     this.lendingService.createLending(request).subscribe({
       next: () => {
-        alert('Lending created successfully!');
-        this.router.navigate(['/lendings']);
-      },
-      error: (err) => {
-        console.error('Error creating lending:', err);
-        alert('Failed to create lending. Please try again.');
+        this.userService.addBorrowedItem(this.currentUser?.id ?? -1).subscribe({
+          next: () => {
+            console.log('User borrowed item count updated');
+            alert('Lending created successfully!');
+            this.router.navigate(['/lendings']);
+          },
+          error: (err) => {
+            console.error('Error creating lending:', err);
+            alert('Failed to create lending. Please try again.');
+          }
+        });
       }
     });
   }

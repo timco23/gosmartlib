@@ -94,4 +94,22 @@ public class UserService {
                         ))
                         .toList();
         }
+
+        public UserResponse addToItemsBorrowed(Integer userId) {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+                user.setItemsBorrowed(user.getItemsBorrowed() + 1);
+                userRepository.save(user);
+                return new UserResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getFirstName(),
+                        user.getEmail(),
+                        user.getRole().name(),
+                        user.getStudentNumber(),
+                        user.getClassName(),
+                        user.getSchool() != null ? user.getSchool().getName() : null,
+                        user.getFavoriteBooks().toArray(new Item[0])
+                );
+        }
 }

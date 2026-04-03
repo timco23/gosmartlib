@@ -23,9 +23,10 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
     public final ItemService itemService;
-    
+
     /**
      * Constructor with dependency injection.
+     * 
      * @param userRepository repository for user data access
      */
     public UserController(UserRepository userRepository, UserService userService, ItemService itemService) {
@@ -33,9 +34,10 @@ public class UserController {
         this.userService = userService;
         this.itemService = itemService;
     }
-    
+
     /**
      * Retrieves user profile by email.
+     * 
      * @param email user's email address
      * @return user profile data without password
      * @throws RuntimeException if user not found
@@ -43,24 +45,23 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile(@RequestParam String email) {
         logger.info("Profile request for email: {}", email);
-        
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         String schoolName = user.getSchool() != null ? user.getSchool().getName() : null;
-        
+
         UserResponse response = new UserResponse(
-            user.getId(),
-            user.getName(),
-            user.getFirstName(),
-            user.getEmail(),
-            user.getRole().name(),
-            user.getStudentNumber(),
-            user.getClassName(),
-            schoolName,
-            user.getFavoriteBooks().toArray(new Item[0])
-        );
-        
+                user.getId(),
+                user.getName(),
+                user.getFirstName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getStudentNumber(),
+                user.getClassName(),
+                schoolName,
+                user.getFavoriteBooks().toArray(new Item[0]));
+
         logger.info("Profile retrieved for: {}", email);
         return ResponseEntity.ok(response);
     }
@@ -88,6 +89,16 @@ public class UserController {
             return ResponseEntity.ok("Book removed from favorites");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/addBorrowed")
+    public ResponseEntity<UserResponse> addBorrowedItem(@RequestParam Integer userId) {
+        try {
+            UserResponse response = userService.addToItemsBorrowed(userId);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }
