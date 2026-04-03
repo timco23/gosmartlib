@@ -6,7 +6,7 @@
       <header class="book-detail-header">
         <h2>{{ book.title }}</h2>
 
-        @if (authService.atLeastHasRole(role.BEHEERDER)) {
+        @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
           <div class="book-actions">
             <a class="edit-button" [routerLink]="['/books', book.id, 'edit']"> Boek wijzigen </a>
 
@@ -16,6 +16,11 @@
             </a>
           </div>
         }
+        <div class="add-favorite">
+          <button (click)="addToFavorites()">
+            {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
+          </button>
+        </div>
       </header>
       @if (deleteError) {
         <p class="warning">
@@ -24,128 +29,131 @@
         </p>
       }
 
-      <div class="book-detail-body">
-        <ul class="book-info">
-          <li class="info-row">
-            <span class="label">Auteur(s)</span>
-            <span>{{ book.author }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Uitgeverij</span>
-            <span>{{ book.publisher }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">ISBN</span>
-            <span>{{ book.isbn }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Uitgavejaar</span>
-            <span>{{ book.releaseYear }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Taal</span>
-            <span>{{ book.language }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Pagina's</span>
-            <span>{{ book.pageCount }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Review score</span>
-            <span>{{ book.reviewScore }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Aantal reviews</span>
-            <span>{{ book.reviewCount }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Uitgelicht</span>
-            <span>{{ isFeatured ? 'Ja' : 'Nee' }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Genres</span>
-            <span>{{ getGenreNames() }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Subgenres</span>
-            <span>{{ getSubgenreNames() }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Tags</span>
-            <span>{{ getTagNames() }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Leesniveau</span>
-            <span>{{ readingLevelName }}</span>
-          </li>
-
-          <li class="info-row">
-            <span class="label">Didactische categorieën</span>
-            <span>{{ getDidacticCategoryNames() }}</span>
-          </li>
-
-          <li class="description">
-            <span class="label">Beschrijving</span>
-            <p>{{ book.description }}</p>
-          </li>
-        </ul>
-
-        <div class="book-cover">
-          <p>Cover</p>
-
+      <section class="book-top-grid">
+        <aside class="panel cover-panel">
+          <p class="panel-title">Foto boek</p>
           @if (book.cover == '' || book.cover == null) {
             <div class="no-cover">Geen afbeelding</div>
           } @else {
             <img [src]="book.cover" alt="Book cover" />
           }
-        </div>
+        </aside>
 
-        <div class="add-favorite">
-          <button (click)="addToFavorites()">
-            {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
-          </button>
-        </div>
-      </div>
+        <section class="center-col">
+          <div class="panel title-panel">{{ book.title }}</div>
 
-      <section class="reviews-section">
-        <div class="reviews-header">
+          <div class="meta-row">
+            <div class="panel"><span class="meta-label">Auteur(s):</span> {{ book.author }}</div>
+            <div class="panel pages-panel">
+              <span class="meta-label">Aantal pagina's:</span> {{ book.pageCount }}
+            </div>
+          </div>
+
+          <div class="panel details-grid">
+            <div><span class="meta-label">Leesniveau:</span> {{ readingLevelName || '—' }}</div>
+            @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+              <div>
+                <span class="meta-label">Didactische categorieën:</span>
+                {{ getDidacticCategoryNames() || '—' }}
+              </div>
+            }
+            <div><span class="meta-label">Subgenres:</span> {{ getSubgenreNames() || '—' }}</div>
+            <div><span class="meta-label">Genres:</span> {{ getGenreNames() || '—' }}</div>
+            @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+              <div><span class="meta-label">Uitgelicht:</span> {{ isFeatured ? 'Ja' : 'Nee' }}</div>
+            }
+            <div>
+              <span class="meta-label">Taal:</span>
+              {{ $any(book).bookLanguage || $any(book).language || '—' }}
+            </div>
+            <div>
+              <span class="meta-label">Uitgavejaar:</span>
+              {{ $any(book).releaseYear || $any(book).release_year || '—' }}
+            </div>
+            <div><span class="meta-label">ISBN:</span> {{ $any(book).isbn || '—' }}</div>
+            <div><span class="meta-label">Uitgeverij:</span> {{ $any(book).publisher || '—' }}</div>
+          </div>
+
+          <div class="panel">
+            <p class="panel-title">Beschrijving</p>
+            <p>{{ book.description }}</p>
+          </div>
+
+          <div class="panel">
+            <p class="panel-title">Tags</p>
+            <p>{{ getTagNames() }}</p>
+          </div>
+        </section>
+
+        <aside class="right-col">
+          <button class="feature-button report-btn" type="button">Bekijk rapportage</button>
+
+          <div class="panel side-box">
+            <p class="panel-title">Beschikbaarheid</p>
+            <p>{{ copies.length }} exemplaren</p>
+          </div>
+
+          <div class="panel side-box">
+            <p class="panel-title">Locatie(s)</p>
+            @if (school?.campuses?.length) {
+              @for (c of school!.campuses; track c.id) {
+                <div>{{ c.name }}</div>
+              }
+            } @else {
+              <div>Geen locaties</div>
+            }
+          </div>
+        </aside>
+      </section>
+
+      <section class="reviews-section modern-reviews">
+        <aside class="panel reviews-summary">
           <h3>Recensies</h3>
-          @if (!showReviewForm) {
-            <button class="add-review-btn" type="button" (click)="showReviewForm = true">
-              Recensie schrijven
-            </button>
+          <p class="muted">★ ★ ★ ★ ★ {{ displayedReviewScore }} van 5</p>
+          <p class="muted">Totaal aantal reviews: {{ displayedReviewCount }}</p>
+
+          @for (level of ratingLevels; track level) {
+            <div class="bar-row">
+              <span>{{ level }} sterren</span>
+              <div class="bar">
+                <div class="fill" [style.width.%]="getReviewPercent(level)"></div>
+              </div>
+              <span>{{ getReviewPercent(level) }}%</span>
+            </div>
           }
+        </aside>
+
+        <div class="reviews-content">
+          <div class="reviews-header">
+            <h3>Recensies</h3>
+            @if (!showReviewForm) {
+              <button class="add-review-btn" type="button" (click)="showReviewForm = true">
+                Recensie schrijven
+              </button>
+            }
+          </div>
+
+          @if (showReviewForm) {
+            <app-review-form
+              (submitted)="submitReview($event)"
+              (cancelled)="showReviewForm = false"
+            >
+            </app-review-form>
+          }
+
+          @if (reviewServerError) {
+            <p class="warning">{{ reviewServerError }}</p>
+          }
+
+          <app-review-list
+            [reviews]="reviews"
+            [userRole]="userRoleForReviews"
+            [currentUserName]="currentUserNameForReviews"
+            (deleteReview)="onDeleteReview($event)"
+            (deleteAll)="onDeleteAllReviews()"
+          >
+          </app-review-list>
         </div>
-
-        @if (showReviewForm) {
-          <app-review-form (submitted)="submitReview($event)" (cancelled)="showReviewForm = false">
-          </app-review-form>
-        }
-
-        @if (reviewServerError) {
-          <p class="warning">{{ reviewServerError }}</p>
-        }
-
-        <app-review-list
-          [reviews]="reviews"
-          [userRole]="userRoleForReviews"
-          [currentUserName]="currentUserNameForReviews"
-          (deleteReview)="onDeleteReview($event)"
-          (deleteAll)="onDeleteAllReviews()"
-        >
-        </app-review-list>
       </section>
 
       <section class="copies-section">
@@ -164,7 +172,7 @@
                   <th>Status</th>
                   <th>Barcode</th>
                   <th>Campus</th>
-                  @if (authService.atLeastHasRole(role.BEHEERDER)) {
+                  @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
                     <th></th>
                   }
                 </tr>
@@ -177,7 +185,7 @@
                     <td>{{ copy.copy_status }}</td>
                     <td>{{ copy.barcode }}</td>
                     <td>{{ copy.campus ? copy.campus.name : 'Geen' }}</td>
-                    @if (authService.atLeastHasRole(role.BEHEERDER)) {
+                    @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
                       <td class="copy-actions">
                         <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
                           Verwijderen
@@ -257,7 +265,9 @@
           <p>Geen exemplaren gevonden.</p>
         }
 
-        @if (!(addingCopy && editingCopyId) && authService.atLeastHasRole(role.BEHEERDER)) {
+        @if (
+          !(addingCopy && editingCopyId) && authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)
+        ) {
           <button (click)="showAddCopyForm()">Exemplaar toevoegen</button>
         }
 

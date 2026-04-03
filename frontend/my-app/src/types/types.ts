@@ -237,7 +237,7 @@ export interface CarouselSlot {
 export enum Role {
   LEERLING,
   LEERKRACHT,
-  BEHEERDER,
+  BIBLIOTHEEKBEHEERDER,
   ADMIN,
 }
 
