@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
-import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.service.LendingService;
 
 @RestController

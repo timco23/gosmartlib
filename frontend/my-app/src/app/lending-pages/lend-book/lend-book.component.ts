@@ -189,7 +189,7 @@ export class LendBookComponent {
       copyBarcode: this.currentSchoolCopy.barcode ?? '',
       schoolId: this.school.id ?? -1,
       lendingDate: new Date().toISOString().split('T')[0],
-      returnDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      returnDate: new Date(Date.now() + (this.school.lendingPeriodDays) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     };
 
     console.log("user: ", this.currentUser);
