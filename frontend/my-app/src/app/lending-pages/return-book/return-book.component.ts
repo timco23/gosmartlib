@@ -186,6 +186,9 @@ export class ReturnBookComponent {
       return;
     }
 
+    const bevestigd = confirm(`Bent u zeker dat ${this.currentLending.borrowerName} het boek "${this.currentBook?.title}" terugbrengt?`);
+    if (!bevestigd) return;
+
     this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
       next: () => {
         console.log('Copy status updated');
@@ -202,7 +205,7 @@ export class ReturnBookComponent {
                 console.error('Error updating user borrowed count:', err);
               }
             });
-            
+
           },
           error: (err) => {
             console.error('Error updating lending:', err);
