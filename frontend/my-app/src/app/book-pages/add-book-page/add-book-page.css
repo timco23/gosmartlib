@@ -63,8 +63,8 @@ textarea:focus {
 }
 
 .primary-btn {
-  background: #8c1b3f;
-  color: white;
+  background: #c2e569;
+  color: #2f2f2f;
   border: none;
   padding: 10px 16px;
   border-radius: 6px;
@@ -81,7 +81,16 @@ textarea:focus {
 }
 
 .primary-btn:hover {
+  background: #afd44f;
+}
+
+.primary-btn.get-info-btn {
   background: #8c1b3f;
+  color: white;
+}
+
+.primary-btn.get-info-btn:hover {
+  background: #6f1532;
 }
 
 .secondary-btn {

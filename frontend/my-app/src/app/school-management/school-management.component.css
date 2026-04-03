@@ -81,7 +81,7 @@ h3 {
 
 .EditButton {
   padding: 10px 24px;
-  background: #bfbfe8;
+  background: #2f2f2f;
   color: white;
   border: none;
   border-radius: 6px;
@@ -91,6 +91,14 @@ h3 {
 
 .EditButton:hover {
   background: #333;
+}
+
+.EditButton--details {
+  background: #8c1b3f;
+}
+
+.EditButton--details:hover {
+  background: #6f1532;
 }
 
 /* FORM */
@@ -279,12 +287,22 @@ button:hover {
   background: #333;
 }
 
+.add-school-btn {
+  background: #c2e569;
+  color: #2f2f2f;
+}
+
+.add-school-btn:hover {
+  background: #afd44f;
+}
+
 button[type='submit'] {
-  background: #8c1b3f;
+  background: #c2e569;
+  color: #2f2f2f;
 }
 
 button[type='submit']:hover {
-  background: #6f1532;
+  background: #afd44f;
 }
 
 .button-row {

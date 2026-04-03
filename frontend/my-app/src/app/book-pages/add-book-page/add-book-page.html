@@ -85,7 +85,7 @@
               <button
                 type="button"
                 (click)="loadDetailsViaISBN()"
-                class="primary-btn"
+                class="primary-btn get-info-btn"
                 [disabled]="isReadOnly"
                 [ngClass]="{ readOnly: isReadOnly }"
               >
@@ -250,7 +250,7 @@
               <label for="barcode">Barcode</label>
               <input id="barcode" type="text" formControlName="barcode" name="barcode" required />
               <div class="form-buttons">
-                <button type="submit" class="primary-btn">Voeg boek toe</button>
+                <button type="submit" class="primary-btn">Toevoegen</button>
                 <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
               </div>
               @if (copyAlreadyExists) {

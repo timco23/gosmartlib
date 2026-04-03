@@ -47,23 +47,22 @@
   font-weight: 500;
 }
 
+.add-button:hover {
+  background-color: #6f1532;
+}
+
 .secondary-button {
-  background-color: white;
-  color: black;
-  border: 1px solid #bfbfe8;
+  background-color: #2f2f2f;
+  color: white;
+  border: none;
   padding: 10px 18px;
   border-radius: 6px;
   text-decoration: none;
   font-weight: 500;
 }
 
-.add-button:hover {
-  background-color: #6f1532;
-}
-
 .secondary-button:hover {
-  border-color: #8c1b3f;
-  color: #8c1b3f;
+  background-color: #333;
 }
 
 /* Layout */
