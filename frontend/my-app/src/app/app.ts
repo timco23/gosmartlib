@@ -79,7 +79,7 @@ export class App implements OnInit {
   logout() {
     this.authService.logout();
     this.dropdownOpen = false;
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   // Close the dropdown when you click outside it
