@@ -60,7 +60,8 @@ public class UserController {
                 user.getStudentNumber(),
                 user.getClassName(),
                 schoolName,
-                user.getFavoriteBooks().toArray(new Item[0]));
+                user.getFavoriteBooks().toArray(new Item[0]),
+                user.getItemsBorrowed());
 
         logger.info("Profile retrieved for: {}", email);
         return ResponseEntity.ok(response);

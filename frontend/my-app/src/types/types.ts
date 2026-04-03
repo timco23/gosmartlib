@@ -13,6 +13,7 @@ export interface UserProfile {
   studentNumber?: string;
   className?: string;
   schoolName?: string;
+  items_borrowed: number;
 }
 
 export interface Tag {

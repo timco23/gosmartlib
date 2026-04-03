@@ -132,4 +132,8 @@ export class BookService {
   getCopyById(copyId: number): Observable<SchoolItemCopy> {
     return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/id/${copyId}`);
   }
+
+  setCopyStatus(copyId: number, status: string): Observable<SchoolItemCopy> {
+    return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${copyId}/status`, null, { params: { status: status } });
+  }
 }

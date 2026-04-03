@@ -112,4 +112,9 @@ public class ItemController {
     public ResponseEntity<SchoolItemCopyDTO> getCopyByBarcode(@PathVariable String barcode) {
         return ResponseEntity.ok(schoolItemCopyService.getCopyByBarcode(barcode));
     }
+
+    @PutMapping("/books/copies/{copyId}/status")
+    public ResponseEntity<SchoolItemCopyDTO> updateCopyStatus(@PathVariable int copyId, @RequestParam String status) {
+        return ResponseEntity.ok(schoolItemCopyService.updateCopyStatus(copyId, status));
+    }
 }

@@ -9,6 +9,7 @@ import edu.ap.spring_backend.dto.CreateSchoolItemCopyDTO;
 import edu.ap.spring_backend.dto.SchoolItemCopyDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Campus;
+import edu.ap.spring_backend.jpa.CopyStatus;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.School;
 import org.springframework.stereotype.Service;
@@ -114,6 +115,14 @@ public class SchoolItemCopyService {
     public SchoolItemCopyDTO getCopyById(int copyId) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+        return mapToDTO(copy);
+    }
+
+    public SchoolItemCopyDTO updateCopyStatus(int copyId, String status) throws EntityNotFoundException {
+        SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
+                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+        copy.setCopy_status(CopyStatus.valueOf(status));
+        schoolItemCopyRepository.save(copy);
         return mapToDTO(copy);
     }
 }

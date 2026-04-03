@@ -62,12 +62,26 @@ export class LendBookComponent {
 
     this.bookService.getBooks().subscribe({
       next: (books) => {
-        this.books = books;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.books = [];
-        this.cdr.detectChanges();
+        if (!this.school?.id) {
+          this.books = [];
+          return;
+        }
+
+        const schoolId = this.school.id;
+        const bookChecks = books.map(book =>
+          this.bookService.getCopiesByBookId(book.id, schoolId).toPromise()
+            .then(copies => ({
+              book,
+              hasAvailable: copies?.some(c => c.copy_status === 'BESCHIKBAAR') ?? false
+            }))
+        );
+
+        Promise.all(bookChecks).then(results => {
+          this.books = results
+            .filter(r => r.hasAvailable)
+            .map(r => r.book);
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -132,7 +146,7 @@ export class LendBookComponent {
     if (selected && this.school && selected.id !== undefined && this.school.id !== undefined) {
       this.bookService.getCopiesByBookId(selected.id, this.school.id).subscribe({
         next: (copies) => {
-          this.currentCopies = copies;
+          this.currentCopies = copies.filter(c => c.copy_status === 'BESCHIKBAAR');
           this.cdr.detectChanges();
         },
         error: () => {
@@ -168,28 +182,48 @@ export class LendBookComponent {
   }
 
   onSubmit(): void {
+    if (!this.currentUser || !this.currentSchoolCopy || !this.school) return;
+
     const request = {
-      borrowerId: this.currentUser?.id ?? -1,
-      copyBarcode: this.currentSchoolCopy?.barcode ?? '',
-      schoolId: this.school?.id ?? -1,
+      borrowerId: this.currentUser.id ?? -1,
+      copyBarcode: this.currentSchoolCopy.barcode ?? '',
+      schoolId: this.school.id ?? -1,
       lendingDate: new Date().toISOString().split('T')[0],
       returnDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     };
 
-    this.lendingService.createLending(request).subscribe({
-      next: () => {
-        this.userService.addBorrowedItem(this.currentUser?.id ?? -1).subscribe({
-          next: () => {
-            console.log('User borrowed item count updated');
-            alert('Lending created successfully!');
-            this.router.navigate(['/lendings']);
-          },
-          error: (err) => {
-            console.error('Error creating lending:', err);
-            alert('Failed to create lending. Please try again.');
-          }
-        });
-      }
-    });
+    console.log("user: ", this.currentUser);
+    console.log("aantal toegelaten leningen: ", this.school.maxLendsStudent);
+    console.log("aantal leningen gebruiker: ", this.currentUser.items_borrowed);
+
+    if (this.currentUser.items_borrowed < this.school.maxLendsStudent) {
+      this.lendingService.createLending(request).subscribe({
+        next: () => {
+          this.bookService.setCopyStatus(this.currentSchoolCopy!.id, 'UITGELEEND').subscribe({
+            next: () => {
+              console.log('Copy status updated');
+              },
+            error: (err) => {
+              console.error('Error updating copy status:', err);
+              alert('Lening aanmaken mislukt, probeer later opnieuw.');
+            }
+          });
+
+          this.userService.addBorrowedItem(this.currentUser!.id ?? -1).subscribe({
+            next: () => {
+              console.log('User borrowed item count updated');
+              this.router.navigate(['/lendings']);
+            },
+            error: (err) => {
+              console.error('Error creating lending:', err);
+              alert('Lening aanmaken mislukt, probeer later opnieuw.');
+            }
+          });
+        }
+      });
+    }
+    else {
+      alert('Deze gebruiker leent al het maximum aantal boeken uit.');
+    }
   }
 }

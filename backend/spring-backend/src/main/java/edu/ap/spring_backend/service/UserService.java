@@ -90,7 +90,8 @@ public class UserService {
                                 user.getStudentNumber(),
                                 user.getClassName(),
                                 user.getSchool() != null ? user.getSchool().getName() : null,
-                                user.getFavoriteBooks().toArray(new Item[0])
+                                user.getFavoriteBooks().toArray(new Item[0]),
+                                user.getItemsBorrowed()
                         ))
                         .toList();
         }
@@ -109,7 +110,8 @@ public class UserService {
                         user.getStudentNumber(),
                         user.getClassName(),
                         user.getSchool() != null ? user.getSchool().getName() : null,
-                        user.getFavoriteBooks().toArray(new Item[0])
+                        user.getFavoriteBooks().toArray(new Item[0]),
+                        user.getItemsBorrowed()
                 );
         }
 }
