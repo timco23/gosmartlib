@@ -1,0 +1,225 @@
+header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem 0;
+}
+
+header button {
+    background-color: #8c1b3f;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+header button:hover {
+    background-color: #a02048;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem 2rem;
+}
+
+h1 {
+    color: #8c1b3f;
+    margin-bottom: 2rem;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+.list-container {
+    background: #f0efe4;
+    border: 1px solid #8c1b3f;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.list-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1.5rem;
+}
+
+.list-info {
+    flex: 1;
+}
+
+.list-title {
+    margin: 0;
+    color: #8c1b3f;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.list-description {
+    margin: 0.5rem 0 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.list-buttons {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.list-buttons button.icon-btn {
+    background: transparent;
+    border: none;
+    color: #333;
+    padding: 0.4rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.list-buttons button.icon-btn:hover {
+    background: rgba(140, 27, 63, 0.1);
+    color: #8c1b3f;
+    transform: scale(1.1);
+}
+
+.list-buttons button.icon-btn svg {
+    display: block;
+}
+
+.list-books-carousel {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    min-height: 240px;
+}
+
+.carousel-arrow {
+    background: white;
+    border: 1px solid #8c1b3f;
+    color: #8c1b3f;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.carousel-arrow:hover {
+    background: #c2e569;
+    transform: scale(1.05);
+}
+
+.books-grid {
+    display: flex;
+    gap: 1.5rem;
+    flex: 1;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.book-card {
+    width: 140px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-8px);
+}
+
+.book-cover {
+    width: 140px;
+    height: 200px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    border: 1px solid #eee;
+}
+
+.book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-placeholder {
+    font-size: 3rem;
+    color: #8c1b3f;
+}
+
+.book-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.7em;
+    line-height: 1.35;
+}
+
+.error {
+    color: #c0392b;
+    text-align: center;
+    padding: 2rem;
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .books-grid {
+        gap: 1rem;
+    }
+    .book-card, .book-cover {
+        width: 110px;
+    }
+    .book-cover {
+        height: 160px;
+    }
+}
+
+@media (max-width: 600px) {
+    .list-info-header {
+        flex-direction: column;
+    }
+    .list-buttons {
+        justify-content: flex-start;
+        width: 100%;
+    }
+    .carousel-arrow {
+        width: 2.2rem;
+        height: 2.2rem;
+        font-size: 1.1rem;
+    }
+}

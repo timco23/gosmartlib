@@ -1,0 +1,10 @@
+@if (shown()) {
+    <div class="overlay">
+        <div class="content">
+            <button (click)="closePopup()">Close</button>
+            <label>Link:</label>
+            <input type="text" readonly value="{{link()}}">
+            <button (click)="copyInputMessage()">Kopieer link</button>
+        </div>
+    </div>
+}

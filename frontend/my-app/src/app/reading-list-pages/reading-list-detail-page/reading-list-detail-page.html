@@ -1,0 +1,66 @@
+<body>
+    @if(!loading) {
+    <header>
+       <h1 class = "list-title">{{readingList!.title}}</h1>
+       <p class = "list-creator">Gemaakt door {{readingList!.userFirstName}} {{readingList!.userLastName}}</p>
+    </header>
+    <main>
+        @if(readingList!.items.length > 0) {
+            <div class="carousel-dots">
+                @for(item of readingList!.items; track $index) {
+                  <button
+                    class="dot"
+                    [class.active]="scrollIndex === $index"
+                    (click)="goToSlide($index)"
+                  ></button>
+                }
+            </div>
+
+            <div class="carousel-outer">
+                @if(readingList!.items.length >= 5) {
+                    <button class="carousel-arrow" (click)="prevCard()">&lt;</button>
+                }
+        
+                <div class="carousel-viewport">
+                    @for(slot of visibleSlots; track slot.book.id) {
+                      <div
+                        class="carousel-card"
+                        [class.is-center]="slot.position === 'center'"
+                        [class.is-side]="slot.position !== 'center'"
+                        (click)="slot.position !== 'center' ? goToSlide(slot.index) : null"
+                      >
+                        <div class="card-content" (click)="slot.position === 'center' ? goToBookDetails(slot.book.id) : null">
+                            <div class="card-cover">
+                                @if(slot.book.cover) {
+                                    <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                                } @else {
+                                    <div class="cover-placeholder">📖</div>
+                                }
+                            </div>
+                            <div class="card-footer">
+                                <p class="book-title">{{slot.book.title}}</p>
+                                <p class="book-author">{{slot.book.author}}</p>
+                            </div>
+                        </div>
+                      </div>
+                    }
+                </div>
+        
+                @if(readingList!.items.length >= 5) {
+                    <button class="carousel-arrow" (click)="nextCard()">&gt;</button>
+                }
+            </div>
+        } @else {
+            <p class="empty-list">Deze leeslijst bevat nog geen boeken.</p>
+        }
+    </main>
+    <h2 class = "list-description-header">Beschrijving:</h2>
+    <p class = "list-description">{{readingList!.description}}</p>
+    }
+    @else if (loadingError) {
+    <p class="error">Er was een probleem met het ophalen van de klasleeslijst.</p>
+    }
+    @else {
+    <p>Klasleeslijst laden...</p>
+    }
+</body>

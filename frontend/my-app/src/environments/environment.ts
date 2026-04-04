@@ -9,5 +9,12 @@ export const environment = {
       return `https://${hostname.replace('app.', 'api.')}`;
     }
     return `https://api.${hostname}`;
+  },
+  get url() {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname.startsWith('192.168')) {
+      return '/';
+    }
+    return `https://${hostname}`;
   }
 };

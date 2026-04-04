@@ -1,0 +1,15 @@
+@if (shown()) {
+    <div class="overlay">
+        <div class="content">
+            <button (click)="closePopup()">Close</button>
+            <label>Selecteer een boek:</label>
+            <select [value]="itemId()">
+              <option value="0">Geen</option>
+              @for (book of books | async; track $index) {
+                <option [value]="book.id">{{ book.title }}</option>
+              }
+            </select>
+            <button (click)="selectBook()">Selecteer boek</button>
+        </div>
+    </div>
+}

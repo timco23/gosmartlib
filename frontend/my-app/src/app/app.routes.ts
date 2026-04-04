@@ -11,6 +11,10 @@ import { SchoolManagementComponent } from './school-management/school-management
 import { TagManagement } from './tag-management/tag-management.component';
 import { FavoritesComponent } from './favorites/favorites.component';
 import { OauthCallback } from './oauth-callback/oauth-callback';
+import { ReadingListPage } from './reading-list-pages/reading-list-page/reading-list-page';
+import { ReadingListDetailPage } from './reading-list-pages/reading-list-detail-page/reading-list-detail-page';
+import { CreateReadingListPage } from './reading-list-pages/create-reading-list-page/create-reading-list-page';
+import { UpdateReadingListPage } from './reading-list-pages/update-reading-list-page/update-reading-list-page';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -26,5 +30,9 @@ export const routes: Routes = [
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: 'tags', component: TagManagement, canActivate: [authGuard] },
+  { path: 'lists', component: ReadingListPage, canActivate: [authGuard] },
+  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard] },
+  { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard] },
+  { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' },
 ];
