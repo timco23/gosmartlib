@@ -8,6 +8,7 @@ import {
   SchoolItemCopy,
   School,
   CreateSchoolItemCopyPayload,
+  NewCopyRow,
   Tag,
   Review,
   CreateReview,
@@ -46,7 +47,6 @@ export class BookDetailPage implements OnInit {
   copies: SchoolItemCopy[] = [];
   addingCopy: boolean = false;
   role = Role;
-  copyError: boolean = false;
   school: School | null = null;
   isFeatured: boolean = false;
   deleteError: boolean = false;
@@ -65,6 +65,11 @@ export class BookDetailPage implements OnInit {
   didacticService = inject(DidacticCategoryService);
   readingLevelService = inject(ReadingLevelService);
 
+  copyCount: number = 1;
+  newCampusId: number = 0;
+  newCopies: NewCopyRow[] = [];
+  copyError: boolean = false;
+
   editingCopyId: number | null = null;
   editedCopy: CreateSchoolItemCopyPayload = {
     itemId: 0,
@@ -77,16 +82,6 @@ export class BookDetailPage implements OnInit {
   };
   isFavorite: boolean = false;
   favorites: any[] = [];
-
-  newCopy: CreateSchoolItemCopyPayload = {
-    itemId: 0,
-    condition: '',
-    barcode: '',
-    copy_status: 'BESCHIKBAAR',
-    featured: false,
-    schoolId: 0,
-    campusId: 0,
-  };
 
   ratingLevels: number[] = [5, 4, 3, 2, 1];
 
@@ -341,31 +336,50 @@ export class BookDetailPage implements OnInit {
     this.router.navigate(['/books'], { replaceUrl: true });
   }
 
-  addCopy() {
+  showAddCopyForm() {
+    this.addingCopy = true;
+    this.copyCount = 1;
+    this.newCopies = [{ condition: '', barcode: '' }];
+  }
+
+  onCopyCountChange() {
+    const count = Math.max(1, this.copyCount || 1);
+    const current = this.newCopies.length;
+    if (count > current) {
+      for (let i = current; i < count; i++) {
+        this.newCopies.push({ condition: '', barcode: '' });
+      }
+    } else {
+      this.newCopies.length = count;
+    }
+  }
+
+  addCopies() {
     if (!this.book) return;
-    if (this.newCopy.condition == '') {
+    const invalid = !this.newCopies.every((row) => row.condition && row.barcode);
+    if (invalid) {
       this.copyError = true;
       return;
     }
 
-    this.newCopy.itemId = this.book.id;
-    this.newCopy.schoolId = this.school!.id!;
-    this.newCopy.featured = this.isFeatured;
+    const newCopiesPayload: CreateSchoolItemCopyPayload[] = this.newCopies.map((row) => ({
+      itemId: this.book!.id,
+      condition: row.condition,
+      barcode: row.barcode,
+      copy_status: 'BESCHIKBAAR',
+      featured: this.isFeatured,
+      schoolId: this.school!.id!,
+      campusId: this.newCampusId,
+    }));
 
-    this.api.addCopy(this.newCopy).subscribe({
-      next: (copy) => {
-        this.copies.push(copy);
-
-        this.newCopy = {
-          itemId: this.book!.id,
-          condition: '',
-          barcode: '',
-          copy_status: 'BESCHIKBAAR',
-          featured: false,
-          schoolId: 0,
-          campusId: 0,
-        };
+    this.api.addCopies(newCopiesPayload).subscribe({
+      next: (newCopies) => {
+        this.copies.push(...newCopies);
         this.addingCopy = false;
+        this.newCopies = [];
+        this.copyCount = 1;
+        this.newCampusId = 0;
+        this.copyError = false;
         this.cdr.detectChanges();
       },
     });
@@ -373,19 +387,10 @@ export class BookDetailPage implements OnInit {
 
   cancelAddCopy() {
     this.addingCopy = false;
-    this.newCopy = {
-      itemId: this.book!.id,
-      condition: '',
-      barcode: '',
-      copy_status: 'BESCHIKBAAR',
-      featured: false,
-      schoolId: 0,
-      campusId: 0,
-    };
-  }
-
-  showAddCopyForm() {
-    this.addingCopy = true;
+    this.newCopies = [];
+    this.copyCount = 1;
+    this.newCampusId = 0;
+    this.copyError = false;
   }
 
   deleteCopy(copy: any) {

@@ -408,6 +408,37 @@ select {
   border: 1px solid #bfbfe8;
 }
 
+.copy-rows-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.copy-rows-table th,
+.copy-rows-table td {
+  padding: 6px 10px;
+  border: 1px solid #bfbfe8;
+  text-align: left;
+}
+
+.copy-rows-table th {
+  background-color: #f4f4f4;
+  font-weight: 600;
+}
+
+.copy-rows-table select,
+.copy-rows-table input[type='text'] {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #bfbfe8;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.copy-form {
+  margin-top: 8px;
+}
+
 .add-button {
   background-color: #8c1b3f;
   color: white;

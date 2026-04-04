@@ -187,6 +187,11 @@ export interface CreateSchoolItemCopyPayload {
   campusId: number;
 }
 
+export interface NewCopyRow {
+  condition: string;
+  barcode: string;
+}
+
 export interface BookImportRow {
   rowNumber: number;
   title: string;
