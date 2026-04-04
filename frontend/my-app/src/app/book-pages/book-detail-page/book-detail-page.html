@@ -187,11 +187,11 @@
                     <td>{{ copy.campus ? copy.campus.name : 'Geen' }}</td>
                     @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
                       <td class="copy-actions">
-                        <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
-                          Verwijderen
-                        </button>
                         <button type="button" class="EditButton" (click)="startEdit(copy)">
                           Wijzigen
+                        </button>
+                        <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
+                          Verwijderen
                         </button>
                       </td>
                     }
