@@ -225,6 +225,18 @@
                   (tagsChanged)="onDidacticCategoriesChanged($event)"
                 />
               }
+              <h3>Exemplaren</h3>
+
+              <label for="copy-count">Aantal exemplaren</label>
+              <input
+                id="copy-count"
+                type="number"
+                min="1"
+                [(ngModel)]="copyCount"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onCopyCountChange()"
+              />
+
               <label for="campus">Selecteer een campus (optioneel)</label>
               @if (campusLoading) {
                 <p>Schoolcampussen laden....</p>
@@ -240,15 +252,47 @@
                   <p>Geen schoolcampussen gevonden</p>
                 }
               }
-              <label for="condition">Conditie exemplaar</label>
-              <select id="condition" name="condition" formControlName="condition" required>
-                <option value="NIEUW">Nieuw</option>
-                <option value="GOED">Goed</option>
-                <option value="GEBRUIKT">Gebruikt</option>
-                <option value="BESCHADIGD">Beschadigd</option>
-              </select>
-              <label for="barcode">Barcode</label>
-              <input id="barcode" type="text" formControlName="barcode" name="barcode" required />
+
+              <table class="copy-rows-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Conditie</th>
+                    <th>Barcode</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of newCopies; track $index) {
+                    <tr>
+                      <td>{{ $index + 1 }}</td>
+                      <td>
+                        <select
+                          [(ngModel)]="row.condition"
+                          [ngModelOptions]="{ standalone: true }"
+                        >
+                          <option value="">-- Kies --</option>
+                          <option value="NIEUW">Nieuw</option>
+                          <option value="GOED">Goed</option>
+                          <option value="GEBRUIKT">Gebruikt</option>
+                          <option value="BESCHADIGD">Beschadigd</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          [(ngModel)]="row.barcode"
+                          [ngModelOptions]="{ standalone: true }"
+                        />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+
+              @if (copyError) {
+                <p id="warning">Voer een conditie en barcode in voor alle exemplaren.</p>
+              }
+
               <div class="form-buttons">
                 <button type="submit" class="primary-btn">Toevoegen</button>
                 <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
