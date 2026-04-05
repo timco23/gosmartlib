@@ -13,6 +13,7 @@ export interface UserProfile {
   studentNumber?: string;
   className?: string;
   schoolName?: string;
+  items_borrowed: number;
 }
 
 export interface Tag {
@@ -170,21 +171,62 @@ export interface SchoolItemCopy {
   featured: boolean;
   copy_status: string;
   schoolId: number;
-  campus?: 
-    {
-      id: number,
-      name: string
-    };
+  campus?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface CreateSchoolItemCopyPayload {
-  itemId: number,
-  barcode: string,
-  condition: string,
-  copy_status: string,
-  featured: boolean,
-  schoolId: number,
-  campusId: number
+  itemId: number;
+  barcode: string;
+  condition: string;
+  copy_status: string;
+  featured: boolean;
+  schoolId: number;
+  campusId: number;
+}
+
+export interface BookImportRow {
+  rowNumber: number;
+  title: string;
+  author: string;
+  isbn: string;
+  copies: number;
+  conditionNieuw: number;
+  conditionGoed: number;
+  conditionGebruikt: number;
+  conditionBeschadigd: number;
+  campus: string;
+  existingIsbn: string;
+  updateExistingIsbn: boolean;
+}
+
+export interface EnrichedRowState {
+  original: BookImportRow;
+  campusInput: string;
+  conditionNieuw: number;
+  conditionGoed: number;
+  conditionGebruikt: number;
+  conditionBeschadigd: number;
+  updateExistingIsbn: boolean;
+  validationError: string;
+}
+
+export interface CsvPreviewDTO {
+  errors: string[];
+  rows: BookImportRow[];
+}
+
+export interface CsvConfirmDTO {
+  schoolId: number;
+  rows: BookImportRow[];
+}
+
+export interface CsvImportDTO {
+  errors: string[];
+  importedBooks: number;
+  importedCopies: number;
 }
 
 export interface CarouselSlot {
@@ -209,22 +251,62 @@ export interface CreateReadingListPayload {
   itemIds: number[]
 }
 
+export interface Lending {
+  id: number;
+  borrowerName: string;
+  borrowerId: number;
+  bookTitle: string;
+  bookAuthor: string;
+  schoolId: number;
+  lendingDate: string;
+  returnDate: string;
+  dateReturned: string | null;
+  returned: boolean;
+  copyBarcode: string;
+  extended: boolean;
+}
+
+export interface LendingRequest {
+  borrowerId: number;
+  copyBarcode: string;
+  schoolId: number;
+  lendingDate: string;
+  returnDate: string;
+}
+
 export enum Role {
   LEERLING,
   LEERKRACHT,
-  BEHEERDER,
-  ADMIN
+  BIBLIOTHEEKBEHEERDER,
+  ADMIN,
 }
 
 export enum CopyStatus {
   BESCHIKBAAR,
   UITGELEEND,
-  ONTBREKEND
+  ONTBREKEND,
 }
 
 export enum ItemCondition {
   NIEUW,
   GOED,
   GEBRUIKT,
-  BESCHADIGD
+  BESCHADIGD,
+}
+
+export interface Review {
+  id: number;
+  title: string | null;
+  description: string | null;
+  stars: number;
+  createdAt: string;
+  authorName: string;
+  authorEmail?: string;
+  authorSmartschoolUsername?: string;
+}
+
+export interface CreateReview {
+  title?: string | null;
+  description?: string;
+  stars: number;
 }

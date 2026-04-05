@@ -2,7 +2,7 @@
   @if (!addingSchool && !editingSchool && !viewingSchool) {
     <div>
       <h2>Scholen</h2>
-      <button (click)="addingSchool = true">School toevoegen</button>
+      <button class="add-school-btn" (click)="addingSchool = true">School toevoegen</button>
       @if (schools) {
         <ul>
           <li *ngFor="let school of schools" class="SchoolItem">
@@ -97,7 +97,7 @@
 
         <div class="button-row">
           <button type="button" class="cancel-button" (click)="closeDetails()">Terug</button>
-          <button type="button" class="EditButton" (click)="selectSchool(viewingSchool)">
+          <button type="button" class="EditButton EditButton--details" (click)="selectSchool(viewingSchool)">
             Bewerken
           </button>
         </div>

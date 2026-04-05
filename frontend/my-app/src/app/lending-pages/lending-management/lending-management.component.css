@@ -1,0 +1,107 @@
+.lendings-container {
+  max-width: 75rem;
+  margin: 2.5rem auto;
+  padding: 1.25rem;
+}
+
+.lendings-header {
+  margin-bottom: 1.25rem;
+}
+
+.back-link {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  color: #8c1b3f;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.625rem;
+}
+
+.header-actions h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  flex: 1;
+  color: #8c1b3f;
+}
+
+/* Outer card */
+.lendings-card {
+  background: #f0efe4;
+  border-radius: 0.625rem;
+  padding: 1.5625rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.lendings-card h3 {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+/* List */
+.lending-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Each lending row */
+.lending-item {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.625rem;
+  background: white;
+  transition: background 0.2s;
+}
+
+.lending-item:hover {
+  background: #fcf3f3;
+}
+
+/* Individual field */
+.lending-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.lending-field .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.lending-field .value {
+  font-size: 0.9375rem;
+  color: black;
+}
+
+/* buttons */
+.add-button {
+  background-color: #8c1b3f;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: auto;
+  margin-right: auto;
+}
+.add-button:hover {
+  background-color: #6f1532;
+}
+#extend-button {
+  margin-right: .5rem;
+}

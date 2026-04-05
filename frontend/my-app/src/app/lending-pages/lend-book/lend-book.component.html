@@ -1,0 +1,72 @@
+<body class="lend-book-container">
+  <header class="lend-book-header">
+    <a class="back-link" [routerLink]="['/lendings']">← Terug naar uitleningen</a>
+    <div class="header-actions">
+      <h2>Boek uitlenen</h2>
+    </div>
+  </header>
+  <div class="lending-card">
+    <form (ngSubmit)="onSubmit()" action="lending">
+
+      <div class="form-group">
+        <label for="user">Uitlenen aan</label>
+        <select id="user" name="user" (change)="onUserSelect($event)">
+          <option value="" disabled selected>Kies een lener</option>
+          @for (user of users; track user.id) {
+            <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="book">Boek</label>
+        <select (change)="onBookSelect($event)">
+          <option value="">— Geen boek (barcode gebruiken) —</option>
+          <option value="" disabled>Kies een boek</option>
+          @for (book of books; track book.id) {
+          <option [value]="book.id">{{ book.title }}</option>
+          }
+        </select>
+      </div>
+
+      @if (currentCopies.length > 0) {
+      <div class="form-group">
+        <label for="copy">Exemplaar</label>
+        <select id="copy" name="copy" (change)="onCopySelect($event)">
+          <option value="" disabled selected>Kies een exemplaar</option>
+          @for (copy of currentCopies; track copy.barcode) {
+          <option [value]="copy.barcode">{{ copy.barcode }} — {{ copy.condition }}</option>
+          }
+        </select>
+      </div>
+      }
+
+      <div class="form-group">
+        <label for="book">Boek</label>
+        <input
+          type="text"
+          id="book"
+          name="book"
+          placeholder="Barcode"
+          [(ngModel)]="barcode"
+          (ngModelChange)="onBarcodeChange($event)"
+          [disabled]="bookSelected"
+          [style.opacity]="bookSelected ? '0.5' : '1'"
+          required
+        />
+      </div>
+
+      @if (currentBook != null) {
+      <div>
+        <h3>Boek details</h3>
+        <p><strong>Titel:</strong> {{ currentBook.title }}</p>
+        <p><strong>Auteur:</strong> {{ currentBook.author }}</p>
+        <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>
+        <p><strong>Conditie:</strong> {{ currentSchoolCopy?.condition }}</p>
+      </div>
+      }
+
+      <button type="submit" class="add-button">Boek uitlenen</button>
+    </form>
+  </div>
+</body>

@@ -55,6 +55,14 @@ select:focus {
   box-shadow: 0 0 3px rgba(140, 27, 63, 0.3);
 }
 
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border: 2px solid #8c1b3f;
+  background-color: #fde8ef;
+  box-shadow: 0 0 6px rgba(140, 27, 63, 0.5);
+}
+
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -69,8 +77,8 @@ select:focus {
 }
 
 .primary-btn {
-  background: #8c1b3f;
-  color: white;
+  background: #c2e569;
+  color: #2f2f2f;
   border: none;
   padding: 10px 16px;
   border-radius: 6px;
@@ -79,7 +87,7 @@ select:focus {
 }
 
 .primary-btn:hover {
-  background: #6f1532;
+  background: #afd44f;
 }
 
 .secondary-btn {

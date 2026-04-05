@@ -56,6 +56,14 @@ textarea:focus {
   box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
 }
 
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border: 2px solid #8c1b3f;
+  background-color: #fde8ef;
+  box-shadow: 0 0 6px rgba(140, 27, 63, 0.5);
+}
+
 .form-buttons {
   display: flex;
   gap: 10px;
@@ -63,8 +71,8 @@ textarea:focus {
 }
 
 .primary-btn {
-  background: #8c1b3f;
-  color: white;
+  background: #c2e569;
+  color: #2f2f2f;
   border: none;
   padding: 10px 16px;
   border-radius: 6px;
@@ -81,7 +89,16 @@ textarea:focus {
 }
 
 .primary-btn:hover {
+  background: #afd44f;
+}
+
+.primary-btn.get-info-btn {
   background: #8c1b3f;
+  color: white;
+}
+
+.primary-btn.get-info-btn:hover {
+  background: #6f1532;
 }
 
 .secondary-btn {
@@ -95,6 +112,25 @@ textarea:focus {
 
 .secondary-btn:hover {
   background: black;
+}
+
+.csv-import-btn {
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #21a366;
+}
+
+.csv-import-btn:hover {
+  background: #1a8a54;
+}
+
+.csv-import-btn i {
+  font-size: 17px;
 }
 
 .preview-title {
@@ -117,6 +153,49 @@ textarea:focus {
 
 #warning {
   color: red;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.import-result-box {
+  background-color: #f0efe4;
+  border: 1px solid #8c1b3f;
+  border-radius: 10px;
+  padding: 20px 30px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px;
+}
+
+.import-result-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.import-result-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.import-result-error {
+  color: #8c1b3f;
+}
+
+.import-result-success {
+  color: green;
+}
+
+.import-loading-info {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 6px;
 }
 
 .readOnly {

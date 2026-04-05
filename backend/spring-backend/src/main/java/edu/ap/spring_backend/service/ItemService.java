@@ -55,8 +55,6 @@ public class ItemService {
                 .and(withLanguages(request.languages()))
                 .and(withMinPages(request.minPages()))
                 .and(withMaxPages(request.maxPages()))
-                .and(withMinYear(request.minYear()))
-                .and(withMaxYear(request.maxYear()))
                 .and(withMinScore(request.minScore()))
                 .and(withTags(request.tagIds()))
                 .and(withSchoolId(request.schoolId()));
@@ -75,17 +73,12 @@ public class ItemService {
                 && request.minPages() > request.maxPages()) {
             throw new IllegalArgumentException("minPages cannot be greater than maxPages");
         }
-        if (request.minYear() != null && request.maxYear() != null
-                && request.minYear() > request.maxYear()) {
-            throw new IllegalArgumentException("minYear cannot be greater maxYear");
-        }
     }
 
     private Sort createSort(String sortBy, String sortDirection) {
         Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
         return switch (sortBy) {
             case "author" -> Sort.by(direction, "author");
-            case "year" -> Sort.by(direction, "releaseYear");
             case "score" -> Sort.by(direction, "reviewScore");
             case "pages" -> Sort.by(direction, "pageCount");
             default -> Sort.by(direction, "title");

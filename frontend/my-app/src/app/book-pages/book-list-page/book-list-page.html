@@ -4,7 +4,7 @@
 
     <div class="header-actions">
       <h2>Boeken</h2>
-      @if (authService.atLeastHasRole(role.BEHEERDER)) {
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
         <a class="secondary-button" [routerLink]="['/tags']">Tags beheren</a>
         <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
       }
@@ -36,8 +36,6 @@
           <option value="title-asc">Titel (A → Z)</option>
           <option value="title-desc">Titel (Z → A)</option>
           <option value="author-asc">Auteur (A → Z)</option>
-          <option value="year-desc">Jaar (nieuwste eerst)</option>
-          <option value="year-asc">Jaar (oudste eerst)</option>
           <option value="score-desc">Beoordeling (hoog → laag)</option>
           <option value="pages-asc">Pagina's (min → max)</option>
         </select>
@@ -79,6 +77,14 @@
             />
             Duits
           </label>
+          <label class="toggle-item">
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Andere')"
+              (change)="onLanguageChange('Andere', $any($event.target).checked)"
+            />
+            Andere
+          </label>
         </div>
       </div>
 
@@ -118,34 +124,7 @@
         </div>
       </div>
 
-      <!-- Publication Year -->
-      <div class="filter-group">
-        <label class="filter-label">Uitgavejaar</label>
-        <div class="range-labels">
-          <span>{{ minYear ?? 1900 }}</span>
-          <span>{{ maxYear ?? 2025 }}</span>
-        </div>
-        <div class="range-track">
-          <input
-            class="range-slider"
-            type="range"
-            min="1900"
-            max="2025"
-            [value]="minYear ?? 1900"
-            (change)="minYear = $any($event.target).value; onSliderChange()"
-          />
-          <input
-            class="range-slider"
-            type="range"
-            min="1900"
-            max="2025"
-            [value]="maxYear ?? 2025"
-            (change)="maxYear = $any($event.target).value; onSliderChange()"
-          />
-        </div>
-      </div>
-
-      <!-- Minimum Rating -->
+<!-- Minimum Rating -->
       <div class="filter-group">
         <label class="filter-label">Minimale beoordeling</label>
         <div class="range-labels">

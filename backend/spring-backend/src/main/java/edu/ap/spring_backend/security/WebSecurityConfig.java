@@ -2,6 +2,7 @@ package edu.ap.spring_backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,21 +14,22 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
    /**
      * Security rules:
      * - CSRF disabled (API usage)
      * - No sessions (STATELESS)
-     * - /auth/**, /oauth/** and /api/** are public (for now)
+     * - /auth/**, /oauth/** and /error are public
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF for REST API
+            .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**","/oauth/**" , "/api/**").permitAll()
-                .anyRequest().permitAll() 
+                .requestMatchers("/auth/**", "/oauth/**", "/error").permitAll()
+                .anyRequest().permitAll()
             )
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) 

@@ -16,6 +16,7 @@ public class UserResponse {
     private String className;
     private String schoolName;
     private Item[] favoriteBooks;
+    private Integer itemsBorrowed;
     
     /**
      * Constructor for user profile response.
@@ -30,7 +31,7 @@ public class UserResponse {
      * @param favoriteBooks list of user's favorite books
      */
     public UserResponse(Integer id, String name, String firstName, String email, String role, 
-                       String studentNumber, String className, String schoolName, Item[] favoriteBooks) {
+                       String studentNumber, String className, String schoolName, Item[] favoriteBooks, Integer items_borrowed) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
@@ -40,6 +41,7 @@ public class UserResponse {
         this.className = className;
         this.schoolName = schoolName;
         this.favoriteBooks = favoriteBooks;
+        this.itemsBorrowed = items_borrowed;
     }
     
     // Getters
@@ -52,6 +54,7 @@ public class UserResponse {
     public String getClassName() { return className; }
     public String getSchoolName() { return schoolName; }
     public Item[] getFavoriteBooks() { return favoriteBooks; }
+    public Integer getItems_borrowed() { return itemsBorrowed; }
     
     // Setters
     public void setId(Integer id) { this.id = id; }
@@ -63,4 +66,5 @@ public class UserResponse {
     public void setClassName(String className) { this.className = className; }
     public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
     public void setFavoriteBooks(Item[] favoriteBooks) { this.favoriteBooks = favoriteBooks; }
+    public void setItems_borrowed(Integer items_borrowed) { this.itemsBorrowed = items_borrowed; }
 }

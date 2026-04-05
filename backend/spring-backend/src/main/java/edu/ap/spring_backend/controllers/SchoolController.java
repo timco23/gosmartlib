@@ -1,7 +1,9 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.service.SchoolService;
+import edu.ap.spring_backend.service.UserService;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +14,11 @@ import java.util.List;
 public class SchoolController {
 
     private final SchoolService schoolService;
+    private final UserService userService;
 
-    public SchoolController(SchoolService schoolService) {
+    public SchoolController(SchoolService schoolService, UserService userService) {
         this.schoolService = schoolService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -45,5 +49,10 @@ public class SchoolController {
     @PutMapping("/{id}")
     public School updateSchool(@PathVariable Long id, @RequestBody School school) {
         return schoolService.updateSchool(id, school);
+    }
+
+    @GetMapping("/users")
+    public List<UserResponse> getUsersBySchool(@RequestParam Long schoolId) {
+        return userService.getUsersBySchool(schoolId);
     }
 }

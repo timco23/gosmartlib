@@ -15,6 +15,9 @@ import { ReadingListPage } from './reading-list-pages/reading-list-page/reading-
 import { ReadingListDetailPage } from './reading-list-pages/reading-list-detail-page/reading-list-detail-page';
 import { CreateReadingListPage } from './reading-list-pages/create-reading-list-page/create-reading-list-page';
 import { UpdateReadingListPage } from './reading-list-pages/update-reading-list-page/update-reading-list-page';
+import { LendingManagementComponent } from './lending-pages/lending-management/lending-management.component';
+import { LendBookComponent } from './lending-pages/lend-book/lend-book.component';
+import { ReturnBookComponent } from './lending-pages/return-book/return-book.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -34,5 +37,8 @@ export const routes: Routes = [
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard] },
   { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard] },
   { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard] },
+  { path: 'lendings', component: LendingManagementComponent, canActivate: [authGuard] },
+  { path: 'lendings/lend', component: LendBookComponent, canActivate: [authGuard] },
+  { path: 'lendings/return', component: ReturnBookComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' },
 ];

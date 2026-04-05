@@ -1,0 +1,44 @@
+<body class="lendings-container">
+  <header class="lendings-header">
+    <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+    <div class="header-actions">
+      <h2>Uitleningen</h2>
+      <a class="add-button" [routerLink]="['/lendings/return']">Boek terugbrengen</a>
+      <a class="add-button" [routerLink]="['/lendings/lend']">Boek uitlenen</a>
+    </div>
+  </header>
+
+  <div class="lendings-card">
+    <h3>Huidige uitleningen</h3>
+    <ul class="lending-list">
+      @for (lending of lendings; track lending.id) {
+        <li class="lending-item">
+          <div class="lending-field">
+            <span class="label">Titel</span>
+            <span class="value">{{ lending.bookTitle }}</span>
+          </div>
+          <div class="lending-field">
+            <span class="label">Uitgeleend aan</span>
+            <span class="value">{{ lending.borrowerName }}</span>
+          </div>
+          <div class="lending-field">
+            <span class="label">Auteur</span>
+            <span class="value">{{ lending.bookAuthor }}</span>
+          </div>
+          <div class="lending-field">
+            <span class="label">Uitgeleend op</span>
+            <span class="value">{{ lending.lendingDate }}</span>
+          </div>
+          <div class="lending-field">
+            <span class="label">Terug te brengen op</span>
+            <span class="value">{{ lending.returnDate }}</span>
+          </div>
+          <div class="lend-actions">
+            <button class="add-button" id="extend-button" (click)="onExtend(lending)">Verlengen</button>
+            <a class="add-button" [routerLink]="['/lendings/return']" [queryParams]="{ barcode: lending.copyBarcode }">Terugbrengen</a>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</body>

@@ -35,8 +35,6 @@ export class BookListPage implements OnInit {
   languages: string[] = [];
   minPages?: number;
   maxPages?: number;
-  minYear?: number;
-  maxYear?: number;
   minScore?: number;
   selectedTags: Tag[] = [];
   school: School | null = null;
@@ -55,9 +53,9 @@ export class BookListPage implements OnInit {
               next: (schoolData) => {
                 this.school = schoolData;
                 this.tagService.getTags().subscribe(tags => {
-      this.allTags = tags;
-    });
-    this.loadBooks();
+                  this.allTags = tags;
+                });
+                this.loadBooks();
               },
             });
           }
@@ -81,8 +79,6 @@ export class BookListPage implements OnInit {
         this.school.id,
         this.minPages,
         this.maxPages,
-        this.minYear,
-        this.maxYear,
         this.minScore,
         tagIds,
       )
@@ -142,8 +138,6 @@ export class BookListPage implements OnInit {
     this.languages = [];
     this.minPages = undefined;
     this.maxPages = undefined;
-    this.minYear = undefined;
-    this.maxYear = undefined;
     this.minScore = undefined;
     this.selectedTags = [];
     this.currentPage = 0;
