@@ -1,8 +1,27 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Tag, UpdateBookPayload, Genre, Subgenre, Readinglevel, DidacticCategory, SchoolItemCopy, School, CreateSchoolItemCopyPayload, CampusCopyGroup, LoginResponse } from '../../../types/types';
+import {
+  Book,
+  Tag,
+  UpdateBookPayload,
+  Genre,
+  Subgenre,
+  Readinglevel,
+  DidacticCategory,
+  SchoolItemCopy,
+  School,
+  CreateSchoolItemCopyPayload,
+  CampusCopyGroup,
+  LoginResponse,
+} from '../../../types/types';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
@@ -26,7 +45,7 @@ import { SchoolService } from '../../services/school.service';
     GenreSelectionMenuComponent,
     SubgenreSelectionMenuComponent,
     ReadingLevelSelectionMenuComponent,
-    DidacticCategorySelectionMenuComponent
+    DidacticCategorySelectionMenuComponent,
   ],
   templateUrl: './update-book-page.html',
   styleUrl: './update-book-page.css',
@@ -60,6 +79,8 @@ export class UpdateBookPage implements OnInit {
   campusGroups: CampusCopyGroup[] = [];
   copyError: boolean = false;
   isFeatured: boolean = false;
+  draggedCopyId: number | null = null;
+  dropTargetCampusId: number | null = null;
 
   editingCopyId: number | null = null;
   editedCopy: CreateSchoolItemCopyPayload = {
@@ -136,11 +157,11 @@ export class UpdateBookPage implements OnInit {
     const raw = this.form.value;
 
     const newBook: UpdateBookPayload = {
-      tags: this.selectedTags.map(t => t.id),
-      genres: this.selectedGenres.map(g => g.id),
-      subgenres: this.selectedSubgenres.map(s => s.id),
+      tags: this.selectedTags.map((t) => t.id),
+      genres: this.selectedGenres.map((g) => g.id),
+      subgenres: this.selectedSubgenres.map((s) => s.id),
       readingLevel: this.selectedReadingLevel?.id ?? null,
-      didacticCategories: this.selectedDidacticCategories.map(d => d.id),
+      didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
       isDidactic: raw.isDidactic,
       description: raw.description,
       isbn: raw.isbn,
@@ -150,13 +171,13 @@ export class UpdateBookPage implements OnInit {
       releaseYear: raw.releaseYear,
       language: raw.language,
       pageCount: raw.pageCount,
-      cover: raw.cover
-    }
+      cover: raw.cover,
+    };
 
     this.api.updateBook(newBook, this.book!.id).subscribe({
       next: (data) => {
         this.router.navigate(['/books', data.id]);
-      }
+      },
     });
   }
 
@@ -199,11 +220,91 @@ export class UpdateBookPage implements OnInit {
     });
   }
 
+  getGroupedCopies(): { campusId: number; campusName: string; copies: SchoolItemCopy[] }[] {
+    const groups: { campusId: number; campusName: string; copies: SchoolItemCopy[] }[] = [];
+
+    for (const copy of this.copies) {
+      const campusId = copy.campus ? copy.campus.id : 0;
+      const campusName = copy.campus ? copy.campus.name : 'Geen campus';
+
+      // check if a group for this campus already exists
+      let group = groups.find((g) => g.campusId === campusId);
+
+      // if not, create it
+      if (!group) {
+        group = {
+          campusId: campusId,
+          campusName: campusName,
+          copies: [],
+        };
+        groups.push(group);
+      }
+
+      // add the copy to the group
+      group.copies.push(copy);
+    }
+
+    return groups;
+  }
+
+  onDragStart(event: DragEvent, copyId: number) {
+    this.draggedCopyId = copyId;
+    event.dataTransfer!.effectAllowed = 'move';
+  }
+
+  onDragOver(event: DragEvent, campusId: number) {
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+    this.dropTargetCampusId = campusId;
+  }
+
+  onDragLeave(event: DragEvent, campusId: number) {
+    if (this.dropTargetCampusId === campusId) {
+      this.dropTargetCampusId = null;
+    }
+  }
+
+  onDrop(event: DragEvent, targetCampusId: number) {
+    event.preventDefault();
+    this.dropTargetCampusId = null;
+    if (this.draggedCopyId == null) return;
+
+    const copy = this.copies.find((c) => c.id === this.draggedCopyId);
+    if (!copy) return;
+
+    const currentCampusId = copy.campus ? copy.campus.id : 0;
+    if (currentCampusId === targetCampusId) {
+      this.draggedCopyId = null;
+      return;
+    }
+
+    const payload: CreateSchoolItemCopyPayload = {
+      itemId: copy.itemId,
+      condition: copy.condition,
+      barcode: copy.barcode,
+      copy_status: copy.copy_status,
+      featured: copy.featured,
+      schoolId: copy.schoolId,
+      campusId: targetCampusId,
+    };
+
+    this.api.updateCopy(payload, copy.id).subscribe({
+      next: () => {
+        this.loadCopies();
+      },
+    });
+
+    this.draggedCopyId = null;
+  }
+
+  onDragEnd() {
+    this.draggedCopyId = null;
+    this.dropTargetCampusId = null;
+  }
+
   showAddCopyForm() {
     this.addingCopy = true;
-    this.campusGroups = [
-      { campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] },
-    ];
+    this.campusGroups = [{ campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] }];
   }
 
   addCampusGroup() {
@@ -330,27 +431,27 @@ export class UpdateBookPage implements OnInit {
   }
 
   loadLookups() {
-    this.tagService.getTags().subscribe(tags => {
+    this.tagService.getTags().subscribe((tags) => {
       this.allTags = tags;
       this.tryFillForm();
     });
 
-    this.genreService.getGenres().subscribe(genres => {
+    this.genreService.getGenres().subscribe((genres) => {
       this.allGenres = genres;
       this.tryFillForm();
     });
 
-    this.subgenreService.getSubgenres().subscribe(subs => {
+    this.subgenreService.getSubgenres().subscribe((subs) => {
       this.allSubgenres = subs;
       this.tryFillForm();
     });
 
-    this.readingLevelService.getAll().subscribe(levels => {
+    this.readingLevelService.getAll().subscribe((levels) => {
       this.allReadingLevels = levels;
       this.tryFillForm();
     });
 
-    this.didacticCategoryService.getDidacticCategories().subscribe(cats => {
+    this.didacticCategoryService.getDidacticCategories().subscribe((cats) => {
       this.allDidacticCategories = cats;
       this.tryFillForm();
     });
@@ -373,7 +474,7 @@ export class UpdateBookPage implements OnInit {
       error: (err) => {
         this.errorMessage = err;
         this.error = true;
-      }
+      },
     });
   }
 
@@ -393,26 +494,24 @@ export class UpdateBookPage implements OnInit {
 
   fillForm() {
     if (!this.book) return;
-    this.selectedGenres = this.allGenres.filter(genre =>
-      (this.book!.genres as number[] ?? []).includes(genre.id)
+    this.selectedGenres = this.allGenres.filter((genre) =>
+      ((this.book!.genres as number[]) ?? []).includes(genre.id),
     );
 
-    this.selectedSubgenres = this.allSubgenres.filter(sub =>
-      (this.book!.subgenres as number[] ?? []).includes(sub.id)
+    this.selectedSubgenres = this.allSubgenres.filter((sub) =>
+      ((this.book!.subgenres as number[]) ?? []).includes(sub.id),
     );
 
-    this.selectedTags = this.allTags.filter(tag =>
-      this.book!.tags.map(t => t.id).includes(tag.id)
+    this.selectedTags = this.allTags.filter((tag) =>
+      this.book!.tags.map((t) => t.id).includes(tag.id),
     );
 
-    this.selectedDidacticCategories = this.allDidacticCategories.filter(cat =>
-      (this.book!.didacticCategories as number[] ?? []).includes(cat.id)
+    this.selectedDidacticCategories = this.allDidacticCategories.filter((cat) =>
+      ((this.book!.didacticCategories as number[]) ?? []).includes(cat.id),
     );
 
     this.selectedReadingLevel =
-      this.allReadingLevels.find(rl =>
-        rl.id === (this.book!.readingLevel as number)
-      ) ?? null;
+      this.allReadingLevels.find((rl) => rl.id === (this.book!.readingLevel as number)) ?? null;
 
     this.isDidactic = this.book.isDidactic ?? false;
 
@@ -426,7 +525,7 @@ export class UpdateBookPage implements OnInit {
       cover: this.book.cover,
       description: this.book.description,
       isbn: this.book.isbn ?? '',
-      isDidactic: this.book.isDidactic ?? false
+      isDidactic: this.book.isDidactic ?? false,
     });
   }
 }

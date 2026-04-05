@@ -291,6 +291,62 @@ select {
   background-color: #fde8ef;
 }
 
+/* Existing copies grouped by campus */
+.existing-campus-group {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background-color: #fafaf5;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.existing-campus-group.drag-over {
+  border-color: #8c1b3f;
+  background-color: #fde8ef;
+}
+
+.existing-campus-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.campus-group-count {
+  font-size: 13px;
+  color: #666;
+}
+
+.edit-copy-card {
+  margin-bottom: 16px;
+}
+
+/* Drag handle */
+.drag-col {
+  width: 30px;
+}
+
+.drag-handle {
+  cursor: grab;
+  text-align: center;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-icon {
+  font-size: 18px;
+  color: #999;
+  letter-spacing: 2px;
+}
+
+tr.dragging {
+  opacity: 0.4;
+}
+
 /* Buttons */
 button {
   width: 100%;

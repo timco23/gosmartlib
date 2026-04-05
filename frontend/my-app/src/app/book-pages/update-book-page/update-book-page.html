@@ -103,108 +103,130 @@
       </div>
 
       <section class="copies-column">
-        <h3>Exemplaren</h3>
+        <h3>Exemplaren ({{ copies.length }})</h3>
 
         @if (editingCopyId) {
-          <h4>Exemplaar wijzigen</h4>
+          <div class="edit-copy-card">
+            <h4>Exemplaar wijzigen</h4>
+            <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
+              <div class="form-row">
+                <label for="edit-condition">Conditie</label>
+                <select
+                  id="edit-condition"
+                  [(ngModel)]="editedCopy.condition"
+                  name="editCondition"
+                  required
+                >
+                  <option value="NIEUW">Nieuw</option>
+                  <option value="GOED">Goed</option>
+                  <option value="GEBRUIKT">Gebruikt</option>
+                  <option value="BESCHADIGD">Beschadigd</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <label for="edit-status">Status</label>
+                <select
+                  id="edit-status"
+                  [(ngModel)]="editedCopy.copy_status"
+                  name="editStatus"
+                  required
+                >
+                  <option value="BESCHIKBAAR">Beschikbaar</option>
+                  <option value="UITGELEEND">Uitgeleend</option>
+                  <option value="ONTBREKEND">Ontbrekend</option>
+                </select>
+              </div>
+
+              <label for="campus">Selecteer een campus</label>
+              @if (school?.campuses!.length > 0) {
+                <select id="campus" [(ngModel)]="editedCopy.campusId">
+                  <option value="0">Geen</option>
+                  @for (campus of school?.campuses; track $index) {
+                    <option [value]="campus.id">{{ campus.name }}</option>
+                  }
+                </select>
+              } @else {
+                <p>Geen schoolcampussen gevonden</p>
+              }
+
+              <div class="form-row">
+                <label for="edit-barcode">Barcode</label>
+                <input
+                  id="edit-barcode"
+                  type="text"
+                  [(ngModel)]="editedCopy.barcode"
+                  name="editBarcode"
+                  required
+                />
+              </div>
+
+              <button type="submit" class="save-button" [disabled]="editForm.invalid">
+                Opslaan
+              </button>
+              <button type="button" (click)="cancelEdit()">Annuleren</button>
+            </form>
+          </div>
         }
 
-        @if (copies.length > 0) {
-          <table class="copies-table">
-            @if (!editingCopyId) {
-              <thead>
-                <tr>
-                  <th>Conditie</th>
-                  <th>Status</th>
-                  <th>Barcode</th>
-                  <th>Campus</th>
-                  <th></th>
-                </tr>
-              </thead>
-
-              <tbody>
-                @for (copy of copies; track copy.id) {
-                  <tr>
-                    <td>{{ copy.condition }}</td>
-                    <td>{{ copy.copy_status }}</td>
-                    <td>{{ copy.barcode }}</td>
-                    <td>{{ copy.campus ? copy.campus.name : 'Geen' }}</td>
-                    <td class="copy-actions">
-                      <button type="button" class="EditButton" (click)="startEdit(copy)">
-                        Wijzigen
-                      </button>
-                      <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
-                        Verwijderen
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            } @else {
-              <div>
-                <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
-                  <div class="form-row">
-                    <label for="edit-condition">Conditie</label>
-                    <select
-                      id="edit-condition"
-                      [(ngModel)]="editedCopy.condition"
-                      name="editCondition"
-                      required
-                    >
-                      <option value="NIEUW">Nieuw</option>
-                      <option value="GOED">Goed</option>
-                      <option value="GEBRUIKT">Gebruikt</option>
-                      <option value="BESCHADIGD">Beschadigd</option>
-                    </select>
-                  </div>
-
-                  <div class="form-row">
-                    <label for="edit-status">Status</label>
-                    <select
-                      id="edit-status"
-                      [(ngModel)]="editedCopy.copy_status"
-                      name="editStatus"
-                      required
-                    >
-                      <option value="BESCHIKBAAR">Beschikbaar</option>
-                      <option value="UITGELEEND">Uitgeleend</option>
-                      <option value="ONTBREKEND">Ontbrekend</option>
-                    </select>
-                  </div>
-
-                  <label for="campus">Selecteer een campus (optioneel)</label>
-                  @if (school?.campuses!.length > 0) {
-                    <select id="campus" [(ngModel)]="editedCopy.campusId">
-                      <option value="0">Geen</option>
-                      @for (campus of school?.campuses; track $index) {
-                        <option [value]="campus.id">{{ campus.name }}</option>
-                      }
-                    </select>
-                  } @else {
-                    <p>Geen schoolcampussen gevonden</p>
-                  }
-
-                  <div class="form-row">
-                    <label for="edit-barcode">Barcode</label>
-                    <input
-                      id="edit-barcode"
-                      type="text"
-                      [(ngModel)]="editedCopy.barcode"
-                      name="editBarcode"
-                      required
-                    />
-                  </div>
-
-                  <button type="submit" class="save-button" [disabled]="editForm.invalid">
-                    Opslaan
-                  </button>
-                  <button type="button" (click)="cancelEdit()">Annuleren</button>
-                </form>
+        @if (!editingCopyId) {
+          @if (copies.length > 0) {
+            @for (group of getGroupedCopies(); track group.campusId) {
+              <div
+                class="existing-campus-group"
+                [class.drag-over]="dropTargetCampusId === group.campusId"
+                (dragover)="onDragOver($event, group.campusId)"
+                (dragleave)="onDragLeave($event, group.campusId)"
+                (drop)="onDrop($event, group.campusId)"
+              >
+                <div class="existing-campus-group-header">
+                  <span class="campus-group-title">{{ group.campusName }}</span>
+                  <span class="campus-group-count"
+                    >{{ group.copies.length }}
+                    {{ group.copies.length === 1 ? 'exemplaar' : 'exemplaren' }}</span
+                  >
+                </div>
+                <table class="copies-table">
+                  <thead>
+                    <tr>
+                      <th class="drag-col"></th>
+                      <th>Conditie</th>
+                      <th>Status</th>
+                      <th>Barcode</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (copy of group.copies; track copy.id) {
+                      <tr
+                        draggable="true"
+                        [class.dragging]="draggedCopyId === copy.id"
+                        (dragstart)="onDragStart($event, copy.id)"
+                        (dragend)="onDragEnd()"
+                      >
+                        <td class="drag-handle" title="Sleep naar andere campus">
+                          <span class="drag-icon">&#x2807;</span>
+                        </td>
+                        <td>{{ copy.condition }}</td>
+                        <td>{{ copy.copy_status }}</td>
+                        <td>{{ copy.barcode }}</td>
+                        <td class="copy-actions">
+                          <button type="button" class="EditButton" (click)="startEdit(copy)">
+                            Wijzigen
+                          </button>
+                          <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
+                            Verwijderen
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
               </div>
             }
-          </table>
-        } @else {
-          <p>Geen exemplaren gevonden.</p>
+          } @else {
+            <p>Geen exemplaren gevonden.</p>
+          }
         }
 
         @if (!(addingCopy && editingCopyId)) {
@@ -232,12 +254,9 @@
                   </div>
 
                   <div class="form-row">
-                    <label>Campus (optioneel)</label>
+                    <label>Campus</label>
                     @if (school?.campuses!.length > 0) {
-                      <select
-                        [(ngModel)]="group.campusId"
-                        [name]="'group-campus-' + gi"
-                      >
+                      <select [(ngModel)]="group.campusId" [name]="'group-campus-' + gi">
                         <option [ngValue]="0">Geen</option>
                         @for (campus of school?.campuses; track campus.id) {
                           <option [ngValue]="campus.id">{{ campus.name }}</option>
