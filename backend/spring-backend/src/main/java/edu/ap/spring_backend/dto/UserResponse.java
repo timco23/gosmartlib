@@ -1,7 +1,5 @@
 package edu.ap.spring_backend.dto;
 
-import edu.ap.spring_backend.jpa.Item;
-
 /**
  * DTO for user profile information without sensitive data.
  * Includes student-specific fields if applicable.
@@ -15,9 +13,9 @@ public class UserResponse {
     private String studentNumber;
     private String className;
     private String schoolName;
-    private Item[] favoriteBooks;
+    private ItemDTO[] favoriteBooks;
     private Integer itemsBorrowed;
-    
+
     /**
      * Constructor for user profile response.
      * @param id user ID
@@ -30,8 +28,8 @@ public class UserResponse {
      * @param schoolName school name (null for admins)
      * @param favoriteBooks list of user's favorite books
      */
-    public UserResponse(Integer id, String name, String firstName, String email, String role, 
-                       String studentNumber, String className, String schoolName, Item[] favoriteBooks, Integer items_borrowed) {
+    public UserResponse(Integer id, String name, String firstName, String email, String role,
+                       String studentNumber, String className, String schoolName, ItemDTO[] favoriteBooks, Integer items_borrowed) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
@@ -53,7 +51,7 @@ public class UserResponse {
     public String getStudentNumber() { return studentNumber; }
     public String getClassName() { return className; }
     public String getSchoolName() { return schoolName; }
-    public Item[] getFavoriteBooks() { return favoriteBooks; }
+    public ItemDTO[] getFavoriteBooks() { return favoriteBooks; }
     public Integer getItems_borrowed() { return itemsBorrowed; }
     
     // Setters
@@ -65,6 +63,6 @@ public class UserResponse {
     public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
     public void setClassName(String className) { this.className = className; }
     public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
-    public void setFavoriteBooks(Item[] favoriteBooks) { this.favoriteBooks = favoriteBooks; }
+    public void setFavoriteBooks(ItemDTO[] favoriteBooks) { this.favoriteBooks = favoriteBooks; }
     public void setItems_borrowed(Integer items_borrowed) { this.itemsBorrowed = items_borrowed; }
 }

@@ -23,6 +23,12 @@ public class UserService {
                 this.itemRepository = itemRepository;
         }
 
+        public UserResponse getProfile(String email) {
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                return buildUserResponse(user);
+        }
+
         public ItemDTO[] getFavoriteBooks(String email) {
                 User user = userRepository.findByEmail(email)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -84,17 +90,7 @@ public class UserService {
 
         public List<UserResponse> getUsersBySchool(Long schoolId) {
                 return userRepository.findBySchoolId(schoolId).stream()
-                                .map(user -> new UserResponse(
-                                                user.getId(),
-                                                user.getName(),
-                                                user.getFirstName(),
-                                                user.getEmail(),
-                                                user.getRole().name(),
-                                                user.getStudentNumber(),
-                                                user.getClassName(),
-                                                user.getSchool() != null ? user.getSchool().getName() : null,
-                                                user.getFavoriteBooks().toArray(new Item[0]),
-                                                user.getItemsBorrowed()))
+                                .map(this::buildUserResponse)
                                 .toList();
         }
 
@@ -103,17 +99,7 @@ public class UserService {
                                 .orElseThrow(() -> new RuntimeException("User not found"));
                 user.setItemsBorrowed(user.getItemsBorrowed() + 1);
                 userRepository.save(user);
-                return new UserResponse(
-                                user.getId(),
-                                user.getName(),
-                                user.getFirstName(),
-                                user.getEmail(),
-                                user.getRole().name(),
-                                user.getStudentNumber(),
-                                user.getClassName(),
-                                user.getSchool() != null ? user.getSchool().getName() : null,
-                                user.getFavoriteBooks().toArray(new Item[0]),
-                                user.getItemsBorrowed());
+                return buildUserResponse(user);
         }
 
         public UserResponse removeFromItemsBorrowed(Integer userId) {
@@ -121,6 +107,10 @@ public class UserService {
                                 .orElseThrow(() -> new RuntimeException("User not found"));
                 user.setItemsBorrowed(Math.max(0, user.getItemsBorrowed() - 1));
                 userRepository.save(user);
+                return buildUserResponse(user);
+        }
+
+        private UserResponse buildUserResponse(User user) {
                 return new UserResponse(
                                 user.getId(),
                                 user.getName(),
@@ -130,7 +120,7 @@ public class UserService {
                                 user.getStudentNumber(),
                                 user.getClassName(),
                                 user.getSchool() != null ? user.getSchool().getName() : null,
-                                user.getFavoriteBooks().toArray(new Item[0]),
+                                user.getFavoriteBooks().stream().map(this::mapToItemDTO).toArray(ItemDTO[]::new),
                                 user.getItemsBorrowed());
         }
 }
