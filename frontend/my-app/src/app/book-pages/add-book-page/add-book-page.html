@@ -70,7 +70,7 @@
                 {{ schoolErrorMessage }}
               </p>
             } @else {
-              <label for="isbn">ISBN (optioneel)</label>
+              <label for="isbn">ISBN</label>
               <input
                 [readonly]="isReadOnly"
                 [ngClass]="{ readOnly: isReadOnly }"
@@ -231,80 +231,13 @@
                 <p>Schoolcampussen laden....</p>
               } @else {
                 @for (group of campusGroups; track $index) {
-                  <div class="campus-group-card">
-                    <div class="campus-group-header">
-                      <span class="campus-group-title">Campusgroep {{ $index + 1 }}</span>
-                      @if (campusGroups.length > 1) {
-                        <button
-                          type="button"
-                          class="remove-group-btn"
-                          (click)="removeCampusGroup($index)"
-                        >
-                          Verwijderen
-                        </button>
-                      }
-                    </div>
-
-                    <label>Campus (optioneel)</label>
-                    @if (school?.campuses!.length > 0) {
-                      <select
-                        [(ngModel)]="group.campusId"
-                        [ngModelOptions]="{ standalone: true }"
-                      >
-                        <option [ngValue]="0">Geen</option>
-                        @for (campus of school?.campuses; track campus.id) {
-                          <option [ngValue]="campus.id">{{ campus.name }}</option>
-                        }
-                      </select>
-                    } @else {
-                      <p>Geen schoolcampussen gevonden</p>
-                    }
-
-                    <label>Aantal exemplaren</label>
-                    <input
-                      type="number"
-                      min="1"
-                      [(ngModel)]="group.copyCount"
-                      [ngModelOptions]="{ standalone: true }"
-                      (ngModelChange)="onGroupCopyCountChange(group)"
-                    />
-
-                    <table class="copy-rows-table">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Conditie</th>
-                          <th>Barcode</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        @for (row of group.rows; track $index) {
-                          <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>
-                              <select
-                                [(ngModel)]="row.condition"
-                                [ngModelOptions]="{ standalone: true }"
-                              >
-                                <option value="">-- Kies --</option>
-                                <option value="NIEUW">Nieuw</option>
-                                <option value="GOED">Goed</option>
-                                <option value="GEBRUIKT">Gebruikt</option>
-                                <option value="BESCHADIGD">Beschadigd</option>
-                              </select>
-                            </td>
-                            <td>
-                              <input
-                                type="text"
-                                [(ngModel)]="row.barcode"
-                                [ngModelOptions]="{ standalone: true }"
-                              />
-                            </td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
+                  <app-campus-copy-group
+                    [group]="group"
+                    [campuses]="school?.campuses ?? []"
+                    [label]="'Campusgroep ' + ($index + 1)"
+                    [removable]="campusGroups.length > 1"
+                    (removed)="removeCampusGroup($index)"
+                  />
                 }
 
                 <button type="button" class="add-group-btn" (click)="addCampusGroup()">
@@ -318,7 +251,9 @@
 
               <div class="form-buttons">
                 <button type="submit" class="primary-btn">Toevoegen</button>
-                <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
+                <button type="button" class="secondary-btn" (click)="backToList()">
+                  Annuleren
+                </button>
               </div>
               @if (copyAlreadyExists) {
                 <p id="warning">Er bestaat al een exemplaar van dit book voor deze school.</p>

@@ -52,8 +52,8 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #d6822b;
-  box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
+  border-color: #8c1b3f;
+  box-shadow: 0 0 3px rgba(140, 27, 63, 0.3);
 }
 
 input.ng-invalid.ng-touched,
@@ -200,69 +200,6 @@ textarea.ng-invalid.ng-touched {
 
 .readOnly {
   background-color: lightgray;
-}
-
-.copy-rows-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 12px;
-}
-
-.copy-rows-table th,
-.copy-rows-table td {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-
-.copy-rows-table th {
-  background-color: #f4f4f4;
-  font-weight: 600;
-}
-
-.copy-rows-table select,
-.copy-rows-table input[type='text'] {
-  width: 100%;
-  padding: 4px 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.campus-group-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-  background-color: #fafaf5;
-}
-
-.campus-group-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.campus-group-title {
-  font-weight: 600;
-  color: #8c1b3f;
-}
-
-.remove-group-btn {
-  background: none;
-  border: none;
-  color: #8c1b3f;
-  cursor: pointer;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.remove-group-btn:hover {
-  background-color: #fde8ef;
 }
 
 .add-group-btn {

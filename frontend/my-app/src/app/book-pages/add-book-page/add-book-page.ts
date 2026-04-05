@@ -24,6 +24,7 @@ import {
   Genre,
   Subgenre,
   Readinglevel,
+  DidacticCategory,
 } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
@@ -33,8 +34,8 @@ import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-se
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
 import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
-import { DidacticCategory } from '../../../types/types';
 import { BookImportEnrichmentComponent } from '../book-import-enrichment/book-import-enrichment.component';
+import { CampusCopyGroupComponent } from '../campus-copy-group/campus-copy-group.component';
 
 @Component({
   selector: 'app-add-book-page',
@@ -49,6 +50,7 @@ import { BookImportEnrichmentComponent } from '../book-import-enrichment/book-im
     ReadingLevelSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
     BookImportEnrichmentComponent,
+    CampusCopyGroupComponent,
   ],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
@@ -377,24 +379,12 @@ export class AddBookPage implements OnInit {
   }
 
   addCampusGroup() {
-    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] });
+    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] });
   }
 
   removeCampusGroup(index: number) {
     if (this.campusGroups.length > 1) {
       this.campusGroups.splice(index, 1);
-    }
-  }
-
-  onGroupCopyCountChange(group: CampusCopyGroup) {
-    const count = Math.max(1, group.copyCount || 1);
-    const current = group.rows.length;
-    if (count > current) {
-      for (let i = current; i < count; i++) {
-        group.rows.push({ condition: '', barcode: '' });
-      }
-    } else {
-      group.rows.length = count;
     }
   }
 

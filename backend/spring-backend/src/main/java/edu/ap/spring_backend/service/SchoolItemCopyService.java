@@ -63,6 +63,9 @@ public class SchoolItemCopyService {
     public SchoolItemCopyDTO deleteCopy(int id) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+        if (copy.getCopy_status() == CopyStatus.UITGELEEND) {
+            throw new IllegalStateException("Een uitgeleend exemplaar kan niet verwijderd worden.");
+        }
         schoolItemCopyRepository.delete(copy);
         return mapToDTO(copy);
     }

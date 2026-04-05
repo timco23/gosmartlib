@@ -82,7 +82,7 @@
             }
 
             <div class="form-buttons">
-              <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
+              <button type="button" class="secondary-btn" (click)="backToList()">Annuleren</button>
               <button type="submit" class="primary-btn">Wijzig boek</button>
             </div>
 
@@ -104,6 +104,10 @@
 
       <section class="copies-column">
         <h3>Exemplaren ({{ copies.length }})</h3>
+
+        @if (deleteError) {
+          <p id="warning">{{ deleteError }}</p>
+        }
 
         @if (editingCopyId) {
           <div class="edit-copy-card">
@@ -170,22 +174,23 @@
         }
 
         @if (!editingCopyId) {
-          @if (copies.length > 0) {
-            @for (group of getGroupedCopies(); track group.campusId) {
-              <div
-                class="existing-campus-group"
-                [class.drag-over]="dropTargetCampusId === group.campusId"
-                (dragover)="onDragOver($event, group.campusId)"
-                (dragleave)="onDragLeave($event, group.campusId)"
-                (drop)="onDrop($event, group.campusId)"
-              >
-                <div class="existing-campus-group-header">
-                  <span class="campus-group-title">{{ group.campusName }}</span>
-                  <span class="campus-group-count"
-                    >{{ group.copies.length }}
-                    {{ group.copies.length === 1 ? 'exemplaar' : 'exemplaren' }}</span
-                  >
-                </div>
+          @for (group of getGroupedCopies(); track group.campusId) {
+            <div
+              class="existing-campus-group"
+              [class.drag-over]="dropTargetCampusId === group.campusId"
+              [class.empty-group]="group.copies.length === 0"
+              (dragover)="onDragOver($event, group.campusId)"
+              (dragleave)="onDragLeave($event, group.campusId)"
+              (drop)="onDragDrop($event, group.campusId)"
+            >
+              <div class="existing-campus-group-header">
+                <span class="campus-group-title">{{ group.campusName }}</span>
+                <span class="campus-group-count"
+                  >{{ group.copies.length }}
+                  {{ group.copies.length === 1 ? 'exemplaar' : 'exemplaren' }}</span
+                >
+              </div>
+              @if (group.copies.length > 0) {
                 <table class="copies-table">
                   <thead>
                     <tr>
@@ -222,10 +227,10 @@
                     }
                   </tbody>
                 </table>
-              </div>
-            }
-          } @else {
-            <p>Geen exemplaren gevonden.</p>
+              } @else {
+                <p class="empty-group-hint">Geen exemplaren — sleep hierheen om toe te wijzen</p>
+              }
+            </div>
           }
         }
 
@@ -238,89 +243,12 @@
             <h4>Exemplaren toevoegen ({{ getTotalCopyCount() }})</h4>
 
             <div class="copy-form">
-              @for (group of campusGroups; track $index; let gi = $index) {
-                <div class="campus-group-card">
-                  <div class="campus-group-header">
-                    <span class="campus-group-title">Campusgroep {{ gi + 1 }}</span>
-                    @if (campusGroups.length > 1) {
-                      <button
-                        type="button"
-                        class="remove-group-btn"
-                        (click)="removeCampusGroup(gi)"
-                      >
-                        Verwijderen
-                      </button>
-                    }
-                  </div>
-
-                  <div class="form-row">
-                    <label>Campus</label>
-                    @if (school?.campuses!.length > 0) {
-                      <select [(ngModel)]="group.campusId" [name]="'group-campus-' + gi">
-                        <option [ngValue]="0">Geen</option>
-                        @for (campus of school?.campuses; track campus.id) {
-                          <option [ngValue]="campus.id">{{ campus.name }}</option>
-                        }
-                      </select>
-                    } @else {
-                      <p>Geen schoolcampussen gevonden</p>
-                    }
-                  </div>
-
-                  <div class="form-row">
-                    <label>Aantal exemplaren</label>
-                    <input
-                      type="number"
-                      min="1"
-                      [(ngModel)]="group.copyCount"
-                      [name]="'group-count-' + gi"
-                      (ngModelChange)="onGroupCopyCountChange(group)"
-                    />
-                  </div>
-
-                  <table class="copy-rows-table">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Conditie</th>
-                        <th>Barcode</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (row of group.rows; track $index) {
-                        <tr>
-                          <td>{{ $index + 1 }}</td>
-                          <td>
-                            <select
-                              [(ngModel)]="row.condition"
-                              [name]="'copy-condition-' + gi + '-' + $index"
-                              required
-                            >
-                              <option value="">-- Kies --</option>
-                              <option value="NIEUW">Nieuw</option>
-                              <option value="GOED">Goed</option>
-                              <option value="GEBRUIKT">Gebruikt</option>
-                              <option value="BESCHADIGD">Beschadigd</option>
-                            </select>
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              [(ngModel)]="row.barcode"
-                              [name]="'copy-barcode-' + gi + '-' + $index"
-                              required
-                            />
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
+              @for (group of campusGroups; track $index) {
+                <app-campus-copy-group
+                  [group]="group"
+                  [campuses]="school?.campuses ?? []"
+                />
               }
-
-              <button type="button" class="add-group-btn" (click)="addCampusGroup()">
-                + Campusgroep toevoegen
-              </button>
 
               @if (copyError) {
                 <p class="warning">Voer een conditie en barcode in voor alle exemplaren.</p>

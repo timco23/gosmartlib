@@ -20,7 +20,6 @@ import {
   School,
   CreateSchoolItemCopyPayload,
   CampusCopyGroup,
-  LoginResponse,
 } from '../../../types/types';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
@@ -35,6 +34,7 @@ import { SubgenreService } from '../../services/subgenre.service';
 import { ReadingLevelService } from '../../services/reading-level.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { SchoolService } from '../../services/school.service';
+import { CampusCopyGroupComponent } from '../campus-copy-group/campus-copy-group.component';
 
 @Component({
   selector: 'app-update-book-page',
@@ -46,6 +46,7 @@ import { SchoolService } from '../../services/school.service';
     SubgenreSelectionMenuComponent,
     ReadingLevelSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
+    CampusCopyGroupComponent,
   ],
   templateUrl: './update-book-page.html',
   styleUrl: './update-book-page.css',
@@ -81,9 +82,9 @@ export class UpdateBookPage implements OnInit {
   isFeatured: boolean = false;
   draggedCopyId: number | null = null;
   dropTargetCampusId: number | null = null;
+  deleteError: string | null = null;
 
-  editingCopyId: number | null = null;
-  editedCopy: CreateSchoolItemCopyPayload = {
+  private static readonly EMPTY_COPY_PAYLOAD: CreateSchoolItemCopyPayload = {
     itemId: 0,
     condition: '',
     barcode: '',
@@ -92,6 +93,9 @@ export class UpdateBookPage implements OnInit {
     schoolId: 0,
     campusId: 0,
   };
+
+  editingCopyId: number | null = null;
+  editedCopy: CreateSchoolItemCopyPayload = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
 
   selectedTags: Tag[] = [];
   selectedGenres: Genre[] = [];
@@ -223,25 +227,23 @@ export class UpdateBookPage implements OnInit {
   getGroupedCopies(): { campusId: number; campusName: string; copies: SchoolItemCopy[] }[] {
     const groups: { campusId: number; campusName: string; copies: SchoolItemCopy[] }[] = [];
 
+    // Always include "Geen campus" as a drop target
+    groups.push({ campusId: 0, campusName: 'Geen campus', copies: [] });
+
+    // Always include all school campuses as drop targets
+    if (this.school?.campuses) {
+      for (const campus of this.school.campuses) {
+        groups.push({ campusId: campus.id!, campusName: campus.name, copies: [] });
+      }
+    }
+
+    // Distribute copies into their groups
     for (const copy of this.copies) {
       const campusId = copy.campus ? copy.campus.id : 0;
-      const campusName = copy.campus ? copy.campus.name : 'Geen campus';
-
-      // check if a group for this campus already exists
-      let group = groups.find((g) => g.campusId === campusId);
-
-      // if not, create it
-      if (!group) {
-        group = {
-          campusId: campusId,
-          campusName: campusName,
-          copies: [],
-        };
-        groups.push(group);
+      const group = groups.find((g) => g.campusId === campusId);
+      if (group) {
+        group.copies.push(copy);
       }
-
-      // add the copy to the group
-      group.copies.push(copy);
     }
 
     return groups;
@@ -264,9 +266,10 @@ export class UpdateBookPage implements OnInit {
     }
   }
 
-  onDrop(event: DragEvent, targetCampusId: number) {
+  onDragDrop(event: DragEvent, targetCampusId: number) {
     event.preventDefault();
     this.dropTargetCampusId = null;
+    this.deleteError = null;
     if (this.draggedCopyId == null) return;
 
     const copy = this.copies.find((c) => c.id === this.draggedCopyId);
@@ -304,29 +307,9 @@ export class UpdateBookPage implements OnInit {
 
   showAddCopyForm() {
     this.addingCopy = true;
-    this.campusGroups = [{ campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] }];
-  }
-
-  addCampusGroup() {
-    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] });
-  }
-
-  removeCampusGroup(index: number) {
-    if (this.campusGroups.length > 1) {
-      this.campusGroups.splice(index, 1);
-    }
-  }
-
-  onGroupCopyCountChange(group: CampusCopyGroup) {
-    const count = Math.max(1, group.copyCount || 1);
-    const current = group.rows.length;
-    if (count > current) {
-      for (let i = current; i < count; i++) {
-        group.rows.push({ condition: '', barcode: '' });
-      }
-    } else {
-      group.rows.length = count;
-    }
+    this.campusGroups = [
+      { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] },
+    ];
   }
 
   getTotalCopyCount(): number {
@@ -334,6 +317,7 @@ export class UpdateBookPage implements OnInit {
   }
 
   addCopies() {
+    this.deleteError = null;
     if (!this.book) return;
 
     const allRows = this.campusGroups.flatMap((group) =>
@@ -373,14 +357,20 @@ export class UpdateBookPage implements OnInit {
   }
 
   deleteCopy(copyId: any) {
+    this.deleteError = null;
     this.api.deleteCopy(copyId!).subscribe({
       next: () => {
         this.loadCopies();
+      },
+      error: (err) => {
+        this.deleteError = err.error || 'Er is een fout opgetreden bij het verwijderen.';
+        this.cdr.detectChanges();
       },
     });
   }
 
   startEdit(copy: SchoolItemCopy) {
+    this.deleteError = null;
     this.editingCopyId = copy.id!;
     this.editedCopy = {
       itemId: copy.itemId,
@@ -395,18 +385,11 @@ export class UpdateBookPage implements OnInit {
 
   cancelEdit() {
     this.editingCopyId = null;
-    this.editedCopy = {
-      itemId: 0,
-      condition: '',
-      barcode: '',
-      copy_status: '',
-      featured: false,
-      schoolId: 0,
-      campusId: 0,
-    };
+    this.editedCopy = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
   }
 
   saveEdit() {
+    this.deleteError = null;
     if (!this.book) return;
 
     this.api.updateCopy(this.editedCopy, this.editingCopyId!).subscribe({
@@ -416,15 +399,7 @@ export class UpdateBookPage implements OnInit {
           this.copies[index] = updatedCopy;
         }
         this.editingCopyId = null;
-        this.editedCopy = {
-          itemId: 0,
-          condition: '',
-          barcode: '',
-          copy_status: '',
-          featured: false,
-          schoolId: 0,
-          campusId: 0,
-        };
+        this.editedCopy = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
         this.cdr.detectChanges();
       },
     });
@@ -460,21 +435,19 @@ export class UpdateBookPage implements OnInit {
   loadData() {
     this.route.paramMap.subscribe((p) => {
       const id = p.get('id');
-      if (id) this.getBook(id);
-    });
-  }
+      if (!id) return;
 
-  getBook(id: string) {
-    this.api.getBookById(parseInt(id)).subscribe({
-      next: (data) => {
-        this.book = data;
-        this.tryFillForm();
-        this.loadCopies();
-      },
-      error: (err) => {
-        this.errorMessage = err;
-        this.error = true;
-      },
+      this.api.getBookById(parseInt(id)).subscribe({
+        next: (data) => {
+          this.book = data;
+          this.tryFillForm();
+          this.loadCopies();
+        },
+        error: (err) => {
+          this.errorMessage = err;
+          this.error = true;
+        },
+      });
     });
   }
 

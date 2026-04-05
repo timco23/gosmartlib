@@ -1,0 +1,61 @@
+<div class="campus-group-card">
+  @if (label || removable) {
+    <div class="campus-group-header">
+      @if (label) {
+        <span class="campus-group-title">{{ label }}</span>
+      }
+      @if (removable) {
+        <button type="button" class="remove-group-btn" (click)="removed.emit()">Verwijderen</button>
+      }
+    </div>
+  }
+
+  <label>Campus</label>
+  @if (campuses.length > 0) {
+    <select [(ngModel)]="group.campusId" [ngModelOptions]="{ standalone: true }">
+      <option [ngValue]="0">Geen</option>
+      @for (campus of campuses; track campus.id) {
+        <option [ngValue]="campus.id">{{ campus.name }}</option>
+      }
+    </select>
+  } @else {
+    <p>Geen schoolcampussen gevonden</p>
+  }
+
+  <label>Aantal exemplaren</label>
+  <input
+    type="number"
+    min="1"
+    [(ngModel)]="group.copyCount"
+    [ngModelOptions]="{ standalone: true }"
+    (ngModelChange)="onCopyCountChange()"
+  />
+
+  <table class="copy-rows-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Conditie</th>
+        <th>Barcode</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of group.rows; track $index) {
+        <tr>
+          <td>{{ $index + 1 }}</td>
+          <td>
+            <select [(ngModel)]="row.condition" [ngModelOptions]="{ standalone: true }">
+              <option value="NIEUW">Nieuw</option>
+              <option value="GOED">Goed</option>
+              <option value="GEBRUIKT">Gebruikt</option>
+              <option value="BESCHADIGD">Beschadigd</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" [(ngModel)]="row.barcode" [ngModelOptions]="{ standalone: true }" />
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
