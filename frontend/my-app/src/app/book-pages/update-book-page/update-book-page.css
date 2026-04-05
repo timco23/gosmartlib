@@ -1,47 +1,59 @@
 .form-container {
-  max-width: 1800px;
+  max-width: 1450px;
   margin: 40px auto;
   padding: 20px;
 }
 
-.two-column-grid {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 30px;
-  align-items: start;
-}
-
-.column-left,
-.column-right {
-  min-width: 0;
-}
-
-.book-form {
-  display: flex;
-  gap: 40px;
+.update-card {
   background: #f0efe4;
-  padding: 30px;
   border-radius: 10px;
   border: 1px solid #8c1b3f;
+  padding: 30px;
+  margin-top: 15px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
+.update-grid {
+  display: grid;
+  grid-template-columns: 3fr 4fr;
+  grid-template-rows: auto 1fr;
+  row-gap: 0;
+  column-gap: 30px;
+  align-items: start;
+}
+
+.edit-column {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  min-width: 0;
+}
+
+.cover-preview {
+  grid-column: 2;
+  grid-row: 1;
+  text-align: center;
+}
+
+.copies-column {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+}
+
+/* Book edit form */
 .form-left {
-  flex: 2;
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.form-right {
-  flex: 1;
-  text-align: center;
 }
 
 label {
   font-weight: 600;
   margin-top: 8px;
   color: black;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 input,
@@ -52,6 +64,12 @@ select {
   border: 1px solid #bfbfe8;
   font-size: 14px;
   background: white;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type='checkbox'] {
+  width: auto;
 }
 
 textarea {
@@ -75,11 +93,8 @@ textarea.ng-invalid.ng-touched {
   box-shadow: 0 0 6px rgba(140, 27, 63, 0.5);
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
+select {
+  cursor: pointer;
 }
 
 .form-buttons {
@@ -88,42 +103,16 @@ textarea.ng-invalid.ng-touched {
   margin-top: 20px;
 }
 
-.primary-btn {
-  background: #c2e569;
-  color: #2f2f2f;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.primary-btn:hover {
-  background: #afd44f;
-}
-
-.secondary-btn {
-  background: black;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.secondary-btn:hover {
-  background: #333;
-}
-
 .preview-title {
   font-weight: 600;
   margin-bottom: 10px;
 }
 
-.form-right img {
-  max-width: 220px;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+.cover-preview img {
+  width: 100%;
+  max-width: 320px;
+  max-height: 480px;
+  object-fit: contain;
 }
 
 .no-cover {
@@ -142,12 +131,10 @@ textarea.ng-invalid.ng-touched {
   font-weight: 500;
 }
 
-.copies-section {
-  background: #f0efe4;
-  padding: 30px;
-  border-radius: 10px;
-  border: 1px solid #8c1b3f;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+/* Copies section */
+.copies-column h3 {
+  margin-top: 1rem;
+  color: #8c1b3f;
 }
 
 .copies-table {
@@ -179,40 +166,22 @@ textarea.ng-invalid.ng-touched {
 .copies-table td {
   padding: 12px;
   border-bottom: 1px solid #bfbfe8;
+  vertical-align: middle;
 }
 
 .copy-actions {
   display: flex;
   gap: 5px;
   justify-content: flex-end;
+  align-items: center;
+  vertical-align: middle;
 }
 
 .copy-actions button {
   padding: 4px 8px;
   font-size: 13px;
-}
-
-.EditButton {
-  background-color: black;
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.DeleteButton {
-  background-color: #8c1b3f;
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
+  width: auto;
   margin-top: 0;
-}
-
-.DeleteButton:hover {
-  background-color: #6f1532;
 }
 
 .add-copy {
@@ -268,29 +237,7 @@ textarea.ng-invalid.ng-touched {
   margin-top: 8px;
 }
 
-.add-button {
-  background-color: #8c1b3f;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.save-button {
-  background-color: #8c1b3f;
-  color: white;
-}
-
-.save-button:disabled {
-  background-color: #bfbfe8;
-  cursor: not-allowed;
-}
-
-.warning {
-  color: red;
-}
-
+/* Buttons */
 button {
   width: 100%;
   padding: 12px 24px;
@@ -310,8 +257,95 @@ button:hover {
   transform: translateY(-1px);
 }
 
-@media (max-width: 1100px) {
-  .two-column-grid {
+button:active {
+  transform: scale(0.98);
+}
+
+.primary-btn {
+  background: #c2e569;
+  color: #2f2f2f;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  width: auto;
+  margin-top: 0;
+}
+
+.primary-btn:hover {
+  background: #afd44f;
+}
+
+.secondary-btn {
+  background: black;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: auto;
+  margin-top: 0;
+}
+
+.secondary-btn:hover {
+  background: #333;
+}
+
+.add-button {
+  background-color: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.add-button:disabled {
+  background-color: #bfbfe8;
+  cursor: not-allowed;
+}
+
+.save-button {
+  background-color: #8c1b3f;
+  color: white;
+}
+
+.save-button:disabled {
+  background-color: #bfbfe8;
+  cursor: not-allowed;
+}
+
+.EditButton {
+  background-color: black;
+  color: white;
+}
+
+.DeleteButton {
+  background-color: #8c1b3f;
+  margin-top: 0;
+}
+
+.DeleteButton:hover {
+  background-color: #6f1532;
+}
+
+.warning {
+  color: red;
+}
+
+@media (max-width: 1450px) {
+  .update-grid {
     grid-template-columns: 1fr;
+  }
+
+  .cover-preview {
+    display: none;
+  }
+
+  .edit-column,
+  .copies-column {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
