@@ -228,7 +228,7 @@
                   </tbody>
                 </table>
               } @else {
-                <p class="empty-group-hint">Geen exemplaren — sleep hierheen om toe te wijzen</p>
+                <p class="empty-group-hint">Geen exemplaren toegewezen</p>
               }
             </div>
           }
@@ -244,10 +244,7 @@
 
             <div class="copy-form">
               @for (group of campusGroups; track $index) {
-                <app-campus-copy-group
-                  [group]="group"
-                  [campuses]="school?.campuses ?? []"
-                />
+                <app-campus-copy-group [group]="group" [campuses]="school?.campuses ?? []" />
               }
 
               @if (copyError) {

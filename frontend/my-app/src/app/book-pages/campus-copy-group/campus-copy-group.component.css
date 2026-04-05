@@ -42,13 +42,21 @@ label {
 }
 
 select,
-input[type='number'] {
+input[type='number'],
+input[type='text'] {
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #bfbfe8;
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
+}
+
+select:focus,
+input:focus {
+  outline: none;
+  border-color: #8c1b3f;
+  box-shadow: 0 0 3px rgba(140, 27, 63, 0.3);
 }
 
 .copy-rows-table {
