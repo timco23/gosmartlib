@@ -108,6 +108,11 @@ public class ItemController {
         return ResponseEntity.ok(schoolItemCopyService.addCopy(copyDTO));
     }
 
+    @PostMapping("/books/copies/bulk")
+    public ResponseEntity<List<SchoolItemCopyDTO>> addCopiesBulk(@RequestBody List<CreateSchoolItemCopyDTO> copyDTOs) {
+        return ResponseEntity.ok(schoolItemCopyService.addCopies(copyDTOs));
+    }
+
     @DeleteMapping("/books/copies/{id}")
     public ResponseEntity<SchoolItemCopyDTO> deleteCopy(@PathVariable int id) {
         return ResponseEntity.ok(schoolItemCopyService.deleteCopy(id));

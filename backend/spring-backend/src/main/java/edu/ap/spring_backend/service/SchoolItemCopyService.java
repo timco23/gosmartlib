@@ -54,6 +54,12 @@ public class SchoolItemCopyService {
         return mapToDTO(schoolItemCopyRepository.save(copy));
     }
 
+    public List<SchoolItemCopyDTO> addCopies(List<CreateSchoolItemCopyDTO> copyDTOs) {
+        return copyDTOs.stream()
+                .map(this::addCopy)
+                .toList();
+    }
+
     public SchoolItemCopyDTO deleteCopy(int id) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));

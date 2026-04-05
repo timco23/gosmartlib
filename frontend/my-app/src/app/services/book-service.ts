@@ -105,6 +105,10 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
     return this.http.post<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies`, copy);
   }
 
+  addCopies(copies: CreateSchoolItemCopyPayload[]): Observable<SchoolItemCopy[]> {
+    return this.http.post<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/bulk`, copies);
+  }
+
   deleteCopy(id: number): Observable<SchoolItemCopy> {
     return this.http.delete<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${id}`);
   }
