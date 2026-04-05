@@ -8,12 +8,10 @@ import {
   SchoolItemCopy,
   School,
   CreateSchoolItemCopyPayload,
-  NewCopyRow,
   Tag,
   Review,
   CreateReview,
 } from '../../../types/types';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -30,7 +28,7 @@ import { ReadingListService } from '../../services/readingList-service';
 
 @Component({
   selector: 'app-book-detail-page',
-  imports: [RouterLink, FormsModule, CommonModule, ReviewForm, ReviewList],
+  imports: [RouterLink, CommonModule, ReviewForm, ReviewList],
   templateUrl: './book-detail-page.html',
   styleUrl: './book-detail-page.css',
 })
@@ -47,7 +45,6 @@ export class BookDetailPage implements OnInit {
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   renderer = inject(Renderer2);
   copies: SchoolItemCopy[] = [];
-  addingCopy: boolean = false;
   role = Role;
   school: School | null = null;
   isFeatured: boolean = false;
@@ -71,21 +68,6 @@ export class BookDetailPage implements OnInit {
   readingLevelService = inject(ReadingLevelService);
   readingListService = inject(ReadingListService)
 
-  copyCount: number = 1;
-  newCampusId: number = 0;
-  newCopies: NewCopyRow[] = [];
-  copyError: boolean = false;
-
-  editingCopyId: number | null = null;
-  editedCopy: CreateSchoolItemCopyPayload = {
-    itemId: 0,
-    condition: '',
-    barcode: '',
-    copy_status: '',
-    featured: false,
-    schoolId: 0,
-    campusId: 0,
-  };
   isFavorite: boolean = false;
   favorites: any[] = [];
 
@@ -380,131 +362,6 @@ export class BookDetailPage implements OnInit {
 
   backToList() {
     this.router.navigate(['/books'], { replaceUrl: true });
-  }
-
-  showAddCopyForm() {
-    this.addingCopy = true;
-    this.copyCount = 1;
-    this.newCopies = [{ condition: '', barcode: '' }];
-  }
-
-  onCopyCountChange() {
-    const count = Math.max(1, this.copyCount || 1);
-    const current = this.newCopies.length;
-    if (count > current) {
-      for (let i = current; i < count; i++) {
-        this.newCopies.push({ condition: '', barcode: '' });
-      }
-    } else {
-      this.newCopies.length = count;
-    }
-  }
-
-  addCopies() {
-    if (!this.book) return;
-    const invalid = !this.newCopies.every((row) => row.condition && row.barcode);
-    if (invalid) {
-      this.copyError = true;
-      return;
-    }
-
-    const newCopiesPayload: CreateSchoolItemCopyPayload[] = this.newCopies.map((row) => ({
-      itemId: this.book!.id,
-      condition: row.condition,
-      barcode: row.barcode,
-      copy_status: 'BESCHIKBAAR',
-      featured: this.isFeatured,
-      schoolId: this.school!.id!,
-      campusId: this.newCampusId,
-    }));
-
-    this.api.addCopies(newCopiesPayload).subscribe({
-      next: (newCopies) => {
-        this.copies.push(...newCopies);
-        this.addingCopy = false;
-        this.newCopies = [];
-        this.copyCount = 1;
-        this.newCampusId = 0;
-        this.copyError = false;
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  cancelAddCopy() {
-    this.addingCopy = false;
-    this.newCopies = [];
-    this.copyCount = 1;
-    this.newCampusId = 0;
-    this.copyError = false;
-  }
-
-  deleteCopy(copy: any) {
-    this.api.deleteCopy(copy!).subscribe({
-      next: () => {
-        this.copies = [];
-        this.api.loadCopies(this.book!.id, this.school!.id!).subscribe({
-          next: (copies) => {
-            this.copies = copies;
-            if (copies.length <= 0) {
-              this.backToList();
-            }
-            this.cdr.detectChanges();
-          },
-        });
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  startEdit(copy: SchoolItemCopy) {
-    this.editingCopyId = copy.id!;
-    this.editedCopy = {
-      itemId: copy.itemId,
-      barcode: copy.barcode,
-      condition: copy.condition,
-      copy_status: copy.copy_status,
-      featured: copy.featured,
-      schoolId: copy.schoolId,
-      campusId: copy.campus ? copy.campus.id : 0
-    };
-  }
-
-  cancelEdit() {
-    this.editingCopyId = null;
-    this.editedCopy = {
-      itemId: 0,
-      condition: '',
-      barcode: '',
-      copy_status: '',
-      featured: false,
-      schoolId: 0,
-      campusId: 0,
-    };
-  }
-
-  saveEdit() {
-    if (!this.book) return;
-
-    this.api.updateCopy(this.editedCopy, this.editingCopyId!).subscribe({
-      next: (updatedCopy) => {
-        const index = this.copies.findIndex((c) => c.id === this.editingCopyId);
-        if (index > -1) {
-          this.copies[index] = updatedCopy;
-        }
-        this.editingCopyId = null;
-        this.editedCopy = {
-          itemId: 0,
-          condition: '',
-          barcode: '',
-          copy_status: '',
-          featured: false,
-          schoolId: 0,
-          campusId: 0,
-        };
-        this.cdr.detectChanges();
-      },
-    });
   }
 
   toggleFeatured() {

@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Tag, UpdateBookPayload, Genre, Subgenre, Readinglevel, DidacticCategory } from '../../../types/types';
+import { Book, Tag, UpdateBookPayload, Genre, Subgenre, Readinglevel, DidacticCategory, SchoolItemCopy, School, CreateSchoolItemCopyPayload, NewCopyRow, LoginResponse } from '../../../types/types';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
@@ -15,11 +15,13 @@ import { GenreService } from '../../services/genre.service';
 import { SubgenreService } from '../../services/subgenre.service';
 import { ReadingLevelService } from '../../services/reading-level.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
+import { SchoolService } from '../../services/school.service';
 
 @Component({
   selector: 'app-update-book-page',
   imports: [
     ReactiveFormsModule,
+    FormsModule,
     TagSelectionMenu,
     GenreSelectionMenuComponent,
     SubgenreSelectionMenuComponent,
@@ -40,6 +42,7 @@ export class UpdateBookPage implements OnInit {
   didacticCategoryService = inject(DidacticCategoryService);
   authService = inject(AuthService);
   userService = inject(UserService);
+  schoolService = inject(SchoolService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   previewUrl: string = '';
@@ -50,6 +53,26 @@ export class UpdateBookPage implements OnInit {
   errorMessage: string = '';
   book: Book | null = null;
   isDidactic: boolean = false;
+
+  copies: SchoolItemCopy[] = [];
+  school: School | null = null;
+  addingCopy: boolean = false;
+  copyCount: number = 1;
+  newCampusId: number = 0;
+  newCopies: NewCopyRow[] = [];
+  copyError: boolean = false;
+  isFeatured: boolean = false;
+
+  editingCopyId: number | null = null;
+  editedCopy: CreateSchoolItemCopyPayload = {
+    itemId: 0,
+    condition: '',
+    barcode: '',
+    copy_status: '',
+    featured: false,
+    schoolId: 0,
+    campusId: 0,
+  };
 
   selectedTags: Tag[] = [];
   selectedGenres: Genre[] = [];
@@ -146,6 +169,151 @@ export class UpdateBookPage implements OnInit {
   ngOnInit(): void {
     this.loadLookups();
     this.loadData();
+    this.loadSchool();
+  }
+
+  loadSchool() {
+    this.authService.currentUser$.subscribe((user) => {
+      if (!user?.email) return;
+      this.userService.getUser(user.email).subscribe({
+        next: (data) => {
+          if (data.schoolName) {
+            this.schoolService.getByName(data.schoolName).subscribe({
+              next: (schoolData) => {
+                this.school = schoolData;
+                if (this.book) this.loadCopies();
+              },
+            });
+          }
+        },
+      });
+    });
+  }
+
+  loadCopies() {
+    if (!this.book || !this.school?.id) return;
+    this.api.loadCopies(this.book.id, this.school.id).subscribe({
+      next: (copies) => {
+        this.copies = copies;
+        if (copies.length > 0 && copies[0].featured) this.isFeatured = true;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  showAddCopyForm() {
+    this.addingCopy = true;
+    this.copyCount = 1;
+    this.newCopies = [{ condition: '', barcode: '' }];
+  }
+
+  onCopyCountChange() {
+    const count = Math.max(1, this.copyCount || 1);
+    const current = this.newCopies.length;
+    if (count > current) {
+      for (let i = current; i < count; i++) {
+        this.newCopies.push({ condition: '', barcode: '' });
+      }
+    } else {
+      this.newCopies.length = count;
+    }
+  }
+
+  addCopies() {
+    if (!this.book) return;
+    const invalid = !this.newCopies.every((row) => row.condition && row.barcode);
+    if (invalid) {
+      this.copyError = true;
+      return;
+    }
+
+    const newCopiesPayload: CreateSchoolItemCopyPayload[] = this.newCopies.map((row) => ({
+      itemId: this.book!.id,
+      condition: row.condition,
+      barcode: row.barcode,
+      copy_status: 'BESCHIKBAAR',
+      featured: this.isFeatured,
+      schoolId: this.school!.id!,
+      campusId: this.newCampusId,
+    }));
+
+    this.api.addCopies(newCopiesPayload).subscribe({
+      next: (newCopies) => {
+        this.copies.push(...newCopies);
+        this.addingCopy = false;
+        this.newCopies = [];
+        this.copyCount = 1;
+        this.newCampusId = 0;
+        this.copyError = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  cancelAddCopy() {
+    this.addingCopy = false;
+    this.newCopies = [];
+    this.copyCount = 1;
+    this.newCampusId = 0;
+    this.copyError = false;
+  }
+
+  deleteCopy(copyId: any) {
+    this.api.deleteCopy(copyId!).subscribe({
+      next: () => {
+        this.loadCopies();
+      },
+    });
+  }
+
+  startEdit(copy: SchoolItemCopy) {
+    this.editingCopyId = copy.id!;
+    this.editedCopy = {
+      itemId: copy.itemId,
+      barcode: copy.barcode,
+      condition: copy.condition,
+      copy_status: copy.copy_status,
+      featured: copy.featured,
+      schoolId: copy.schoolId,
+      campusId: copy.campus ? copy.campus.id : 0,
+    };
+  }
+
+  cancelEdit() {
+    this.editingCopyId = null;
+    this.editedCopy = {
+      itemId: 0,
+      condition: '',
+      barcode: '',
+      copy_status: '',
+      featured: false,
+      schoolId: 0,
+      campusId: 0,
+    };
+  }
+
+  saveEdit() {
+    if (!this.book) return;
+
+    this.api.updateCopy(this.editedCopy, this.editingCopyId!).subscribe({
+      next: (updatedCopy) => {
+        const index = this.copies.findIndex((c) => c.id === this.editingCopyId);
+        if (index > -1) {
+          this.copies[index] = updatedCopy;
+        }
+        this.editingCopyId = null;
+        this.editedCopy = {
+          itemId: 0,
+          condition: '',
+          barcode: '',
+          copy_status: '',
+          featured: false,
+          schoolId: 0,
+          campusId: 0,
+        };
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   loadLookups() {
@@ -187,6 +355,7 @@ export class UpdateBookPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.tryFillForm();
+        this.loadCopies();
       },
       error: (err) => {
         this.errorMessage = err;

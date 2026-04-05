@@ -6,88 +6,284 @@
       <button class="secondary-btn" (click)="loadData()">Opnieuw proberen</button>
     </div>
   }
-  <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-    <main class="form-left">
-      <label for="title">Titel</label>
-      <input id="title" type="text" formControlName="title" />
-      <label for="author">Auteur</label>
-      <input id="author" type="text" formControlName="author" />
-      <label for="description">Beschrijving</label>
-      <textarea id="description" formControlName="description"></textarea>
 
-      <label for="isbn">ISBN</label>
-      <input type="text" id="isbn" formControlName="isbn" />
+  <div class="two-column-grid">
+    <div class="column-left">
+      <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <main class="form-left">
+          <label for="title">Titel</label>
+          <input id="title" type="text" formControlName="title" />
+          <label for="author">Auteur</label>
+          <input id="author" type="text" formControlName="author" />
+          <label for="description">Beschrijving</label>
+          <textarea id="description" formControlName="description"></textarea>
 
-      <label for="publisher">Uitgeverij</label>
-      <input id="publisher" type="text" formControlName="publisher" />
-      <label for="releaseYear">Uitgavejaar</label>
-      <input id="releaseYear" type="number" formControlName="releaseYear" />
-      <label for="language">Taal</label>
-      <select id="language" formControlName="language">
-        <option value="">Selecteer een taal</option>
-        <option value="Nederlands">Nederlands</option>
-        <option value="Engels">Engels</option>
-        <option value="Frans">Frans</option>
-        <option value="Duits">Duits</option>
-        <option value="Andere">Andere</option>
-      </select>
-      <label for="pageCount">Aantal paginas</label>
-      <input id="pageCount" type="number" formControlName="pageCount" />
-      <label for="cover">Cover URL</label>
-      <input id="cover" type="text" [(ngModel)]="previewUrl" formControlName="cover" />
+          <label for="isbn">ISBN</label>
+          <input type="text" id="isbn" formControlName="isbn" />
 
-      <label>Tags</label>
-      <app-tag-selection-menu
-        [initialTags]="selectedTags"
-        (tagsChanged)="onTagsChanged($event)"
-      />
+          <label for="publisher">Uitgeverij</label>
+          <input id="publisher" type="text" formControlName="publisher" />
+          <label for="releaseYear">Uitgavejaar</label>
+          <input id="releaseYear" type="number" formControlName="releaseYear" />
+          <label for="language">Taal</label>
+          <select id="language" formControlName="language">
+            <option value="">Selecteer een taal</option>
+            <option value="Nederlands">Nederlands</option>
+            <option value="Engels">Engels</option>
+            <option value="Frans">Frans</option>
+            <option value="Duits">Duits</option>
+            <option value="Andere">Andere</option>
+          </select>
+          <label for="pageCount">Aantal paginas</label>
+          <input id="pageCount" type="number" formControlName="pageCount" />
+          <label for="cover">Cover URL</label>
+          <input id="cover" type="text" [(ngModel)]="previewUrl" formControlName="cover" />
 
-      <label>Genres</label>
-      <app-genre-selection-menu
-        [initialGenres]="selectedGenres"
-        (tagsChanged)="onGenresChanged($event)"
-      />
+          <label>Tags</label>
+          <app-tag-selection-menu
+            [initialTags]="selectedTags"
+            (tagsChanged)="onTagsChanged($event)"
+          />
 
-      <label>Subgenres</label>
-      <app-subgenre-selection-menu
-        [initialSubgenres]="selectedSubgenres"
-        [genreIds]="selectedGenres"
-        (subgenresChanged)="onSubgenresChanged($event)"
-      />
+          <label>Genres</label>
+          <app-genre-selection-menu
+            [initialGenres]="selectedGenres"
+            (tagsChanged)="onGenresChanged($event)"
+          />
 
-      <label>Leesniveau</label>
-      <app-reading-level
-        (selectedReadingLevel)="onReadingLevelChanged($event)"
-      />
+          <label>Subgenres</label>
+          <app-subgenre-selection-menu
+            [initialSubgenres]="selectedSubgenres"
+            [genreIds]="selectedGenres"
+            (subgenresChanged)="onSubgenresChanged($event)"
+          />
 
-      <label>
-        <input type="checkbox" formControlName="isDidactic" (change)="onIsDidacticChanged()"> Didactisch boek
-      </label>
+          <label>Leesniveau</label>
+          <app-reading-level
+            (selectedReadingLevel)="onReadingLevelChanged($event)"
+          />
 
-      @if (isDidactic) {
-        <label>Didactische categorieën</label>
-        <app-didactic-category-selection-menu
-          [initialCategories]="selectedDidacticCategories"
-          (tagsChanged)="onDidacticCategoriesChanged($event)"
-        />
-      }
+          <label>
+            <input type="checkbox" formControlName="isDidactic" (change)="onIsDidacticChanged()"> Didactisch boek
+          </label>
 
-      <div class="form-buttons">
-        <button type="submit" class="primary-btn">Wijzig boek</button>
-        <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
-      </div>
+          @if (isDidactic) {
+            <label>Didactische categorieën</label>
+            <app-didactic-category-selection-menu
+              [initialCategories]="selectedDidacticCategories"
+              (tagsChanged)="onDidacticCategoriesChanged($event)"
+            />
+          }
 
-      @if (incompleteForm) {
-        <p id="warning">Vul alle velden juist in.</p>
-      }
-    </main>
-    <div class="form-right">
-      <p class="preview-title">Preview van coverafbeelding</p>
-      @if (previewUrl == '') {
-        <div class="no-cover">Geen afbeelding</div>
-      } @else {
-        <img [src]="previewUrl" />
-      }
+          <div class="form-buttons">
+            <button type="submit" class="primary-btn">Wijzig boek</button>
+            <button type="button" class="secondary-btn" (click)="backToList()">Cancel</button>
+          </div>
+
+          @if (incompleteForm) {
+            <p id="warning">Vul alle velden juist in.</p>
+          }
+        </main>
+        <div class="form-right">
+          <p class="preview-title">Preview van coverafbeelding</p>
+          @if (previewUrl == '') {
+            <div class="no-cover">Geen afbeelding</div>
+          } @else {
+            <img [src]="previewUrl" />
+          }
+        </div>
+      </form>
     </div>
-  </form>
+
+    <div class="column-right">
+      <section class="copies-section">
+        <h3>Exemplaren</h3>
+
+        @if (editingCopyId) {
+          <h4>Exemplaar wijzigen</h4>
+        }
+
+        @if (copies.length > 0) {
+          <table class="copies-table">
+            @if (!editingCopyId) {
+              <thead>
+                <tr>
+                  <th>Conditie</th>
+                  <th>Status</th>
+                  <th>Barcode</th>
+                  <th>Campus</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (copy of copies; track copy.id) {
+                  <tr>
+                    <td>{{ copy.condition }}</td>
+                    <td>{{ copy.copy_status }}</td>
+                    <td>{{ copy.barcode }}</td>
+                    <td>{{ copy.campus ? copy.campus.name : 'Geen' }}</td>
+                    <td class="copy-actions">
+                      <button type="button" class="EditButton" (click)="startEdit(copy)">
+                        Wijzigen
+                      </button>
+                      <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
+                        Verwijderen
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            } @else {
+              <div>
+                <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
+                  <div class="form-row">
+                    <label for="edit-condition">Conditie</label>
+                    <select
+                      id="edit-condition"
+                      [(ngModel)]="editedCopy.condition"
+                      name="editCondition"
+                      required
+                    >
+                      <option value="NIEUW">Nieuw</option>
+                      <option value="GOED">Goed</option>
+                      <option value="GEBRUIKT">Gebruikt</option>
+                      <option value="BESCHADIGD">Beschadigd</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <label for="edit-status">Status</label>
+                    <select
+                      id="edit-status"
+                      [(ngModel)]="editedCopy.copy_status"
+                      name="editStatus"
+                      required
+                    >
+                      <option value="BESCHIKBAAR">Beschikbaar</option>
+                      <option value="UITGELEEND">Uitgeleend</option>
+                      <option value="ONTBREKEND">Ontbrekend</option>
+                    </select>
+                  </div>
+
+                  <label for="campus">Selecteer een campus (optioneel)</label>
+                  @if (school?.campuses!.length > 0) {
+                    <select id="campus" [(ngModel)]="editedCopy.campusId">
+                      <option value="0">Geen</option>
+                      @for (campus of school?.campuses; track $index) {
+                        <option [value]="campus.id">{{ campus.name }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <p>Geen schoolcampussen gevonden</p>
+                  }
+
+                  <div class="form-row">
+                    <label for="edit-barcode">Barcode</label>
+                    <input
+                      id="edit-barcode"
+                      type="text"
+                      [(ngModel)]="editedCopy.barcode"
+                      name="editBarcode"
+                      required
+                    />
+                  </div>
+
+                  <button type="submit" class="save-button" [disabled]="editForm.invalid">
+                    Opslaan
+                  </button>
+                  <button type="button" (click)="cancelEdit()">Annuleren</button>
+                </form>
+              </div>
+            }
+          </table>
+        } @else {
+          <p>Geen exemplaren gevonden.</p>
+        }
+
+        @if (!(addingCopy && editingCopyId)) {
+          <button (click)="showAddCopyForm()">Exemplaren toevoegen</button>
+        }
+
+        @if (addingCopy && !editingCopyId) {
+          <section class="add-copy">
+            <h4>Exemplaren toevoegen</h4>
+
+            <div class="copy-form">
+              <div class="form-row">
+                <label for="copy-count">Aantal exemplaren</label>
+                <input
+                  id="copy-count"
+                  type="number"
+                  min="1"
+                  [(ngModel)]="copyCount"
+                  (ngModelChange)="onCopyCountChange()"
+                  name="copyCount"
+                />
+              </div>
+
+              <div class="form-row">
+                <label for="copy-campus">Selecteer een campus (optioneel)</label>
+                @if (school?.campuses!.length > 0) {
+                  <select id="copy-campus" [(ngModel)]="newCampusId" name="bulkCampus">
+                    <option value="0">Geen</option>
+                    @for (campus of school?.campuses; track $index) {
+                      <option [value]="campus.id">{{ campus.name }}</option>
+                    }
+                  </select>
+                }
+              </div>
+
+              <table class="copy-rows-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Conditie</th>
+                    <th>Barcode</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of newCopies; track $index) {
+                    <tr>
+                      <td>{{ $index + 1 }}</td>
+                      <td>
+                        <select
+                          [(ngModel)]="row.condition"
+                          [name]="'copy-condition-' + $index"
+                          required
+                        >
+                          <option value="">-- Kies --</option>
+                          <option value="NIEUW">Nieuw</option>
+                          <option value="GOED">Goed</option>
+                          <option value="GEBRUIKT">Gebruikt</option>
+                          <option value="BESCHADIGD">Beschadigd</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          [(ngModel)]="row.barcode"
+                          [name]="'copy-barcode-' + $index"
+                          required
+                        />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+
+              @if (copyError) {
+                <p class="warning">Voer een conditie en barcode in voor alle exemplaren.</p>
+              }
+
+              <button type="button" class="add-button" (click)="addCopies()">
+                Toevoegen ({{ newCopies.length }})
+              </button>
+              <button type="button" (click)="cancelAddCopy()">Annuleren</button>
+            </div>
+          </section>
+        }
+      </section>
+    </div>
+  </div>
 </body>
