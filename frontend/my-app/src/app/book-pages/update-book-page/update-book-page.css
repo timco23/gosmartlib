@@ -237,6 +237,60 @@ select {
   margin-top: 8px;
 }
 
+.campus-group-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #bfbfe8;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background-color: #fafaf5;
+}
+
+.campus-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.campus-group-title {
+  font-weight: 600;
+  color: #8c1b3f;
+}
+
+.remove-group-btn {
+  background: none;
+  border: none;
+  color: #8c1b3f;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  width: auto;
+  margin-top: 0;
+}
+
+.remove-group-btn:hover {
+  background-color: #fde8ef;
+}
+
+.add-group-btn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: 2px dashed #8c1b3f;
+  border-radius: 8px;
+  color: #8c1b3f;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.add-group-btn:hover {
+  background-color: #fde8ef;
+}
+
 /* Buttons */
 button {
   width: 100%;

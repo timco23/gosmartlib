@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Book, Tag, UpdateBookPayload, Genre, Subgenre, Readinglevel, DidacticCategory, SchoolItemCopy, School, CreateSchoolItemCopyPayload, NewCopyRow, LoginResponse } from '../../../types/types';
+import { Book, Tag, UpdateBookPayload, Genre, Subgenre, Readinglevel, DidacticCategory, SchoolItemCopy, School, CreateSchoolItemCopyPayload, CampusCopyGroup, LoginResponse } from '../../../types/types';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
@@ -57,9 +57,7 @@ export class UpdateBookPage implements OnInit {
   copies: SchoolItemCopy[] = [];
   school: School | null = null;
   addingCopy: boolean = false;
-  copyCount: number = 1;
-  newCampusId: number = 0;
-  newCopies: NewCopyRow[] = [];
+  campusGroups: CampusCopyGroup[] = [];
   copyError: boolean = false;
   isFeatured: boolean = false;
 
@@ -203,47 +201,64 @@ export class UpdateBookPage implements OnInit {
 
   showAddCopyForm() {
     this.addingCopy = true;
-    this.copyCount = 1;
-    this.newCopies = [{ condition: '', barcode: '' }];
+    this.campusGroups = [
+      { campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] },
+    ];
   }
 
-  onCopyCountChange() {
-    const count = Math.max(1, this.copyCount || 1);
-    const current = this.newCopies.length;
+  addCampusGroup() {
+    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] });
+  }
+
+  removeCampusGroup(index: number) {
+    if (this.campusGroups.length > 1) {
+      this.campusGroups.splice(index, 1);
+    }
+  }
+
+  onGroupCopyCountChange(group: CampusCopyGroup) {
+    const count = Math.max(1, group.copyCount || 1);
+    const current = group.rows.length;
     if (count > current) {
       for (let i = current; i < count; i++) {
-        this.newCopies.push({ condition: '', barcode: '' });
+        group.rows.push({ condition: '', barcode: '' });
       }
     } else {
-      this.newCopies.length = count;
+      group.rows.length = count;
     }
+  }
+
+  getTotalCopyCount(): number {
+    return this.campusGroups.reduce((sum, g) => sum + g.rows.length, 0);
   }
 
   addCopies() {
     if (!this.book) return;
-    const invalid = !this.newCopies.every((row) => row.condition && row.barcode);
+
+    const allRows = this.campusGroups.flatMap((group) =>
+      group.rows.map((row) => ({ ...row, campusId: group.campusId })),
+    );
+    const invalid = !allRows.every((row) => row.condition && row.barcode);
     if (invalid) {
       this.copyError = true;
       return;
     }
 
-    const newCopiesPayload: CreateSchoolItemCopyPayload[] = this.newCopies.map((row) => ({
+    const newCopiesPayload: CreateSchoolItemCopyPayload[] = allRows.map((row) => ({
       itemId: this.book!.id,
       condition: row.condition,
       barcode: row.barcode,
       copy_status: 'BESCHIKBAAR',
       featured: this.isFeatured,
       schoolId: this.school!.id!,
-      campusId: this.newCampusId,
+      campusId: row.campusId,
     }));
 
     this.api.addCopies(newCopiesPayload).subscribe({
       next: (newCopies) => {
         this.copies.push(...newCopies);
         this.addingCopy = false;
-        this.newCopies = [];
-        this.copyCount = 1;
-        this.newCampusId = 0;
+        this.campusGroups = [];
         this.copyError = false;
         this.cdr.detectChanges();
       },
@@ -252,9 +267,7 @@ export class UpdateBookPage implements OnInit {
 
   cancelAddCopy() {
     this.addingCopy = false;
-    this.newCopies = [];
-    this.copyCount = 1;
-    this.newCampusId = 0;
+    this.campusGroups = [];
     this.copyError = false;
   }
 
