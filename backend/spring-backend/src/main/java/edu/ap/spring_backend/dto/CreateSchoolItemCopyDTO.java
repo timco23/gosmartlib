@@ -8,9 +8,6 @@ public record CreateSchoolItemCopyDTO(
         @JsonProperty("itemId")
         Long itemId,
 
-        @JsonProperty("barcode")
-        String barcode,
-
         @JsonProperty("condition")
         ItemCondition condition,
 

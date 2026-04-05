@@ -1,10 +1,12 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.*;
+import edu.ap.spring_backend.service.BarcodeService;
 import edu.ap.spring_backend.service.BookCsvImportService;
 import edu.ap.spring_backend.service.ItemService;
 import jakarta.validation.constraints.*;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +20,14 @@ public class ItemController {
     private final ItemService itemService;
     private final SchoolItemCopyService schoolItemCopyService;
     private final BookCsvImportService bookCsvImportService;
+    private final BarcodeService barcodeService;
 
     public ItemController(ItemService itemService, SchoolItemCopyService schoolItemCopyService,
-            BookCsvImportService bookCsvImportService) {
+            BookCsvImportService bookCsvImportService, BarcodeService barcodeService) {
         this.itemService = itemService;
         this.schoolItemCopyService = schoolItemCopyService;
         this.bookCsvImportService = bookCsvImportService;
+        this.barcodeService = barcodeService;
     }
 
     @GetMapping("/books")
@@ -136,5 +140,11 @@ public class ItemController {
     @PutMapping("/books/copies/{copyId}/status")
     public ResponseEntity<SchoolItemCopyDTO> updateCopyStatus(@PathVariable int copyId, @RequestParam String status) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopyStatus(copyId, status));
+    }
+
+    @GetMapping(value = "/books/copies/{copyId}/barcode", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getBarcodePng(@PathVariable int copyId) {
+        SchoolItemCopyDTO copy = schoolItemCopyService.getCopyById(copyId);
+        return ResponseEntity.ok(barcodeService.generateBarcodePng(copy.barcode()));
     }
 }

@@ -47,11 +47,12 @@ public class SchoolItemCopyService {
         }
         copy.setItem(item);
         copy.setSchool(school);
-        copy.setBarcode(copyDTO.barcode());
         copy.setFeatured(copyDTO.featured());
         copy.setCopy_status(copyDTO.copy_status());
         copy.setCondition(copyDTO.condition());
-        return mapToDTO(schoolItemCopyRepository.save(copy));
+        SchoolItemCopy saved = schoolItemCopyRepository.save(copy);
+        saved.setBarcode(String.format("COPY-%06d", saved.getId()));
+        return mapToDTO(schoolItemCopyRepository.save(saved));
     }
 
     public List<SchoolItemCopyDTO> addCopies(List<CreateSchoolItemCopyDTO> copyDTOs) {
@@ -78,7 +79,6 @@ public class SchoolItemCopyService {
             copy.setCampus(campus);
         }
         copy.setCondition(copyDTO.condition());
-        copy.setBarcode(copyDTO.barcode());
         copy.setCopy_status(copyDTO.copy_status());
         schoolItemCopyRepository.save(copy);
         if (copy.isFeatured() != copyDTO.featured()) {
