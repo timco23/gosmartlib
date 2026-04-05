@@ -19,6 +19,11 @@
       </header>
       @if (deleteError) {
         <p class="warning">
+          Er is iets misgegaaan met het verwijderen van dit boek.
+        </p>
+      }
+      @if (bookHasCopyError) {
+        <p class="warning">
           Een school heeft dit boek momenteel als exemplaar. Verwijder alle exemplaren van dit boek
           om het boek te kunnen verwijderen.
         </p>
@@ -293,5 +298,21 @@
     </main>
   } @else {
     <h3>Loading...</h3>
+  }
+  @if (showDeleteConfirmation()) {
+    <div class="overlay">
+      <div class="content">
+        <button class="close-btn" (click)="cancelDelete()">&times;</button>
+        <h2 class="popup-title">Boek verwijderen</h2>
+        <p>
+          Dit boek staat momenteel in een of meerdere leeslijsten. Weet u zeker dat u dit boek wilt
+          verwijderen? Het zal uit alle leeslijsten verdwijnen.
+        </p>
+        <div class="popup-actions">
+          <button class="primary-btn" (click)="confirmDelete()">Verwijderen</button>
+          <button class="secondary-btn" (click)="cancelDelete()">Annuleren</button>
+        </div>
+      </div>
+    </div>
   }
 </body>

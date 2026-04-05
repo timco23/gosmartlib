@@ -67,13 +67,21 @@ textarea.ng-invalid.ng-touched {
 
 .book-selection-container {
   margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .book-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 25px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fit, 200px);
+  gap: 30px 80px; /* 30px vertical, 80px horizontal */
+  margin: 30px 0 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  max-width: 1000px;
+  justify-content: center;
 }
 
 .book-card {
@@ -86,6 +94,7 @@ textarea.ng-invalid.ng-touched {
   align-items: center;
   position: relative;
   transition: transform 0.2s, box-shadow 0.2s;
+  width: 200px;
 }
 
 .book-card:hover {
@@ -155,9 +164,11 @@ textarea.ng-invalid.ng-touched {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 280px;
+  min-height: 330px;
   border-radius: 8px;
   transition: background 0.2s;
+  width: 230px;
+  box-sizing: border-box;
 }
 
 .add-book-card:hover {

@@ -318,3 +318,105 @@ button:active {
 .warning {
   color: red;
 }
+
+/* Popup Styles */
+.overlay {
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  background-color: #f0efe4;
+  padding: 30px;
+  border: 1px solid #8c1b3f;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #8c1b3f;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+  width: auto;
+  margin-top: 0;
+}
+
+.close-btn:hover {
+  transform: scale(1.1);
+  color: #a02048;
+  background: none;
+}
+
+.popup-title {
+  color: #8c1b3f;
+  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #bfbfe8;
+  padding-bottom: 10px;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.primary-btn {
+  background-color: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  width: auto;
+  margin-top: 0;
+}
+
+.primary-btn:hover {
+  background-color: #a02048;
+}
+
+.secondary-btn {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  width: auto;
+  margin-top: 0;
+}
+
+.secondary-btn:hover {
+  background-color: black;
+}
+
+.no-scroll {
+  overflow: hidden;
+}

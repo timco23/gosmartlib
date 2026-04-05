@@ -1,10 +1,16 @@
 @if (shown()) {
     <div class="overlay">
         <div class="content">
-            <button (click)="closePopup()">Close</button>
-            <label>Link:</label>
-            <input type="text" readonly value="{{link()}}">
-            <button (click)="copyInputMessage()">Kopieer link</button>
+            <button class="close-btn" (click)="closePopup()">&times;</button>
+            <h2 class="popup-title">Lijst delen</h2>
+            
+            <div class="form-group">
+                <label for="share-link">Link naar deze lijst:</label>
+                <div class="input-group">
+                    <input id="share-link" type="text" readonly [value]="link()">
+                    <button class="primary-btn" (click)="copyInputMessage()">Kopieer</button>
+                </div>
+            </div>
         </div>
     </div>
 }

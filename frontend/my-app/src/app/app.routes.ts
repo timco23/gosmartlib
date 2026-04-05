@@ -31,8 +31,8 @@ export const routes: Routes = [
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
   { path: 'tags', component: TagManagement, canActivate: [authGuard] },
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard] },
-  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard] },
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard] },
+  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard] },
   { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' },
 ];

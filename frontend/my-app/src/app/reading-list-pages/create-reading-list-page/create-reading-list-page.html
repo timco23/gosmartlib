@@ -48,6 +48,9 @@
                         <p>Boekgegevens laden...</p>
                     }
                 </div>
+                @if(itemInListError) {
+                        <p class="error">Deze boek zit al in de lijst.</p>
+                }
 
                 <div class="form-buttons">
                     <button type="submit" class="primary-btn">Voeg leeslijst toe</button>

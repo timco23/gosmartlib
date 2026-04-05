@@ -6,7 +6,7 @@
 
     <main>
         <h1>Huidige klasleeslijsten</h1>
-        @if(!loading) {
+        @if(!loading && readingLists!.length >= 1) {
         <ul>
             @for(list of readingLists; track $index) {
             <li class="list-container">
@@ -25,6 +25,7 @@
                         <button (click)="deleteList(list.id)" title="Lijst verwijderen" class="icon-btn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
+                        <button (click)="devGoToDetails(list.id)">DEV: Go to detail page</button>
                     </div>
                 </div>
 
@@ -50,8 +51,7 @@
                     </div>
 
                     @if(list.items.length > 5) {
-                    <button class="carousel-arrow" (click)="nextBooks(list)">
-                        &gt; </button>
+                    <button class="carousel-arrow" (click)="nextBooks(list)">&gt; </button>
                     }
                 </div>
             </li>
@@ -60,6 +60,9 @@
         }
         @else if (loadingError) {
         <p class="error">Er was een probleem met het ophalen van je klasleeslijsten.</p>
+        }
+        @else if (readingLists!.length < 1) {
+        <p>Geen klasleeslijsten gevonden.</p>
         }
         @else {
         <p>Klasleeslijsten laden...</p>

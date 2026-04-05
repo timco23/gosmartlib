@@ -16,7 +16,7 @@ public class ReadingListController {
         this.readingListService = readingListService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<ReadingListDTO>> getAllReadingList() {
         return ResponseEntity.ok(readingListService.findAll());
     }
@@ -36,7 +36,7 @@ public class ReadingListController {
         return ResponseEntity.ok(readingListService.isItemInAnyReadingList(itemId));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ReadingListDTO> addReadingList(@RequestBody CreateReadingListDTO readingListDTO) {
         return ResponseEntity.ok(readingListService.addReadingList(readingListDTO));
     }

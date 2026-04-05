@@ -30,28 +30,34 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    height: 25rem;
+    height: 32rem;
     margin: 2rem 0;
+    position: relative;
+    width: 100%;
 }
 
 .carousel-arrow {
     flex-shrink: 0;
-    width: 3rem;
-    height: 3rem;
+    width: 3.5rem;
+    height: 3.5rem;
     border-radius: 50%;
-    border: 1px solid #8c1b3f;
+    border: 2px solid #8c1b3f;
     background: white;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     cursor: pointer;
     color: #8c1b3f;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 3rem;
 }
 
 .carousel-arrow:hover {
     background: #c2e569;
+    transform: scale(1.1);
 }
 
 .carousel-viewport {
@@ -60,8 +66,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
     overflow: hidden;
+    padding: 2rem 0.5rem;
 }
 
 .carousel-card {
@@ -72,11 +79,12 @@ body {
     cursor: pointer;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
 }
 
 .carousel-card.is-side {
-    flex: 0 0 15%;
-    height: 80%;
+    width: 160px;
+    height: 240px;
     opacity: 0.6;
 }
 
@@ -85,9 +93,9 @@ body {
 }
 
 .carousel-card.is-center {
-    flex: 0 0 40%;
-    height: 100%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    width: 320px;
+    height: 440px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .card-content {

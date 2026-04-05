@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ReadingListService } from '../../services/readingList-service';
 import { Book, ReadingList, UserProfile } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
@@ -26,6 +26,7 @@ export class ReadingListPage implements OnInit {
   userService = inject(UserService);
   authService = inject(AuthService);
   router = inject(Router);
+  cdr = inject(ChangeDetectorRef)
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe({
@@ -36,11 +37,11 @@ export class ReadingListPage implements OnInit {
               this.user = userData;
               this.getLists();
             },
-            error: () => { this.loadingError = true }
+            error: () => { this.loadingError = true; this.cdr.detectChanges(); }
           })
         }
       },
-      error: () => { this.loadingError = true }
+      error: () => { this.loadingError = true; this.cdr.detectChanges(); }
     });
   }
 
@@ -56,13 +57,14 @@ export class ReadingListPage implements OnInit {
       next: (lists) => {
         this.readingLists = lists.map(list => ({ ...list, scrollIndex: 0 }));
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.loadingError = true }
+      error: () => { this.loadingError = true; this.cdr.detectChanges(); }
     })
   }
 
   editList(id: number) {
-    this.router.navigate(['/lists', id, '/edit'])
+    this.router.navigate(['/lists', id, 'edit'])
   }
 
   shareList(id: number) {
@@ -102,5 +104,9 @@ export class ReadingListPage implements OnInit {
       const length = list.items.length;
       list.scrollIndex = (list.scrollIndex - 1 + length) % length;
     }
+  }
+
+  devGoToDetails(id: number) {
+    this.router.navigate(["/lists", id])
   }
 }

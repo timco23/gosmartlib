@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, OnInit, inject, Renderer2, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import {
@@ -20,6 +20,7 @@ import { GenreService } from '../../services/genre.service';
 import { SubgenreService } from '../../services/subgenre.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { ReadingLevelService } from '../../services/reading-level.service';
+import { ReadingListService } from '../../services/readingList-service';
 
 @Component({
   selector: 'app-book-detail-page',
@@ -37,6 +38,7 @@ export class BookDetailPage implements OnInit {
   authService = inject(AuthService);
   schoolService = inject(SchoolService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  renderer = inject(Renderer2);
   copies: SchoolItemCopy[] = [];
   addingCopy: boolean = false;
   role = Role;
@@ -44,17 +46,21 @@ export class BookDetailPage implements OnInit {
   school: School | null = null;
   isFeatured: boolean = false;
   deleteError: boolean = false;
+  showDeleteConfirmation = signal(false);
+  isBookInAnyList: boolean = false;
   allTags: Tag[] = [];
   allGenres: any[] = [];
   allSubgenres: any[] = [];
   allDidacticCategories: any[] = [];
   readingLevels: any[] = [];
+  bookHasCopyError:boolean = false;
 
   tagService = inject(TagService);
   genreService = inject(GenreService);
   subgenreService = inject(SubgenreService);
   didacticService = inject(DidacticCategoryService);
   readingLevelService = inject(ReadingLevelService);
+  readingListService = inject(ReadingListService)
 
   editingCopyId: number | null = null;
   editedCopy: CreateSchoolItemCopyPayload = { itemId: 0, condition: "", barcode: '', copy_status: "", featured: false, schoolId: 0, campusId: 0 };
@@ -70,6 +76,17 @@ export class BookDetailPage implements OnInit {
     schoolId: 0,
     campusId: 0
   };
+
+  //Locks scrolling for body of the entire page
+  constructor() {
+    effect(() => {
+      if (this.showDeleteConfirmation()) {
+        this.renderer.addClass(document.body, 'no-scroll');
+      } else {
+        this.renderer.removeClass(document.body, 'no-scroll');
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
@@ -198,8 +215,43 @@ export class BookDetailPage implements OnInit {
 
   deleteBook(id: number) {
     this.deleteError = false;
-    this.cdr.detectChanges();
-    this.api.deleteBook(id).subscribe({ next: () => this.backToList(), error: () => {this.deleteError = true ;this.cdr.detectChanges()} });
+    this.bookHasCopyError = false;
+    this.readingListService.checkIfItemIsInReadingList(id).subscribe({
+      next: (isInList) => {
+        if (isInList) {
+          this.isBookInAnyList = true;
+          this.showDeleteConfirmation.set(true);
+          this.cdr.detectChanges();
+        } else {
+          this.executeDelete(id);
+        }
+      },
+      error: () => {
+        this.deleteError = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  confirmDelete() {
+    if (this.book) {
+      this.executeDelete(this.book.id);
+      this.showDeleteConfirmation.set(false);
+    }
+  }
+
+  cancelDelete() {
+    this.showDeleteConfirmation.set(false);
+  }
+
+  private executeDelete(id: number) {
+    this.api.deleteBook(id).subscribe({
+      next: () => this.backToList(),
+      error: () => {
+        this.bookHasCopyError = true;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   backToList() {
@@ -265,7 +317,7 @@ export class BookDetailPage implements OnInit {
 
   startEdit(copy: SchoolItemCopy) {
     this.editingCopyId = copy.id!;
-    this.editedCopy = { 
+    this.editedCopy = {
       itemId: copy.itemId,
       barcode: copy.barcode,
       condition: copy.condition,
@@ -273,7 +325,7 @@ export class BookDetailPage implements OnInit {
       featured: copy.featured,
       schoolId: copy.schoolId,
       campusId: copy.campus ? copy.campus.id : 0
-     };
+    };
   }
 
   cancelEdit() {
@@ -316,4 +368,5 @@ export class BookDetailPage implements OnInit {
       next: () => location.reload(),
     });
   }
+
 }

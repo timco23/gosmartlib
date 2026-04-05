@@ -1,4 +1,4 @@
-import { Component, model } from '@angular/core';
+import { Component, effect, inject, model, Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'app-share-list-popup',
@@ -9,6 +9,18 @@ import { Component, model } from '@angular/core';
 export class ShareListPopup {
   shown = model<boolean>(false);
   link= model<string>("");
+  renderer = inject(Renderer2);
+
+  //Locks scrolling for body of the entire page, not just this component.
+  constructor() {
+    effect(() => {
+      if (this.shown()) {
+        this.renderer.addClass(document.body, 'no-scroll');
+      } else {
+        this.renderer.removeClass(document.body, 'no-scroll');
+      }
+    });
+  }
 
   closePopup() {
     this.shown.update(() => false);

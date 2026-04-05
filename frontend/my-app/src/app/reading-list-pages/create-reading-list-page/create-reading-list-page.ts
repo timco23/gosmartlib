@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ReadingListService } from '../../services/readingList-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -20,6 +20,7 @@ export class CreateReadingListPage implements OnInit {
   authService = inject(AuthService)
   userService = inject(UserService)
   bookService = inject(BookService)
+  cdr = inject(ChangeDetectorRef)
 
   form: FormGroup;
   user: UserProfile | null = null;
@@ -34,6 +35,7 @@ export class CreateReadingListPage implements OnInit {
   getBookError: boolean = false;
   loadingBooks: boolean = false;
   emptyListError: boolean = false;
+  itemInListError: boolean = false;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -50,12 +52,13 @@ export class CreateReadingListPage implements OnInit {
             next: (userData) => {
               this.user = userData;
               this.loading = false;
+              this.cdr.detectChanges();
             },
-            error: () => { this.loadingUserError = true }
+            error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
           })
         }
       },
-      error: () => { this.loadingUserError = true }
+      error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
     });
   }
 
@@ -85,11 +88,18 @@ export class CreateReadingListPage implements OnInit {
 
     this.readingListService.addReadingList(newList).subscribe({
       next: () => this.router.navigate(["/lists"]),
-      error: () => this.listAddError = true
+      error: () =>{ this.listAddError = true; this.cdr.detectChanges();}
     })
   }
 
   addBook() {
+    this.itemInListError = false;
+    this.cdr.detectChanges();
+    if (this.itemIds.includes(this.currentItemId)) {
+      this.itemInListError = true;
+      this.cdr.detectChanges();
+      return;
+    }
     this.itemIds.push(this.currentItemId);
     this.loadBooks();
   }
@@ -97,18 +107,23 @@ export class CreateReadingListPage implements OnInit {
   loadBooks() {
     this.getBookError = false;
     this.loadingBooks = true;
+    this.cdr.detectChanges();
     this.books = [];
-    this.itemIds.forEach((id) => {
+    for(const id of this.itemIds) {
       this.bookService.getBookById(id).subscribe({
         next: (book) => {
           this.books.push(book)
+          if(this.books.length == this.itemIds.length) {
+                this.loadingBooks = false;
+                this.cdr.detectChanges();
+          }
         },
         error: () => {
           this.getBookError = true;
+          this.cdr.detectChanges();
         }
       })
-    })
-    this.loadingBooks = false;
+    }
   }
 
   showSelectionPopup() {

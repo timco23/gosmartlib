@@ -38,6 +38,7 @@ export class UpdateReadingListPage {
   emptyListError: boolean = false;
   readingList: ReadingList | null = null;
   loadingListError: boolean = false;
+  itemInListError: boolean = false;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -55,11 +56,11 @@ export class UpdateReadingListPage {
               this.user = userData;
               this.getReadingList();
             },
-            error: () => { this.loadingUserError = true }
+            error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
           })
         }
       },
-      error: () => { this.loadingUserError = true }
+      error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
     });
   }
 
@@ -75,7 +76,7 @@ export class UpdateReadingListPage {
           this.loading = false;
           this.cdr.detectChanges();
         },
-        error: () => this.loadingListError = true
+        error: () => {this.loadingListError = true; this.cdr.detectChanges();}
       })
     })
   }
@@ -123,6 +124,13 @@ export class UpdateReadingListPage {
   }
 
   addBook() {
+    this.itemInListError = false;
+    this.cdr.detectChanges();
+    if (this.itemIds.includes(this.currentItemId)) {
+      this.itemInListError = true;
+      this.cdr.detectChanges();
+      return;
+    }
     this.itemIds.push(this.currentItemId);
     this.loadBooks();
   }
@@ -130,18 +138,23 @@ export class UpdateReadingListPage {
   loadBooks() {
     this.getBookError = false;
     this.loadingBooks = true;
+    this.cdr.detectChanges();
     this.books = [];
-    this.itemIds.forEach((id) => {
+    for(const id of this.itemIds) {
       this.bookService.getBookById(id).subscribe({
         next: (book) => {
           this.books.push(book)
+          if(this.books.length == this.itemIds.length) {
+                this.loadingBooks = false;
+                this.cdr.detectChanges();
+          }
         },
         error: () => {
           this.getBookError = true;
+          this.cdr.detectChanges();
         }
       })
-    })
-    this.loadingBooks = false;
+    }
   }
 
   showSelectionPopup() {

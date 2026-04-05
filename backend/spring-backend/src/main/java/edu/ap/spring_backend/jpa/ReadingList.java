@@ -22,7 +22,7 @@ public class ReadingList {
     @JoinColumn(name="user_id")
     private User user;
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "reading_list_item")
+    @JoinTable(name = "reading_list_item",  joinColumns = @JoinColumn(name = "reading_list_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> items = new ArrayList<>();
 
     public ReadingList() {}

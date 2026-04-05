@@ -34,7 +34,7 @@ export class ReadingListDetailPage implements OnInit {
           this.loading = false;
           this.cdr.detectChanges();
         },
-        error: () => this.loadingError = true
+        error: () => {this.loadingError = true; this.cdr.detectChanges();}
       })
     })
   }
