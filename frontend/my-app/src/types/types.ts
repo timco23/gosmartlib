@@ -192,6 +192,12 @@ export interface NewCopyRow {
   barcode: string;
 }
 
+export interface CampusCopyGroup {
+  campusId: number;
+  copyCount: number;
+  rows: NewCopyRow[];
+}
+
 export interface BookImportRow {
   rowNumber: number;
   title: string;

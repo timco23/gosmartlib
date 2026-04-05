@@ -13,12 +13,12 @@ import { AsyncPipe, NgClass } from '@angular/common';
 import {
   Book,
   BookImportRow,
+  CampusCopyGroup,
   CreateBookPayload,
   CreateSchoolItemCopyPayload,
   CsvConfirmDTO,
   CsvImportDTO,
   CsvPreviewDTO,
-  NewCopyRow,
   School,
   Tag,
   Genre,
@@ -91,8 +91,9 @@ export class AddBookPage implements OnInit {
   selectedReadingLevel: Readinglevel | null = null;
   selectedDidacticCategories: DidacticCategory[] = [];
 
-  copyCount: number = 1;
-  newCopies: NewCopyRow[] = [{ condition: 'NIEUW', barcode: '' }];
+  campusGroups: CampusCopyGroup[] = [
+    { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] },
+  ];
   copyError: boolean = false;
 
   globalBookList: Observable<Book[]> | null = null;
@@ -112,7 +113,6 @@ export class AddBookPage implements OnInit {
       cover: ['', [Validators.maxLength(255)]],
       reviewScore: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
       reviewCount: [0, [Validators.required, Validators.min(0)]],
-      campusId: ['0', [Validators.required]],
       isDidactic: [false, [Validators.required]],
     });
   }
@@ -128,14 +128,17 @@ export class AddBookPage implements OnInit {
       return;
     }
 
-    const invalidCopies = !this.newCopies.every((row) => row.condition && row.barcode);
+    const allRows = this.campusGroups.flatMap((group) =>
+      group.rows.map((row) => ({ ...row, campusId: group.campusId })),
+    );
+    const invalidCopies = !allRows.every((row) => row.condition && row.barcode);
     if (invalidCopies) {
       this.copyError = true;
       return;
     }
 
     const raw = this.form.value;
-    const firstCopy = this.newCopies[0];
+    const firstRow = allRows[0];
     const newBook: CreateBookPayload = {
       schoolId: this.school!.id!,
       tags: this.selectedTags.map((t) => t.id),
@@ -157,10 +160,10 @@ export class AddBookPage implements OnInit {
       cover: raw.cover,
       reviewScore: raw.reviewScore,
       reviewCount: raw.reviewCount,
-      campusId: parseInt(raw.campusId),
-      barcode: firstCopy.barcode,
+      campusId: firstRow.campusId,
+      barcode: firstRow.barcode,
       copy_status: 'BESCHIKBAAR',
-      condition: firstCopy.condition,
+      condition: firstRow.condition,
     };
 
     this.api.getCopyByItemTitle(newBook.title, this.school!.id!).subscribe({
@@ -174,15 +177,15 @@ export class AddBookPage implements OnInit {
           this.copyAlreadyExists = false;
           this.api.addBook(newBook).subscribe({
             next: (createdBook) => {
-              if (this.newCopies.length > 1) {
-                const extraCopies: CreateSchoolItemCopyPayload[] = this.newCopies.slice(1).map((row) => ({
+              if (allRows.length > 1) {
+                const extraCopies: CreateSchoolItemCopyPayload[] = allRows.slice(1).map((row) => ({
                   itemId: createdBook.id,
                   condition: row.condition,
                   barcode: row.barcode,
                   copy_status: 'BESCHIKBAAR',
                   featured: false,
                   schoolId: this.school!.id!,
-                  campusId: parseInt(raw.campusId),
+                  campusId: row.campusId,
                 }));
                 this.api.addCopies(extraCopies).subscribe({
                   next: () => {
@@ -243,10 +246,10 @@ export class AddBookPage implements OnInit {
         cover: '',
         reviewScore: 0,
         reviewCount: 0,
-        campusId: '0',
       });
-      this.copyCount = 1;
-      this.newCopies = [{ condition: 'NIEUW', barcode: '' }];
+      this.campusGroups = [
+        { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] },
+      ];
       this.selectedTags = [];
       this.cdr.detectChanges();
     }
@@ -373,16 +376,30 @@ export class AddBookPage implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onCopyCountChange() {
-    const count = Math.max(1, this.copyCount || 1);
-    const current = this.newCopies.length;
+  addCampusGroup() {
+    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: '', barcode: '' }] });
+  }
+
+  removeCampusGroup(index: number) {
+    if (this.campusGroups.length > 1) {
+      this.campusGroups.splice(index, 1);
+    }
+  }
+
+  onGroupCopyCountChange(group: CampusCopyGroup) {
+    const count = Math.max(1, group.copyCount || 1);
+    const current = group.rows.length;
     if (count > current) {
       for (let i = current; i < count; i++) {
-        this.newCopies.push({ condition: '', barcode: '' });
+        group.rows.push({ condition: '', barcode: '' });
       }
     } else {
-      this.newCopies.length = count;
+      group.rows.length = count;
     }
+  }
+
+  getTotalCopyCount(): number {
+    return this.campusGroups.reduce((sum, g) => sum + g.rows.length, 0);
   }
 
   loadDetailsViaISBN() {

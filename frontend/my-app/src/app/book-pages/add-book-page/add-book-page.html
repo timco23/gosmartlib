@@ -225,69 +225,92 @@
                   (tagsChanged)="onDidacticCategoriesChanged($event)"
                 />
               }
-              <h3>Exemplaren</h3>
+              <h3>Exemplaren ({{ getTotalCopyCount() }})</h3>
 
-              <label for="copy-count">Aantal exemplaren</label>
-              <input
-                id="copy-count"
-                type="number"
-                min="1"
-                [(ngModel)]="copyCount"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="onCopyCountChange()"
-              />
-
-              <label for="campus">Selecteer een campus (optioneel)</label>
               @if (campusLoading) {
                 <p>Schoolcampussen laden....</p>
               } @else {
-                @if (school?.campuses!.length > 0) {
-                  <select id="campus" formControlName="campusId">
-                    <option value="0">Geen</option>
-                    @for (campus of school?.campuses; track $index) {
-                      <option [value]="campus.id">{{ campus.name }}</option>
-                    }
-                  </select>
-                } @else {
-                  <p>Geen schoolcampussen gevonden</p>
-                }
-              }
-
-              <table class="copy-rows-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Conditie</th>
-                    <th>Barcode</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of newCopies; track $index) {
-                    <tr>
-                      <td>{{ $index + 1 }}</td>
-                      <td>
-                        <select
-                          [(ngModel)]="row.condition"
-                          [ngModelOptions]="{ standalone: true }"
+                @for (group of campusGroups; track $index) {
+                  <div class="campus-group-card">
+                    <div class="campus-group-header">
+                      <span class="campus-group-title">Campusgroep {{ $index + 1 }}</span>
+                      @if (campusGroups.length > 1) {
+                        <button
+                          type="button"
+                          class="remove-group-btn"
+                          (click)="removeCampusGroup($index)"
                         >
-                          <option value="">-- Kies --</option>
-                          <option value="NIEUW">Nieuw</option>
-                          <option value="GOED">Goed</option>
-                          <option value="GEBRUIKT">Gebruikt</option>
-                          <option value="BESCHADIGD">Beschadigd</option>
-                        </select>
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          [(ngModel)]="row.barcode"
-                          [ngModelOptions]="{ standalone: true }"
-                        />
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+                          Verwijderen
+                        </button>
+                      }
+                    </div>
+
+                    <label>Campus (optioneel)</label>
+                    @if (school?.campuses!.length > 0) {
+                      <select
+                        [(ngModel)]="group.campusId"
+                        [ngModelOptions]="{ standalone: true }"
+                      >
+                        <option [ngValue]="0">Geen</option>
+                        @for (campus of school?.campuses; track campus.id) {
+                          <option [ngValue]="campus.id">{{ campus.name }}</option>
+                        }
+                      </select>
+                    } @else {
+                      <p>Geen schoolcampussen gevonden</p>
+                    }
+
+                    <label>Aantal exemplaren</label>
+                    <input
+                      type="number"
+                      min="1"
+                      [(ngModel)]="group.copyCount"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="onGroupCopyCountChange(group)"
+                    />
+
+                    <table class="copy-rows-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Conditie</th>
+                          <th>Barcode</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (row of group.rows; track $index) {
+                          <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>
+                              <select
+                                [(ngModel)]="row.condition"
+                                [ngModelOptions]="{ standalone: true }"
+                              >
+                                <option value="">-- Kies --</option>
+                                <option value="NIEUW">Nieuw</option>
+                                <option value="GOED">Goed</option>
+                                <option value="GEBRUIKT">Gebruikt</option>
+                                <option value="BESCHADIGD">Beschadigd</option>
+                              </select>
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                [(ngModel)]="row.barcode"
+                                [ngModelOptions]="{ standalone: true }"
+                              />
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+
+                <button type="button" class="add-group-btn" (click)="addCampusGroup()">
+                  + Campusgroep toevoegen
+                </button>
+              }
 
               @if (copyError) {
                 <p id="warning">Voer een conditie en barcode in voor alle exemplaren.</p>
