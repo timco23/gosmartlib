@@ -94,7 +94,7 @@ export class AddBookPage implements OnInit {
   selectedDidacticCategories: DidacticCategory[] = [];
 
   campusGroups: CampusCopyGroup[] = [
-    { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] },
+    { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] },
   ];
   copyError: boolean = false;
 
@@ -133,7 +133,7 @@ export class AddBookPage implements OnInit {
     const allRows = this.campusGroups.flatMap((group) =>
       group.rows.map((row) => ({ ...row, campusId: group.campusId })),
     );
-    const invalidCopies = !allRows.every((row) => row.condition && row.barcode);
+    const invalidCopies = !allRows.every((row) => row.condition && row.copy_status);
     if (invalidCopies) {
       this.copyError = true;
       return;
@@ -163,8 +163,7 @@ export class AddBookPage implements OnInit {
       reviewScore: raw.reviewScore,
       reviewCount: raw.reviewCount,
       campusId: firstRow.campusId,
-      barcode: firstRow.barcode,
-      copy_status: 'BESCHIKBAAR',
+      copy_status: firstRow.copy_status,
       condition: firstRow.condition,
     };
 
@@ -183,8 +182,7 @@ export class AddBookPage implements OnInit {
                 const extraCopies: CreateSchoolItemCopyPayload[] = allRows.slice(1).map((row) => ({
                   itemId: createdBook.id,
                   condition: row.condition,
-                  barcode: row.barcode,
-                  copy_status: 'BESCHIKBAAR',
+                  copy_status: row.copy_status,
                   featured: false,
                   schoolId: this.school!.id!,
                   campusId: row.campusId,
@@ -250,7 +248,7 @@ export class AddBookPage implements OnInit {
         reviewCount: 0,
       });
       this.campusGroups = [
-        { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] },
+        { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] },
       ];
       this.selectedTags = [];
       this.cdr.detectChanges();
@@ -379,7 +377,7 @@ export class AddBookPage implements OnInit {
   }
 
   addCampusGroup() {
-    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] });
+    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] });
   }
 
   removeCampusGroup(index: number) {

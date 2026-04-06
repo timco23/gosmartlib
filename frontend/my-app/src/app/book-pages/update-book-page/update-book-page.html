@@ -142,29 +142,6 @@
                 </select>
               </div>
 
-              <label for="campus">Selecteer een campus</label>
-              @if (school?.campuses!.length > 0) {
-                <select id="campus" [(ngModel)]="editedCopy.campusId">
-                  <option value="0">Geen</option>
-                  @for (campus of school?.campuses; track $index) {
-                    <option [value]="campus.id">{{ campus.name }}</option>
-                  }
-                </select>
-              } @else {
-                <p>Geen schoolcampussen gevonden</p>
-              }
-
-              <div class="form-row">
-                <label for="edit-barcode">Barcode</label>
-                <input
-                  id="edit-barcode"
-                  type="text"
-                  [(ngModel)]="editedCopy.barcode"
-                  name="editBarcode"
-                  required
-                />
-              </div>
-
               <button type="submit" class="save-button" [disabled]="editForm.invalid">
                 Opslaan
               </button>
@@ -234,7 +211,7 @@
           }
         }
 
-        @if (!(addingCopy && editingCopyId)) {
+        @if (!addingCopy && !editingCopyId) {
           <button (click)="showAddCopyForm()">Exemplaren toevoegen</button>
         }
 
@@ -248,7 +225,7 @@
               }
 
               @if (copyError) {
-                <p class="warning">Voer een conditie en barcode in voor alle exemplaren.</p>
+                <p class="warning">Voer een conditie en status in voor alle exemplaren.</p>
               }
 
               <button type="button" class="add-button" (click)="addCopies()">

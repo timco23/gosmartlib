@@ -359,6 +359,10 @@ button:active {
   color: white;
 }
 
+.save-button:hover {
+  background-color: #6f1532;
+}
+
 .save-button:disabled {
   background-color: #bfbfe8;
   cursor: not-allowed;

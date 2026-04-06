@@ -371,7 +371,6 @@ export class BookDetailPage implements OnInit {
 
     const payload: CreateSchoolItemCopyPayload = {
       itemId: bookToBeFeatured.itemId,
-      barcode: bookToBeFeatured.barcode,
       condition: bookToBeFeatured.condition,
       copy_status: bookToBeFeatured.copy_status,
       featured: bookToBeFeatured.featured,

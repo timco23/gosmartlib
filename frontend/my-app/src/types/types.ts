@@ -146,7 +146,6 @@ export interface CreateBookPayload {
   reviewScore: number;
   reviewCount: number;
   campusId: number;
-  barcode: string;
   copy_status: string;
   condition: string;
 }
@@ -179,7 +178,6 @@ export interface SchoolItemCopy {
 
 export interface CreateSchoolItemCopyPayload {
   itemId: number;
-  barcode: string;
   condition: string;
   copy_status: string;
   featured: boolean;
@@ -189,7 +187,7 @@ export interface CreateSchoolItemCopyPayload {
 
 export interface NewCopyRow {
   condition: string;
-  barcode: string;
+  copy_status: string;
 }
 
 export interface CampusCopyGroup {

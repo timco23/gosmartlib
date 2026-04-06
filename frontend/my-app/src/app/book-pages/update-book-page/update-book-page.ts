@@ -87,7 +87,6 @@ export class UpdateBookPage implements OnInit {
   private static readonly EMPTY_COPY_PAYLOAD: CreateSchoolItemCopyPayload = {
     itemId: 0,
     condition: '',
-    barcode: '',
     copy_status: '',
     featured: false,
     schoolId: 0,
@@ -284,7 +283,6 @@ export class UpdateBookPage implements OnInit {
     const payload: CreateSchoolItemCopyPayload = {
       itemId: copy.itemId,
       condition: copy.condition,
-      barcode: copy.barcode,
       copy_status: copy.copy_status,
       featured: copy.featured,
       schoolId: copy.schoolId,
@@ -308,7 +306,7 @@ export class UpdateBookPage implements OnInit {
   showAddCopyForm() {
     this.addingCopy = true;
     this.campusGroups = [
-      { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', barcode: '' }] },
+      { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] },
     ];
   }
 
@@ -323,7 +321,7 @@ export class UpdateBookPage implements OnInit {
     const allRows = this.campusGroups.flatMap((group) =>
       group.rows.map((row) => ({ ...row, campusId: group.campusId })),
     );
-    const invalid = !allRows.every((row) => row.condition && row.barcode);
+    const invalid = !allRows.every((row) => row.condition && row.copy_status);
     if (invalid) {
       this.copyError = true;
       return;
@@ -332,8 +330,7 @@ export class UpdateBookPage implements OnInit {
     const newCopiesPayload: CreateSchoolItemCopyPayload[] = allRows.map((row) => ({
       itemId: this.book!.id,
       condition: row.condition,
-      barcode: row.barcode,
-      copy_status: 'BESCHIKBAAR',
+      copy_status: row.copy_status,
       featured: this.isFeatured,
       schoolId: this.school!.id!,
       campusId: row.campusId,
@@ -374,7 +371,6 @@ export class UpdateBookPage implements OnInit {
     this.editingCopyId = copy.id!;
     this.editedCopy = {
       itemId: copy.itemId,
-      barcode: copy.barcode,
       condition: copy.condition,
       copy_status: copy.copy_status,
       featured: copy.featured,

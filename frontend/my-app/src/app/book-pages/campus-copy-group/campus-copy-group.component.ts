@@ -22,7 +22,7 @@ export class CampusCopyGroupComponent {
     const current = this.group.rows.length;
     if (count > current) {
       for (let i = current; i < count; i++) {
-        this.group.rows.push({ condition: 'NIEUW', barcode: '' });
+        this.group.rows.push({ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' });
       }
     } else {
       this.group.rows.length = count;
