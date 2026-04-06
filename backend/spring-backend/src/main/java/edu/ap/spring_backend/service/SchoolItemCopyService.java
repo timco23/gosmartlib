@@ -51,7 +51,7 @@ public class SchoolItemCopyService {
         copy.setCopy_status(copyDTO.copy_status());
         copy.setCondition(copyDTO.condition());
         SchoolItemCopy saved = schoolItemCopyRepository.save(copy);
-        saved.setBarcode(String.format("COPY-%06d", saved.getId()));
+        saved.setBarcode(String.format("BC%06d", saved.getId()));
         return mapToDTO(schoolItemCopyRepository.save(saved));
     }
 
