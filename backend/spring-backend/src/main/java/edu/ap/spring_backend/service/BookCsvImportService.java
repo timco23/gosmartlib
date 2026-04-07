@@ -26,7 +26,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service responsible for bulk-importing books from a semicolon-delimited CSV file.
@@ -64,7 +68,6 @@ public class BookCsvImportService {
     private static final Object GOOGLE_API_LOCK = new Object();
     private static long lastGoogleApiCallTime = 0;
 
-    private static final Random RANDOM = new Random();
 
     private final ItemRepository itemRepository;
     private final SchoolItemCopyRepository schoolItemCopyRepository;
@@ -178,7 +181,7 @@ public class BookCsvImportService {
     @Transactional
     public CsvImportDTO confirmImport(CsvConfirmDTO dto) {
         if (dto.rows() == null || dto.rows().size() > MAX_ROW_COUNT) {
-            return new CsvImportDTO(List.of("Te veel rijen. Maximum is " + MAX_ROW_COUNT + " rijen."), 0, 0);
+            return new CsvImportDTO(List.of("Te veel rijen. Maximum is " + MAX_ROW_COUNT + " rijen."), 0, 0, List.of());
         }
 
         School school = schoolRepository.findById(dto.schoolId()).orElseThrow(EntityNotFoundException::new);
@@ -189,9 +192,10 @@ public class BookCsvImportService {
             validateRow(row, school, seenKeys, errors);
         }
         if (!errors.isEmpty()) {
-            return new CsvImportDTO(errors, 0, 0);
+            return new CsvImportDTO(errors, 0, 0, List.of());
         }
 
+        List<Integer> allCopyIds = new ArrayList<>();
         int totalCopies = 0;
         for (BookImportRow row : dto.rows()) {
             Item item = findOrCreateItem(row);
@@ -199,11 +203,12 @@ public class BookCsvImportService {
                 item.setIsbn(row.isbn());
                 itemRepository.save(item);
             }
-            createCopies(item, school, row);
+            List<SchoolItemCopy> created = createCopies(item, school, row);
+            created.forEach(c -> allCopyIds.add(c.getId()));
             totalCopies += row.copies();
         }
 
-        return new CsvImportDTO(List.of(), dto.rows().size(), totalCopies);
+        return new CsvImportDTO(List.of(), dto.rows().size(), totalCopies, allCopyIds);
     }
 
     /**
@@ -273,7 +278,7 @@ public class BookCsvImportService {
      * Copies are distributed across the requested condition options,
      * any remainder receives 'ONGEDEFINIEERD'
      */
-    private void createCopies(Item item, School school, BookImportRow row) {
+    private List<SchoolItemCopy> createCopies(Item item, School school, BookImportRow row) {
         Campus campus = school.getCampuses().stream()
                 .filter(c -> normalize(c.getName()).equals(normalize(row.campus())))
                 .findFirst()
@@ -283,21 +288,25 @@ public class BookCsvImportService {
                 - (row.conditionNieuw() + row.conditionGoed()
                         + row.conditionGebruikt() + row.conditionBeschadigd());
 
-        saveNCopies(item, school, campus, row.conditionNieuw(),    ItemCondition.NIEUW);
-        saveNCopies(item, school, campus, row.conditionGoed(),     ItemCondition.GOED);
-        saveNCopies(item, school, campus, row.conditionGebruikt(), ItemCondition.GEBRUIKT);
-        saveNCopies(item, school, campus, row.conditionBeschadigd(), ItemCondition.BESCHADIGD);
-        saveNCopies(item, school, campus, remaining,               ItemCondition.ONGEDEFINIEERD);
+        List<SchoolItemCopy> created = new ArrayList<>();
+        created.addAll(saveNCopies(item, school, campus, row.conditionNieuw(),      ItemCondition.NIEUW));
+        created.addAll(saveNCopies(item, school, campus, row.conditionGoed(),        ItemCondition.GOED));
+        created.addAll(saveNCopies(item, school, campus, row.conditionGebruikt(),    ItemCondition.GEBRUIKT));
+        created.addAll(saveNCopies(item, school, campus, row.conditionBeschadigd(),  ItemCondition.BESCHADIGD));
+        created.addAll(saveNCopies(item, school, campus, remaining,                  ItemCondition.ONGEDEFINIEERD));
+        return created;
     }
 
-    // TODO: replace barcode generation logic once barcode generation is in place
-    private void saveNCopies(Item item, School school, Campus campus, int count, ItemCondition condition) {
+    private List<SchoolItemCopy> saveNCopies(Item item, School school, Campus campus, int count, ItemCondition condition) {
+        List<SchoolItemCopy> saved = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            String barcode = String.valueOf(RANDOM.nextLong(1_000_000_000L, 10_000_000_000L));
-            schoolItemCopyRepository.save(
-                    new SchoolItemCopy(barcode, false, item, school, campus,
-                            CopyStatus.BESCHIKBAAR, condition));
+            SchoolItemCopy copy = new SchoolItemCopy(null, false, item, school, campus,
+                    CopyStatus.BESCHIKBAAR, condition);
+            SchoolItemCopy savedCopy = schoolItemCopyRepository.save(copy);
+            savedCopy.setBarcode(String.format("BC%06d", savedCopy.getId()));
+            saved.add(schoolItemCopyRepository.save(savedCopy));
         }
+        return saved;
     }
 
     /**

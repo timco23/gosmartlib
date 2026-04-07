@@ -636,10 +636,11 @@ class BookCsvImportServiceTest {
         service.confirmImport(dto);
 
         ArgumentCaptor<SchoolItemCopy> captor = ArgumentCaptor.forClass(SchoolItemCopy.class);
-        verify(schoolItemCopyRepository, times(5)).save(captor.capture());
+        // 5 copies × 2 saves each (first to get ID, second to set barcode)
+        verify(schoolItemCopyRepository, times(10)).save(captor.capture());
 
         List<ItemCondition> conditions = captor.getAllValues().stream()
-                .map(SchoolItemCopy::getCondition).toList();
+                .map(SchoolItemCopy::getCondition).distinct().toList();
         assertTrue(conditions.contains(ItemCondition.NIEUW));
         assertTrue(conditions.contains(ItemCondition.GOED));
         assertTrue(conditions.contains(ItemCondition.GEBRUIKT));
@@ -659,7 +660,8 @@ class BookCsvImportServiceTest {
         service.confirmImport(dto);
 
         ArgumentCaptor<SchoolItemCopy> captor = ArgumentCaptor.forClass(SchoolItemCopy.class);
-        verify(schoolItemCopyRepository, times(3)).save(captor.capture());
+        // 3 copies × 2 saves each
+        verify(schoolItemCopyRepository, times(6)).save(captor.capture());
         assertTrue(captor.getAllValues().stream()
                 .allMatch(c -> c.getCondition() == ItemCondition.ONGEDEFINIEERD));
     }
@@ -677,7 +679,8 @@ class BookCsvImportServiceTest {
         service.confirmImport(dto);
 
         ArgumentCaptor<SchoolItemCopy> captor = ArgumentCaptor.forClass(SchoolItemCopy.class);
-        verify(schoolItemCopyRepository).save(captor.capture());
+        // 1 copy × 2 saves each
+        verify(schoolItemCopyRepository, times(2)).save(captor.capture());
         assertEquals(campus, captor.getValue().getCampus());
     }
 
@@ -694,7 +697,8 @@ class BookCsvImportServiceTest {
         service.confirmImport(dto);
 
         ArgumentCaptor<SchoolItemCopy> captor = ArgumentCaptor.forClass(SchoolItemCopy.class);
-        verify(schoolItemCopyRepository).save(captor.capture());
+        // 1 copy × 2 saves each
+        verify(schoolItemCopyRepository, times(2)).save(captor.capture());
         assertNull(captor.getValue().getCampus());
     }
 
@@ -727,7 +731,8 @@ class BookCsvImportServiceTest {
         service.confirmImport(dto);
 
         ArgumentCaptor<SchoolItemCopy> captor = ArgumentCaptor.forClass(SchoolItemCopy.class);
-        verify(schoolItemCopyRepository, times(2)).save(captor.capture());
+        // 2 copies × 2 saves each
+        verify(schoolItemCopyRepository, times(4)).save(captor.capture());
         assertTrue(captor.getAllValues().stream()
                 .allMatch(c -> c.getCopy_status() == CopyStatus.BESCHIKBAAR));
     }

@@ -31,6 +31,13 @@ public class SchoolItemCopyService {
         this.campusRepository = campusRepository;
     }
 
+    public List<SchoolItemCopyDTO> getCopiesByIds(List<Integer> ids) {
+        return schoolItemCopyRepository.findAllById(ids)
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
     public List<SchoolItemCopyDTO> getCopiesByItemIdAndSchoolId(Long itemId, Long schoolId) {
         return schoolItemCopyRepository.findByItemIdAndSchoolId(itemId, schoolId)
                 .stream()

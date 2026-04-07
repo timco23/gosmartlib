@@ -114,7 +114,7 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), // genres
                 List.of(), // subgenres
@@ -123,12 +123,16 @@ class ItemServiceTest {
                 false // isDidactic
         );
 
+        SchoolItemCopy savedCopy = new SchoolItemCopy();
+        savedCopy.setId(1);
+
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(false);
         when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
         when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
         when(itemRepository.save(any(Item.class))).thenReturn(testItem);
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
 
         // When
         ItemDTO result = itemService.addItem(dto);
@@ -137,7 +141,7 @@ class ItemServiceTest {
         assertNotNull(result);
         assertEquals("Test Title", result.title());
         verify(itemRepository).save(any(Item.class));
-        verify(schoolItemCopyRepository).save(any(SchoolItemCopy.class));
+        verify(schoolItemCopyRepository, times(2)).save(any(SchoolItemCopy.class));
     }
 
     @Test
@@ -145,15 +149,19 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 1L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 1L, 1L, List.of(1L), "Description", true, 1L,
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), List.of(), null, List.of(), false);
+
+        SchoolItemCopy savedCopy = new SchoolItemCopy();
+        savedCopy.setId(1);
 
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
         when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
 
         // When
         ItemDTO result = itemService.addItem(dto);
@@ -161,7 +169,7 @@ class ItemServiceTest {
         // Then
         assertNotNull(result);
         verify(itemRepository, never()).save(any(Item.class));
-        verify(schoolItemCopyRepository).save(any(SchoolItemCopy.class));
+        verify(schoolItemCopyRepository, times(2)).save(any(SchoolItemCopy.class));
     }
 
     @Test
@@ -169,14 +177,18 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), List.of(), null, List.of(), false);
+        SchoolItemCopy savedCopy = new SchoolItemCopy();
+        savedCopy.setId(1);
+
         when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
         when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
         when(itemRepository.findByTitle(dto.title())).thenReturn(Optional.of(testItem));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
         when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
 
         // When
         ItemDTO result = itemService.addItem(dto);
@@ -184,7 +196,7 @@ class ItemServiceTest {
         // Then
         assertNotNull(result);
         verify(itemRepository, never()).save(any(Item.class));
-        verify(schoolItemCopyRepository).save(any(SchoolItemCopy.class));
+        verify(schoolItemCopyRepository, times(2)).save(any(SchoolItemCopy.class));
     }
 
     @Test
@@ -192,7 +204,7 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), // genres
                 List.of(), // subgenres
@@ -212,7 +224,7 @@ class ItemServiceTest {
         // Given
         CreateItemDTO dto = new CreateItemDTO(
                 "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L, "BARCODE123",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
                 CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
                 List.of(), // genres
                 List.of(), // subgenres

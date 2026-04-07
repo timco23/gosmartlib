@@ -39,8 +39,6 @@ public record CreateItemDTO(
         boolean featured,
         @JsonProperty("campusId")
         Long campusId,
-        @JsonProperty("barcode")
-        String barcode,
         @JsonProperty("copy_status")
         CopyStatus copyStatus,
         @JsonProperty("condition")
