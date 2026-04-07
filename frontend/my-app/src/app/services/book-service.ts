@@ -150,4 +150,8 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
   setCopyStatus(copyId: number, status: string): Observable<SchoolItemCopy> {
     return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${copyId}/status`, null, { params: { status: status } });
   }
+
+  getBarcodePng(copyId: number): Observable<Blob> {
+    return this.http.get(`${this.apiBaseUrl}/books/copies/${copyId}/barcode`, { responseType: 'blob' });
+  }
 }

@@ -4,6 +4,7 @@ import { BookListPage } from './book-pages/book-list-page/book-list-page';
 import { BookDetailPage } from './book-pages/book-detail-page/book-detail-page';
 import { AddBookPage } from './book-pages/add-book-page/add-book-page';
 import { UpdateBookPage } from './book-pages/update-book-page/update-book-page';
+import { BarcodePrintPage } from './book-pages/barcode-print-page/barcode-print-page';
 import { Login } from './login/login';
 import { authGuard } from './guards/auth-guard';
 import { Profile } from './profile/profile';
@@ -29,6 +30,7 @@ export const routes: Routes = [
   { path: 'books/add', component: AddBookPage, canActivate: [authGuard] },
   { path: 'books/:id', component: BookDetailPage, canActivate: [authGuard] },
   { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard] },
+  { path: 'books/:id/barcodes', component: BarcodePrintPage, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },

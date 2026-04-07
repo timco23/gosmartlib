@@ -193,6 +193,9 @@
                         <td>{{ copy.copy_status }}</td>
                         <td>{{ copy.barcode }}</td>
                         <td class="copy-actions">
+                          <button type="button" (click)="router.navigate(['/books', book!.id, 'barcodes'])">
+                            Barcode
+                          </button>
                           <button type="button" class="EditButton" (click)="startEdit(copy)">
                             Wijzigen
                           </button>
