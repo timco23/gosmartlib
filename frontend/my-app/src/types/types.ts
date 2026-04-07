@@ -236,6 +236,7 @@ export interface CsvImportDTO {
   errors: string[];
   importedBooks: number;
   importedCopies: number;
+  copyIds: number[];
 }
 
 export interface CarouselSlot {
@@ -245,19 +246,19 @@ export interface CarouselSlot {
 }
 
 export interface ReadingList {
-  id: number,
-  title: string,
-  description: string,
-  userFirstName: string,
-  userLastName: string,
-  items: Book[]
+  id: number;
+  title: string;
+  description: string;
+  userFirstName: string;
+  userLastName: string;
+  items: Book[];
 }
 
 export interface CreateReadingListPayload {
-  title: string,
-  description: string,
-  userId: number,
-  itemIds: number[]
+  title: string;
+  description: string;
+  userId: number;
+  itemIds: number[];
 }
 
 export interface Lending {
@@ -318,4 +319,10 @@ export interface CreateReview {
   title?: string | null;
   description?: string;
   stars: number;
+}
+
+export interface BarcodePrintItem {
+  copy: SchoolItemCopy;
+  selected: boolean;
+  imageUrl: string | null;
 }

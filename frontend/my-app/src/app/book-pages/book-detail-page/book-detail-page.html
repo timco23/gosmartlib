@@ -9,7 +9,7 @@
         @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
           <div class="book-actions">
             <a class="edit-button" [routerLink]="['/books', book.id, 'edit']"> Boek wijzigen </a>
-
+            <a class="edit-button" [routerLink]="['/books', book.id, 'barcodes']" [queryParams]="{ preselect: 'all' }">Print barcodes</a>
             <a class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</a>
             <a class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
               {{ isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten' }}

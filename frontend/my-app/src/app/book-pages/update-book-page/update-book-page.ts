@@ -197,24 +197,21 @@ export class UpdateBookPage implements OnInit {
   loadSchool() {
     this.authService.currentUser$.subscribe((user) => {
       if (!user?.email) return;
-      this.userService.getUser(user.email).subscribe({
-        next: (data) => {
-          if (data.schoolName) {
-            this.schoolService.getByName(data.schoolName).subscribe({
-              next: (schoolData) => {
-                this.school = schoolData;
-                if (this.book) this.loadCopies();
-              },
-            });
-          }
-        },
+
+      this.userService.getUser(user.email).subscribe((userData) => {
+        if (!userData.schoolName) return;
+
+        this.schoolService.getByName(userData.schoolName).subscribe((school) => {
+          this.school = school;
+          if (this.book) this.loadCopies();
+        });
       });
     });
   }
 
   loadCopies() {
     if (!this.book || !this.school?.id) return;
-    this.api.loadCopies(this.book.id, this.school.id).subscribe({
+    this.api.getCopiesByBookId(this.book.id, this.school.id).subscribe({
       next: (copies) => {
         this.copies = copies;
         if (copies.length > 0 && copies[0].featured) this.isFeatured = true;
@@ -429,21 +426,19 @@ export class UpdateBookPage implements OnInit {
   }
 
   loadData() {
-    this.route.paramMap.subscribe((p) => {
-      const id = p.get('id');
-      if (!id) return;
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
 
-      this.api.getBookById(parseInt(id)).subscribe({
-        next: (data) => {
-          this.book = data;
-          this.tryFillForm();
-          this.loadCopies();
-        },
-        error: (err) => {
-          this.errorMessage = err;
-          this.error = true;
-        },
-      });
+    this.api.getBookById(parseInt(id)).subscribe({
+      next: (data) => {
+        this.book = data;
+        this.tryFillForm();
+        this.loadCopies();
+      },
+      error: (err) => {
+        this.errorMessage = err;
+        this.error = true;
+      },
     });
   }
 

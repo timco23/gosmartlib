@@ -5,13 +5,7 @@ import { BookService } from '../../services/book-service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
-import { SchoolItemCopy } from '../../../types/types';
-
-interface BarcodePrintItem {
-  copy: SchoolItemCopy;
-  selected: boolean;
-  imageUrl: string | null;
-}
+import { SchoolItemCopy, BarcodePrintItem } from '../../../types/types';
 
 @Component({
   selector: 'app-barcode-print-page',
@@ -33,30 +27,55 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   private objectUrls: string[] = [];
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    const params = this.route.snapshot.paramMap;
+    const queryParams = this.route.snapshot.queryParamMap;
+    const copyIds = queryParams.getAll('copyIds').map(Number);
+
+    if (copyIds.length > 0) {
+      // Flow 3: CSV import — load a specific selection of copies by their IDs
+      this.loadCopiesByIds(copyIds);
+    } else {
+      // Flow 1 & 2: load all copies for a book
       const bookId = parseInt(params.get('id')!);
-      this.loadCopies(bookId);
+      const preselect = queryParams.get('preselect');
+      const preselectAll = preselect === 'all';
+      const preselectId = !preselectAll && preselect ? parseInt(preselect) : null;
+      this.loadCopiesByBookId(bookId, preselectAll, preselectId);
+    }
+  }
+
+  private loadCopiesByIds(ids: number[]): void {
+    this.api.getCopiesByIds(ids).subscribe({
+      next: (copies) => {
+        this.items = copies.map((copy) => ({ copy, selected: true, imageUrl: null }));
+        this.loading = false;
+        this.fetchBarcodeImages();
+      },
     });
   }
 
-  private loadCopies(bookId: number): void {
+  private loadCopiesByBookId(
+    bookId: number,
+    preselectAll: boolean,
+    preselectId: number | null = null,
+  ): void {
     this.authService.currentUser$.subscribe((user) => {
       if (!user?.email) return;
-      this.userService.getUser(user.email).subscribe({
-        next: (userData) => {
-          if (!userData.schoolName) return;
-          this.schoolService.getByName(userData.schoolName).subscribe({
-            next: (school) => {
-              this.api.loadCopies(bookId, school.id!).subscribe({
-                next: (copies) => {
-                  this.items = copies.map((copy) => ({ copy, selected: false, imageUrl: null }));
-                  this.loading = false;
-                  this.fetchBarcodeImages();
-                },
-              });
-            },
+
+      this.userService.getUser(user.email).subscribe((userData) => {
+        if (!userData.schoolName) return;
+
+        this.schoolService.getByName(userData.schoolName).subscribe((school) => {
+          this.api.getCopiesByBookId(bookId, school.id!).subscribe((copies) => {
+            this.items = copies.map((copy) => ({
+              copy,
+              selected: preselectAll || copy.id === preselectId,
+              imageUrl: null,
+            }));
+            this.loading = false;
+            this.fetchBarcodeImages();
           });
-        },
+        });
       });
     });
   }
@@ -86,7 +105,12 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   }
 
   back(): void {
-    this.router.navigate(['../..'], { relativeTo: this.route });
+    const bookId = this.route.snapshot.paramMap.get('id');
+    if (bookId) {
+      this.router.navigate(['/books', bookId]);
+    } else {
+      this.router.navigate(['/books/add']);
+    }
   }
 
   ngOnDestroy(): void {

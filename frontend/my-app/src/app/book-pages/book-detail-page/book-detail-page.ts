@@ -269,7 +269,7 @@ export class BookDetailPage implements OnInit {
 
         if (!this.school?.id) return;
 
-        this.api.loadCopies(data.id, this.school.id).subscribe({
+        this.api.getCopiesByBookId(data.id, this.school.id).subscribe({
           next: (copies) => {
             this.copies = copies;
             if (copies.length > 0 && copies[0].featured) this.isFeatured = true;

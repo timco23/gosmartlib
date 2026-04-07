@@ -97,10 +97,6 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
     return this.http.delete<Book>(`${this.apiBaseUrl}/books/${id}`);
   }
 
-  loadCopies(id: number, schoolId: number): Observable<SchoolItemCopy[]> {
-    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${id}`, { params: { schoolId: schoolId }});
-  }
-
   addCopy(copy: CreateSchoolItemCopyPayload): Observable<SchoolItemCopy> {
     return this.http.post<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies`, copy);
   }
@@ -141,6 +137,12 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
 
   getCopiesByBookId(bookId: number, schoolId: number): Observable<SchoolItemCopy[]> {
     return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${bookId}`, { params: { schoolId: schoolId } });
+  }
+
+  getCopiesByIds(copyIds: number[]): Observable<SchoolItemCopy[]> {
+    let params = new HttpParams();
+    copyIds.forEach((id) => (params = params.append('copyIds', id.toString())));
+    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies`, { params });
   }
 
   getCopyById(copyId: number): Observable<SchoolItemCopy> {

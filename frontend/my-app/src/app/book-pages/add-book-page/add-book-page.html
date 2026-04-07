@@ -53,6 +53,11 @@
         {{ importResult.importedCopies }}
         {{ importResult.importedCopies === 1 ? 'exemplaar' : 'exemplaren' }} geïmporteerd.
       </p>
+      @if (importResult.copyIds.length > 0) {
+        <button type="button" class="primary-btn" (click)="printImportedBarcodes()">
+          Print barcodes ({{ importResult.copyIds.length }})
+        </button>
+      }
     </div>
   }
   @if (!showEnrichment) {

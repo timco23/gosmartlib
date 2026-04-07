@@ -348,6 +348,12 @@ export class AddBookPage implements OnInit {
     });
   }
 
+  printImportedBarcodes(): void {
+    this.router.navigate(['/barcodes'], {
+      queryParams: { copyIds: this.importResult!.copyIds },
+    });
+  }
+
   backToList() {
     this.router.navigate(['/books']);
   }

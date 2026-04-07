@@ -31,6 +31,7 @@ export const routes: Routes = [
   { path: 'books/:id', component: BookDetailPage, canActivate: [authGuard] },
   { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard] },
   { path: 'books/:id/barcodes', component: BarcodePrintPage, canActivate: [authGuard] },
+  { path: 'barcodes', component: BarcodePrintPage, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
