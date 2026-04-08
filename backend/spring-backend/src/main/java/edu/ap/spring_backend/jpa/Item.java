@@ -80,7 +80,8 @@ public class Item {
     @JoinTable(name = "item_didactic_category", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "didactic_category_id"))
     private Set<DidacticCategory> didacticCategories = new HashSet<>();
 
-    private boolean isDidactic;
+    @Column(name = "is_didactic", nullable = false)
+    private boolean didactic;
 
     public Item() {
     }
