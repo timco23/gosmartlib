@@ -1,20 +1,23 @@
 <div class="filter-row">
-  <input [(ngModel)]="filterInput" placeholder="Zoeken op tagnaam..." />
+  <input [(ngModel)]="filterInput" placeholder="Zoeken op leefwereldlabel..." />
 </div>
 
-<div class="tag-count">{{ selectedTagCount }} tag(s) geselecteerd</div>
+<div class="tag-count">{{ selectedTagCount }} leefwereldlabel(s) geselecteerd</div>
 
 <ul class="tag-list">
   @for (tag of filteredTags; track tag.id) {
-    @if((tag.name == "Pedagogisch" && authService.atLeastHasRole(role.LEERKRACHT)) || tag.name != "Pedagogisch") {
+    @if (
+      (tag.name == 'Pedagogisch' && authService.atLeastHasRole(role.LEERKRACHT)) ||
+      tag.name != 'Pedagogisch'
+    ) {
       <li class="tag-item">
-      <label>
-        <input type="checkbox" [ngModel]="isTagSelected(tag)" (ngModelChange)="toggleTag(tag)" />
-        <span>{{ tag.name }}</span>
-      </label>
-    </li>  
+        <label>
+          <input type="checkbox" [ngModel]="isTagSelected(tag)" (ngModelChange)="toggleTag(tag)" />
+          <span>{{ tag.name }}</span>
+        </label>
+      </li>
     }
   } @empty {
-    <li>Geen tags gevonden.</li>
+    <li>Geen leefwereldlabels gevonden.</li>
   }
 </ul>

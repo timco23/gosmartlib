@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.Authentication;
+import edu.ap.spring_backend.jpa.Role;
 
 import java.util.List;
 
@@ -48,10 +50,28 @@ public class ItemController {
             @RequestParam(required = false) @Min(0) Integer minPages,
             @RequestParam(required = false) @Min(0) Integer maxPages,
             @RequestParam(required = false) @DecimalMin("0.0") @DecimalMax("5.0") Double minScore,
-            @RequestParam(required = false) List<Long> tagIds) {
+            @RequestParam(required = false) List<Long> tagIds,
+            @RequestParam(required = false) List<Long> genreIds,
+            @RequestParam(required = false) List<Long> subgenreIds,
+            @RequestParam(required = false) List<Long> didacticCategoryIds,
+            @RequestParam(required = false) Boolean didactic,
+            Authentication authentication) {
+
+        boolean isStudent = authentication != null && authentication.getAuthorities().stream()
+                .map(a -> a.getAuthority() != null && a.getAuthority().startsWith("ROLE_")
+                        ? a.getAuthority().substring(5)
+                        : a.getAuthority())
+                .anyMatch(auth -> Role.LEERLING.name().equalsIgnoreCase(auth));
+
+        if (isStudent) {
+            didactic = false;
+            didacticCategoryIds = null;
+        }
+
         ItemRequestDTO request = new ItemRequestDTO(
-                page, size, sortBy, sortDirection,
-                search, languages, minPages, maxPages, minScore, tagIds, schoolId);
+                page, size, sortBy, sortDirection, search, languages, minPages, maxPages, minScore,
+                tagIds, genreIds, subgenreIds, didacticCategoryIds, didactic, schoolId);
+
         return ResponseEntity.ok(itemService.getFilteredItems(request));
     }
 

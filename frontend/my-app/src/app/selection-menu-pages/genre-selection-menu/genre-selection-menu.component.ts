@@ -1,4 +1,12 @@
-import { Component, EventEmitter, inject, Input, input, Output, output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  input,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GenreService } from '../../services/genre.service';
 import { AuthService } from '../../services/auth.service';
@@ -8,25 +16,26 @@ import { Genre, Role } from '../../../types/types';
   selector: 'app-genre-selection-menu',
   imports: [FormsModule],
   templateUrl: './genre-selection-menu.component.html',
-  styleUrl: './genre-selection-menu.component.css'
+  styleUrl: './genre-selection-menu.component.css',
 })
 export class GenreSelectionMenuComponent {
   private genreService = inject(GenreService);
-  authService = inject(AuthService)
+  authService = inject(AuthService);
   role = Role;
 
   bookId = input<number | null>(null);
   @Input() initialGenres: Genre[] = [];
-  @Output() tagsChanged = new EventEmitter<Genre[]>();
+
+  @Output() genresChanged = new EventEmitter<Genre[]>();
 
   genres: Genre[] = [];
   filterInput: string = '';
   selectedGenres: Genre[] = [];
 
-    get filteredGenres(): Genre[] {
-      return this.genres
-        .filter((genre) => genre.name.toLowerCase().includes(this.filterInput.toLowerCase()))
-        .sort((a, b) => a.name.localeCompare(b.name));
+  get filteredGenres(): Genre[] {
+    return this.genres
+      .filter((genre) => genre.name.toLowerCase().includes(this.filterInput.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   get selectedGenreCount(): number {
@@ -56,6 +65,6 @@ export class GenreSelectionMenuComponent {
     } else {
       this.selectedGenres.push(genre);
     }
-    this.tagsChanged.emit(this.selectedGenres);
+    this.genresChanged.emit(this.selectedGenres);
   }
 }

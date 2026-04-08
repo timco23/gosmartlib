@@ -51,13 +51,17 @@ public class ItemService {
         validateRequest(request);
 
         Specification<Item> spec = Specification
-                .allOf(withSearch(request.search()))
-                .and(withLanguages(request.languages()))
-                .and(withMinPages(request.minPages()))
-                .and(withMaxPages(request.maxPages()))
-                .and(withMinScore(request.minScore()))
-                .and(withTags(request.tagIds()))
-                .and(withSchoolId(request.schoolId()));
+        .allOf(withSearch(request.search()))
+        .and(withLanguages(request.languages()))
+        .and(withMinPages(request.minPages()))
+        .and(withMaxPages(request.maxPages()))
+        .and(withMinScore(request.minScore()))
+        .and(withTags(request.tagIds()))
+        .and(withGenres(request.genreIds()))
+        .and(withSubgenres(request.subgenreIds()))
+        .and(withDidactic(request.didactic()))
+        .and(withDidacticCategories(Boolean.TRUE.equals(request.didactic()) ? request.didacticCategoryIds() : null))
+        .and(withSchoolId(request.schoolId()));
 
         Sort sort = createSort(request.sortBy(), request.sortDirection());
         Pageable pageable = PageRequest.of(request.page(), request.size(), sort);

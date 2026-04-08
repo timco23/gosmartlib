@@ -36,6 +36,10 @@ export class BookService {
     maxPages?: number,
     minScore?: number,
     tagIds?: number[],
+    genreIds?: number[],
+    subgenreIds?: number[],
+    didacticCategoryIds?: number[],
+    didactic?: boolean,
   ): Observable<Page<Book>> {
     let params = new HttpParams()
       .set('page', page)
@@ -48,8 +52,24 @@ export class BookService {
     if (languages.length > 0) languages.forEach((l) => (params = params.append('languages', l)));
     if (minPages !== undefined) params = params.set('minPages', minPages);
     if (maxPages !== undefined) params = params.set('maxPages', maxPages);
-if (minScore !== undefined) params = params.set('minScore', minScore);
-    if (tagIds && tagIds.length > 0) tagIds.forEach((id) => (params = params.append('tagIds', id)));
+    if (minScore !== undefined) params = params.set('minScore', minScore);
+
+    if (tagIds && tagIds.length > 0) {
+      tagIds.forEach((id) => (params = params.append('tagIds', id)));
+    }
+    if (genreIds && genreIds.length > 0) {
+      genreIds.forEach((id) => (params = params.append('genreIds', id)));
+    }
+    if (subgenreIds && subgenreIds.length > 0) {
+      subgenreIds.forEach((id) => (params = params.append('subgenreIds', id)));
+    }
+    if (didacticCategoryIds && didacticCategoryIds.length > 0) {
+      didacticCategoryIds.forEach((id) => (params = params.append('didacticCategoryIds', id)));
+    }
+
+    if (didactic !== undefined) {
+      params = params.set('didactic', didactic);
+    }
 
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });
   }
@@ -98,7 +118,9 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
   }
 
   loadCopies(id: number, schoolId: number): Observable<SchoolItemCopy[]> {
-    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${id}`, { params: { schoolId: schoolId }});
+    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${id}`, {
+      params: { schoolId: schoolId },
+    });
   }
 
   addCopy(copy: CreateSchoolItemCopyPayload): Observable<SchoolItemCopy> {
@@ -118,20 +140,22 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
   }
 
   getCopyByItemTitle(bookTitle: string, schoolId: number): Observable<SchoolItemCopy> {
-    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/search`, { params: { title: bookTitle, schoolId: schoolId } });
+    return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/search`, {
+      params: { title: bookTitle, schoolId: schoolId },
+    });
   }
 
   addToFavorites(bookId: number, email: string): Observable<any> {
     return this.http.post(`${this.apiBaseUrl}/user/favorites`, null, {
       params: { itemId: bookId, email: email },
-      responseType: 'text'
+      responseType: 'text',
     });
   }
 
   removeFromFavorites(bookId: number, email: string): Observable<any> {
     return this.http.delete(`${this.apiBaseUrl}/user/favorites`, {
       params: { itemId: bookId, email: email },
-      responseType: 'text'
+      responseType: 'text',
     });
   }
 
@@ -140,7 +164,9 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
   }
 
   getCopiesByBookId(bookId: number, schoolId: number): Observable<SchoolItemCopy[]> {
-    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${bookId}`, { params: { schoolId: schoolId } });
+    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies/${bookId}`, {
+      params: { schoolId: schoolId },
+    });
   }
 
   getCopyById(copyId: number): Observable<SchoolItemCopy> {
@@ -148,6 +174,8 @@ if (minScore !== undefined) params = params.set('minScore', minScore);
   }
 
   setCopyStatus(copyId: number, status: string): Observable<SchoolItemCopy> {
-    return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${copyId}/status`, null, { params: { status: status } });
+    return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${copyId}/status`, null, {
+      params: { status: status },
+    });
   }
 }

@@ -33,6 +33,14 @@ class ItemServiceTest {
     private TagRepository tagRepository;
     @Mock
     private SchoolItemCopyRepository schoolItemCopyRepository;
+    @Mock
+    private GenreRepository genreRepository;
+    @Mock
+    private SubgenreRepository subgenreRepository;
+    @Mock
+    private ReadingLevelRepository readingLevelRepository;
+    @Mock
+    private DidacticCategoryRepository didacticCategoryRepository;
 
     @InjectMocks
     private ItemService itemService;
@@ -50,6 +58,18 @@ class ItemServiceTest {
         testTag.setId(1L);
         testTag.setName("Science Fiction");
 
+        testSchool = new School();
+        testSchool.setId(1L);
+        testSchool.setName("Test School");
+
+        testCampus = new Campus();
+        testCampus.setId(1L);
+
+        testItem = new Item();
+        testItem.setId(1L);
+        testItem.setTitle("Test Title");
+        testCampus.setSchool(testSchool);
+
         testItem = new Item(
                 "Test Description",
                 10,
@@ -65,14 +85,11 @@ class ItemServiceTest {
                 new HashSet<>(Collections.singletonList(testTag)));
         testItem.setId(1L);
 
-        testSchool = new School();
-        testSchool.setId(1L);
-        testSchool.setName("Test School");
-
-        testCampus = new Campus();
-        testCampus.setId(1L);
-        testCampus.setName("Test Campus");
-        testCampus.setSchool(testSchool);
+        lenient().when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        lenient().when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
+        lenient().when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
+        lenient().when(schoolItemCopyRepository.save(any(SchoolItemCopy.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     // ---------------- getSchoolItems ----------------
@@ -82,9 +99,22 @@ class ItemServiceTest {
         // Given
         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", "Test", List.of("English"),
-                100, 500, 4.0, List.of(1L), 1L);
+                100, 500, 4.0,
+                List.of(1L), // tagIds
+                null,        // genreIds
+                null,        // subgenreIds
+                null,        // didacticCategoryIds
+                null,        // didactic
+                1L           // schoolId
+        );
         Page<Item> page = new PageImpl<>(List.of(testItem));
+        when(itemRepository.findByTitle("Test Title")).thenReturn(Optional.of(testItem));
         when(itemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem)); 
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         PageResponseDTO<ItemDTO> response = itemService.getFilteredItems(request);
@@ -99,9 +129,22 @@ class ItemServiceTest {
     @Test
     void givenInvalidPages_whenGetSchoolItems_thenThrowIllegalArgumentException() {
         // Given
-        ItemRequestDTO request = new ItemRequestDTO(
+         ItemRequestDTO request = new ItemRequestDTO(
                 0, 10, "title", "asc", null, null,
-                500, 100, null, null, 1L);
+                500, 100, null,
+                null, // tagIds
+                null, // genreIds
+                null, // subgenreIds
+                null, // didacticCategoryIds
+                null, // didactic
+                1L    // schoolId
+        );
+        when(itemRepository.findByTitle("Test Title")).thenReturn(Optional.of(testItem));
+        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem)); 
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // When & Then
         assertThrows(IllegalArgumentException.class, () -> itemService.getFilteredItems(request));

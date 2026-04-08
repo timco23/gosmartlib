@@ -51,7 +51,7 @@
             <label>Genres</label>
             <app-genre-selection-menu
               [initialGenres]="selectedGenres"
-              (tagsChanged)="onGenresChanged($event)"
+              (genresChanged)="onGenresChanged($event)"
             />
 
             <label>Subgenres</label>
@@ -77,7 +77,7 @@
               <label>Didactische categorieën</label>
               <app-didactic-category-selection-menu
                 [initialCategories]="selectedDidacticCategories"
-                (tagsChanged)="onDidacticCategoriesChanged($event)"
+                (categoriesChanged)="onDidacticCategoriesChanged($event)"
               />
             }
 

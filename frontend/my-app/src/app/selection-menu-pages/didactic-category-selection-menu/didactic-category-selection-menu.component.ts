@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, input, Output, output, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  input,
+  Output,
+  output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { DidacticCategory } from '../../../types/types';
@@ -7,14 +17,14 @@ import { DidacticCategory } from '../../../types/types';
   selector: 'app-didactic-category-selection-menu',
   imports: [FormsModule],
   templateUrl: './didactic-category-selection-menu.component.html',
-  styleUrl: './didactic-category-selection-menu.component.css'
+  styleUrl: './didactic-category-selection-menu.component.css',
 })
 export class DidacticCategorySelectionMenuComponent {
   private didacticCategoryService = inject(DidacticCategoryService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   @Input() initialCategories: DidacticCategory[] = [];
-  @Output() tagsChanged = new EventEmitter<DidacticCategory[]>();
+  @Output() categoriesChanged = new EventEmitter<DidacticCategory[]>();
 
   categories: DidacticCategory[] = [];
   filterInput: string = '';
@@ -31,18 +41,17 @@ export class DidacticCategorySelectionMenuComponent {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-  if (changes['initialCategories'] && this.initialCategories) {
-    this.selectedCategories = [...this.initialCategories];
-    this.cdr.detectChanges();
+    if (changes['initialCategories'] && this.initialCategories) {
+      this.selectedCategories = [...this.initialCategories];
+      this.cdr.detectChanges();
+    }
   }
-}
 
   ngOnInit(): void {
     this.didacticCategoryService.getDidacticCategories().subscribe((categories) => {
       this.categories = categories;
       this.selectedCategories = [...this.initialCategories];
       this.cdr.detectChanges();
-
     });
   }
 
@@ -56,6 +65,6 @@ export class DidacticCategorySelectionMenuComponent {
     } else {
       this.selectedCategories.push(category);
     }
-    this.tagsChanged.emit(this.selectedCategories);
+    this.categoriesChanged.emit(this.selectedCategories);
   }
 }

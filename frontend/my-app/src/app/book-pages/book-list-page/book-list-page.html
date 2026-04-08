@@ -88,14 +88,59 @@
         </div>
       </div>
 
-      <!-- Tags -->
+      <!-- Leefwereldlabels -->
       <div class="filter-group">
-        <label class="filter-label">Tags</label>
+        <label class="filter-label">Leefwereldlabels</label>
         <app-tag-selection-menu
           [initialTags]="selectedTags"
           (tagsChanged)="onTagsChanged($event)"
         />
       </div>
+
+      <!-- Genres -->
+      <div class="filter-group">
+        <label class="filter-label">Genres</label>
+        <app-genre-selection-menu
+          [initialGenres]="selectedGenres"
+          (genresChanged)="onGenresChanged($event)"
+        />
+      </div>
+
+      <!-- Subgenres -->
+      <div class="filter-group">
+        <label class="filter-label">Subgenres</label>
+        <app-subgenre-selection-menu
+          [initialSubgenres]="selectedSubgenres"
+          (subgenresChanged)="onSubgenresChanged($event)"
+        />
+      </div>
+
+      @if (canUseDidacticFilters) {
+        <!-- Didactische boeken -->
+        <div class="filter-group">
+          <label class="filter-label" for="didacticFilter">Didactische boeken</label>
+          <select
+            id="didacticFilter"
+            class="filter-select"
+            [ngModel]="didactic"
+            (ngModelChange)="onDidacticFilterChange($event)"
+          >
+            <option [ngValue]="undefined">Alle boeken</option>
+            <option [ngValue]="false">Niet didactisch</option>
+            <option [ngValue]="true">Didactisch</option>
+          </select>
+        </div>
+
+        <!-- Didactische tags (alleen tonen als didactic = true) -->
+        @if (didactic === true) {
+          <div class="filter-group">
+            <app-didactic-category-selection-menu
+              [initialCategories]="selectedCategories"
+              (categoriesChanged)="onDidacticTagsChanged($event)"
+            />
+          </div>
+        }
+      }
 
       <!-- Page count -->
       <div class="filter-group">
@@ -124,7 +169,7 @@
         </div>
       </div>
 
-<!-- Minimum Rating -->
+      <!-- Minimum Rating -->
       <div class="filter-group">
         <label class="filter-label">Minimale beoordeling</label>
         <div class="range-labels">

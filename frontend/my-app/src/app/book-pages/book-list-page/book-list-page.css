@@ -124,6 +124,17 @@
   outline: none;
   border-color: #8c1b3f;
 }
+.filter-panel app-tag-selection-menu,
+.filter-panel app-genre-selection-menu,
+.filter-panel app-subgenre-selection-menu,
+.filter-panel app-didactic-category-selection-menu {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+#didacticFilter {
+  margin-top: 0.25rem;
+}
 
 /* Taal checkboxes */
 .toggle-group {

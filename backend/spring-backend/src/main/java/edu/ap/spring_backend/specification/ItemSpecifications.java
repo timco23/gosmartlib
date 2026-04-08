@@ -75,6 +75,38 @@ public static Specification<Item> withMinScore(Double minScore) {
         };
     }
 
+    public static Specification<Item> withDidactic(Boolean didactic) {
+        return (root, query, cb) -> didactic == null ? null : cb.equal(root.get("didactic"), didactic);
+    }
+
+    public static Specification<Item> withGenres(List<Long> genreIds) {
+        return withManyToManyAllMatch(genreIds, "genres");
+    }
+
+    public static Specification<Item> withSubgenres(List<Long> subgenreIds) {
+        return withManyToManyAllMatch(subgenreIds, "subgenres");
+    }
+
+    public static Specification<Item> withDidacticCategories(List<Long> didacticCategoryIds) {
+        return withManyToManyAllMatch(didacticCategoryIds, "didacticCategories");
+    }
+
+    private static Specification<Item> withManyToManyAllMatch(List<Long> ids, String relationField) {
+        return (root, query, cb) -> {
+            if (ids == null || ids.isEmpty()) return null;
+
+            Predicate[] predicates = ids.stream().map(id -> {
+                Subquery<Long> sq = query.subquery(Long.class);
+                Root<Item> subRoot = sq.from(Item.class);
+                Join<Object, Object> relation = subRoot.join(relationField);
+                sq.select(subRoot.get("id")).where(cb.equal(relation.get("id"), id));
+                return cb.in(root.get("id")).value(sq);
+            }).toArray(Predicate[]::new);
+
+            return cb.and(predicates);
+        };
+    }
+
     public static Specification<Item> isFeatured(boolean featured, Long schoolId) {
         if (schoolId == null) return null;
         return (root, query, cb) -> {
