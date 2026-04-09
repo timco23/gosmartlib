@@ -19,13 +19,13 @@ import java.io.IOException;
 @Service
 public class BarcodeService {
 
-    private static final int BARCODE_WIDTH = 800;
-    private static final int BARCODE_HEIGHT = 200;
+    private static final int BARCODE_WIDTH = 400;
+    private static final int BARCODE_HEIGHT = 150;
 
     /**
      * Generates a PNG image of a Code 128 barcode.
      *
-     * @param barcodeValue the string to encode (e.g. "COPY-000071")
+     * @param barcodeValue the string to encode (e.g. "BC000071")
      * @return the PNG image as a byte array
      * @throws IllegalArgumentException if the barcode value cannot be encoded
      * @throws RuntimeException if the image cannot be created
