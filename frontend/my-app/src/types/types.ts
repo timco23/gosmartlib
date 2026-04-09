@@ -146,7 +146,6 @@ export interface CreateBookPayload {
   reviewScore: number;
   reviewCount: number;
   campusId: number;
-  barcode: string;
   copy_status: string;
   condition: string;
 }
@@ -179,7 +178,6 @@ export interface SchoolItemCopy {
 
 export interface CreateSchoolItemCopyPayload {
   itemId: number;
-  barcode: string;
   condition: string;
   copy_status: string;
   featured: boolean;
@@ -189,7 +187,7 @@ export interface CreateSchoolItemCopyPayload {
 
 export interface NewCopyRow {
   condition: string;
-  barcode: string;
+  copy_status: string;
 }
 
 export interface CampusCopyGroup {
@@ -238,6 +236,7 @@ export interface CsvImportDTO {
   errors: string[];
   importedBooks: number;
   importedCopies: number;
+  copyIds: number[];
 }
 
 export interface CarouselSlot {
@@ -247,19 +246,19 @@ export interface CarouselSlot {
 }
 
 export interface ReadingList {
-  id: number,
-  title: string,
-  description: string,
-  userFirstName: string,
-  userLastName: string,
-  items: Book[]
+  id: number;
+  title: string;
+  description: string;
+  userFirstName: string;
+  userLastName: string;
+  items: Book[];
 }
 
 export interface CreateReadingListPayload {
-  title: string,
-  description: string,
-  userId: number,
-  itemIds: number[]
+  title: string;
+  description: string;
+  userId: number;
+  itemIds: number[];
 }
 
 export interface Lending {
@@ -320,4 +319,10 @@ export interface CreateReview {
   title?: string | null;
   description?: string;
   stars: number;
+}
+
+export interface BarcodePrintItem {
+  copy: SchoolItemCopy;
+  selected: boolean;
+  imageUrl: string | null;
 }

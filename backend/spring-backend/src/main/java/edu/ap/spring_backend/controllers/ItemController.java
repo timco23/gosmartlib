@@ -1,10 +1,12 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.*;
+import edu.ap.spring_backend.service.BarcodeService;
 import edu.ap.spring_backend.service.BookCsvImportService;
 import edu.ap.spring_backend.service.ItemService;
 import jakarta.validation.constraints.*;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +22,14 @@ public class ItemController {
     private final ItemService itemService;
     private final SchoolItemCopyService schoolItemCopyService;
     private final BookCsvImportService bookCsvImportService;
+    private final BarcodeService barcodeService;
 
     public ItemController(ItemService itemService, SchoolItemCopyService schoolItemCopyService,
-            BookCsvImportService bookCsvImportService) {
+            BookCsvImportService bookCsvImportService, BarcodeService barcodeService) {
         this.itemService = itemService;
         this.schoolItemCopyService = schoolItemCopyService;
         this.bookCsvImportService = bookCsvImportService;
+        this.barcodeService = barcodeService;
     }
 
     @GetMapping("/books")
@@ -113,14 +117,50 @@ public class ItemController {
         return ResponseEntity.ok(itemService.updateItem(id, itemDTO));
     }
 
+    // Fetches a specific selection of copies by their own IDs.
+    // Used by: barcode print page (flow: newly created copies after CSV import)
+    @GetMapping("/books/copies")
+    public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByIds(
+            @RequestParam @Size(min = 1, max = 1000) List<Integer> copyIds) {
+        return ResponseEntity.ok(schoolItemCopyService.getCopiesByIds(copyIds));
+    }
+
+    // Fetches a single copy by its own ID.
+    // Used by: lending/return flow (barcode scan -> look up copy)
     @GetMapping("/books/copies/id/{copyId}")
     public ResponseEntity<SchoolItemCopyDTO> getCopyById(@PathVariable int copyId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopyById(copyId));
     }
 
+    // Fetches all copies of a book for a specific school.
+    // Used by: edit-book page (display copy list), barcode print page
     @GetMapping("/books/copies/{itemId}")
-    public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByItemIdAndSchoolId(@PathVariable Long itemId, @RequestParam Long schoolId) {
+    public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByItemIdAndSchoolId(
+            @PathVariable Long itemId, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopiesByItemIdAndSchoolId(itemId, schoolId));
+    }
+
+    // Fetches a single copy by its barcode string value.
+    // Used by: lending/return flow (barcode scanner input)
+    @GetMapping("/books/copies/barcode/{barcode}")
+    public ResponseEntity<SchoolItemCopyDTO> getCopyByBarcode(@PathVariable String barcode) {
+        return ResponseEntity.ok(schoolItemCopyService.getCopyByBarcode(barcode));
+    }
+
+    // Fetches a single copy by book title and school.
+    // Used by: lending/return flow (search by title)
+    @GetMapping("/books/copies/search")
+    public ResponseEntity<SchoolItemCopyDTO> getCopyByItemTitle(
+            @RequestParam String title, @RequestParam Long schoolId) {
+        return ResponseEntity.ok(schoolItemCopyService.getByItemTitleAndSchoolId(title, schoolId));
+    }
+
+    // Returns the barcode of a copy as a PNG image.
+    // Used by: barcode print page (fetch and display individual barcode image)
+    @GetMapping(value = "/books/copies/{copyId}/barcode", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getBarcodePng(@PathVariable int copyId) {
+        SchoolItemCopyDTO copy = schoolItemCopyService.getCopyById(copyId);
+        return ResponseEntity.ok(barcodeService.generateBarcodePng(copy.barcode()));
     }
 
     @PostMapping("/books/copies")
@@ -129,7 +169,8 @@ public class ItemController {
     }
 
     @PostMapping("/books/copies/bulk")
-    public ResponseEntity<List<SchoolItemCopyDTO>> addCopiesBulk(@RequestBody List<CreateSchoolItemCopyDTO> copyDTOs) {
+    public ResponseEntity<List<SchoolItemCopyDTO>> addCopiesBulk(
+            @RequestBody List<CreateSchoolItemCopyDTO> copyDTOs) {
         return ResponseEntity.ok(schoolItemCopyService.addCopies(copyDTOs));
     }
 
@@ -139,22 +180,14 @@ public class ItemController {
     }
 
     @PutMapping("/books/copies/{id}")
-    public ResponseEntity<SchoolItemCopyDTO> updateCopy(@RequestBody CreateSchoolItemCopyDTO copyDTO, @PathVariable int id) {
+    public ResponseEntity<SchoolItemCopyDTO> updateCopy(
+            @RequestBody CreateSchoolItemCopyDTO copyDTO, @PathVariable int id) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopy(id, copyDTO));
     }
 
-    @GetMapping("/books/copies/search")
-    public ResponseEntity<SchoolItemCopyDTO> getCopyByItemTitle(@RequestParam String title, @RequestParam Long schoolId) {
-        return ResponseEntity.ok(schoolItemCopyService.getByItemTitleAndSchoolId(title, schoolId));
-    }
-
-    @GetMapping("/books/copies/barcode/{barcode}")
-    public ResponseEntity<SchoolItemCopyDTO> getCopyByBarcode(@PathVariable String barcode) {
-        return ResponseEntity.ok(schoolItemCopyService.getCopyByBarcode(barcode));
-    }
-
     @PutMapping("/books/copies/{copyId}/status")
-    public ResponseEntity<SchoolItemCopyDTO> updateCopyStatus(@PathVariable int copyId, @RequestParam String status) {
+    public ResponseEntity<SchoolItemCopyDTO> updateCopyStatus(
+            @PathVariable int copyId, @RequestParam String status) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopyStatus(copyId, status));
     }
 }

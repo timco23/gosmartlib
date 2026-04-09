@@ -117,7 +117,7 @@ public class ItemService {
             if (itemDTO.campusId() != null) {
                 campus = campusRepository.findById(itemDTO.campusId()).orElse(null);
             }
-            SchoolItemCopy copy = new SchoolItemCopy(itemDTO.barcode(), itemDTO.featured(), newItem, school, campus,
+            SchoolItemCopy copy = new SchoolItemCopy(null, itemDTO.featured(), newItem, school, campus,
                     itemDTO.copyStatus(), itemDTO.condition());
             Set<Tag> tags = getTagsById(itemDTO.tags());
             Set<Genre> genres = getGenresById(itemDTO.genres());
@@ -131,7 +131,9 @@ public class ItemService {
             newItem.setReadingLevel(readingLevel);
             newItem.setDidacticCategories(didacticCategories);
 
-            schoolItemCopyRepository.save(copy);
+            SchoolItemCopy savedCopy = schoolItemCopyRepository.save(copy);
+            savedCopy.setBarcode(String.format("BC%06d", savedCopy.getId()));
+            schoolItemCopyRepository.save(savedCopy);
             return mapToItemDTO(newItem);
         }
         throw new EntityAlreadyExistsException();

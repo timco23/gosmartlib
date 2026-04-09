@@ -169,6 +169,12 @@ export class BookService {
     });
   }
 
+  getCopiesByIds(copyIds: number[]): Observable<SchoolItemCopy[]> {
+    let params = new HttpParams();
+    copyIds.forEach((id) => (params = params.append('copyIds', id.toString())));
+    return this.http.get<SchoolItemCopy[]>(`${this.apiBaseUrl}/books/copies`, { params });
+  }
+
   getCopyById(copyId: number): Observable<SchoolItemCopy> {
     return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/id/${copyId}`);
   }
@@ -176,6 +182,12 @@ export class BookService {
   setCopyStatus(copyId: number, status: string): Observable<SchoolItemCopy> {
     return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${copyId}/status`, null, {
       params: { status: status },
+    });
+  }
+
+  getBarcodePng(copyId: number): Observable<Blob> {
+    return this.http.get(`${this.apiBaseUrl}/books/copies/${copyId}/barcode`, {
+      responseType: 'blob',
     });
   }
 }

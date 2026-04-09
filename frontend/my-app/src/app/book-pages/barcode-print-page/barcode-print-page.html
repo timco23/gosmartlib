@@ -1,0 +1,47 @@
+<div class="print-page-container">
+  <h1 class="no-print">Barcodes afdrukken</h1>
+
+  <div class="page-card">
+    <div class="controls no-print">
+      <button type="button" class="btn-secondary" (click)="back()">Terug</button>
+      <div class="selection-controls">
+        <button type="button" class="btn-neutral" (click)="toggleAll(true)">Selecteer alles</button>
+        <button type="button" class="btn-neutral" (click)="toggleAll(false)">Deselecteer alles</button>
+      </div>
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="print()"
+        [disabled]="selectedItems.length === 0"
+      >
+        Afdrukken ({{ selectedItems.length }})
+      </button>
+    </div>
+
+    @if (loading) {
+      <p class="status-message no-print">Laden...</p>
+    } @else if (items.length === 0) {
+      <p class="status-message no-print">Geen exemplaren gevonden.</p>
+    } @else {
+      <div class="copy-list no-print">
+        @for (item of items; track item.copy.id) {
+          <label class="copy-row">
+            <input type="checkbox" [(ngModel)]="item.selected" />
+            <span>{{ item.copy.barcode }} — {{ item.copy.condition }} — {{ item.copy.copy_status }}</span>
+          </label>
+        }
+      </div>
+
+      <div class="barcode-labels">
+        @for (item of selectedItems; track item.copy.id) {
+          <div class="barcode-label">
+            @if (item.imageUrl) {
+              <img [src]="item.imageUrl" [alt]="item.copy.barcode" />
+            }
+            <p class="barcode-text">{{ item.copy.barcode }}</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -269,7 +269,7 @@ export class BookDetailPage implements OnInit {
 
         if (!this.school?.id) return;
 
-        this.api.loadCopies(data.id, this.school.id).subscribe({
+        this.api.getCopiesByBookId(data.id, this.school.id).subscribe({
           next: (copies) => {
             this.copies = copies;
             if (copies.length > 0 && copies[0].featured) this.isFeatured = true;
@@ -371,7 +371,6 @@ export class BookDetailPage implements OnInit {
 
     const payload: CreateSchoolItemCopyPayload = {
       itemId: bookToBeFeatured.itemId,
-      barcode: bookToBeFeatured.barcode,
       condition: bookToBeFeatured.condition,
       copy_status: bookToBeFeatured.copy_status,
       featured: bookToBeFeatured.featured,

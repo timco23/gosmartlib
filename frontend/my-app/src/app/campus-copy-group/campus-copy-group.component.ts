@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Campus, CampusCopyGroup } from '../../../types/types';
+import { Campus, CampusCopyGroup } from '../../types/types';
 
 @Component({
   selector: 'app-campus-copy-group',
@@ -22,7 +22,7 @@ export class CampusCopyGroupComponent {
     const current = this.group.rows.length;
     if (count > current) {
       for (let i = current; i < count; i++) {
-        this.group.rows.push({ condition: 'NIEUW', barcode: '' });
+        this.group.rows.push({ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' });
       }
     } else {
       this.group.rows.length = count;
