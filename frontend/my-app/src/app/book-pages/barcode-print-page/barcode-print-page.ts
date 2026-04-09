@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BookService } from '../../services/book-service';
@@ -20,6 +20,7 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private schoolService = inject(SchoolService);
+  private cdr = inject(ChangeDetectorRef);
 
   items: BarcodePrintItem[] = [];
   loading = true;
@@ -49,6 +50,7 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
       next: (copies) => {
         this.items = copies.map((copy) => ({ copy, selected: true, imageUrl: null }));
         this.loading = false;
+        this.cdr.detectChanges();
         this.fetchBarcodeImages();
       },
     });
@@ -73,6 +75,7 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
               imageUrl: null,
             }));
             this.loading = false;
+            this.cdr.detectChanges();
             this.fetchBarcodeImages();
           });
         });
@@ -87,6 +90,7 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
           const url = URL.createObjectURL(blob);
           this.objectUrls.push(url);
           item.imageUrl = url;
+          this.cdr.detectChanges();
         },
       });
     });
