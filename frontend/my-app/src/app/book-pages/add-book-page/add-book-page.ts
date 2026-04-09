@@ -35,7 +35,7 @@ import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subge
 import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { BookImportEnrichmentComponent } from '../book-import-enrichment/book-import-enrichment.component';
-import { CampusCopyGroupComponent } from '../campus-copy-group/campus-copy-group.component';
+import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
 
 @Component({
   selector: 'app-add-book-page',
@@ -63,10 +63,10 @@ export class AddBookPage implements OnInit {
   schoolService = inject(SchoolService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
+  // Book form state
   form: FormGroup;
   isReadOnly: boolean = false;
   isDidactic: boolean = false;
-
   error: boolean = false;
   errorMessage: string = '';
   copyAlreadyExists: boolean = false;
@@ -74,32 +74,35 @@ export class AddBookPage implements OnInit {
   nothingFound: boolean = false;
   missingFields: string[] = [];
 
-  previewErrors: string[] = [];
-  previewRows: BookImportRow[] | null = null;
-  showEnrichment: boolean = false;
-  importResult: CsvImportDTO | null = null;
-  importLoading: boolean = false;
-  importLoadingMessage: string = '';
-
-  campusLoading: boolean = true;
-  userError: boolean = false;
-  schoolError: boolean = false;
-  userHasNoSchoolError: boolean = false;
-  schoolErrorMessage: string = '';
-
+  // Selected values
   selectedTags: Tag[] = [];
   selectedGenres: Genre[] = [];
   selectedSubgenres: Subgenre[] = [];
   selectedReadingLevel: Readinglevel | null = null;
   selectedDidacticCategories: DidacticCategory[] = [];
 
+  // Copy state
   campusGroups: CampusCopyGroup[] = [
     { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] },
   ];
   copyError: boolean = false;
 
-  globalBookList: Observable<Book[]> | null = null;
+  // School & loading state
   school: School | null = null;
+  globalBookList: Observable<Book[]> | null = null;
+  campusLoading: boolean = true;
+  userError: boolean = false;
+  schoolError: boolean = false;
+  userHasNoSchoolError: boolean = false;
+  schoolErrorMessage: string = '';
+
+  // CSV import state
+  previewErrors: string[] = [];
+  previewRows: BookImportRow[] | null = null;
+  showEnrichment: boolean = false;
+  importResult: CsvImportDTO | null = null;
+  importLoading: boolean = false;
+  importLoadingMessage: string = '';
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -119,6 +122,40 @@ export class AddBookPage implements OnInit {
     });
   }
 
+  ngOnInit(): void {
+    this.globalBookList = this.api.getBooks();
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.email) {
+      this.userError = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.userService.getUser(currentUser.email).subscribe({
+      next: (data) => {
+        if (data.schoolName != null) {
+          this.schoolService.getByName(data.schoolName).subscribe({
+            next: (data) => {
+              this.school = data;
+              this.campusLoading = false;
+              this.cdr.detectChanges();
+            },
+            error: (err) => {
+              this.schoolError = true;
+              this.campusLoading = false;
+              this.schoolErrorMessage = err;
+              this.cdr.detectChanges();
+            },
+          });
+        } else {
+          this.userHasNoSchoolError = true;
+          this.cdr.detectChanges();
+        }
+      },
+    });
+  }
+
+  // Book form
   onSubmit(): void {
     this.copyAlreadyExists = false;
     this.incompleteForm = false;
@@ -255,6 +292,97 @@ export class AddBookPage implements OnInit {
     }
   }
 
+  loadDetailsViaISBN() {
+    const isbn: string = this.form.controls['isbn'].value;
+    this.nothingFound = false;
+    this.missingFields = [];
+    this.cdr.detectChanges();
+
+    if (isbn.length > 0) {
+      this.api.getBookByISBN(isbn).subscribe({
+        next: (data) => {
+          if (data.totalItems > 0) {
+            const book = data.items![0].volumeInfo;
+            const patch: any = {};
+
+            const fetchedBook = {
+              titel: book.title,
+              uitgeverij: book.publisher,
+              auteur: book.authors?.join(', '),
+              beschrijving: book.description,
+              uitgaveJaar: book.publishedDate?.substring(0, 4),
+              taal: book.language,
+              paginaAantal: book.pageCount,
+              cover: book.imageLinks?.thumbnail,
+            };
+
+            Object.entries(fetchedBook).forEach(([key, value]) => {
+              if (value) {
+                patch[key] = value;
+              } else {
+                this.missingFields.push(key);
+              }
+            });
+
+            this.cdr.detectChanges();
+            this.form.patchValue(patch);
+          } else {
+            this.nothingFound = true;
+            this.cdr.detectChanges();
+          }
+        },
+      });
+    }
+  }
+
+  onTagsChanged(tags: Tag[]): void {
+    this.selectedTags = tags;
+    this.cdr.detectChanges();
+  }
+
+  onGenresChanged(genres: Genre[]): void {
+    this.selectedGenres = [...genres];
+    this.cdr.detectChanges();
+  }
+
+  onSubgenresChanged(subgenres: Subgenre[]): void {
+    this.selectedSubgenres = subgenres;
+    this.cdr.detectChanges();
+  }
+
+  onReadingLevelChanged(level: Readinglevel | null): void {
+    this.selectedReadingLevel = level;
+  }
+
+  onDidacticCategoriesChanged(categories: DidacticCategory[]): void {
+    this.selectedDidacticCategories = [...categories];
+    this.cdr.detectChanges();
+  }
+
+  backToList() {
+    this.router.navigate(['/books']);
+  }
+
+  // Copy
+  addCampusGroup() {
+    this.campusGroups.push({
+      campusId: 0,
+      copyCount: 1,
+      rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }],
+    });
+  }
+
+  removeCampusGroup(index: number) {
+    if (this.campusGroups.length > 1) {
+      this.campusGroups.splice(index, 1);
+    }
+  }
+
+  getTotalCopyCount(): number {
+    return this.campusGroups.reduce((sum, g) => sum + g.rows.length, 0);
+  }
+
+  // CSV import
   onCsvFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length || !this.school?.id) return;
@@ -351,124 +479,6 @@ export class AddBookPage implements OnInit {
   printImportedBarcodes(): void {
     this.router.navigate(['/barcodes'], {
       queryParams: { copyIds: this.importResult!.copyIds },
-    });
-  }
-
-  backToList() {
-    this.router.navigate(['/books']);
-  }
-
-  onTagsChanged(tags: Tag[]): void {
-    this.selectedTags = tags;
-    this.cdr.detectChanges();
-  }
-
-  onGenresChanged(genres: Genre[]): void {
-    this.selectedGenres = [...genres];
-    this.cdr.detectChanges();
-  }
-
-  onSubgenresChanged(subgenres: Subgenre[]): void {
-    this.selectedSubgenres = subgenres;
-    this.cdr.detectChanges();
-  }
-
-  onReadingLevelChanged(level: Readinglevel | null): void {
-    this.selectedReadingLevel = level;
-  }
-
-  onDidacticCategoriesChanged(categories: DidacticCategory[]): void {
-    this.selectedDidacticCategories = [...categories];
-    this.cdr.detectChanges();
-  }
-
-  addCampusGroup() {
-    this.campusGroups.push({ campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] });
-  }
-
-  removeCampusGroup(index: number) {
-    if (this.campusGroups.length > 1) {
-      this.campusGroups.splice(index, 1);
-    }
-  }
-
-  getTotalCopyCount(): number {
-    return this.campusGroups.reduce((sum, g) => sum + g.rows.length, 0);
-  }
-
-  loadDetailsViaISBN() {
-    const isbn: string = this.form.controls['isbn'].value;
-    this.nothingFound = false;
-    this.missingFields = [];
-    this.cdr.detectChanges();
-
-    if (isbn.length > 0) {
-      this.api.getBookByISBN(isbn).subscribe({
-        next: (data) => {
-          if (data.totalItems > 0) {
-            const book = data.items![0].volumeInfo;
-            const patch: any = {};
-
-            const fetchedBook = {
-              titel: book.title,
-              uitgeverij: book.publisher,
-              auteur: book.authors?.join(', '),
-              beschrijving: book.description,
-              uitgaveJaar: book.publishedDate?.substring(0, 4),
-              taal: book.language,
-              paginaAantal: book.pageCount,
-              cover: book.imageLinks?.thumbnail,
-            };
-
-            Object.entries(fetchedBook).forEach(([key, value]) => {
-              if (value) {
-                patch[key] = value;
-              } else {
-                this.missingFields.push(key);
-              }
-            });
-
-            this.cdr.detectChanges();
-            this.form.patchValue(patch);
-          } else {
-            this.nothingFound = true;
-            this.cdr.detectChanges();
-          }
-        },
-      });
-    }
-  }
-
-  ngOnInit(): void {
-    this.globalBookList = this.api.getBooks();
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser?.email) {
-      this.userError = true;
-      this.cdr.detectChanges();
-      return;
-    }
-
-    this.userService.getUser(currentUser.email).subscribe({
-      next: (data) => {
-        if (data.schoolName != null) {
-          this.schoolService.getByName(data.schoolName).subscribe({
-            next: (data) => {
-              this.school = data;
-              this.campusLoading = false;
-              this.cdr.detectChanges();
-            },
-            error: (err) => {
-              this.schoolError = true;
-              this.campusLoading = false;
-              this.schoolErrorMessage = err;
-              this.cdr.detectChanges();
-            },
-          });
-        } else {
-          this.userHasNoSchoolError = true;
-          this.cdr.detectChanges();
-        }
-      },
     });
   }
 }

@@ -5,7 +5,7 @@ import { BookService } from '../../services/book-service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
-import { SchoolItemCopy, BarcodePrintItem } from '../../../types/types';
+import { BarcodePrintItem } from '../../../types/types';
 
 @Component({
   selector: 'app-barcode-print-page',
@@ -32,10 +32,10 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
     const copyIds = queryParams.getAll('copyIds').map(Number);
 
     if (copyIds.length > 0) {
-      // Flow 3: CSV import — load a specific selection of copies by their IDs
+      // CSV import, load a specific selection of copies by their IDs
       this.loadCopiesByIds(copyIds);
     } else {
-      // Flow 1 & 2: load all copies for a book
+      // load all copies for a book
       const bookId = parseInt(params.get('id')!);
       const preselect = queryParams.get('preselect');
       const preselectAll = preselect === 'all';

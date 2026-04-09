@@ -34,7 +34,7 @@ import { SubgenreService } from '../../services/subgenre.service';
 import { ReadingLevelService } from '../../services/reading-level.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { SchoolService } from '../../services/school.service';
-import { CampusCopyGroupComponent } from '../campus-copy-group/campus-copy-group.component';
+import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
 
 @Component({
   selector: 'app-update-book-page',
@@ -55,35 +55,54 @@ export class UpdateBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  authService = inject(AuthService);
+  userService = inject(UserService);
+  schoolService = inject(SchoolService);
   tagService = inject(TagService);
   genreService = inject(GenreService);
   subgenreService = inject(SubgenreService);
   readingLevelService = inject(ReadingLevelService);
   didacticCategoryService = inject(DidacticCategoryService);
-  authService = inject(AuthService);
-  userService = inject(UserService);
-  schoolService = inject(SchoolService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
+  // Book form state
+  form: FormGroup;
+  book: Book | null = null;
+  error: boolean = false;
+  errorMessage: string = '';
+  isDidactic: boolean = false;
   previewUrl: string = '';
   incompleteForm: boolean = false;
 
-  form: FormGroup;
-  error: boolean = false;
-  errorMessage: string = '';
-  book: Book | null = null;
-  isDidactic: boolean = false;
+  // Lookup data
+  allTags: Tag[] = [];
+  allGenres: Genre[] = [];
+  allSubgenres: Subgenre[] = [];
+  allReadingLevels: Readinglevel[] = [];
+  allDidacticCategories: DidacticCategory[] = [];
 
+  // Selected values
+  selectedTags: Tag[] = [];
+  selectedGenres: Genre[] = [];
+  selectedSubgenres: Subgenre[] = [];
+  selectedReadingLevel: Readinglevel | null = null;
+  selectedDidacticCategories: DidacticCategory[] = [];
+
+  // Copy list state
   copies: SchoolItemCopy[] = [];
   school: School | null = null;
+  isFeatured: boolean = false;
+
+  // Add copy state
   addingCopy: boolean = false;
   campusGroups: CampusCopyGroup[] = [];
   copyError: boolean = false;
-  isFeatured: boolean = false;
+
+  // Drag & drop state
   draggedCopyId: number | null = null;
   dropTargetCampusId: number | null = null;
-  deleteError: string | null = null;
 
+  // Edit copy state
   private static readonly EMPTY_COPY_PAYLOAD: CreateSchoolItemCopyPayload = {
     itemId: 0,
     condition: '',
@@ -92,21 +111,9 @@ export class UpdateBookPage implements OnInit {
     schoolId: 0,
     campusId: 0,
   };
-
   editingCopyId: number | null = null;
   editedCopy: CreateSchoolItemCopyPayload = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
-
-  selectedTags: Tag[] = [];
-  selectedGenres: Genre[] = [];
-  selectedSubgenres: Subgenre[] = [];
-  selectedReadingLevel: Readinglevel | null = null;
-  selectedDidacticCategories: DidacticCategory[] = [];
-
-  allTags: Tag[] = [];
-  allGenres: Genre[] = [];
-  allSubgenres: Subgenre[] = [];
-  allReadingLevels: Readinglevel[] = [];
-  allDidacticCategories: DidacticCategory[] = [];
+  deleteError: string | null = null;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -124,30 +131,123 @@ export class UpdateBookPage implements OnInit {
     });
   }
 
-  onTagsChanged(tags: Tag[]): void {
-    this.selectedTags = tags;
+  ngOnInit(): void {
+    this.loadSelectionOptions();
+    this.loadBook();
+    this.loadSchool();
   }
 
-  onGenresChanged(genres: Genre[]): void {
-    this.selectedGenres = [...genres];
+  loadBook() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
+
+    this.api.getBookById(parseInt(id)).subscribe({
+      next: (data) => {
+        this.book = data;
+        this.tryFillForm();
+        this.loadCopies();
+      },
+      error: (err) => {
+        this.errorMessage = err;
+        this.error = true;
+      },
+    });
   }
 
-  onSubgenresChanged(subgenres: Subgenre[]): void {
-    this.selectedSubgenres = subgenres;
+  loadSelectionOptions() {
+    this.tagService.getTags().subscribe((tags) => {
+      this.allTags = tags;
+      this.tryFillForm();
+    });
+
+    this.genreService.getGenres().subscribe((genres) => {
+      this.allGenres = genres;
+      this.tryFillForm();
+    });
+
+    this.subgenreService.getSubgenres().subscribe((subs) => {
+      this.allSubgenres = subs;
+      this.tryFillForm();
+    });
+
+    this.readingLevelService.getAll().subscribe((levels) => {
+      this.allReadingLevels = levels;
+      this.tryFillForm();
+    });
+
+    this.didacticCategoryService.getDidacticCategories().subscribe((cats) => {
+      this.allDidacticCategories = cats;
+      this.tryFillForm();
+    });
   }
 
-  onReadingLevelChanged(level: Readinglevel | null): void {
-    this.selectedReadingLevel = level;
+  loadSchool() {
+    this.authService.currentUser$.subscribe((user) => {
+      if (!user?.email) return;
+
+      this.userService.getUser(user.email).subscribe((userData) => {
+        if (!userData.schoolName) return;
+
+        this.schoolService.getByName(userData.schoolName).subscribe((school) => {
+          this.school = school;
+          if (this.book) this.loadCopies();
+        });
+      });
+    });
   }
 
-  onDidacticCategoriesChanged(categories: DidacticCategory[]): void {
-    this.selectedDidacticCategories = [...categories];
+  tryFillForm() {
+    if (
+      this.book &&
+      this.allTags.length &&
+      this.allGenres.length &&
+      this.allSubgenres.length &&
+      this.allReadingLevels.length &&
+      this.allDidacticCategories.length
+    ) {
+      this.fillForm();
+      this.cdr.detectChanges();
+    }
   }
 
-  onIsDidacticChanged(): void {
-    this.isDidactic = this.form.get('isDidactic')?.value;
+  fillForm() {
+    if (!this.book) return;
+    this.selectedGenres = this.allGenres.filter((genre) =>
+      ((this.book!.genres as number[]) ?? []).includes(genre.id),
+    );
+
+    this.selectedSubgenres = this.allSubgenres.filter((sub) =>
+      ((this.book!.subgenres as number[]) ?? []).includes(sub.id),
+    );
+
+    this.selectedTags = this.allTags.filter((tag) =>
+      this.book!.tags.map((t) => t.id).includes(tag.id),
+    );
+
+    this.selectedDidacticCategories = this.allDidacticCategories.filter((cat) =>
+      ((this.book!.didacticCategories as number[]) ?? []).includes(cat.id),
+    );
+
+    this.selectedReadingLevel =
+      this.allReadingLevels.find((rl) => rl.id === (this.book!.readingLevel as number)) ?? null;
+
+    this.isDidactic = this.book.isDidactic ?? false;
+
+    this.form.patchValue({
+      title: this.book.title,
+      publisher: this.book.publisher,
+      author: this.book.author,
+      releaseYear: this.book.releaseYear,
+      language: this.book.language,
+      pageCount: this.book.pageCount,
+      cover: this.book.cover,
+      description: this.book.description,
+      isbn: this.book.isbn ?? '',
+      isDidactic: this.book.isDidactic ?? false,
+    });
   }
 
+  // Book form
   onSubmit(): void {
     this.incompleteForm = false;
 
@@ -184,31 +284,35 @@ export class UpdateBookPage implements OnInit {
     });
   }
 
+  onTagsChanged(tags: Tag[]): void {
+    this.selectedTags = tags;
+  }
+
+  onGenresChanged(genres: Genre[]): void {
+    this.selectedGenres = [...genres];
+  }
+
+  onSubgenresChanged(subgenres: Subgenre[]): void {
+    this.selectedSubgenres = subgenres;
+  }
+
+  onReadingLevelChanged(level: Readinglevel | null): void {
+    this.selectedReadingLevel = level;
+  }
+
+  onDidacticCategoriesChanged(categories: DidacticCategory[]): void {
+    this.selectedDidacticCategories = [...categories];
+  }
+
+  onIsDidacticChanged(): void {
+    this.isDidactic = this.form.get('isDidactic')?.value;
+  }
+
   backToList() {
     this.router.navigate(['/books']);
   }
 
-  ngOnInit(): void {
-    this.loadLookups();
-    this.loadData();
-    this.loadSchool();
-  }
-
-  loadSchool() {
-    this.authService.currentUser$.subscribe((user) => {
-      if (!user?.email) return;
-
-      this.userService.getUser(user.email).subscribe((userData) => {
-        if (!userData.schoolName) return;
-
-        this.schoolService.getByName(userData.schoolName).subscribe((school) => {
-          this.school = school;
-          if (this.book) this.loadCopies();
-        });
-      });
-    });
-  }
-
+  // Copy list
   loadCopies() {
     if (!this.book || !this.school?.id) return;
     this.api.getCopiesByBookId(this.book.id, this.school.id).subscribe({
@@ -245,61 +349,43 @@ export class UpdateBookPage implements OnInit {
     return groups;
   }
 
-  onDragStart(event: DragEvent, copyId: number) {
-    this.draggedCopyId = copyId;
-    event.dataTransfer!.effectAllowed = 'move';
-  }
-
-  onDragOver(event: DragEvent, campusId: number) {
-    event.preventDefault();
-    event.dataTransfer!.dropEffect = 'move';
-    this.dropTargetCampusId = campusId;
-  }
-
-  onDragLeave(event: DragEvent, campusId: number) {
-    if (this.dropTargetCampusId === campusId) {
-      this.dropTargetCampusId = null;
-    }
-  }
-
-  onDragDrop(event: DragEvent, targetCampusId: number) {
-    event.preventDefault();
-    this.dropTargetCampusId = null;
+  // Edit copy
+  startEdit(copy: SchoolItemCopy) {
     this.deleteError = null;
-    if (this.draggedCopyId == null) return;
-
-    const copy = this.copies.find((c) => c.id === this.draggedCopyId);
-    if (!copy) return;
-
-    const currentCampusId = copy.campus ? copy.campus.id : 0;
-    if (currentCampusId === targetCampusId) {
-      this.draggedCopyId = null;
-      return;
-    }
-
-    const payload: CreateSchoolItemCopyPayload = {
+    this.editingCopyId = copy.id!;
+    this.editedCopy = {
       itemId: copy.itemId,
       condition: copy.condition,
       copy_status: copy.copy_status,
       featured: copy.featured,
       schoolId: copy.schoolId,
-      campusId: targetCampusId,
+      campusId: copy.campus ? copy.campus.id : 0,
     };
+  }
 
-    this.api.updateCopy(payload, copy.id).subscribe({
-      next: () => {
-        this.loadCopies();
+  saveEdit() {
+    this.deleteError = null;
+    if (!this.book) return;
+
+    this.api.updateCopy(this.editedCopy, this.editingCopyId!).subscribe({
+      next: (updatedCopy) => {
+        const index = this.copies.findIndex((c) => c.id === this.editingCopyId);
+        if (index > -1) {
+          this.copies[index] = updatedCopy;
+        }
+        this.editingCopyId = null;
+        this.editedCopy = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
+        this.cdr.detectChanges();
       },
     });
-
-    this.draggedCopyId = null;
   }
 
-  onDragEnd() {
-    this.draggedCopyId = null;
-    this.dropTargetCampusId = null;
+  cancelEdit() {
+    this.editingCopyId = null;
+    this.editedCopy = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
   }
 
+  // Add or delete copy
   showAddCopyForm() {
     this.addingCopy = true;
     this.campusGroups = [
@@ -363,133 +449,59 @@ export class UpdateBookPage implements OnInit {
     });
   }
 
-  startEdit(copy: SchoolItemCopy) {
+  // Drag & drop
+  onDragStart(event: DragEvent, copyId: number) {
+    this.draggedCopyId = copyId;
+    event.dataTransfer!.effectAllowed = 'move';
+  }
+
+  onDragOver(event: DragEvent, campusId: number) {
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+    this.dropTargetCampusId = campusId;
+  }
+
+  onDragLeave(event: DragEvent, campusId: number) {
+    if (this.dropTargetCampusId === campusId) {
+      this.dropTargetCampusId = null;
+    }
+  }
+
+  onDragDrop(event: DragEvent, targetCampusId: number) {
+    event.preventDefault();
+    this.dropTargetCampusId = null;
     this.deleteError = null;
-    this.editingCopyId = copy.id!;
-    this.editedCopy = {
+    if (this.draggedCopyId == null) return;
+
+    const copy = this.copies.find((c) => c.id === this.draggedCopyId);
+    if (!copy) return;
+
+    const currentCampusId = copy.campus ? copy.campus.id : 0;
+    if (currentCampusId === targetCampusId) {
+      this.draggedCopyId = null;
+      return;
+    }
+
+    const payload: CreateSchoolItemCopyPayload = {
       itemId: copy.itemId,
       condition: copy.condition,
       copy_status: copy.copy_status,
       featured: copy.featured,
       schoolId: copy.schoolId,
-      campusId: copy.campus ? copy.campus.id : 0,
+      campusId: targetCampusId,
     };
-  }
 
-  cancelEdit() {
-    this.editingCopyId = null;
-    this.editedCopy = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
-  }
-
-  saveEdit() {
-    this.deleteError = null;
-    if (!this.book) return;
-
-    this.api.updateCopy(this.editedCopy, this.editingCopyId!).subscribe({
-      next: (updatedCopy) => {
-        const index = this.copies.findIndex((c) => c.id === this.editingCopyId);
-        if (index > -1) {
-          this.copies[index] = updatedCopy;
-        }
-        this.editingCopyId = null;
-        this.editedCopy = { ...UpdateBookPage.EMPTY_COPY_PAYLOAD };
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  loadLookups() {
-    this.tagService.getTags().subscribe((tags) => {
-      this.allTags = tags;
-      this.tryFillForm();
-    });
-
-    this.genreService.getGenres().subscribe((genres) => {
-      this.allGenres = genres;
-      this.tryFillForm();
-    });
-
-    this.subgenreService.getSubgenres().subscribe((subs) => {
-      this.allSubgenres = subs;
-      this.tryFillForm();
-    });
-
-    this.readingLevelService.getAll().subscribe((levels) => {
-      this.allReadingLevels = levels;
-      this.tryFillForm();
-    });
-
-    this.didacticCategoryService.getDidacticCategories().subscribe((cats) => {
-      this.allDidacticCategories = cats;
-      this.tryFillForm();
-    });
-  }
-
-  loadData() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) return;
-
-    this.api.getBookById(parseInt(id)).subscribe({
-      next: (data) => {
-        this.book = data;
-        this.tryFillForm();
+    this.api.updateCopy(payload, copy.id).subscribe({
+      next: () => {
         this.loadCopies();
       },
-      error: (err) => {
-        this.errorMessage = err;
-        this.error = true;
-      },
     });
+
+    this.draggedCopyId = null;
   }
 
-  tryFillForm() {
-    if (
-      this.book &&
-      this.allTags.length &&
-      this.allGenres.length &&
-      this.allSubgenres.length &&
-      this.allReadingLevels.length &&
-      this.allDidacticCategories.length
-    ) {
-      this.fillForm();
-      this.cdr.detectChanges();
-    }
-  }
-
-  fillForm() {
-    if (!this.book) return;
-    this.selectedGenres = this.allGenres.filter((genre) =>
-      ((this.book!.genres as number[]) ?? []).includes(genre.id),
-    );
-
-    this.selectedSubgenres = this.allSubgenres.filter((sub) =>
-      ((this.book!.subgenres as number[]) ?? []).includes(sub.id),
-    );
-
-    this.selectedTags = this.allTags.filter((tag) =>
-      this.book!.tags.map((t) => t.id).includes(tag.id),
-    );
-
-    this.selectedDidacticCategories = this.allDidacticCategories.filter((cat) =>
-      ((this.book!.didacticCategories as number[]) ?? []).includes(cat.id),
-    );
-
-    this.selectedReadingLevel =
-      this.allReadingLevels.find((rl) => rl.id === (this.book!.readingLevel as number)) ?? null;
-
-    this.isDidactic = this.book.isDidactic ?? false;
-
-    this.form.patchValue({
-      title: this.book.title,
-      publisher: this.book.publisher,
-      author: this.book.author,
-      releaseYear: this.book.releaseYear,
-      language: this.book.language,
-      pageCount: this.book.pageCount,
-      cover: this.book.cover,
-      description: this.book.description,
-      isbn: this.book.isbn ?? '',
-      isDidactic: this.book.isDidactic ?? false,
-    });
+  onDragEnd() {
+    this.draggedCopyId = null;
+    this.dropTargetCampusId = null;
   }
 }

@@ -5,7 +5,7 @@
       <p id="warning">
         Er was een probleem met het ophalen van de boekgegevens. Error: {{ errorMessage }}
       </p>
-      <button class="secondary-btn" (click)="loadData()">Opnieuw proberen</button>
+      <button class="secondary-btn" (click)="loadBook()">Opnieuw proberen</button>
     </div>
   }
 
@@ -193,7 +193,14 @@
                         <td>{{ copy.copy_status }}</td>
                         <td>{{ copy.barcode }}</td>
                         <td class="copy-actions">
-                          <button type="button" (click)="router.navigate(['/books', book!.id, 'barcodes'], { queryParams: { preselect: copy.id } })">
+                          <button
+                            type="button"
+                            (click)="
+                              router.navigate(['/books', book!.id, 'barcodes'], {
+                                queryParams: { preselect: copy.id },
+                              })
+                            "
+                          >
                             Barcode
                           </button>
                           <button type="button" class="EditButton" (click)="startEdit(copy)">

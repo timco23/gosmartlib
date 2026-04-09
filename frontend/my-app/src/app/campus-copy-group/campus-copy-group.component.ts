@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Campus, CampusCopyGroup } from '../../../types/types';
+import { Campus, CampusCopyGroup } from '../../types/types';
 
 @Component({
   selector: 'app-campus-copy-group',

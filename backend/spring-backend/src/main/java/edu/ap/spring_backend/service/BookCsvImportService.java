@@ -250,6 +250,7 @@ public class BookCsvImportService {
     }
 
     /**
+     * Should be delegated to its own service.
      * Fetches book metadata from the Google Books API for the given ISBN.
      * Returns null if the API call fails or returns no results.
      */
@@ -268,7 +269,7 @@ public class BookCsvImportService {
                 return googleResponse.items().get(0).volumeInfo();
             }
         } catch (Exception ignored) {
-            // API failure — caller proceeds with defaults
+            // proceed with default values
         }
         return null;
     }
