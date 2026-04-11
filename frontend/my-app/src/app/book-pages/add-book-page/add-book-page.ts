@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import {
   FormBuilder,
   FormGroup,
@@ -29,6 +29,10 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
+import { GenreService } from '../../services/genre.service';
+import { SubgenreService } from '../../services/subgenre.service';
+import { ReadingLevelService } from '../../services/reading-level.service';
+import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
@@ -61,6 +65,10 @@ export class AddBookPage implements OnInit {
   authService = inject(AuthService);
   userService = inject(UserService);
   schoolService = inject(SchoolService);
+  genreService = inject(GenreService);
+  subgenreService = inject(SubgenreService);
+  readingLevelService = inject(ReadingLevelService);
+  didacticCategoryService = inject(DidacticCategoryService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   // Book form state
@@ -259,6 +267,32 @@ export class AddBookPage implements OnInit {
             cover: data.cover,
             reviewScore: data.reviewScore,
             reviewCount: data.reviewCount,
+            isDidactic: data.isDidactic,
+          });
+
+          this.selectedTags = data.tags;
+
+          forkJoin({
+            genres: this.genreService.getGenres(),
+            readingLevels: this.readingLevelService.getAll(),
+            didacticCategories: this.didacticCategoryService.getDidacticCategories(),
+          }).subscribe(({ genres, readingLevels, didacticCategories }) => {
+            this.selectedGenres = genres.filter((g) => data.genres.includes(g.id));
+            this.selectedReadingLevel = readingLevels.find((l) => l.id === data.readingLevel) ?? null;
+            this.selectedDidacticCategories = didacticCategories.filter((d) =>
+              data.didacticCategories.includes(d.id),
+            );
+
+            if (data.genres.length > 0) {
+              this.subgenreService.getSubgenresByGenres(data.genres).subscribe((subgenres) => {
+                this.selectedSubgenres = subgenres.filter((s) => data.subgenres.includes(s.id));
+                this.cdr.detectChanges();
+              });
+            } else {
+              this.selectedSubgenres = [];
+            }
+
+            this.cdr.detectChanges();
           });
         },
         error: (err) => {
@@ -288,6 +322,10 @@ export class AddBookPage implements OnInit {
         { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] },
       ];
       this.selectedTags = [];
+      this.selectedGenres = [];
+      this.selectedSubgenres = [];
+      this.selectedReadingLevel = null;
+      this.selectedDidacticCategories = [];
       this.cdr.detectChanges();
     }
   }

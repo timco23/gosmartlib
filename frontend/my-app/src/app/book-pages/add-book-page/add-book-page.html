@@ -201,34 +201,47 @@
                 formControlName="reviewCount"
               />
               <label>Tags</label>
-              <app-tag-selection-menu
-                [initialTags]="selectedTags"
-                (tagsChanged)="onTagsChanged($event)"
-              />
+              <div [class.selection-readonly]="isReadOnly">
+                <app-tag-selection-menu
+                  [initialTags]="selectedTags"
+                  (tagsChanged)="onTagsChanged($event)"
+                />
+              </div>
               <label>Genres</label>
-              <app-genre-selection-menu
-                [initialGenres]="selectedGenres"
-                (genresChanged)="onGenresChanged($event)"
-              />
+              <div [class.selection-readonly]="isReadOnly">
+                <app-genre-selection-menu
+                  [initialGenres]="selectedGenres"
+                  (genresChanged)="onGenresChanged($event)"
+                />
+              </div>
 
               <label>Subgenres</label>
-              <app-subgenre-selection-menu
-                [initialSubgenres]="selectedSubgenres"
-                [genreIds]="selectedGenres"
-                (subgenresChanged)="onSubgenresChanged($event)"
-              />
+              <div [class.selection-readonly]="isReadOnly">
+                <app-subgenre-selection-menu
+                  [initialSubgenres]="selectedSubgenres"
+                  [genreIds]="selectedGenres"
+                  (subgenresChanged)="onSubgenresChanged($event)"
+                />
+              </div>
               <label>Leesniveau</label>
-              <app-reading-level (selectedReadingLevel)="onReadingLevelChanged($event)" />
+              <div [class.selection-readonly]="isReadOnly">
+                <app-reading-level
+                  [initialReadingLevel]="selectedReadingLevel"
+                  (selectedReadingLevel)="onReadingLevelChanged($event)"
+                />
+              </div>
               <label>
-                <input type="checkbox" formControlName="isDidactic" /> Didactisch boek
+                <input type="checkbox" formControlName="isDidactic" [attr.disabled]="isReadOnly ? true : null" /> Didactisch boek
               </label>
 
               @if (form.get('isDidactic')?.value) {
                 <label>Didactische categorieën</label>
-                <app-didactic-category-selection-menu
-                  [initialCategories]="selectedDidacticCategories"
-                  (categoriesChanged)="onDidacticCategoriesChanged($event)"
-                />
+                <div [class.selection-readonly]="isReadOnly">
+                  <app-didactic-category-selection-menu
+                    [initialCategories]="selectedDidacticCategories"
+                    (categoriesChanged)="onDidacticCategoriesChanged($event)"
+                  />
+                </div>
               }
               <h3>Exemplaren ({{ getTotalCopyCount() }})</h3>
 

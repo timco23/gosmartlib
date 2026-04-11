@@ -88,6 +88,10 @@ textarea.ng-invalid.ng-touched {
   background-color: lightgray;
 }
 
+.selection-readonly {
+  background-color: lightgray;
+}
+
 .primary-btn:hover {
   background: #afd44f;
 }

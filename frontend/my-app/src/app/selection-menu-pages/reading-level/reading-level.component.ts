@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, input, OnInit, Output, output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, input, OnInit, Output, output, SimpleChanges } from '@angular/core';
 import { ReadingLevelService } from '../../services/reading-level.service';
 import { Readinglevel } from '../../../types/types';
 
@@ -23,6 +23,12 @@ export class ReadingLevelSelectionMenuComponent {
         this.selected = this.initialReadingLevel;
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialReadingLevel']) {
+      this.selected = this.initialReadingLevel;
+    }
   }
 
   isSelected(level: Readinglevel): boolean {

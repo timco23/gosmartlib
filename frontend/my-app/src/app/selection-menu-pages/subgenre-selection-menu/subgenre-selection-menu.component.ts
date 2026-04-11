@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, SimpleChanges } from '@angular/core';
+import { Component, effect, inject, Input, input, output, SimpleChanges } from '@angular/core';
 import { Genre, Role, Subgenre, Tag } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { SubgenreService } from '../../services/subgenre.service';
@@ -16,7 +16,7 @@ export class SubgenreSelectionMenuComponent {
   role = Role;
 
   bookId = input<number | null>(null);
-  initialSubgenres = input<Subgenre[]>([]);
+  @Input() initialSubgenres: Subgenre[] = [];
   subgenresChanged = output<Subgenre[]>();
 
   subgenres: Subgenre[] = [];
@@ -48,6 +48,12 @@ export class SubgenreSelectionMenuComponent {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialSubgenres'] && this.initialSubgenres) {
+      this.selectedSubgenres = [...this.initialSubgenres];
+    }
+  }
+
   get filteredSubgenres(): Subgenre[] {
     return this.subgenres
       .filter((subgenre) => subgenre.name.toLowerCase().includes(this.filterInput.toLowerCase()))
@@ -56,18 +62,6 @@ export class SubgenreSelectionMenuComponent {
 
   get selectedSubgenreCount(): number {
     return this.selectedSubgenres.length;
-  }
-
-  private loadSubgenres(): void {
-    const genres = this.genreIds();
-    if (genres != null && genres.length > 0) {
-      const ids = genres.map(g => g.id);
-      this.subgenreService.getSubgenresByGenres(ids).subscribe((subgenres) => {
-        this.subgenres = subgenres;
-      });
-    } else {
-      this.subgenres = [];
-    }
   }
 
   isSubgenreSelected(subgenre: Subgenre): boolean {
