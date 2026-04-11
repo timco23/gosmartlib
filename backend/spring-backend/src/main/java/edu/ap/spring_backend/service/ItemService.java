@@ -130,6 +130,7 @@ public class ItemService {
             newItem.setSubgenres(subgenres);
             newItem.setReadingLevel(readingLevel);
             newItem.setDidacticCategories(didacticCategories);
+            newItem.setDidactic(itemDTO.isDidactic() || !didacticCategories.isEmpty());
 
             SchoolItemCopy savedCopy = schoolItemCopyRepository.save(copy);
             savedCopy.setBarcode(String.format("BC%06d", savedCopy.getId()));
@@ -170,7 +171,9 @@ public class ItemService {
         item.setGenres(getGenresById(itemDTO.genres()));
         item.setSubgenres(getSubgenresById(itemDTO.subgenres()));
         item.setReadingLevel(getReadingLevelById(itemDTO.readingLevel()));
-        item.setDidacticCategories(getDidacticCategoriesById(itemDTO.didacticCategories()));
+        Set<DidacticCategory> updatedDidacticCategories = getDidacticCategoriesById(itemDTO.didacticCategories());
+        item.setDidacticCategories(updatedDidacticCategories);
+        item.setDidactic(itemDTO.isDidactic() || !updatedDidacticCategories.isEmpty());
 
     itemRepository.save(item);
 

@@ -136,7 +136,12 @@
                 formControlName="auteur"
               />
               <label for="description">Beschrijving</label>
-              <textarea id="description" formControlName="beschrijving"></textarea>
+              <textarea
+                id="description"
+                formControlName="beschrijving"
+                [readonly]="isReadOnly"
+                [ngClass]="{ readOnly: isReadOnly }"
+              ></textarea>
               <label for="publisher">Uitgeverij (optioneel)</label>
               <input
                 [readonly]="isReadOnly"

@@ -62,7 +62,10 @@
             />
 
             <label>Leesniveau</label>
-            <app-reading-level (selectedReadingLevel)="onReadingLevelChanged($event)" />
+            <app-reading-level
+              [initialReadingLevel]="selectedReadingLevel"
+              (selectedReadingLevel)="onReadingLevelChanged($event)"
+            />
 
             <label>
               <input

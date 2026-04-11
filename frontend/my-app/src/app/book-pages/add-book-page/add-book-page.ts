@@ -193,7 +193,7 @@ export class AddBookPage implements OnInit {
       subgenres: this.selectedSubgenres.map((s) => s.id),
       readingLevel: this.selectedReadingLevel?.id ?? null,
       didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
-      isDidactic: raw.isDidactic,
+      isDidactic: raw.isDidactic || this.selectedDidacticCategories.length > 0,
       description: raw.beschrijving,
       featured: false,
       itemId: parseInt(raw.itemId),
@@ -258,6 +258,7 @@ export class AddBookPage implements OnInit {
         next: (data) => {
           this.form.patchValue({
             titel: data.title,
+            beschrijving: data.description,
             uitgeverij: data.publisher,
             auteur: data.author,
             isbn: data.isbn,

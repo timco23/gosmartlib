@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   inject,
@@ -20,6 +21,7 @@ import { Genre, Role } from '../../../types/types';
 })
 export class GenreSelectionMenuComponent {
   private genreService = inject(GenreService);
+  private cdr = inject(ChangeDetectorRef);
   authService = inject(AuthService);
   role = Role;
 
@@ -52,6 +54,7 @@ export class GenreSelectionMenuComponent {
     this.genreService.getGenres().subscribe((genres) => {
       this.genres = genres;
       this.selectedGenres = [...this.initialGenres];
+      this.cdr.detectChanges();
     });
   }
 

@@ -265,7 +265,7 @@ export class UpdateBookPage implements OnInit {
       subgenres: this.selectedSubgenres.map((s) => s.id),
       readingLevel: this.selectedReadingLevel?.id ?? null,
       didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
-      isDidactic: raw.isDidactic,
+      isDidactic: raw.isDidactic || this.selectedDidacticCategories.length > 0,
       description: raw.description,
       isbn: raw.isbn,
       title: raw.title,

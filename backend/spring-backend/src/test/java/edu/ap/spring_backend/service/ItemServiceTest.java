@@ -285,6 +285,75 @@ class ItemServiceTest {
         assertThrows(EntityNotFoundException.class, () -> itemService.addItem(dto));
     }
 
+    @Test
+    void givenIsDidacticTrue_whenAddItem_thenIsDidacticSaved() {
+        // Given
+        CreateItemDTO dto = new CreateItemDTO(
+                "New Didactic Book", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
+                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+                List.of(), List.of(), null, List.of(), true // isDidactic = true, no categories
+        );
+        SchoolItemCopy savedCopy = new SchoolItemCopy();
+        savedCopy.setId(1);
+
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
+        when(itemRepository.existsByTitle(dto.title())).thenReturn(false);
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
+        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
+            Item saved = invocation.getArgument(0);
+            saved.setId(1L);
+            return saved;
+        });
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
+
+        // When
+        ItemDTO result = itemService.addItem(dto);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isDidactic());
+    }
+
+    @Test
+    void givenDidacticCategoriesNonEmpty_whenAddItem_thenIsDidacticForcedTrue() {
+        // Given
+        DidacticCategory cat = new DidacticCategory();
+        cat.setId(1L);
+        cat.setName("Test Category");
+
+        CreateItemDTO dto = new CreateItemDTO(
+                "New Didactic Book", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
+                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
+                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
+                List.of(), List.of(), null, List.of(1L), false // isDidactic = false, but categories present
+        );
+        SchoolItemCopy savedCopy = new SchoolItemCopy();
+        savedCopy.setId(1);
+
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
+        when(itemRepository.existsByTitle(dto.title())).thenReturn(false);
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(didacticCategoryRepository.findById(1L)).thenReturn(Optional.of(cat));
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
+        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
+            Item saved = invocation.getArgument(0);
+            saved.setId(1L);
+            return saved;
+        });
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
+
+        // When
+        ItemDTO result = itemService.addItem(dto);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isDidactic());
+    }
+
     // ---------------- deleteItem ----------------
 
     @Test
@@ -357,6 +426,49 @@ class ItemServiceTest {
         assertNotNull(result);
         assertEquals("Updated Title", result.title());
         verify(itemRepository).save(any(Item.class));
+    }
+
+    @Test
+    void givenIsDidacticTrue_whenUpdateItem_thenIsDidacticSaved() {
+        // Given
+        UpdateItemDTO dto = new UpdateItemDTO(
+                "Updated Title", "Publisher", "Author", 2022, "English", 300, "cover.jpg",
+                List.of(1L), "Description", "ISBN",
+                List.of(), List.of(), null, List.of(), true // isDidactic = true, no categories
+        );
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+
+        // When
+        ItemDTO result = itemService.updateItem(1L, dto);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isDidactic());
+    }
+
+    @Test
+    void givenDidacticCategoriesNonEmpty_whenUpdateItem_thenIsDidacticForcedTrue() {
+        // Given
+        DidacticCategory cat = new DidacticCategory();
+        cat.setId(1L);
+        cat.setName("Test Category");
+
+        UpdateItemDTO dto = new UpdateItemDTO(
+                "Updated Title", "Publisher", "Author", 2022, "English", 300, "cover.jpg",
+                List.of(1L), "Description", "ISBN",
+                List.of(), List.of(), null, List.of(1L), false // isDidactic = false, but categories present
+        );
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(didacticCategoryRepository.findById(1L)).thenReturn(Optional.of(cat));
+
+        // When
+        ItemDTO result = itemService.updateItem(1L, dto);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isDidactic());
     }
 
     @Test
