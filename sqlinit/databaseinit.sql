@@ -395,6 +395,24 @@ CREATE TABLE IF NOT EXISTS reading_list_item (
     FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS collection (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    collection_description TEXT NULL,
+    school_id BIGINT NULL,
+    featured boolean,
+    globally_featured boolean,
+    foreign key (school_id) references school(id) on delete cascade
+);
+
+CREATE TABLE IF NOT EXISTS collection_item (
+	collection_id BIGINT,
+    item_id BIGINT NOT NULL,
+    PRIMARY KEY (collection_id, item_id),
+    FOREIGN KEY (collection_id) REFERENCES collection(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
+);
+
 -- uitleningen van schoolitems aan gebruikers, met datum van uitlening en terugkeer, en status of het item is teruggebracht of niet
 CREATE TABLE IF NOT EXISTS lending (
     id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
