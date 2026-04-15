@@ -7,12 +7,13 @@ import { SchoolService } from '../../services/school.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { LendingService } from '../../services/lending.service';
+import { BookSelectorPopupComponent } from '../../book-pages/book-selector-popup-component/book-selector-popup-component';
 
 @Component({
   selector: 'app-lend-book',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, BookSelectorPopupComponent],
   templateUrl: './lend-book.component.html',
-  styleUrl: './lend-book.component.css'
+  styleUrl: './lend-book.component.css',
 })
 export class LendBookComponent {
   public currentSchoolCopy: SchoolItemCopy | null = null;
@@ -27,6 +28,28 @@ export class LendBookComponent {
   public bookSelected: boolean = false;
   public barcode: string = '';
 
+  isBookPopupOpen = false;
+  selectedBookId: string | number | null = null;
+  selectedBook: any | null = null;
+
+  readonly bookId = (b: any) => b?.id ?? b?.bookId;
+  readonly bookTitle = (b: any) => b?.title ?? b?.bookTitle ?? 'Onbekend boek';
+  readonly bookMeta = (b: any) => [b?.author ?? b?.authorName, b?.isbn].filter(Boolean).join(' • ');
+
+  openBookPopup(): void {
+    this.isBookPopupOpen = true;
+  }
+  closeBookPopup(): void {
+    this.isBookPopupOpen = false;
+  }
+
+  onBookSelected(book: any): void {
+    this.selectedBook = book;
+    this.selectedBookId = this.bookId(book);
+    // this.lendForm.patchValue({ bookId: this.selectedBookId });
+    this.closeBookPopup();
+  }
+
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private schoolService = inject(SchoolService);
   private authService = inject(AuthService);
@@ -34,7 +57,7 @@ export class LendBookComponent {
   private lendingService = inject(LendingService);
   private router = inject(Router);
 
-  constructor(private bookService: BookService) { }
+  constructor(private bookService: BookService) {}
 
   public ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
@@ -51,34 +74,35 @@ export class LendBookComponent {
                   next: (users) => {
                     this.users = users;
                     this.cdr.detectChanges();
-                  }
+                  },
                 });
 
                 this.bookService.getBooks().subscribe({
                   next: (books) => {
-                    const bookChecks = books.map(book =>
-                      this.bookService.getCopiesByBookId(book.id, schoolId).toPromise()
-                        .then(copies => {
+                    const bookChecks = books.map((book) =>
+                      this.bookService
+                        .getCopiesByBookId(book.id, schoolId)
+                        .toPromise()
+                        .then((copies) => {
                           return {
                             book,
-                            hasAvailable: copies?.some(c => c.copy_status === 'BESCHIKBAAR') ?? false
+                            hasAvailable:
+                              copies?.some((c) => c.copy_status === 'BESCHIKBAAR') ?? false,
                           };
-                        })
+                        }),
                     );
 
-                    Promise.all(bookChecks).then(results => {
-                      console.log('available books:', results.filter(r => r.hasAvailable).length);
-                      this.books = results
-                        .filter(r => r.hasAvailable)
-                        .map(r => r.book);
+                    Promise.all(bookChecks).then((results) => {
+                      console.log('available books:', results.filter((r) => r.hasAvailable).length);
+                      this.books = results.filter((r) => r.hasAvailable).map((r) => r.book);
                       this.cdr.detectChanges();
                     });
-                  }
+                  },
                 });
-              }
+              },
             });
           }
-        }
+        },
       });
     });
   }
@@ -110,17 +134,16 @@ export class LendBookComponent {
           error: () => {
             this.currentBook = null;
             this.cdr.detectChanges();
-          }
+          },
         });
       },
       error: () => {
         this.currentSchoolCopy = null;
         this.currentBook = null;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
-
 
   onBookSelect(event: Event): void {
     const id = (event.target as HTMLSelectElement).value;
@@ -135,7 +158,7 @@ export class LendBookComponent {
     }
     this.bookSelected = true;
 
-    const selected = this.books.find(b => b.id === +id);
+    const selected = this.books.find((b) => b.id === +id);
     this.currentBook = selected ?? null;
     this.currentSchoolCopy = null;
     this.currentCopies = [];
@@ -143,13 +166,13 @@ export class LendBookComponent {
     if (selected && this.school && selected.id !== undefined && this.school.id !== undefined) {
       this.bookService.getCopiesByBookId(selected.id, this.school.id).subscribe({
         next: (copies) => {
-          this.currentCopies = copies.filter(c => c.copy_status === 'BESCHIKBAAR');
+          this.currentCopies = copies.filter((c) => c.copy_status === 'BESCHIKBAAR');
           this.cdr.detectChanges();
         },
         error: () => {
           this.currentCopies = [];
           this.cdr.detectChanges();
-        }
+        },
       });
     }
     this.cdr.detectChanges();
@@ -163,7 +186,7 @@ export class LendBookComponent {
       return;
     }
 
-    this.currentSchoolCopy = this.currentCopies.find(c => c.barcode === barcode) ?? null;
+    this.currentSchoolCopy = this.currentCopies.find((c) => c.barcode === barcode) ?? null;
     this.cdr.detectChanges();
   }
 
@@ -174,7 +197,7 @@ export class LendBookComponent {
       this.cdr.detectChanges();
       return;
     }
-    this.currentUser = this.users.find(u => u.id === +userId) ?? null;
+    this.currentUser = this.users.find((u) => u.id === +userId) ?? null;
     this.cdr.detectChanges();
   }
 
@@ -186,12 +209,14 @@ export class LendBookComponent {
       copyBarcode: this.currentSchoolCopy.barcode ?? '',
       schoolId: this.school.id ?? -1,
       lendingDate: new Date().toISOString().split('T')[0],
-      returnDate: new Date(Date.now() + (this.school.lendingPeriodDays) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      returnDate: new Date(Date.now() + this.school.lendingPeriodDays * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0],
     };
 
-    console.log("user: ", this.currentUser);
-    console.log("aantal toegelaten leningen: ", this.school.maxLendsStudent);
-    console.log("aantal leningen gebruiker: ", this.currentUser.items_borrowed);
+    console.log('user: ', this.currentUser);
+    console.log('aantal toegelaten leningen: ', this.school.maxLendsStudent);
+    console.log('aantal leningen gebruiker: ', this.currentUser.items_borrowed);
 
     if (this.currentUser.items_borrowed < this.school.maxLendsStudent) {
       this.lendingService.createLending(request).subscribe({
@@ -203,7 +228,7 @@ export class LendBookComponent {
             error: (err) => {
               console.error('Error updating copy status:', err);
               alert('Lening aanmaken mislukt, probeer later opnieuw.');
-            }
+            },
           });
 
           this.userService.addBorrowedItem(this.currentUser!.id ?? -1).subscribe({
@@ -214,12 +239,11 @@ export class LendBookComponent {
             error: (err) => {
               console.error('Error creating lending:', err);
               alert('Lening aanmaken mislukt, probeer later opnieuw.');
-            }
+            },
           });
-        }
+        },
       });
-    }
-    else {
+    } else {
       alert('Deze gebruiker leent al het maximum aantal boeken uit.');
     }
   }

@@ -326,3 +326,13 @@ export interface BarcodePrintItem {
   selected: boolean;
   imageUrl: string | null;
 }
+
+export interface BookSelectorItem {
+  id?: string | number;
+  bookId?: string | number;
+  title?: string;
+  bookTitle?: string;
+  author?: string;
+  authorName?: string;
+  isbn?: string;
+}

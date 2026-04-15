@@ -40,6 +40,7 @@ import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/r
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { BookImportEnrichmentComponent } from '../book-import-enrichment/book-import-enrichment.component';
 import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
+import { BookSelectorPopupComponent } from '../book-selector-popup-component/book-selector-popup-component';
 
 @Component({
   selector: 'app-add-book-page',
@@ -55,6 +56,7 @@ import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-gr
     DidacticCategorySelectionMenuComponent,
     BookImportEnrichmentComponent,
     CampusCopyGroupComponent,
+    BookSelectorPopupComponent,
   ],
   templateUrl: './add-book-page.html',
   styleUrl: './add-book-page.css',
@@ -70,6 +72,15 @@ export class AddBookPage implements OnInit {
   readingLevelService = inject(ReadingLevelService);
   didacticCategoryService = inject(DidacticCategoryService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+  //Book selector
+  isBookPopupOpen = false;
+  selectedBookId: string | number | null = null;
+  selectedBook: any | null = null;
+
+  readonly bookId = (b: any) => b?.id ?? b?.bookId;
+  readonly bookTitle = (b: any) => b?.title ?? b?.bookTitle ?? 'Onbekend boek';
+  readonly bookMeta = (b: any) => [b?.author ?? b?.authorName, b?.isbn].filter(Boolean).join(' • ');
 
   // Book form state
   form: FormGroup;
@@ -279,7 +290,8 @@ export class AddBookPage implements OnInit {
             didacticCategories: this.didacticCategoryService.getDidacticCategories(),
           }).subscribe(({ genres, readingLevels, didacticCategories }) => {
             this.selectedGenres = genres.filter((g) => data.genres.includes(g.id));
-            this.selectedReadingLevel = readingLevels.find((l) => l.id === data.readingLevel) ?? null;
+            this.selectedReadingLevel =
+              readingLevels.find((l) => l.id === data.readingLevel) ?? null;
             this.selectedDidacticCategories = didacticCategories.filter((d) =>
               data.didacticCategories.includes(d.id),
             );
@@ -519,5 +531,28 @@ export class AddBookPage implements OnInit {
     this.router.navigate(['/barcodes'], {
       queryParams: { copyIds: this.importResult!.copyIds },
     });
+  }
+
+  //Book selector methods
+  openBookPopup(): void {
+    this.isBookPopupOpen = true;
+  }
+  closeBookPopup(): void {
+    this.isBookPopupOpen = false;
+  }
+
+  onBookSelected(book: any): void {
+    this.selectedBook = book;
+    this.selectedBookId = this.bookId(book);
+
+    this.form.patchValue({ itemId: String(this.selectedBookId ?? '0') });
+    this.loadBookDetails();
+
+    this.closeBookPopup();
+  }
+
+  clearSelectedBook(): void {
+    this.selectedBook = null;
+    this.selectedBookId = null;
   }
 }

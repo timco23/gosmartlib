@@ -106,19 +106,38 @@
                   {{ missingFields.join(', ') }}
                 </p>
               }
-              <label for="itemId">Selecteer een boek (optioneel)</label>
-              <select id="itemId" (change)="loadBookDetails()" formControlName="itemId">
-                <option value="0">Geen</option>
-                @for (globalBook of globalBookList | async; track $index) {
-                  <option [value]="globalBook.id">{{ globalBook.title }}</option>
+
+              <div class="form-group optional-book-selector">
+                <label>Selecteer een boek (optioneel)</label>
+                <div class="optional-book-actions">
+                  <button type="button" class="secondary-btn" (click)="openBookPopup()">
+                    {{ selectedBook ? bookTitle(selectedBook) : 'Zoek en selecteer boek' }}
+                  </button>
+
+                  @if (selectedBook) {
+                    <button type="button" class="text-btn" (click)="clearSelectedBook()">
+                      Wissen
+                    </button>
+                  }
+                </div>
+
+                @if (selectedBook) {
+                  <small>{{ bookMeta(selectedBook) }}</small>
                 }
-              </select>
-              @if (error) {
-                <p id="warning">
-                  Er was een probleem met het ophalen van de boekgegevens. Error bericht:
-                  {{ errorMessage }}
-                </p>
-              }
+              </div>
+
+              <app-book-selector-popup-component
+                [isOpen]="isBookPopupOpen"
+                [books]="(globalBookList | async) ?? []"
+                [limit]="10"
+                [selectedId]="selectedBookId"
+                [getId]="bookId"
+                [getTitle]="bookTitle"
+                [getMeta]="bookMeta"
+                (close)="closeBookPopup()"
+                (bookSelected)="onBookSelected($event)"
+              ></app-book-selector-popup-component>
+
               <label for="title">Titel</label>
               <input
                 [readonly]="isReadOnly"
@@ -236,7 +255,12 @@
                 />
               </div>
               <label>
-                <input type="checkbox" formControlName="isDidactic" [attr.disabled]="isReadOnly ? true : null" /> Didactisch boek
+                <input
+                  type="checkbox"
+                  formControlName="isDidactic"
+                  [attr.disabled]="isReadOnly ? true : null"
+                />
+                Didactisch boek
               </label>
 
               @if (form.get('isDidactic')?.value) {
