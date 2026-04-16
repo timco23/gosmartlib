@@ -6,6 +6,7 @@ import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.*;
+import edu.ap.spring_backend.service.bookmetadata.BookMetadataService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,7 @@ class BookCsvImportServiceTest {
     @Mock private ItemRepository itemRepository;
     @Mock private SchoolItemCopyRepository schoolItemCopyRepository;
     @Mock private SchoolRepository schoolRepository;
+    @Mock private BookMetadataService bookMetadataService;
 
     @InjectMocks
     private BookCsvImportService service;
