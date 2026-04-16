@@ -31,6 +31,7 @@ export class GenreSelectionMenuComponent {
   @Output() genresChanged = new EventEmitter<Genre[]>();
 
   genres: Genre[] = [];
+  visibleGenres: Genre[] = [];
   filterInput: string = '';
   selectedGenres: Genre[] = [];
 
@@ -53,7 +54,10 @@ export class GenreSelectionMenuComponent {
   ngOnInit(): void {
     this.genreService.getGenres().subscribe((genres) => {
       this.genres = genres;
+      this.visibleGenres = genres;
       this.selectedGenres = [...this.initialGenres];
+      this.updateVisibleGenres();
+
       this.cdr.detectChanges();
     });
   }
@@ -68,6 +72,17 @@ export class GenreSelectionMenuComponent {
     } else {
       this.selectedGenres.push(genre);
     }
+    this.updateVisibleGenres();
     this.genresChanged.emit(this.selectedGenres);
+  }
+
+  private updateVisibleGenres(): void {
+    if (this.selectedGenres.some((g) => g.name === 'Fictie algemeen')) {
+      this.visibleGenres = this.filteredGenres.filter((g) => g.name !== 'Non-fictie algemeen');
+    } else if (this.selectedGenres.some((g) => g.name === 'Non-fictie algemeen')) {
+      this.visibleGenres = this.filteredGenres.filter((g) => g.name !== 'Fictie algemeen');
+    } else {
+      this.visibleGenres = this.filteredGenres;
+    }
   }
 }

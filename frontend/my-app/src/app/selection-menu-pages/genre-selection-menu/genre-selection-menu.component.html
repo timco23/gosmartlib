@@ -5,7 +5,7 @@
 <div class="genre-count">{{ selectedGenreCount }} genre(s) geselecteerd</div>
 
 <ul class="genre-list">
-  @for (genre of filteredGenres; track genre.id) {
+  @for (genre of visibleGenres; track genre.id) {
     @if((genre.name == "Pedagogisch" && authService.atLeastHasRole(role.LEERKRACHT)) || genre.name != "Pedagogisch") {
       <li class="genre-item">
       <label>
