@@ -261,6 +261,24 @@ export interface CreateReadingListPayload {
   itemIds: number[];
 }
 
+export interface Collection {
+  id: number;
+  title: string;
+  description: string;
+  featured: boolean;
+  globallyFeatured: boolean;
+  items: Book[];
+}
+
+export interface CreateCollectionPayload {
+  title: string;
+  description: string;
+  schoolId: number;
+  featured: boolean;
+  globallyFeatured: boolean;
+  itemIds: number[];
+}
+
 export interface Lending {
   id: number;
   borrowerName: string;

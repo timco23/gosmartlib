@@ -16,8 +16,8 @@ public class CollectionController {
         this.collectionService = collectionService;
     }
 
-    @GetMapping("/{schoolId}")
-    public ResponseEntity<List<CollectionDTO>> getAllReadingListBySchoolId(@PathVariable Long schoolId) {
+    @GetMapping("/school/{schoolId}")
+    public ResponseEntity<List<CollectionDTO>> getAllCollectionsBySchoolId(@PathVariable Long schoolId) {
         return ResponseEntity.ok(collectionService.findBySchoolId(schoolId));
     }
 
@@ -26,7 +26,7 @@ public class CollectionController {
         return ResponseEntity.ok(collectionService.findById(id));
     }
 
-    @GetMapping("/{schoolId}/featured")
+    @GetMapping("/school/{schoolId}/featured")
     public ResponseEntity<List<CollectionDTO>> getFeaturedCollectionsBySchoolId(@PathVariable Long schoolId) {
         return ResponseEntity.ok(collectionService.getFeaturedBySchoolId(schoolId));
     }
