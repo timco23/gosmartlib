@@ -1,9 +1,7 @@
 package edu.ap.spring_backend.service;
 
 import java.util.List;
-
 import org.springframework.stereotype.Service;
-
 import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
@@ -41,6 +39,13 @@ public class LendingService {
                 : user.getName();
     }
 
+    private Long getItemId(Lending lending) {
+        if (lending.getBook() == null || lending.getBook().getItem() == null) {
+            return null;
+        }
+        return lending.getBook().getItem().getId();
+    }
+
     public List<LendingDTO> getAll() {
         return lendingRepository.findAll().stream()
                 .map(lending -> new LendingDTO(
@@ -51,6 +56,7 @@ public class LendingService {
                                 : null,
                         lending.getBook().getItem().getTitle(),
                         lending.getBook().getItem().getAuthor(),
+                        getItemId(lending), // itemId
                         lending.getSchool().getId(),
                         lending.getLendingDate().toString(),
                         lending.getReturnDate().toString(),
@@ -85,6 +91,7 @@ public class LendingService {
                         : null,
                 saved.getBook().getItem().getTitle(),
                 saved.getBook().getItem().getAuthor(),
+                getItemId(saved), // itemId
                 saved.getSchool().getId(),
                 saved.getLendingDate().toString(),
                 saved.getReturnDate().toString(),
@@ -113,6 +120,7 @@ public class LendingService {
                         : null,
                 saved.getBook().getItem().getTitle(),
                 saved.getBook().getItem().getAuthor(),
+                getItemId(saved), // itemId
                 saved.getSchool().getId(),
                 saved.getLendingDate().toString(),
                 saved.getReturnDate().toString(),
@@ -138,6 +146,7 @@ public class LendingService {
                                 : null,
                         lending.getBook().getItem().getTitle(),
                         lending.getBook().getItem().getAuthor(),
+                        getItemId(lending), // itemId
                         lending.getSchool().getId(),
                         lending.getLendingDate().toString(),
                         lending.getReturnDate().toString(),
@@ -172,6 +181,7 @@ public class LendingService {
                         : null,
                 saved.getBook().getItem().getTitle(),
                 saved.getBook().getItem().getAuthor(),
+                getItemId(saved), // itemId
                 saved.getSchool().getId(),
                 saved.getLendingDate().toString(),
                 saved.getReturnDate().toString(),

@@ -221,3 +221,24 @@ textarea.ng-invalid.ng-touched {
 .add-group-btn:hover {
   background-color: #fde8ef;
 }
+
+.clear-selected-btn {
+  border: 1px solid #c9b8c3;
+  background: #fff;
+  color: #7a1f4a;
+  border-radius: 10px;
+  padding: 0.4rem 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.clear-selected-btn:hover {
+  background: #fdf3f8;
+  border-color: #a73a6d;
+  color: #5f1538;
+}
+
+.clear-selected-btn:active {
+  transform: translateY(1px);
+}

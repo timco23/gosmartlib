@@ -12,7 +12,7 @@ import { LendingService } from '../../services/lending.service';
   selector: 'app-return-book',
   imports: [FormsModule, RouterLink],
   templateUrl: './return-book.component.html',
-  styleUrl: './return-book.component.css'
+  styleUrl: './return-book.component.css',
 })
 export class ReturnBookComponent {
   public currentSchoolCopy: SchoolItemCopy | null = null;
@@ -35,7 +35,9 @@ export class ReturnBookComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  constructor(private bookService: BookService) { }
+  bookApi = inject(BookService);
+
+  constructor(private bookService: BookService) {}
 
   public ngOnInit(): void {
     this.cdr.detectChanges();
@@ -52,21 +54,21 @@ export class ReturnBookComponent {
                   next: (users) => {
                     this.users = users;
                     this.cdr.detectChanges();
-                  }
+                  },
                 });
-              }
+              },
             });
           }
-        }
+        },
       });
     });
 
     this.lendingService.getLendings().subscribe({
       next: (lendings) => {
-        this.lendings = lendings.filter(l => !l.returned);
+        this.lendings = lendings.filter((l) => !l.returned);
         this.cdr.detectChanges();
 
-        this.route.queryParams.subscribe(params => {
+        this.route.queryParams.subscribe((params) => {
           if (params['barcode']) {
             this.barcode = params['barcode'];
             this.onBarcodeChange(this.barcode);
@@ -76,7 +78,7 @@ export class ReturnBookComponent {
       error: () => {
         this.lendings = [];
         this.cdr.detectChanges();
-      }
+      },
     });
 
     this.bookService.getBooks().subscribe({
@@ -87,7 +89,7 @@ export class ReturnBookComponent {
       error: () => {
         this.books = [];
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -100,7 +102,7 @@ export class ReturnBookComponent {
       return;
     }
 
-    this.currentLending = this.lendings.find(l => l.copyBarcode === barcode) ?? null;
+    this.currentLending = this.lendings.find((l) => l.copyBarcode === barcode) ?? null;
 
     if (!this.currentLending) {
       this.currentBook = null;
@@ -128,14 +130,14 @@ export class ReturnBookComponent {
           error: () => {
             this.currentBook = null;
             this.cdr.detectChanges();
-          }
+          },
         });
       },
       error: () => {
         this.currentSchoolCopy = null;
         this.currentBook = null;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -153,7 +155,7 @@ export class ReturnBookComponent {
     }
 
     this.bookSelected = true;
-    this.currentLending = this.lendings.find(l => l.id === +lendingId) ?? null;
+    this.currentLending = this.lendings.find((l) => l.id === +lendingId) ?? null;
 
     if (this.currentLending?.copyBarcode) {
       this.barcode = this.currentLending.copyBarcode;
@@ -171,7 +173,7 @@ export class ReturnBookComponent {
       return;
     }
 
-    this.currentSchoolCopy = this.currentCopies.find(c => c.barcode === barcode) ?? null;
+    this.currentSchoolCopy = this.currentCopies.find((c) => c.barcode === barcode) ?? null;
     this.cdr.detectChanges();
   }
 
@@ -186,37 +188,48 @@ export class ReturnBookComponent {
       return;
     }
 
-    const bevestigd = confirm(`Bent u zeker dat ${this.currentLending.borrowerName} het boek "${this.currentBook?.title}" terugbrengt?`);
+    const bevestigd = confirm(
+      `Bent u zeker dat ${this.currentLending.borrowerName} het boek "${this.currentBook?.title}" terugbrengt?`,
+    );
     if (!bevestigd) return;
 
     this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
       next: () => {
         console.log('Copy status updated');
-        this.lendingService.updateLending(this.currentLending.id, { returned: true, dateReturned: new Date().toISOString() }).subscribe({
-          next: () => {
-            console.log('Lending updated');
+        this.lendingService
+          .updateLending(this.currentLending.id, {
+            returned: true,
+            dateReturned: new Date().toISOString(),
+          })
+          .subscribe({
+            next: () => {
+              console.log('Lending updated');
 
-            this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
-              next: () => {
-                console.log('User borrowed count updated');
-                this.router.navigate(['/lendings']);
-              },
-              error: (err) => {
-                console.error('Error updating user borrowed count:', err);
-              }
-            });
-
-          },
-          error: (err) => {
-            console.error('Error updating lending:', err);
-            alert('Boek retourneren mislukt, probeer later opnieuw.');
-          }
-        });
+              this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
+                next: () => {
+                  console.log('User borrowed count updated');
+                  this.router.navigate(['/lendings']);
+                },
+                error: (err) => {
+                  console.error('Error updating user borrowed count:', err);
+                },
+              });
+            },
+            error: (err) => {
+              console.error('Error updating lending:', err);
+              alert('Boek retourneren mislukt, probeer later opnieuw.');
+            },
+          });
       },
       error: (err) => {
         console.error('Error updating copy status:', err);
         alert('Boek retourneren mislukt, probeer later opnieuw.');
-      }
+      },
     });
+  }
+
+  coverSrcFromLending(lending: any): string {
+    const book = lending?.book ?? lending?.item ?? this.currentBook ?? null;
+    return this.bookApi.getBookCoverSrc(book) ?? '';
   }
 }

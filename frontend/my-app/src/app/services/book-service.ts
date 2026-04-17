@@ -94,6 +94,16 @@ export class BookService {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/search`, { params: { title: bookTitle } });
   }
 
+  getBookCoverUrl(bookId: number): string {
+    return `${this.apiBaseUrl}/books/${bookId}/cover`;
+  }
+
+  getBookCoverSrc(book: { id?: number | null } | null | undefined): string {
+    const id = Number(book?.id);
+    if (!Number.isFinite(id) || id <= 0) return '';
+    return `${this.apiBaseUrl}/books/${id}/cover`;
+  }
+
   addBook(newBook: CreateBookPayload): Observable<Book> {
     return this.http.post<Book>(`${this.apiBaseUrl}/books`, newBook);
   }

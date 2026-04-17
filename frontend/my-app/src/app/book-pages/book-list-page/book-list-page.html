@@ -200,8 +200,15 @@
             <li class="book-item">
               <!-- Cover image -->
               <div class="book-cover">
-                @if (book.cover) {
-                  <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                @if (book.id) {
+                  <img
+                    [src]="api.getBookCoverUrl(book.id)"
+                    [alt]="book.title"
+                    class="cover-img"
+                    loading="lazy"
+                  />
+                } @else {
+                  <div class="cover-placeholder">📖</div>
                 }
               </div>
               <div class="book-info">
