@@ -24,6 +24,9 @@ public class GoogleBooksProvider implements BookMetadataProvider {
     @Value("${book.metadata.google.enabled}")
     private boolean enabled;
 
+    @Value("${book.metadata.google.api-key}")
+    private String apiKey;
+
     public GoogleBooksProvider(RestTemplateBuilder builder) {
         this.restTemplate = builder.build();
     }
@@ -38,11 +41,12 @@ public class GoogleBooksProvider implements BookMetadataProvider {
     public Optional<BookMetadata> fetchByIsbn(String isbn) {
         try {
             throttle();
-            GoogleBooksResponse response = restTemplate.getForObject(BASE_URL + isbn, GoogleBooksResponse.class);
+            String url = BASE_URL + isbn + (apiKey.isBlank() ? "" : "&key=" + apiKey);
+            GoogleBooksResponse response = restTemplate.getForObject(url, GoogleBooksResponse.class);
             if (response != null && response.totalItems() > 0
                     && response.items() != null
                     && !response.items().isEmpty()) {
-                return Optional.of(toBookMetadata(response.items().get(0).volumeInfo()));
+                return Optional.of(toBookMetadata(response.items().getFirst().volumeInfo()));
             }
         } catch (Exception ignored) {}
         return Optional.empty();
