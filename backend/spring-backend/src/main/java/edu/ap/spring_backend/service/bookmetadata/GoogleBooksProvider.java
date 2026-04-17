@@ -48,7 +48,9 @@ public class GoogleBooksProvider implements BookMetadataProvider {
                     && !response.items().isEmpty()) {
                 return Optional.of(toBookMetadata(response.items().getFirst().volumeInfo()));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            return Optional.empty();
+        }
         return Optional.empty();
     }
 

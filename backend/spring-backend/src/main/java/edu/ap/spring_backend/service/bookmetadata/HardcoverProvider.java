@@ -70,8 +70,9 @@ public class HardcoverProvider implements BookMetadataProvider {
             }
 
             return Optional.of(toBookMetadata(response.data().editions().getFirst()));
-        } catch (Exception ignored) {}
-        return Optional.empty();
+        } catch (Exception e) {
+            return  Optional.empty();
+        }
     }
 
     /**

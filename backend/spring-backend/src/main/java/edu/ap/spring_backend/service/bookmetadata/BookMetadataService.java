@@ -36,7 +36,44 @@ public class BookMetadataService {
             }
         }
 
-        return hasAnyData(metadata) ? Optional.of(metadata) : Optional.empty();
+        if (!hasAnyData(metadata)) return Optional.empty();
+
+        // Normalize the language to one of: NEDERLANDS, ENGELS, FRANS, DUITS, ANDERE
+        metadata = new BookMetadata(
+                metadata.title(), metadata.authors(), metadata.description(),
+                normalizeLanguage(metadata.language()),
+                metadata.publisher(), metadata.pageCount(), metadata.releaseYear(), metadata.coverUrl()
+        );
+
+        return Optional.of(metadata);
+    }
+
+    /**
+     * Maps raw language values from external APIs to the backend's accepted constants
+     * Returns null when the input is null so the caller can fall back to a default.
+     */
+    private static String normalizeLanguage(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        String s = raw.toLowerCase().trim();
+
+        if (s.equals("nl") || s.equals("nld") || s.equals("dut")
+                || s.contains("dutch") || s.contains("flemish") || s.contains("nederlands")) {
+            return "NEDERLANDS";
+        }
+        if (s.equals("en") || s.equals("eng")
+                || s.contains("english")) {
+            return "ENGELS";
+        }
+        if (s.equals("fr") || s.equals("fre") || s.equals("fra")
+                || s.contains("french") || s.contains("français")) {
+            return "FRANS";
+        }
+        if (s.equals("de") || s.equals("ger") || s.equals("deu")
+                || s.contains("german") || s.contains("deutsch")) {
+            return "DUITS";
+        }
+
+        return "ANDERE";
     }
 
     private static boolean isComplete(BookMetadata m) {
