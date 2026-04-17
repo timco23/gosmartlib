@@ -24,6 +24,10 @@ APP_FRONTEND_BASE_URL=https://yourdomain.tech
 JWT_SECRET=your32characterlongsecrethere1234
 JWT_EXPIRES_MINUTES=15
 OAUTH_DEFAULT_SCHOOL_ID=1
+
+# External metadata APIs
+HARDCOVER_API_KEY=yourApiKey
+GOOGLE_BOOKS_API_KEY=yourApiKey
 ```
 
 ### 2. Start de applicatie (lokaal)
