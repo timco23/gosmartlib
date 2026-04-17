@@ -55,7 +55,15 @@
           </div>
 
           <div class="panel details-grid">
-            <div><span class="meta-label">Leesniveau:</span> {{ readingLevelName || '—' }}</div>
+            <div class="reading-level-row">
+              <span class="meta-label">Leesniveau:</span> {{ readingLevelName || '—' }}
+              @if (readingLevelDescription) {
+                <div class="tooltip-anchor">
+                  <span class="info-icon">i</span>
+                  <div class="tooltip-box">{{ readingLevelDescription }}</div>
+                </div>
+              }
+            </div>
             @if (authService.atLeastHasRole(role.LEERKRACHT)) {
               <div>
                 <span class="meta-label">Didactische categorieën:</span>
