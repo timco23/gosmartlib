@@ -40,7 +40,7 @@ public class BookMetadataService {
 
         // Normalize the language to one of: NEDERLANDS, ENGELS, FRANS, DUITS, ANDERE
         metadata = new BookMetadata(
-                metadata.title(), metadata.authors(), metadata.description(),
+                metadata.title(), metadata.authors(), stripCopyright(metadata.description()),
                 normalizeLanguage(metadata.language()),
                 metadata.publisher(), metadata.pageCount(), metadata.releaseYear(), metadata.coverUrl()
         );
@@ -74,6 +74,11 @@ public class BookMetadataService {
         }
 
         return "ANDERE";
+    }
+
+    private static String stripCopyright(String description) {
+        if (description == null) return null;
+        return description.replaceAll("(?is)\\s*copyright\\b.*", "").trim();
     }
 
     private static boolean isComplete(BookMetadata m) {
