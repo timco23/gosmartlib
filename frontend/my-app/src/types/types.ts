@@ -268,6 +268,7 @@ export interface Lending {
   borrowerId: number;
   bookTitle: string;
   bookAuthor: string;
+  itemId?: number | null;
   schoolId: number;
   lendingDate: string;
   returnDate: string;

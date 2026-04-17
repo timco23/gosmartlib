@@ -28,12 +28,12 @@ export class HomeComponent implements OnInit {
   error: string | null = null;
   scrollIndex = 0;
   school: School | null = null;
-  
+
   tagService = inject(TagService);
   allTags: Tag[] = [];
 
   ngOnInit() {
-    this.tagService.getTags().subscribe(tags => {
+    this.tagService.getTags().subscribe((tags) => {
       this.allTags = tags;
     });
 
@@ -74,9 +74,9 @@ export class HomeComponent implements OnInit {
   }
 
   mapTagObjects(tags: Tag[] | undefined): Tag[] {
-    return (tags ?? []).map(tag => {
+    return (tags ?? []).map((tag) => {
       // optioneel: vervang door object uit allTags voor volledige gegevens
-      return this.allTags.find(t => t.id === tag.id) ?? tag;
+      return this.allTags.find((t) => t.id === tag.id) ?? tag;
     });
   }
 
@@ -150,5 +150,10 @@ export class HomeComponent implements OnInit {
   private wrap(index: number): number {
     const length = this.featuredBooks.length;
     return ((index % length) + length) % length;
+  }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
   }
 }

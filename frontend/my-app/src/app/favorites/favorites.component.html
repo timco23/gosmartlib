@@ -6,8 +6,11 @@
       @for (book of books; track book.id) {
         <li class="book-item">
           <div class="book-cover">
-            @if (book.cover) {
-              <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+            @let cover = coverSrc(book);
+            @if (cover) {
+              <img class="cover-img" [src]="cover" [alt]="book.title" loading="lazy" />
+            } @else {
+              <div class="cover-placeholder">📖</div>
             }
           </div>
           <div class="book-info">
