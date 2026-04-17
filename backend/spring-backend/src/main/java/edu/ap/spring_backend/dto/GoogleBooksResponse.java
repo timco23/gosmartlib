@@ -20,6 +20,7 @@ public record GoogleBooksResponse(
             String publishedDate,
             String description,
             int pageCount,
+            String language,
             ImageLinks imageLinks) {
     }
 
