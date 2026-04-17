@@ -35,6 +35,7 @@ export interface Subgenre {
 export interface Readinglevel {
   id: number;
   name: string;
+  description: string;
 }
 
 export interface DidacticCategory {

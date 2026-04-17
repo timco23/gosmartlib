@@ -7,5 +7,8 @@ public record ReadingLevelDTO(
     int id,
 
     @JsonProperty("level")
-    String level
+    String level,
+
+    @JsonProperty("description")
+    String description
 ) {}
