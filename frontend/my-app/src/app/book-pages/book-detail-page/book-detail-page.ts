@@ -85,7 +85,7 @@ export class BookDetailPage implements OnInit {
         this.renderer.removeClass(document.body, 'no-scroll');
       }
     });
-  } 
+  }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
@@ -330,7 +330,7 @@ export class BookDetailPage implements OnInit {
         if (isFeatured) {
           this.showUnableToDelete.set(true);
           this.cdr.detectChanges();
-        } 
+        }
         else {
           this.readingListService.checkIfItemIsInReadingList(id).subscribe({
             next: (isInList) => {
@@ -360,6 +360,7 @@ export class BookDetailPage implements OnInit {
       next: (isInCollection) => {
         if (isInCollection) {
           this.showDeleteConfirmationForCollections.set(true);
+          this.showDeleteConfirmation.set(false)
           this.cdr.detectChanges();
         }
         else {
@@ -367,9 +368,9 @@ export class BookDetailPage implements OnInit {
         }
       },
       error: () => {
-              this.deleteError = true;
-              this.cdr.detectChanges();
-            }
+        this.deleteError = true;
+        this.cdr.detectChanges();
+      }
     })
   }
 
@@ -377,6 +378,7 @@ export class BookDetailPage implements OnInit {
     if (this.book) {
       this.executeDelete(this.book.id);
       this.showDeleteConfirmation.set(false);
+      this.showDeleteConfirmationForCollections.set(false)
     }
   }
 

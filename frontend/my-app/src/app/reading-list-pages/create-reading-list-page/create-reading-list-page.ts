@@ -109,20 +109,26 @@ export class CreateReadingListPage implements OnInit {
     this.loadingBooks = true;
     this.cdr.detectChanges();
     this.books = [];
-    for(const id of this.itemIds) {
-      this.bookService.getBookById(id).subscribe({
-        next: (book) => {
-          this.books.push(book)
-          if(this.books.length == this.itemIds.length) {
-                this.loadingBooks = false;
-                this.cdr.detectChanges();
+    if (this.itemIds.length < 1) {
+      this.loadingBooks = false;
+      this.cdr.detectChanges();
+    }
+    else {
+      for (const id of this.itemIds) {
+        this.bookService.getBookById(id).subscribe({
+          next: (book) => {
+            this.books.push(book)
+            if (this.books.length == this.itemIds.length) {
+              this.loadingBooks = false;
+              this.cdr.detectChanges();
+            }
+          },
+          error: () => {
+            this.getBookError = true;
+            this.cdr.detectChanges();
           }
-        },
-        error: () => {
-          this.getBookError = true;
-          this.cdr.detectChanges();
-        }
-      })
+        })
+      }
     }
   }
 

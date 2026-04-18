@@ -25,9 +25,22 @@
   gap: 10px;
 }
 
-label {
-  font-weight: 600;
-  margin-top: 8px;
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  margin-top: 0;
+  cursor: pointer;
 }
 
 input,
@@ -243,3 +256,12 @@ textarea.ng-invalid.ng-touched {
   font-size: 3rem;
   padding: 1rem;
 }
+
+#featured {
+    accent-color: #8c1b3f;
+}
+
+#globallyFeatured {
+    accent-color: #8c1b3f;
+}
+

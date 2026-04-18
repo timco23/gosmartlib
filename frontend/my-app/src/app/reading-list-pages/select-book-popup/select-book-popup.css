@@ -140,8 +140,8 @@ select:focus {
 }
 
 .result-item.selected {
-  border-color: #2f6fed;
-  background: #f4f8ff;
+  border-color: #8c1b3f;
+  background: #e7c3ce;
 }
 
 .empty-state {

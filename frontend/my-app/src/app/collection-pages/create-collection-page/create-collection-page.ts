@@ -47,8 +47,8 @@ export class CreateCollectionPage {
     this.form = this.fb.group({
       titel: ["", Validators.required],
       beschrijving: ["", Validators.required],
-      uitgelicht: [false, Validators.required],
-      globaalUitgelicht: [false, Validators.required]
+      uitgelicht: [false],
+      globaalUitgelicht: [false]
     })
   }
 
@@ -139,20 +139,26 @@ export class CreateCollectionPage {
     this.loadingBooks = true;
     this.cdr.detectChanges();
     this.books = [];
-    for (const id of this.itemIds) {
-      this.bookService.getBookById(id).subscribe({
-        next: (book) => {
-          this.books.push(book)
-          if (this.books.length == this.itemIds.length) {
-            this.loadingBooks = false;
+    if (this.itemIds.length < 1) {
+      this.loadingBooks = false;
+      this.cdr.detectChanges();
+    }
+    else {
+      for (const id of this.itemIds) {
+        this.bookService.getBookById(id).subscribe({
+          next: (book) => {
+            this.books.push(book)
+            if (this.books.length == this.itemIds.length) {
+              this.loadingBooks = false;
+              this.cdr.detectChanges();
+            }
+          },
+          error: () => {
+            this.getBookError = true;
             this.cdr.detectChanges();
           }
-        },
-        error: () => {
-          this.getBookError = true;
-          this.cdr.detectChanges();
-        }
-      })
+        })
+      }
     }
   }
 
@@ -176,6 +182,7 @@ export class CreateCollectionPage {
   }
 
   resetFeatured() {
+    this.globalCollection = !this.globalCollection;
     this.form.controls["uitgelicht"].reset()
     this.form.controls["globaalUitgelicht"].reset()
   }

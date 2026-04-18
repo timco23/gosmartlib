@@ -41,7 +41,7 @@ public class CollectionController {
         return ResponseEntity.ok(collectionService.isItemInAnyCollection(itemId));
     }
 
-    @GetMapping("/global/exists/{itemId}/")
+    @GetMapping("/global/exists/{itemId}")
     public ResponseEntity<Boolean> existsByItemIdAndIsGloballyFeatured(@PathVariable Long itemId) {
         return ResponseEntity.ok(collectionService.isItemInAnyGloballyFeaturedCollection(itemId));
     }

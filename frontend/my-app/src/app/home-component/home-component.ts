@@ -63,8 +63,8 @@ export class HomeComponent implements OnInit {
               next: (schoolData) => {
                 this.school = schoolData;
                 this.getCollections();
-                this.getBooks();
                 this.getLatestBooks();
+                this.getBooks();
               },
             });
           }
@@ -122,6 +122,7 @@ export class HomeComponent implements OnInit {
             collections.forEach(c => {
               this.scrollIndices[`c-${c.id}`] = 0;
             });
+            this.cdr.detectChanges();
           },
           error: () => {
             this.error = 'Kon uitgelichte collecties niet laden.';

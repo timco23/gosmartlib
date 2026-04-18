@@ -48,8 +48,8 @@ export class UpdateCollectionPage {
     this.form = this.fb.group({
       titel: ["", Validators.required],
       beschrijving: ["", Validators.required],
-      uitgelicht: [false, Validators.required],
-      globaalUitgelicht: [false, Validators.required]
+      uitgelicht: [false],
+      globaalUitgelicht: [false]
     })
   }
 
@@ -69,7 +69,7 @@ export class UpdateCollectionPage {
           this.loading = false;
           this.cdr.detectChanges();
         },
-        error: () => {this.loadingCollectionError = true; this.cdr.detectChanges();}
+        error: () => { this.loadingCollectionError = true; this.cdr.detectChanges(); }
       })
     })
   }
@@ -115,11 +115,11 @@ export class UpdateCollectionPage {
       globallyFeatured: raw.globaalUitgelicht
     }
 
-    if(this.globalCollection) {
+    if (this.globalCollection) {
       newCollection.schoolId = 0;
     }
 
-    this.collectionService.updateCollection(this.collection!.id,newCollection).subscribe({
+    this.collectionService.updateCollection(this.collection!.id, newCollection).subscribe({
       next: () => {
         if (newCollection.schoolId != 0) {
           this.router.navigate(["/collections"])
@@ -149,20 +149,26 @@ export class UpdateCollectionPage {
     this.loadingBooks = true;
     this.cdr.detectChanges();
     this.books = [];
-    for (const id of this.itemIds) {
-      this.bookService.getBookById(id).subscribe({
-        next: (book) => {
-          this.books.push(book)
-          if (this.books.length == this.itemIds.length) {
-            this.loadingBooks = false;
+    if (this.itemIds.length < 1) {
+      this.loadingBooks = false;
+      this.cdr.detectChanges();
+    }
+    else {
+      for (const id of this.itemIds) {
+        this.bookService.getBookById(id).subscribe({
+          next: (book) => {
+            this.books.push(book)
+            if (this.books.length == this.itemIds.length) {
+              this.loadingBooks = false;
+              this.cdr.detectChanges();
+            }
+          },
+          error: () => {
+            this.getBookError = true;
             this.cdr.detectChanges();
           }
-        },
-        error: () => {
-          this.getBookError = true;
-          this.cdr.detectChanges();
-        }
-      })
+        })
+      }
     }
   }
 

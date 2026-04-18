@@ -14,7 +14,7 @@ public record CollectionDTO(
         String description,
         @JsonProperty("featured")
         Boolean featured,
-        @JsonProperty("globally_featured")
+        @JsonProperty("globallyFeatured")
         Boolean globallyFeatured,
         @JsonProperty("items")
         List<ItemDTO> items,

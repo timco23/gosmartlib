@@ -1,9 +1,9 @@
 <body>
     <header>
-        <button (click)="addCollection()">Collectie toevoegen</button>
         @if (authService.atLeastHasRole(role.ADMIN)) {
         <button (click)="goToGlobalCollections()">Globale collecties bekijken</button>
         }
+        <button (click)="addCollection()">Collectie toevoegen</button>
     </header>
 
     <main>
@@ -12,16 +12,13 @@
         <ul>
             @for(collection of collections; track $index) {
             <li class="collection-container">
+                <div class="featured-badge" [class.featured]="collection.featured" [class.unfeatured]="!collection.featured">
+                    {{ collection.featured ? 'Uitgelicht' : 'Niet uitgelicht' }}
+                </div>
                 <div class="collection-info-header">
                     <div class="collection-info">
                         <h4 class="collection-title">{{collection.title}}</h4>
                         <p class="collection-description">{{collection.description}}</p>
-                        @if (collection.featured) {
-                        <p class="featured-collection">Uitgelicht</p>
-                        }
-                        @else {
-                        <p class="unfeatured-collection">Niet uitgelicht</p>
-                        }
                     </div>
                     <div class="collection-buttons">
                         <button (click)="editCollection(collection.id)" title="Collectie wijzigen" class="icon-btn">

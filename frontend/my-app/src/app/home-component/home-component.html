@@ -1,7 +1,6 @@
 <div class="container">
   <h1>Welkom bij GO!SmartLib</h1>
 
-  <!-- Global Collections -->
   @if (globalCollections.length > 0) {
     <section class="featured-section">
       @for(collection of globalCollections; track collection.id) {
@@ -51,7 +50,6 @@
             }
           </div>
         } @else {
-          <!-- Generic Carousel Template for Global Collections -->
           <div class="carousel-outer">
             <button class="carousel-arrow" (click)="prevCard('gc-' + collection.id, collection.items.length)"><</button>
             <div class="carousel-viewport">
@@ -119,12 +117,10 @@
     </section>
   }
 
-  <!-- Featured Books -->
   @if (featuredBooks.length > 0) {
     <section class="featured-section">
       <div class="section-header">
         <h2>Uitgelichte boeken</h2>
-        <a class="browse-link" [routerLink]="['/books']">Alle boeken bekijken →</a>
       </div>
 
       @if (isLoading) {
@@ -234,7 +230,6 @@
     </section>
   }
 
-  <!-- School Collections -->
   @if (collections.length > 0) {
     <section class="featured-section">
       @for(collection of collections; track collection.id) {
@@ -352,7 +347,6 @@
     </section>
   }
 
-  <!-- Latest Books -->
     <section class="featured-section">
       <div class="section-header">
         <h2>Nieuw in de bib</h2>

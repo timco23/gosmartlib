@@ -13,7 +13,7 @@ public record CreateCollectionDTO(
         Long schoolId,
         @JsonProperty("featured")
         Boolean featured,
-        @JsonProperty("globally_featured")
+        @JsonProperty("globallyFeatured")
         Boolean globallyFeatured,
         @JsonProperty("itemIds")
         List<Long> itemIds

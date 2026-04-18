@@ -3,7 +3,7 @@
 
 <div class="form-container">
     <header>
-        <h1 class="page-title">Collectie aanmaken</h1>
+        <h1 class="page-title">Collectie toevoegen</h1>
     </header>
     <main>
         @if(!loading) {
@@ -16,17 +16,23 @@
                 <textarea id="description" formControlName="beschrijving"></textarea>
 
                 @if(authService.atLeastHasRole(role.ADMIN)) {
-                <input id="globalCollection" type="checkbox" (change)="resetFeatured()" [(ngModel)]="globalCollection">
-                <label for="globalCollection">Globale collectie</label>
+                <div class="checkbox-group">
+                    <input id="globalCollection" type="checkbox" (change)="resetFeatured()" [checked]="globalCollection">
+                    <label for="globalCollection">Globale collectie</label>
+                </div>
                 }
 
                 @if(!globalCollection) {
-                <input id="featured" type="checkbox" formControlName="uitgelicht">
-                <label for="featured">Uitgelicht</label>
+                <div class="checkbox-group">
+                    <input id="featured" type="checkbox" formControlName="uitgelicht">
+                    <label for="featured">Uitlichten</label>
+                </div>
                 }
                 @else {
-                <input id="globallyFeatured" type="checkbox" formControlName="globaalUitgelicht">
-                <label for="globaalUitgelicht">Globaal uitgelicht</label>
+                <div class="checkbox-group">
+                    <input id="globallyFeatured" type="checkbox" formControlName="globaalUitgelicht">
+                    <label for="globallyFeatured">Globaal uitlichten</label>
+                </div>
                 }
 
                 <h2 class="book-selection-title">Boeken</h2>
@@ -63,7 +69,7 @@
                     }
                 </div>
                 @if(itemInCollectionError) {
-                <p class="error">Deze boek zit al in de lijst.</p>
+                <p class="error">Deze boek zit al in de collectie.</p>
                 }
 
                 <div class="form-buttons">

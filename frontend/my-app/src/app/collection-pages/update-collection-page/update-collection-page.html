@@ -16,12 +16,16 @@
                 <textarea id="description" formControlName="beschrijving"></textarea>
 
                 @if(collection!.school) {
-                <input id="featured" type="checkbox" formControlName="uitgelicht">
-                <label for="featured">Uitgelicht</label>
+                <div class="checkbox-group">
+                    <input id="featured" type="checkbox" formControlName="uitgelicht">
+                    <label for="featured">Uitlichten</label>
+                </div>
                 }
                 @else {
-                <input id="globallyFeatured" type="checkbox" formControlName="globaalUitgelicht">
-                <label for="globaalUitgelicht">Globaal uitgelicht</label>
+                <div class="checkbox-group">
+                    <input id="globallyFeatured" type="checkbox" formControlName="globaalUitgelicht">
+                    <label for="globallyFeatured">Globaal uitlichten</label>
+                </div>
                 }
 
                 <h2 class="book-selection-title">Boeken</h2>
@@ -58,7 +62,7 @@
                     }
                 </div>
                 @if(itemInCollectionError) {
-                <p class="error">Deze boek zit al in de lijst.</p>
+                <p class="error">Deze boek zit al in de collectie.</p>
                 }
 
                 <div class="form-buttons">

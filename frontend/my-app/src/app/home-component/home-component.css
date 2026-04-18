@@ -35,7 +35,6 @@ h1 {
 }
 
 .featured-section {
-  margin-top: 2rem;
   text-align: left;
   width: 100vw;
   position: relative;
@@ -43,6 +42,7 @@ h1 {
   transform: translateX(-50%);
   padding: 0 2rem;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .section-header {
@@ -85,11 +85,12 @@ h1 {
   display: flex;
   gap: 1.25rem;
   max-width: 1400px;
-  margin: 0 auto;
+  margin-bottom: 2rem;
 }
 
 .static-cards.single {
   justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .static-card {
@@ -97,11 +98,11 @@ h1 {
   max-width: 44rem;
   background: #f0efe4;
   border-radius: 10px;
-  border: 1px solid #8c1b3f;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 362px
 }
 
 .carousel-outer {
@@ -110,7 +111,7 @@ h1 {
   gap: 0.75rem;
   max-width: 1400px;
   margin: 0 auto;
-  height: 22rem;
+  height: 24rem;
 }
 
 .carousel-arrow {
@@ -147,7 +148,7 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  overflow: hidden;
+  padding: 1rem 0;
 }
 
 .carousel-card {
@@ -194,7 +195,7 @@ h1 {
 
 .carousel-card.is-center .card-cover {
   flex-shrink: 0;
-  width: 9rem;
+  width: 12rem;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -354,6 +355,7 @@ h1 {
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 2rem;
 }
 
 .dot {
