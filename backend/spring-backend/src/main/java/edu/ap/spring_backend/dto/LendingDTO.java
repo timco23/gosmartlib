@@ -6,6 +6,7 @@ public record LendingDTO(
     Long borrowerId,
     String bookTitle,
     String bookAuthor,
+    Long itemId, 
     Long schoolId,
     String lendingDate,
     String returnDate,

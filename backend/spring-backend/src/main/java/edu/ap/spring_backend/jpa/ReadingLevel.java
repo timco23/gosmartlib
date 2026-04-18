@@ -19,11 +19,15 @@ public class ReadingLevel {
     @Column(unique = true)
     private String name;
 
+    @Column(length = 1000, nullable = false)
+    private String description;
+
     // constructors
     public ReadingLevel() {
     }
 
-    public ReadingLevel(String name) {
+    public ReadingLevel(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 }

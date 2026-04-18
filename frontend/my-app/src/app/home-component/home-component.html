@@ -358,8 +358,9 @@
             <div class="static-card">
               <div class="center-top">
                 <div class="card-cover">
-                  @if (book.cover) {
-                    <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                  @let cover = coverSrc(book);
+                  @if (cover) {
+                    <img [src]="cover" [alt]="book.title" class="cover-img" />
                   } @else {
                     <div class="cover-placeholder">📖</div>
                   }
@@ -401,8 +402,9 @@
                 @if (slot.position === 'center') {
                   <div class="center-top">
                     <div class="card-cover">
-                      @if (slot.book.cover) {
-                        <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                      @let centerCover = coverSrc(slot.book);
+                      @if (centerCover) {
+                        <img [src]="centerCover" [alt]="slot.book.title" class="cover-img" />
                       } @else {
                         <div class="cover-placeholder">📖</div>
                       }
@@ -429,8 +431,9 @@
                   </div>
                 } @else {
                   <div class="card-cover">
-                    @if (slot.book.cover) {
-                      <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                    @let sideCover = coverSrc(slot.book);
+                    @if (sideCover) {
+                      <img [src]="sideCover" [alt]="slot.book.title" class="cover-img" />
                     } @else {
                       <div class="cover-placeholder">📖</div>
                     }

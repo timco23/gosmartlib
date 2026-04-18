@@ -1,82 +1,85 @@
-<app-select-book-popup [(itemId)]="currentItemId" [(shown)]="showPopup"
-    (addBookEvent)="addBook()"></app-select-book-popup>
+<app-select-book-popup
+  [(itemId)]="currentItemId"
+  [(shown)]="showPopup"
+  (addBookEvent)="addBook()"
+></app-select-book-popup>
 
 <div class="form-container">
-    <header>
-        <h1 class="page-title">Leeslijst wijzigen</h1>
-    </header>
-    <main>
-        @if(!loading) {
-        <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-            <div class="form-content">
-                <label for="title">Titel</label>
-                <input id="title" type="text" formControlName="titel" />
+  <header>
+    <h1 class="page-title">Leeslijst wijzigen</h1>
+  </header>
+  <main>
+    @if (!loading) {
+      <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-content">
+          <label for="title">Titel</label>
+          <input id="title" type="text" formControlName="titel" />
 
-                <label for="description">Beschrijving</label>
-                <textarea id="description" formControlName="beschrijving"></textarea>
+          <label for="description">Beschrijving</label>
+          <textarea id="description" formControlName="beschrijving"></textarea>
 
-                <h2 class ="book-selection-title">Boeken</h2>
-                <div class = "book-selection-container">
-                    @if(!loadingBooks) {
-                        <ul class="book-grid">
-                            @for(book of books; track $index) {
-                                <li class="book-card">
-                                    <span (click)="removeBook(book.id)" class="removeBookButton">×</span>
-                                    <div class="book-cover-container" (click)="goToBookDetails(book.id)">
-                                        @if(book.cover) {
-                                            <img [src]="book!.cover" [alt]="book.title">
-                                        }
-                                        @else {
-                                            <div class="cover-placeholder">📖</div>
-                                        }
-                                    </div>
-                                    <h3 class="book-title">{{book.title}}</h3>
-                                </li>
-                            }
-                            <li class="add-book-card" (click)="showSelectionPopup()">
-                                <div class="add-book-icon-container">
-                                    <span class="add-book-icon">+</span>
-                                </div>
-                                <p class="add-book-text">Boek toevoegen</p>
-                            </li>
-                        </ul>
-                    }
-                    @else if (getBookError) {
-                        <p class="error">Er was een probleem met het ophalen van de boekgegevens.</p>
-                    }
-                    @else {
-                        <p>Boekgegevens laden...</p>
-                    }
-                </div>
-                @if(itemInListError) {
-                        <p class="error">Deze boek zit al in de lijst.</p>
+          <h2 class="book-selection-title">Boeken</h2>
+          <div class="book-selection-container">
+            @if (!loadingBooks) {
+              <ul class="book-grid">
+                @for (book of books; track $index) {
+                  <li class="book-card">
+                    <span (click)="removeBook(book.id)" class="removeBookButton">×</span>
+                    <div class="book-cover-container" (click)="goToBookDetails(book.id)">
+                      @if (book.id) {
+                        <img
+                          [src]="'/api/books/' + book.id + '/cover'"
+                          [alt]="book.title || 'Boek cover'"
+                          loading="lazy"
+                        />
+                      } @else {
+                        <div class="cover-placeholder">📖</div>
+                      }
+                    </div>
+                    <h3 class="book-title">{{ book.title }}</h3>
+                  </li>
                 }
+                <li class="add-book-card" (click)="showSelectionPopup()">
+                  <div class="add-book-icon-container">
+                    <span class="add-book-icon">+</span>
+                  </div>
+                  <p class="add-book-text">Boek toevoegen</p>
+                </li>
+              </ul>
+            } @else if (getBookError) {
+              <p class="error">Er was een probleem met het ophalen van de boekgegevens.</p>
+            } @else {
+              <p>Boekgegevens laden...</p>
+            }
+          </div>
+          @if (itemInListError) {
+            <p class="error">Deze boek zit al in de lijst.</p>
+          }
 
-                <div class="form-buttons">
-                    <button type="submit" class="primary-btn">Wijzig leeslijst</button>
-                    <button type="button" class="secondary-btn" (click)="goToReadingLists()">Cancel</button>
-                </div>
+          <div class="form-buttons">
+            <button type="submit" class="primary-btn">Wijzig leeslijst</button>
+            <button type="button" class="secondary-btn" (click)="goToReadingLists()">Cancel</button>
+          </div>
 
-                @if(listEditError) {
-                    <p class="error">Er was een probleem met het wijzigen van de leeslijst.</p>
-                }
-                @if(emptyListError) {
-                    <p class="error">De leeslijst moet minstens één boek bevatten voor je hem kan wijzigen.</p>
-                }
-                @if(incompleteForm) {
-                    <p class="error">Vul alle gemarkeerde velden juist in.</p>
-                }
-            </div>
-        </form>
-        }
-        @else if (loadingUserError) {
-            <p class="error">Er was een probleem met het ophalen van je gebruikersgegevens.</p>
-        }
-        @else if (loadingListError) {
-            <p class="error">Er was een probleem met het ophalen van de leeslijstgegevens.</p>
-        }
-        @else {
-            <p>Gebruikersgegevens laden...</p>
-        }
-    </main>
+          @if (listEditError) {
+            <p class="error">Er was een probleem met het wijzigen van de leeslijst.</p>
+          }
+          @if (emptyListError) {
+            <p class="error">
+              De leeslijst moet minstens één boek bevatten voor je hem kan wijzigen.
+            </p>
+          }
+          @if (incompleteForm) {
+            <p class="error">Vul alle gemarkeerde velden juist in.</p>
+          }
+        </div>
+      </form>
+    } @else if (loadingUserError) {
+      <p class="error">Er was een probleem met het ophalen van je gebruikersgegevens.</p>
+    } @else if (loadingListError) {
+      <p class="error">Er was een probleem met het ophalen van de leeslijstgegevens.</p>
+    } @else {
+      <p>Gebruikersgegevens laden...</p>
+    }
+  </main>
 </div>

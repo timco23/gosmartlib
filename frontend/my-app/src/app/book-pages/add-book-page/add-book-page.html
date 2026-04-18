@@ -115,7 +115,7 @@
                   </button>
 
                   @if (selectedBook) {
-                    <button type="button" class="text-btn" (click)="clearSelectedBook()">
+                    <button type="button" class="clear-selected-btn" (click)="clearSelectedBook()">
                       Wissen
                     </button>
                   }
@@ -186,11 +186,11 @@
                 formControlName="taal"
               >
                 <option value="">Selecteer een taal</option>
-                <option value="Nederlands">Nederlands</option>
-                <option value="Engels">Engels</option>
-                <option value="Frans">Frans</option>
-                <option value="Duits">Duits</option>
-                <option value="Andere">Andere</option>
+                <option value="NEDERLANDS">Nederlands</option>
+                <option value="ENGELS">Engels</option>
+                <option value="FRANS">Frans</option>
+                <option value="DUITS">Duits</option>
+                <option value="ANDERE">Andere</option>
               </select>
               <label for="pageCount">Aantal paginas (optioneel)</label>
               <input

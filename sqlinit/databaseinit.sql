@@ -358,14 +358,15 @@ JOIN item i ON i.id = t.seq;
 -- reading level of a book (A, B, C or D. increasing difficulty)
 CREATE TABLE IF NOT EXISTS reading_level (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description VARCHAR(1000) NOT NULL
 );
 
-INSERT INTO reading_level (name) VALUES 
-('A'),
-('B'),
-('C'),
-('D');
+INSERT INTO reading_level (name, description) VALUES 
+('A', "eenvoudig taalgebruik, korte zinnen, sterk verhalend, weinig abstractie"),
+('B', "gemiddeld taalgebruik, herkenbare structuren, beperkte complexiteit"),
+('C', "complexer, meerdere verhaallijnen of perspectieven, rijkere woordenschat"),
+('D', "literair, gelaagd, abstracte thema’s, impliciete betekenis");
 
 -- didactic category of a book
 CREATE TABLE IF NOT EXISTS didactic_category (

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { BookService } from '../services/book-service';
-import { Book, LoginResponse, Page, Tag } from '../../types/types';
+import { Book, LoginResponse, Tag } from '../../types/types';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { UserService } from '../services/user.service';
@@ -87,5 +87,10 @@ export class FavoritesComponent {
         console.error('Fout bij verwijderen van favoriet:', err);
       },
     });
+  }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookApi.getBookCoverUrl(id) : null;
   }
 }

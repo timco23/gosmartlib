@@ -13,6 +13,7 @@ import { AsyncPipe, NgClass } from '@angular/common';
 import {
   Book,
   BookImportRow,
+  BookMetadata,
   CampusCopyGroup,
   CreateBookPayload,
   CreateSchoolItemCopyPayload,
@@ -350,37 +351,34 @@ export class AddBookPage implements OnInit {
     this.cdr.detectChanges();
 
     if (isbn.length > 0) {
-      this.api.getBookByISBN(isbn).subscribe({
-        next: (data) => {
-          if (data.totalItems > 0) {
-            const book = data.items![0].volumeInfo;
-            const patch: any = {};
+      this.api.getBookMetadata(isbn).subscribe({
+        next: (data: BookMetadata) => {
+          const patch: any = {};
+          const fetchedBook: Record<string, unknown> = {
+            titel: data.title,
+            uitgeverij: data.publisher,
+            auteur: data.authors,
+            beschrijving: data.description,
+            uitgaveJaar: data.releaseYear,
+            taal: data.language,
+            paginaAantal: data.pageCount,
+            cover: data.coverUrl,
+          };
 
-            const fetchedBook = {
-              titel: book.title,
-              uitgeverij: book.publisher,
-              auteur: book.authors?.join(', '),
-              beschrijving: book.description,
-              uitgaveJaar: book.publishedDate?.substring(0, 4),
-              taal: book.language,
-              paginaAantal: book.pageCount,
-              cover: book.imageLinks?.thumbnail,
-            };
+          Object.entries(fetchedBook).forEach(([key, value]) => {
+            if (value != null) {
+              patch[key] = value;
+            } else {
+              this.missingFields.push(key);
+            }
+          });
 
-            Object.entries(fetchedBook).forEach(([key, value]) => {
-              if (value) {
-                patch[key] = value;
-              } else {
-                this.missingFields.push(key);
-              }
-            });
-
-            this.cdr.detectChanges();
-            this.form.patchValue(patch);
-          } else {
-            this.nothingFound = true;
-            this.cdr.detectChanges();
-          }
+          this.form.patchValue(patch);
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.nothingFound = true;
+          this.cdr.detectChanges();
         },
       });
     }

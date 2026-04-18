@@ -29,6 +29,7 @@ public class ItemService {
     private final ReadingLevelRepository readingLevelRepository;
     private final DidacticCategoryRepository didacticCategoryRepository;
     private final SchoolItemCopyRepository schoolItemCopyRepository;
+    
 
     public ItemService(ItemRepository itemRepository, SchoolRepository schoolRepository,
             CampusRepository campusRepository, TagRepository tagRepository,

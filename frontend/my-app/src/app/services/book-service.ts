@@ -11,7 +11,7 @@ import {
   UpdateBookPayload,
   Page,
   Tag,
-  GoogleBook,
+  BookMetadata,
   SchoolItemCopy,
   CreateSchoolItemCopyPayload,
 } from '../../types/types';
@@ -86,8 +86,8 @@ export class BookService {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/${id}`);
   }
 
-  getBookByISBN(isbn: string): Observable<GoogleBook> {
-    return this.http.get<GoogleBook>(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+  getBookMetadata(isbn: string): Observable<BookMetadata> {
+    return this.http.get<BookMetadata>(`${this.apiBaseUrl}/books/metadata`, { params: { isbn } });
   }
 
   getBookByTitle(bookTitle: string): Observable<Book> {
@@ -96,6 +96,16 @@ export class BookService {
 
   getLatestBooks(schoolId: number): Observable<Book[]> {
     return this.http.get<Book[]>(`${this.apiBaseUrl}/books/latest/${schoolId}`);
+  }
+
+  getBookCoverUrl(bookId: number): string {
+    return `${this.apiBaseUrl}/books/${bookId}/cover`;
+  }
+
+  getBookCoverSrc(book: { id?: number | null } | null | undefined): string {
+    const id = Number(book?.id);
+    if (!Number.isFinite(id) || id <= 0) return '';
+    return `${this.apiBaseUrl}/books/${id}/cover`;
   }
 
   addBook(newBook: CreateBookPayload): Observable<Book> {

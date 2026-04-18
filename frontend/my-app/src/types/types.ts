@@ -35,6 +35,7 @@ export interface Subgenre {
 export interface Readinglevel {
   id: number;
   name: string;
+  description: string;
 }
 
 export interface DidacticCategory {
@@ -67,22 +68,15 @@ export interface Campus {
   name: string;
 }
 
-export interface GoogleBook {
-  totalItems: number;
-  items?: {
-    volumeInfo: {
-      title?: string;
-      authors?: string[];
-      publisher?: string;
-      publishedDate?: string;
-      description?: string;
-      pageCount?: number;
-      imageLinks?: {
-        thumbnail?: string;
-      };
-      language?: string;
-    };
-  }[];
+export interface BookMetadata {
+  title?: string;
+  authors?: string;
+  description?: string;
+  language?: string;
+  publisher?: string;
+  pageCount?: number;
+  releaseYear?: number;
+  coverUrl?: string;
 }
 
 export interface Book {
@@ -286,6 +280,7 @@ export interface Lending {
   borrowerId: number;
   bookTitle: string;
   bookAuthor: string;
+  itemId?: number | null;
   schoolId: number;
   lendingDate: string;
   returnDate: string;

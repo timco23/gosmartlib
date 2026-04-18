@@ -319,7 +319,15 @@ export class BookDetailPage implements OnInit {
   }
 
   get readingLevelName(): string {
-    return this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.name ?? '';
+    return (this.book?.readingLevel as any)?.name
+      ?? this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.name
+      ?? '';
+  }
+
+  get readingLevelDescription(): string {
+    return (this.book?.readingLevel as any)?.description
+      ?? this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.description
+      ?? '';
   }
 
   deleteBook(id: number) {

@@ -1,26 +1,22 @@
-# STAGE 1: Build de applicatie met JDK 21 en Maven
-FROM eclipse-temurin:21-jdk AS build
+# STAGE 1: Build met Maven + JDK 21
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Install Maven
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
-
-# Kopieer pom en source code
+# Eerst pom voor betere layer cache
 COPY pom.xml .
+RUN mvn -B -DskipTests dependency:go-offline
+
+# Daarna source
 COPY src ./src
 
-# Build de jar
-RUN mvn clean package -DskipTests
+# Build jar
+RUN mvn -B clean package -DskipTests
 
-# STAGE 2: Run de jar in een lichte JDK image
-FROM eclipse-temurin:21-jdk-alpine
+# STAGE 2: Run met JRE (kleiner dan JDK)
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-# Kopieer de jar van de build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose de poort
 EXPOSE 8080
-
-# Start de Spring Boot applicatie
 ENTRYPOINT ["java","-jar","app.jar"]

@@ -1,8 +1,6 @@
 package edu.ap.spring_backend.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.ap.spring_backend.dto.GoogleBooksResponse;
-import edu.ap.spring_backend.dto.GoogleBooksResponse.VolumeInfo;
+import edu.ap.spring_backend.dto.BookMetadata;
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
@@ -15,16 +13,13 @@ import edu.ap.spring_backend.jpa.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import edu.ap.spring_backend.service.bookmetadata.BookMetadataService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,25 +55,19 @@ public class BookCsvImportService {
     private static final String DEFAULT_PUBLISHER = "Onbekend";
     private static final String DEFAULT_DESCRIPTION = "Geen beschrijving beschikbaar.";
 
-    private static final String GOOGLE_BOOKS_URL =
-            "https://www.googleapis.com/books/v1/volumes?q=isbn:";
-    private static final long GOOGLE_API_DELAY_MS = 1000;
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Object GOOGLE_API_LOCK = new Object();
-    private static long lastGoogleApiCallTime = 0;
-
-
     private final ItemRepository itemRepository;
     private final SchoolItemCopyRepository schoolItemCopyRepository;
     private final SchoolRepository schoolRepository;
+    private final BookMetadataService bookMetadataService;
 
     public BookCsvImportService(ItemRepository itemRepository,
             SchoolItemCopyRepository schoolItemCopyRepository,
-            SchoolRepository schoolRepository) {
+            SchoolRepository schoolRepository,
+            BookMetadataService bookMetadataService) {
         this.itemRepository = itemRepository;
         this.schoolItemCopyRepository = schoolItemCopyRepository;
         this.schoolRepository = schoolRepository;
+        this.bookMetadataService = bookMetadataService;
     }
 
     /**
@@ -222,56 +211,29 @@ public class BookCsvImportService {
 
         String description = DEFAULT_DESCRIPTION;
         String publisher = DEFAULT_PUBLISHER;
+        String language = DEFAULT_LANGUAGE;
         String cover = "";
         int pageCount = 0;
         int releaseYear = 0;
 
         if (!row.isbn().isEmpty()) {
-            VolumeInfo info = fetchGoogleBooksInfo(row.isbn());
-            if (info != null) {
-                if (info.description() != null) description = info.description();
-                if (info.publisher() != null) publisher = info.publisher();
-                if (info.pageCount() > 0) pageCount = info.pageCount();
-                if (info.publishedDate() != null && info.publishedDate().length() >= 4) {
-                    try {
-                        releaseYear = Integer.parseInt(info.publishedDate().substring(0, 4));
-                    } catch (NumberFormatException ignored) {}
-                }
-                if (info.imageLinks() != null && info.imageLinks().thumbnail() != null)
-                    cover = info.imageLinks().thumbnail();
+            Optional<BookMetadata> metadata = bookMetadataService.fetchByIsbn(row.isbn());
+            if (metadata.isPresent()) {
+                BookMetadata m = metadata.get();
+                if (m.description() != null) description = m.description();
+                if (m.publisher()   != null) publisher   = m.publisher();
+                if (m.language()    != null) language    = m.language();
+                if (m.pageCount()   != null) pageCount   = m.pageCount();
+                if (m.releaseYear() != null) releaseYear = m.releaseYear();
+                if (m.coverUrl()    != null) cover       = m.coverUrl();
             }
         }
 
         Item newItem = new Item(description, 0, 0.0, cover, pageCount,
-                DEFAULT_LANGUAGE, releaseYear, row.isbn(), row.author(), publisher, row.title(),
+                language, releaseYear, row.isbn(), row.author(), publisher, row.title(),
                 new HashSet<>());
         itemRepository.save(newItem);
         return newItem;
-    }
-
-    /**
-     * Should be delegated to its own service.
-     * Fetches book metadata from the Google Books API for the given ISBN.
-     * Returns null if the API call fails or returns no results.
-     */
-    private VolumeInfo fetchGoogleBooksInfo(String isbn) {
-        try {
-            throttleGoogleApi();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(GOOGLE_BOOKS_URL + isbn))
-                    .GET()
-                    .build();
-            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            GoogleBooksResponse googleResponse = OBJECT_MAPPER.readValue(response.body(), GoogleBooksResponse.class);
-            if (googleResponse.totalItems() > 0
-                    && googleResponse.items() != null
-                    && !googleResponse.items().isEmpty()) {
-                return googleResponse.items().get(0).volumeInfo();
-            }
-        } catch (Exception ignored) {
-            // proceed with default values
-        }
-        return null;
     }
 
     /**
@@ -383,22 +345,6 @@ public class BookCsvImportService {
             return record.get(column).trim();
         } catch (IllegalArgumentException e) {
             return "";
-        }
-    }
-
-    /**
-     * Enforces a minimum gap of 1000ms between Google Books API calls
-     * to stay under the 1 call/second threshold.
-     */
-    private void throttleGoogleApi() {
-        synchronized (GOOGLE_API_LOCK) {
-            long now = System.currentTimeMillis();
-            long waitTime = GOOGLE_API_DELAY_MS - (now - lastGoogleApiCallTime);
-            if (waitTime > 0) {
-                try { Thread.sleep(waitTime); }
-                catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-            }
-            lastGoogleApiCallTime = System.currentTimeMillis();
         }
     }
 }

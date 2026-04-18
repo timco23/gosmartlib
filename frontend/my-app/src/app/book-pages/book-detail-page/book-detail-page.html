@@ -9,7 +9,12 @@
         @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
           <div class="book-actions">
             <a class="edit-button" [routerLink]="['/books', book.id, 'edit']"> Boek wijzigen </a>
-            <a class="edit-button" [routerLink]="['/books', book.id, 'barcodes']" [queryParams]="{ preselect: 'all' }">Print barcodes</a>
+            <a
+              class="edit-button"
+              [routerLink]="['/books', book.id, 'barcodes']"
+              [queryParams]="{ preselect: 'all' }"
+              >Print barcodes</a
+            >
             <a class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</a>
             <a class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
               {{ isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten' }}
@@ -23,9 +28,7 @@
         </div>
       </header>
       @if (deleteError) {
-        <p class="warning">
-          Er is iets misgegaaan met het verwijderen van dit boek.
-        </p>
+        <p class="warning">Er is iets misgegaaan met het verwijderen van dit boek.</p>
       }
       @if (bookHasCopyError) {
         <p class="warning">
@@ -37,10 +40,10 @@
       <section class="book-top-grid">
         <aside class="panel cover-panel">
           <p class="panel-title">Foto boek</p>
-          @if (book.cover == '' || book.cover == null) {
-            <div class="no-cover">Geen afbeelding</div>
+          @if (book.id) {
+            <img [src]="api.getBookCoverUrl(book.id!)" alt="Book cover" />
           } @else {
-            <img [src]="book.cover" alt="Book cover" />
+            <div class="no-cover">Geen afbeelding</div>
           }
         </aside>
 
@@ -55,7 +58,15 @@
           </div>
 
           <div class="panel details-grid">
-            <div><span class="meta-label">Leesniveau:</span> {{ readingLevelName || '—' }}</div>
+            <div class="reading-level-row">
+              <span class="meta-label">Leesniveau:</span> {{ readingLevelName || '—' }}
+              @if (readingLevelDescription) {
+                <div class="tooltip-anchor">
+                  <span class="info-icon">i</span>
+                  <div class="tooltip-box">{{ readingLevelDescription }}</div>
+                </div>
+              }
+            </div>
             @if (authService.atLeastHasRole(role.LEERKRACHT)) {
               <div>
                 <span class="meta-label">Didactische categorieën:</span>
@@ -160,7 +171,6 @@
           </app-review-list>
         </div>
       </section>
-
     </main>
   } @else {
     <h3>Loading...</h3>

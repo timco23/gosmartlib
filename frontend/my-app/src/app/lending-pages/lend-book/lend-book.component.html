@@ -5,8 +5,9 @@
       <h2>Boek uitlenen</h2>
     </div>
   </header>
+
   <div class="lending-card">
-    <form (ngSubmit)="onSubmit()" action="lending">
+    <form (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="user">Uitlenen aan</label>
         <select id="user" name="user" (change)="onUserSelect($event)">
@@ -22,8 +23,12 @@
         <button type="button" class="choose-book-btn" (click)="openBookPopup()">
           {{ selectedBook ? bookTitle(selectedBook) : 'Kies een boek' }}
         </button>
-        <small *ngIf="selectedBook">{{ bookMeta(selectedBook) }}</small>
+        @if (selectedBook) {
+          <small>{{ bookMeta(selectedBook) }}</small>
+          <button type="button" class="clear-book-btn" (click)="clearSelectedBook()">Wissen</button>
+        }
       </div>
+
       <app-book-selector-popup-component
         [isOpen]="isBookPopupOpen"
         [books]="books"
@@ -59,12 +64,24 @@
           (ngModelChange)="onBarcodeChange($event)"
           [disabled]="bookSelected"
           [style.opacity]="bookSelected ? '0.5' : '1'"
-          required
+          [required]="!bookSelected"
         />
       </div>
 
       @if (currentBook != null) {
-        <div>
+        <div class="book-preview">
+          @let cover = bookApi.getBookCoverSrc(currentBook);
+          @if (cover) {
+            <img
+              class="cover-img"
+              [src]="cover"
+              [alt]="currentBook.title || 'Boek cover'"
+              loading="lazy"
+            />
+          } @else {
+            <div class="cover-placeholder">📖</div>
+          }
+
           <h3>Boek details</h3>
           <p><strong>Titel:</strong> {{ currentBook.title }}</p>
           <p><strong>Auteur:</strong> {{ currentBook.author }}</p>

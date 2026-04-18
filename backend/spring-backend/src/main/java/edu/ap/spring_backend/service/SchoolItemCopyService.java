@@ -13,7 +13,10 @@ import edu.ap.spring_backend.jpa.CopyStatus;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.School;
 import org.springframework.stereotype.Service;
-
+import edu.ap.spring_backend.dao.LendingRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
 
@@ -23,12 +26,14 @@ public class SchoolItemCopyService {
     private final ItemRepository itemRepository;
     private final SchoolRepository schoolRepository;
     private final CampusRepository campusRepository;
+    private final LendingRepository lendingRepository;
 
-    public SchoolItemCopyService(SchoolItemCopyRepository schoolItemCopyRepository,  ItemRepository itemRepository,  SchoolRepository schoolRepository, CampusRepository campusRepository) {
+    public SchoolItemCopyService(SchoolItemCopyRepository schoolItemCopyRepository,  ItemRepository itemRepository,  SchoolRepository schoolRepository, CampusRepository campusRepository,  LendingRepository lendingRepository) {
         this.schoolItemCopyRepository = schoolItemCopyRepository;
         this.itemRepository = itemRepository;
         this.schoolRepository = schoolRepository;
         this.campusRepository = campusRepository;
+        this.lendingRepository = lendingRepository;
     }
 
     public List<SchoolItemCopyDTO> getCopiesByIds(List<Integer> ids) {
@@ -68,14 +73,25 @@ public class SchoolItemCopyService {
                 .toList();
     }
 
-    public SchoolItemCopyDTO deleteCopy(int id) {
-        SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
-        if (copy.getCopy_status() == CopyStatus.UITGELEEND) {
-            throw new IllegalStateException("Een uitgeleend exemplaar kan niet verwijderd worden.");
+     public SchoolItemCopyDTO deleteCopy(int id) {
+        SchoolItemCopyDTO copy = getCopyById(id); 
+
+        if (lendingRepository.existsByBook_Id(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Exemplaar kan niet verwijderd worden: er bestaat uitleengeschiedenis."
+            );
         }
-        schoolItemCopyRepository.delete(copy);
-        return mapToDTO(copy);
+
+        try {
+            schoolItemCopyRepository.deleteById(id);
+            return copy;
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Exemplaar kan niet verwijderd worden door gekoppelde gegevens."
+            );
+        }
     }
 
     public SchoolItemCopyDTO updateCopy(int id, CreateSchoolItemCopyDTO copyDTO) {

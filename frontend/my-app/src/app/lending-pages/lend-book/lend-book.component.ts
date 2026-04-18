@@ -32,6 +32,8 @@ export class LendBookComponent {
   selectedBookId: string | number | null = null;
   selectedBook: any | null = null;
 
+  bookApi = inject(BookService);
+
   readonly bookId = (b: any) => b?.id ?? b?.bookId;
   readonly bookTitle = (b: any) => b?.title ?? b?.bookTitle ?? 'Onbekend boek';
   readonly bookMeta = (b: any) => [b?.author ?? b?.authorName, b?.isbn].filter(Boolean).join(' • ');
@@ -43,11 +45,47 @@ export class LendBookComponent {
     this.isBookPopupOpen = false;
   }
 
-  onBookSelected(book: any): void {
-    this.selectedBook = book;
-    this.selectedBookId = this.bookId(book);
-    // this.lendForm.patchValue({ bookId: this.selectedBookId });
+  onBookSelected(payload: any): void {
+    const selected = payload?.book ?? payload;
+    const id = Number(this.bookId(selected));
+
+    if (!id || !this.school?.id) {
+      this.clearSelectedBook();
+      return;
+    }
+
+    this.selectedBook = selected;
+    this.selectedBookId = id;
+    this.bookSelected = true;
+
+    this.currentBook = selected;
+    this.currentSchoolCopy = null;
+    this.currentCopies = [];
+    this.barcode = '';
+
+    this.bookService.getCopiesByBookId(id, this.school.id).subscribe({
+      next: (copies) => {
+        this.currentCopies = copies.filter((c) => c.copy_status === 'BESCHIKBAAR');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.currentCopies = [];
+        this.cdr.detectChanges();
+      },
+    });
+
     this.closeBookPopup();
+  }
+
+  clearSelectedBook(): void {
+    this.selectedBook = null;
+    this.selectedBookId = null;
+    this.bookSelected = false;
+    this.currentBook = null;
+    this.currentSchoolCopy = null;
+    this.currentCopies = [];
+    this.barcode = '';
+    this.cdr.detectChanges();
   }
 
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
@@ -93,7 +131,6 @@ export class LendBookComponent {
                     );
 
                     Promise.all(bookChecks).then((results) => {
-                      console.log('available books:', results.filter((r) => r.hasAvailable).length);
                       this.books = results.filter((r) => r.hasAvailable).map((r) => r.book);
                       this.cdr.detectChanges();
                     });
@@ -246,5 +283,10 @@ export class LendBookComponent {
     } else {
       alert('Deze gebruiker leent al het maximum aantal boeken uit.');
     }
+  }
+
+  coverSrcFromLending(lending: any): string {
+    const book = lending?.book ?? lending?.item ?? lending ?? this.currentBook ?? null;
+    return this.bookApi.getBookCoverSrc(book) ?? '';
   }
 }

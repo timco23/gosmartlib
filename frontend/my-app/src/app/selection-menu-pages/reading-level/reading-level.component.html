@@ -5,6 +5,10 @@
         <input type="radio" [checked]="isSelected(level)" (change)="toggleLevel(level)" />
         <span>{{ level.name }}</span>
       </label>
+      <div class="tooltip-anchor">
+        <span class="info-icon">i</span>
+        <div class="tooltip-box">{{ level.description }}</div>
+      </div>
     </li>
   } @empty {
     <li class="level-item">Geen niveaus gevonden.</li>

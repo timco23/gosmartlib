@@ -47,7 +47,7 @@ export class HomeComponent implements OnInit {
   allTags: Tag[] = [];
 
   ngOnInit() {
-    this.tagService.getTags().subscribe(tags => {
+    this.tagService.getTags().subscribe((tags) => {
       this.allTags = tags;
     });
 
@@ -138,9 +138,9 @@ export class HomeComponent implements OnInit {
   }
 
   mapTagObjects(tags: Tag[] | undefined): Tag[] {
-    return (tags ?? []).map(tag => {
+    return (tags ?? []).map((tag) => {
       // optioneel: vervang door object uit allTags voor volledige gegevens
-      return this.allTags.find(t => t.id === tag.id) ?? tag;
+      return this.allTags.find((t) => t.id === tag.id) ?? tag;
     });
   }
 
@@ -218,5 +218,10 @@ export class HomeComponent implements OnInit {
   private wrap(index: number, length: number): number {
     if (length === 0) return 0;
     return ((index % length) + length) % length;
+  }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
   }
 }
