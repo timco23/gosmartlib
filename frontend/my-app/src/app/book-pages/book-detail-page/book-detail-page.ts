@@ -25,6 +25,7 @@ import { ReviewService } from '../../services/review.service';
 import { ReviewList } from '../review-list/review-list';
 import { ReviewForm } from '../review-form/review-form';
 import { ReadingListService } from '../../services/readingList-service';
+import { CollectionService } from '../../services/collection-service';
 
 @Component({
   selector: 'app-book-detail-page',
@@ -50,13 +51,14 @@ export class BookDetailPage implements OnInit {
   isFeatured: boolean = false;
   deleteError: boolean = false;
   showDeleteConfirmation = signal(false);
-  isBookInAnyList: boolean = false;
+  showUnableToDelete = signal(false);
+  showDeleteConfirmationForCollections = signal(false);
   allTags: Tag[] = [];
   allGenres: any[] = [];
   allSubgenres: any[] = [];
   allDidacticCategories: any[] = [];
   readingLevels: any[] = [];
-  bookHasCopyError:boolean = false;
+  bookHasCopyError: boolean = false;
   reviews: Review[] = [];
   showReviewForm: boolean = false;
   reviewServerError = '';
@@ -67,6 +69,7 @@ export class BookDetailPage implements OnInit {
   didacticService = inject(DidacticCategoryService);
   readingLevelService = inject(ReadingLevelService);
   readingListService = inject(ReadingListService)
+  collectionService = inject(CollectionService)
 
   isFavorite: boolean = false;
   favorites: any[] = [];
@@ -76,13 +79,13 @@ export class BookDetailPage implements OnInit {
   //Locks scrolling for body of the entire page
   constructor() {
     effect(() => {
-      if (this.showDeleteConfirmation()) {
+      if (this.showDeleteConfirmation() || this.showUnableToDelete() || this.showDeleteConfirmationForCollections()) {
         this.renderer.addClass(document.body, 'no-scroll');
       } else {
         this.renderer.removeClass(document.body, 'no-scroll');
       }
     });
-  }
+  } 
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
@@ -322,21 +325,52 @@ export class BookDetailPage implements OnInit {
   deleteBook(id: number) {
     this.deleteError = false;
     this.bookHasCopyError = false;
-    this.readingListService.checkIfItemIsInReadingList(id).subscribe({
-      next: (isInList) => {
-        if (isInList) {
-          this.isBookInAnyList = true;
-          this.showDeleteConfirmation.set(true);
+    this.collectionService.checkIfItemIsInGloballyFeaturedCollection(id).subscribe({
+      next: (isFeatured) => {
+        if (isFeatured) {
+          this.showUnableToDelete.set(true);
           this.cdr.detectChanges();
-        } else {
-          this.executeDelete(id);
+        } 
+        else {
+          this.readingListService.checkIfItemIsInReadingList(id).subscribe({
+            next: (isInList) => {
+              if (isInList) {
+                this.showDeleteConfirmation.set(true);
+                this.cdr.detectChanges();
+              } else {
+                this.checkIfInCollection();
+              }
+            },
+            error: () => {
+              this.deleteError = true;
+              this.cdr.detectChanges();
+            }
+          });
         }
       },
       error: () => {
         this.deleteError = true;
         this.cdr.detectChanges();
       }
-    });
+    })
+  }
+
+  checkIfInCollection() {
+    this.collectionService.checkIfItemIsInCollection(this.book!.id).subscribe({
+      next: (isInCollection) => {
+        if (isInCollection) {
+          this.showDeleteConfirmationForCollections.set(true);
+          this.cdr.detectChanges();
+        }
+        else {
+          this.confirmDelete();
+        }
+      },
+      error: () => {
+              this.deleteError = true;
+              this.cdr.detectChanges();
+            }
+    })
   }
 
   confirmDelete() {
@@ -348,6 +382,8 @@ export class BookDetailPage implements OnInit {
 
   cancelDelete() {
     this.showDeleteConfirmation.set(false);
+    this.showUnableToDelete.set(false);
+    this.showDeleteConfirmationForCollections.set(false);
   }
 
   private executeDelete(id: number) {

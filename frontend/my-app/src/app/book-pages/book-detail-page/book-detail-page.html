@@ -175,8 +175,40 @@
           verwijderen? Het zal uit alle leeslijsten verdwijnen.
         </p>
         <div class="popup-actions">
+          <button class="primary-btn" (click)="checkIfInCollection()">Verwijderen</button>
+          <button class="secondary-btn" (click)="cancelDelete()">Annuleren</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showDeleteConfirmationForCollections()) {
+    <div class="overlay">
+      <div class="content">
+        <button class="close-btn" (click)="cancelDelete()">&times;</button>
+        <h2 class="popup-title">Boek verwijderen</h2>
+        <p>
+          Dit boek staat momenteel in een of meerdere collecties. Weet u zeker dat u dit boek wilt
+          verwijderen? Het zal uit alle collecties verdwijnen.
+        </p>
+        <div class="popup-actions">
           <button class="primary-btn" (click)="confirmDelete()">Verwijderen</button>
           <button class="secondary-btn" (click)="cancelDelete()">Annuleren</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showUnableToDelete()) {
+    <div class="overlay">
+      <div class="content">
+        <button class="close-btn" (click)="cancelDelete()">&times;</button>
+        <h2 class="popup-title">Boek verwijderen</h2>
+        <p>
+          Kan boek niet verwijderen omdat deze momenteel door de admin uitgelicht wordt in een collectie.
+        </p>
+        <div class="popup-actions">
+          <button class="primary-btn" (click)="cancelDelete()">Accepteren</button>
         </div>
       </div>
     </div>

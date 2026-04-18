@@ -19,6 +19,10 @@ import { UpdateReadingListPage } from './reading-list-pages/update-reading-list-
 import { LendingManagementComponent } from './lending-pages/lending-management/lending-management.component';
 import { LendBookComponent } from './lending-pages/lend-book/lend-book.component';
 import { ReturnBookComponent } from './lending-pages/return-book/return-book.component';
+import { CollectionListPage } from './collection-pages/collection-list-page/collection-list-page';
+import { CreateCollectionPage } from './collection-pages/create-collection-page/create-collection-page';
+import { GlobalCollectionPage } from './collection-pages/global-collection-page/global-collection-page';
+import { UpdateCollectionPage } from './collection-pages/update-collection-page/update-collection-page';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -43,5 +47,9 @@ export const routes: Routes = [
   { path: 'lendings', component: LendingManagementComponent, canActivate: [authGuard] },
   { path: 'lendings/lend', component: LendBookComponent, canActivate: [authGuard] },
   { path: 'lendings/return', component: ReturnBookComponent, canActivate: [authGuard] },
+  { path: 'collections', component: CollectionListPage, canActivate: [authGuard] },
+  { path: 'collections/add', component: CreateCollectionPage, canActivate: [authGuard] },
+  { path: 'collections/global', component: GlobalCollectionPage, canActivate: [authGuard] },
+  { path: 'collections/:id/edit', component: UpdateCollectionPage, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' },
 ];

@@ -268,6 +268,7 @@ export interface Collection {
   featured: boolean;
   globallyFeatured: boolean;
   items: Book[];
+  school: School | null;
 }
 
 export interface CreateCollectionPayload {

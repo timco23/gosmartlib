@@ -36,15 +36,15 @@ export class CollectionService {
         return this.http.get<Boolean>(`${this.apiBaseUrl}/collections/global/exists/${id}`);
     }
 
-    addReadingList(payload: CreateCollectionPayload): Observable<Collection> {
+    addCollection(payload: CreateCollectionPayload): Observable<Collection> {
         return this.http.post<Collection>(`${this.apiBaseUrl}/collections`, payload);
     }
 
-    deleteReadingList(id: number): Observable<Collection> {
+    deleteCollection(id: number): Observable<Collection> {
         return this.http.delete<Collection>(`${this.apiBaseUrl}/collections/${id}`);
     }
 
-    updateReadingList(id: number, payload: CreateCollectionPayload): Observable<Collection> {
+    updateCollection(id: number, payload: CreateCollectionPayload): Observable<Collection> {
         return this.http.put<Collection>(`${this.apiBaseUrl}/collections/${id}`, payload);
     }
 }

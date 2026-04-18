@@ -123,7 +123,8 @@ public class CollectionService {
                 collection.getDescription(),
                 collection.getFeatured(),
                 collection.getGloballyFeatured(),
-                collection.getItems().stream().map(item -> mapToItemDTO(item)).toList()
+                collection.getItems().stream().map(item -> mapToItemDTO(item)).toList(),
+                collection.getSchool()
         );
     }
 

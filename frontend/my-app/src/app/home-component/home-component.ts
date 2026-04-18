@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
-import { LoginResponse, Book, CarouselSlot, School, Tag } from '../../types/types';
+import { LoginResponse, Book, CarouselSlot, School, Tag, Collection } from '../../types/types';
 import { SchoolService } from '../services/school.service';
 import { UserService } from '../services/user.service';
 import { TagService } from '../services/tag.service';
+import { CollectionService } from '../services/collection-service';
 
 @Component({
   selector: 'app-home-component',
@@ -21,14 +22,17 @@ export class HomeComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private schoolService = inject(SchoolService);
   private userService = inject(UserService);
+  private collectionService = inject(CollectionService)
 
   currentUser: LoginResponse | null = null;
   featuredBooks: Book[] = [];
+  globalCollections: Collection[] = [];
+  collections: Collection[] = [];
   isLoading = true;
   error: string | null = null;
   scrollIndex = 0;
   school: School | null = null;
-  
+
   tagService = inject(TagService);
   allTags: Tag[] = [];
 
@@ -48,6 +52,7 @@ export class HomeComponent implements OnInit {
             this.schoolService.getByName(data.schoolName).subscribe({
               next: (schoolData) => {
                 this.school = schoolData;
+                this.getCollections();
                 this.getBooks();
               },
             });
@@ -71,6 +76,29 @@ export class HomeComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  getCollections() {
+    if (!this.school?.id) return;
+
+    this.collectionService.getAllGloballyFeaturedCollections().subscribe({
+      next: (globalCollections) => {
+        this.globalCollections = globalCollections;
+        this.collectionService.getFeaturedCollectionsBySchoolId(this.school!.id!).subscribe({
+          next: (collections) => {
+            this.collections = collections;
+          },
+          error: () => {
+            this.error = 'Kon uitgelichte collecties niet laden.';
+            this.isLoading = false;
+          }
+        })
+      },
+      error: () => {
+        this.error = 'Kon uitgelichte globale collecties niet laden.';
+        this.isLoading = false;
+      }
+    })
   }
 
   mapTagObjects(tags: Tag[] | undefined): Tag[] {
