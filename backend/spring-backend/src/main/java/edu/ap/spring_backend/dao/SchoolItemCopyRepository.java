@@ -15,4 +15,5 @@ public interface SchoolItemCopyRepository extends JpaRepository<SchoolItemCopy, 
     boolean existsByItemTitleAndSchoolId(String title, Long schoolId);
     Optional<SchoolItemCopy> findByItemTitleAndSchoolId(String title,  Long schoolId);
     Optional<SchoolItemCopy> findByBarcode(String barcode);
+    List<SchoolItemCopy> findTop50BySchoolIdOrderByIdDesc(Long schoolId);
 }

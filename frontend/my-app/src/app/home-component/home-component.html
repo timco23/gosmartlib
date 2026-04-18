@@ -1,68 +1,97 @@
 <div class="container">
   <h1>Welkom bij GO!SmartLib</h1>
 
+  <!-- Global Collections -->
   @if (globalCollections.length > 0) {
     <section class="featured-section">
-      @for(collection of globalCollections; track $index) {
-      <div class="section-header">
-        <h2>{{collection.description}}</h2>
-      </div>
+      @for(collection of globalCollections; track collection.id) {
+        <div class="section-header">
+          <h2>{{collection.description}}</h2>
+        </div>
 
-      @if (isLoading) {
-        <div class="state-message">Boeken laden…</div>
-      } @else if (error) {
-        <div class="state-message error">{{ error }}</div>
-      } @else if (globalCollections.length === 0) {
-        <div class="state-message">Geen uitgelichte globale collecties gevonden.</div>
-      } @else if (globalCollections.length < 3) {
-        <div class="static-cards" [class.single]="globalCollections.length === 1">
-          @for (book of collection.items; track book.id) {
-            <div class="static-card">
-              <div class="center-top">
-                <div class="card-cover">
-                  @if (book.cover) {
-                    <img [src]="book.cover" [alt]="book.title" class="cover-img" />
-                  } @else {
-                    <div class="cover-placeholder">📖</div>
-                  }
-                </div>
-                <div class="card-description-col">
-                  <p class="card-description">{{ book.description }}</p>
-                  <a class="details-button" [routerLink]="['/books', book.id]">Details</a>
-                </div>
-              </div>
-              <div class="card-footer">
-                <div class="footer-left">
-                  <h3 class="card-title">{{ book.title }}</h3>
-                  <p class="card-author">{{ book.author }} · {{ book.releaseYear }}</p>
-                </div>
-                <div class="footer-right">
-                  <div class="card-badges">
-                    <span class="badge badge-language">{{ book.language }}</span>
-                    @for (tag of book.tags; track tag.id) {
-                      <span class="badge badge-tag">{{ tag.name }}</span>
+        @if (isLoading) {
+          <div class="state-message">Boeken laden…</div>
+        } @else if (error) {
+          <div class="state-message error">{{ error }}</div>
+        } @else if (collection.items.length === 0) {
+          <div class="state-message">Geen boeken gevonden in deze collectie.</div>
+        } @else if (collection.items.length < 3) {
+          <div class="static-cards" [class.single]="collection.items.length === 1">
+            @for (book of collection.items; track book.id) {
+              <div class="static-card">
+                <div class="center-top">
+                  <div class="card-cover">
+                    @if (book.cover) {
+                      <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                    } @else {
+                      <div class="cover-placeholder">📖</div>
                     }
                   </div>
-                  <span class="score-value">⭐ {{ book.reviewScore | number: '1.1-1' }}</span>
+                  <div class="card-description-col">
+                    <p class="card-description">{{ book.description }}</p>
+                    <a class="details-button" [routerLink]="['/books', book.id]">Details</a>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="footer-left">
+                    <h3 class="card-title">{{ book.title }}</h3>
+                    <p class="card-author">{{ book.author }} · {{ book.releaseYear }}</p>
+                  </div>
+                  <div class="footer-right">
+                    <div class="card-badges">
+                      <span class="badge badge-language">{{ book.language }}</span>
+                      @for (tag of book.tags; track tag.id) {
+                        <span class="badge badge-tag">{{ tag.name }}</span>
+                      }
+                    </div>
+                    <span class="score-value">⭐ {{ book.reviewScore | number: '1.1-1' }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          }
-        </div>
-      } @else {
-        <div class="carousel-outer">
-          <button class="carousel-arrow" (click)="prevCard()"><</button>
-
-          <div class="carousel-viewport">
-            @for (slot of visibleSlots; track slot.position) {
-              <div
-                class="carousel-card"
-                [class.is-center]="slot.position === 'center'"
-                [class.is-side]="slot.position !== 'center'"
-                (click)="slot.position !== 'center' && goToSlide(slot.index)"
-              >
-                @if (slot.position === 'center') {
-                  <div class="center-top">
+            }
+          </div>
+        } @else {
+          <!-- Generic Carousel Template for Global Collections -->
+          <div class="carousel-outer">
+            <button class="carousel-arrow" (click)="prevCard('gc-' + collection.id, collection.items.length)"><</button>
+            <div class="carousel-viewport">
+              @for (slot of getVisibleSlotsFor('gc-' + collection.id, collection.items); track slot.position) {
+                <div
+                  class="carousel-card"
+                  [class.is-center]="slot.position === 'center'"
+                  [class.is-side]="slot.position !== 'center'"
+                  (click)="slot.position !== 'center' && goToSlide('gc-' + collection.id, slot.index)"
+                >
+                  @if (slot.position === 'center') {
+                    <div class="center-top">
+                      <div class="card-cover">
+                        @if (slot.book.cover) {
+                          <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                        } @else {
+                          <div class="cover-placeholder">📖</div>
+                        }
+                      </div>
+                      <div class="card-description-col">
+                        <p class="card-description">{{ slot.book.description }}</p>
+                        <a class="details-button" [routerLink]="['/books', slot.book.id]">Details</a>
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <div class="footer-left">
+                        <h3 class="card-title">{{ slot.book.title }}</h3>
+                        <p class="card-author">{{ slot.book.author }} · {{ slot.book.releaseYear }}</p>
+                      </div>
+                      <div class="footer-right">
+                        <div class="card-badges">
+                          <span class="badge badge-language">{{ slot.book.language }}</span>
+                          @for (tag of slot.book.tags; track tag.id) {
+                            <span class="badge badge-tag">{{ tag.name }}</span>
+                          }
+                        </div>
+                        <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                      </div>
+                    </div>
+                  } @else {
                     <div class="card-cover">
                       @if (slot.book.cover) {
                         <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
@@ -70,60 +99,27 @@
                         <div class="cover-placeholder">📖</div>
                       }
                     </div>
-                    <div class="card-description-col">
-                      <p class="card-description">{{ slot.book.description }}</p>
-                      <a class="details-button" [routerLink]="['/books', slot.book.id]">Details</a>
+                    <div class="side-footer">
+                      <span class="side-title">{{ slot.book.title }}</span>
+                      <span class="side-author">{{ slot.book.author }}</span>
                     </div>
-                  </div>
-                  <div class="card-footer">
-                    <div class="footer-left">
-                      <h3 class="card-title">{{ slot.book.title }}</h3>
-                      <p class="card-author">
-                        {{ slot.book.author }} · {{ slot.book.releaseYear }}
-                      </p>
-                    </div>
-                    <div class="footer-right">
-                      <div class="card-badges">
-                        <span class="badge badge-language">{{ slot.book.language }}</span>
-                        @for (tag of slot.book.tags; track tag.id) {
-                          <span class="badge badge-tag">{{ tag.name }}</span>
-                        }
-                      </div>
-                      <span class="score-value"
-                        >Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span
-                      >
-                    </div>
-                  </div>
-                } @else {
-                  <div class="card-cover">
-                    @if (slot.book.cover) {
-                      <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
-                    } @else {
-                      <div class="cover-placeholder">📖</div>
-                    }
-                  </div>
-                  <div class="side-footer">
-                    <span class="side-title">{{ slot.book.title }}</span>
-                    <span class="side-author">{{ slot.book.author }}</span>
-                  </div>
-                }
-              </div>
+                  }
+                </div>
+              }
+            </div>
+            <button class="carousel-arrow" (click)="nextCard('gc-' + collection.id, collection.items.length)">></button>
+          </div>
+          <div class="carousel-dots">
+            @for (book of collection.items; track book.id; let i = $index) {
+              <button class="dot" [class.active]="i === getScrollIndex('gc-' + collection.id)" (click)="goToSlide('gc-' + collection.id, i)"></button>
             }
           </div>
-
-          <button class="carousel-arrow" (click)="nextCard()">></button>
-        </div>
-
-        <div class="carousel-dots">
-          @for (book of collection.items; track book.id; let i = $index) {
-            <button class="dot" [class.active]="i === scrollIndex" (click)="goToSlide(i)"></button>
-          }
-        </div>
-      }
+        }
       }
     </section>
   }
 
+  <!-- Featured Books -->
   @if (featuredBooks.length > 0) {
     <section class="featured-section">
       <div class="section-header">
@@ -135,12 +131,11 @@
         <div class="state-message">Boeken laden…</div>
       } @else if (error) {
         <div class="state-message error">{{ error }}</div>
-      } @else if (featuredBooks.length === 0) {
-        <div class="state-message">Geen uitgelichte boeken gevonden.</div>
       } @else if (featuredBooks.length < 3) {
         <div class="static-cards" [class.single]="featuredBooks.length === 1">
           @for (book of featuredBooks; track book.id) {
             <div class="static-card">
+              <!-- Same static card content -->
               <div class="center-top">
                 <div class="card-cover">
                   @if (book.cover) {
@@ -174,15 +169,14 @@
         </div>
       } @else {
         <div class="carousel-outer">
-          <button class="carousel-arrow" (click)="prevCard()"><</button>
-
+          <button class="carousel-arrow" (click)="prevCard('featured', featuredBooks.length)"><</button>
           <div class="carousel-viewport">
-            @for (slot of visibleSlots; track slot.position) {
+            @for (slot of getVisibleSlotsFor('featured', featuredBooks); track slot.position) {
               <div
                 class="carousel-card"
                 [class.is-center]="slot.position === 'center'"
                 [class.is-side]="slot.position !== 'center'"
-                (click)="slot.position !== 'center' && goToSlide(slot.index)"
+                (click)="slot.position !== 'center' && goToSlide('featured', slot.index)"
               >
                 @if (slot.position === 'center') {
                   <div class="center-top">
@@ -201,9 +195,7 @@
                   <div class="card-footer">
                     <div class="footer-left">
                       <h3 class="card-title">{{ slot.book.title }}</h3>
-                      <p class="card-author">
-                        {{ slot.book.author }} · {{ slot.book.releaseYear }}
-                      </p>
+                      <p class="card-author">{{ slot.book.author }} · {{ slot.book.releaseYear }}</p>
                     </div>
                     <div class="footer-right">
                       <div class="card-badges">
@@ -212,9 +204,7 @@
                           <span class="badge badge-tag">{{ tag.name }}</span>
                         }
                       </div>
-                      <span class="score-value"
-                        >Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span
-                      >
+                      <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
                     </div>
                   </div>
                 } @else {
@@ -233,35 +223,144 @@
               </div>
             }
           </div>
-
-          <button class="carousel-arrow" (click)="nextCard()">></button>
+          <button class="carousel-arrow" (click)="nextCard('featured', featuredBooks.length)">></button>
         </div>
-
         <div class="carousel-dots">
           @for (book of featuredBooks; track book.id; let i = $index) {
-            <button class="dot" [class.active]="i === scrollIndex" (click)="goToSlide(i)"></button>
+            <button class="dot" [class.active]="i === getScrollIndex('featured')" (click)="goToSlide('featured', i)"></button>
           }
         </div>
       }
     </section>
   }
 
+  <!-- School Collections -->
   @if (collections.length > 0) {
     <section class="featured-section">
-      @for(collection of collections; track $index) {
+      @for(collection of collections; track collection.id) {
+        <div class="section-header">
+          <h2>{{collection.description}}</h2>
+        </div>
+
+        @if (isLoading) {
+          <div class="state-message">Boeken laden…</div>
+        } @else if (error) {
+          <div class="state-message error">{{ error }}</div>
+        } @else if (collection.items.length === 0) {
+          <div class="state-message">Geen boeken gevonden in deze collectie.</div>
+        } @else if (collection.items.length < 3) {
+          <div class="static-cards" [class.single]="collection.items.length === 1">
+            @for (book of collection.items; track book.id) {
+              <div class="static-card">
+                <!-- Static card content same as above -->
+                <div class="center-top">
+                  <div class="card-cover">
+                    @if (book.cover) {
+                      <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                    } @else {
+                      <div class="cover-placeholder">📖</div>
+                    }
+                  </div>
+                  <div class="card-description-col">
+                    <p class="card-description">{{ book.description }}</p>
+                    <a class="details-button" [routerLink]="['/books', book.id]">Details</a>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="footer-left">
+                    <h3 class="card-title">{{ book.title }}</h3>
+                    <p class="card-author">{{ book.author }} · {{ book.releaseYear }}</p>
+                  </div>
+                  <div class="footer-right">
+                    <div class="card-badges">
+                      <span class="badge badge-language">{{ book.language }}</span>
+                      @for (tag of book.tags; track tag.id) {
+                        <span class="badge badge-tag">{{ tag.name }}</span>
+                      }
+                    </div>
+                    <span class="score-value">⭐ {{ book.reviewScore | number: '1.1-1' }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="carousel-outer">
+            <button class="carousel-arrow" (click)="prevCard('c-' + collection.id, collection.items.length)"><</button>
+            <div class="carousel-viewport">
+              @for (slot of getVisibleSlotsFor('c-' + collection.id, collection.items); track slot.position) {
+                <div
+                  class="carousel-card"
+                  [class.is-center]="slot.position === 'center'"
+                  [class.is-side]="slot.position !== 'center'"
+                  (click)="slot.position !== 'center' && goToSlide('c-' + collection.id, slot.index)"
+                >
+                  @if (slot.position === 'center') {
+                    <div class="center-top">
+                      <div class="card-cover">
+                        @if (slot.book.cover) {
+                          <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                        } @else {
+                          <div class="cover-placeholder">📖</div>
+                        }
+                      </div>
+                      <div class="card-description-col">
+                        <p class="card-description">{{ slot.book.description }}</p>
+                        <a class="details-button" [routerLink]="['/books', slot.book.id]">Details</a>
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <div class="footer-left">
+                        <h3 class="card-title">{{ slot.book.title }}</h3>
+                        <p class="card-author">{{ slot.book.author }} · {{ slot.book.releaseYear }}</p>
+                      </div>
+                      <div class="footer-right">
+                        <div class="card-badges">
+                          <span class="badge badge-language">{{ slot.book.language }}</span>
+                          @for (tag of slot.book.tags; track tag.id) {
+                            <span class="badge badge-tag">{{ tag.name }}</span>
+                          }
+                        </div>
+                        <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="card-cover">
+                      @if (slot.book.cover) {
+                        <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                      } @else {
+                        <div class="cover-placeholder">📖</div>
+                      }
+                    </div>
+                    <div class="side-footer">
+                      <span class="side-title">{{ slot.book.title }}</span>
+                      <span class="side-author">{{ slot.book.author }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <button class="carousel-arrow" (click)="nextCard('c-' + collection.id, collection.items.length)">></button>
+          </div>
+          <div class="carousel-dots">
+            @for (book of collection.items; track book.id; let i = $index) {
+              <button class="dot" [class.active]="i === getScrollIndex('c-' + collection.id)" (click)="goToSlide('c-' + collection.id, i)"></button>
+            }
+          </div>
+        }
+      }
+    </section>
+  }
+
+  <!-- Latest Books -->
+    <section class="featured-section">
       <div class="section-header">
-        <h2>{{collection.description}}</h2>
+        <h2>Nieuw in de bib</h2>
       </div>
 
-      @if (isLoading) {
-        <div class="state-message">Boeken laden…</div>
-      } @else if (error) {
-        <div class="state-message error">{{ error }}</div>
-      } @else if (collections.length === 0) {
-        <div class="state-message">Geen uitgelichte collecties gevonden.</div>
-      } @else if (collections.length < 3) {
-        <div class="static-cards" [class.single]="collections.length === 1">
-          @for (book of collection.items; track book.id) {
+      @if (latestBooks.length < 3) {
+        <div class="static-cards" [class.single]="latestBooks.length === 1">
+          @for (book of latestBooks; track book.id) {
             <div class="static-card">
               <div class="center-top">
                 <div class="card-cover">
@@ -296,15 +395,14 @@
         </div>
       } @else {
         <div class="carousel-outer">
-          <button class="carousel-arrow" (click)="prevCard()"><</button>
-
+          <button class="carousel-arrow" (click)="prevCard('latest', latestBooks.length)"><</button>
           <div class="carousel-viewport">
-            @for (slot of visibleSlots; track slot.position) {
+            @for (slot of getVisibleSlotsFor('latest', latestBooks); track slot.position) {
               <div
                 class="carousel-card"
                 [class.is-center]="slot.position === 'center'"
                 [class.is-side]="slot.position !== 'center'"
-                (click)="slot.position !== 'center' && goToSlide(slot.index)"
+                (click)="slot.position !== 'center' && goToSlide('latest', slot.index)"
               >
                 @if (slot.position === 'center') {
                   <div class="center-top">
@@ -323,9 +421,7 @@
                   <div class="card-footer">
                     <div class="footer-left">
                       <h3 class="card-title">{{ slot.book.title }}</h3>
-                      <p class="card-author">
-                        {{ slot.book.author }} · {{ slot.book.releaseYear }}
-                      </p>
+                      <p class="card-author">{{ slot.book.author }} · {{ slot.book.releaseYear }}</p>
                     </div>
                     <div class="footer-right">
                       <div class="card-badges">
@@ -334,9 +430,7 @@
                           <span class="badge badge-tag">{{ tag.name }}</span>
                         }
                       </div>
-                      <span class="score-value"
-                        >Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span
-                      >
+                      <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
                     </div>
                   </div>
                 } @else {
@@ -355,17 +449,13 @@
               </div>
             }
           </div>
-
-          <button class="carousel-arrow" (click)="nextCard()">></button>
+          <button class="carousel-arrow" (click)="nextCard('latest', latestBooks.length)">></button>
         </div>
-
         <div class="carousel-dots">
-          @for (book of collection.items; track book.id; let i = $index) {
-            <button class="dot" [class.active]="i === scrollIndex" (click)="goToSlide(i)"></button>
+          @for (book of latestBooks; track book.id; let i = $index) {
+            <button class="dot" [class.active]="i === getScrollIndex('latest')" (click)="goToSlide('latest', i)"></button>
           }
         </div>
       }
-      }
     </section>
-  }
 </div>

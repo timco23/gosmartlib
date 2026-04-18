@@ -94,6 +94,10 @@ export class BookService {
     return this.http.get<Book>(`${this.apiBaseUrl}/books/search`, { params: { title: bookTitle } });
   }
 
+  getLatestBooks(schoolId: number): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiBaseUrl}/books/latest/${schoolId}`);
+  }
+
   addBook(newBook: CreateBookPayload): Observable<Book> {
     return this.http.post<Book>(`${this.apiBaseUrl}/books`, newBook);
   }

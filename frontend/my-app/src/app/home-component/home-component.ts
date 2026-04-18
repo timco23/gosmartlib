@@ -26,12 +26,22 @@ export class HomeComponent implements OnInit {
 
   currentUser: LoginResponse | null = null;
   featuredBooks: Book[] = [];
+  latestBooks: Book[] = [];
   globalCollections: Collection[] = [];
   collections: Collection[] = [];
   isLoading = true;
   error: string | null = null;
-  scrollIndex = 0;
   school: School | null = null;
+
+  // Track scroll indices for different sections
+  // 'featured' for featuredBooks
+  // 'latest' for latestBooks
+  // 'gc-<id>' for global collections
+  // 'c-<id>' for school collections
+  scrollIndices: { [key: string]: number } = {
+    featured: 0,
+    latest: 0
+  };
 
   tagService = inject(TagService);
   allTags: Tag[] = [];
@@ -54,6 +64,7 @@ export class HomeComponent implements OnInit {
                 this.school = schoolData;
                 this.getCollections();
                 this.getBooks();
+                this.getLatestBooks();
               },
             });
           }
@@ -78,15 +89,39 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  getLatestBooks() {
+    if (!this.school?.id) return;
+
+    this.bookService.getLatestBooks(this.school.id).subscribe({
+      next: (books) => {
+        this.latestBooks = books;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // We don't set this.error because it's a non-critical section
+        console.error('Kon nieuwste boeken niet laden.');
+      },
+    });
+  }
+
   getCollections() {
     if (!this.school?.id) return;
 
     this.collectionService.getAllGloballyFeaturedCollections().subscribe({
       next: (globalCollections) => {
         this.globalCollections = globalCollections;
+        // Initialize indices for global collections
+        globalCollections.forEach(c => {
+          this.scrollIndices[`gc-${c.id}`] = 0;
+        });
+
         this.collectionService.getFeaturedCollectionsBySchoolId(this.school!.id!).subscribe({
           next: (collections) => {
             this.collections = collections;
+            // Initialize indices for school collections
+            collections.forEach(c => {
+              this.scrollIndices[`c-${c.id}`] = 0;
+            });
           },
           error: () => {
             this.error = 'Kon uitgelichte collecties niet laden.';
@@ -108,75 +143,79 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // Returns the cards that should be visible in the carousel
-  // left cards + center + right cards
-  get visibleSlots(): CarouselSlot[] {
-    const n = this.featuredBooks.length;
+  // Returns the cards that should be visible in the carousel for a given section
+  getVisibleSlotsFor(sectionKey: string, books: Book[]): CarouselSlot[] {
+    const currentIndex = this.scrollIndices[sectionKey] || 0;
+    const n = books.length;
     if (n === 0) return [];
 
     // one book on each side
     if (n === 3) {
       return [
         {
-          book: this.featuredBooks[this.wrap(this.scrollIndex - 1)],
-          index: this.wrap(this.scrollIndex - 1),
+          book: books[this.wrap(currentIndex - 1, n)],
+          index: this.wrap(currentIndex - 1, n),
           position: 'left-1',
         },
-        { book: this.featuredBooks[this.scrollIndex], index: this.scrollIndex, position: 'center' },
+        { book: books[currentIndex], index: currentIndex, position: 'center' },
         {
-          book: this.featuredBooks[this.wrap(this.scrollIndex + 1)],
-          index: this.wrap(this.scrollIndex + 1),
+          book: books[this.wrap(currentIndex + 1, n)],
+          index: this.wrap(currentIndex + 1, n),
           position: 'right-1',
         },
       ];
     }
 
     const slots: CarouselSlot[] = [];
-    const usedIndices = new Set<number>([this.scrollIndex]);
+    const usedIndices = new Set<number>([currentIndex]);
 
     // Add 2 cards on the left
     const leftCards: CarouselSlot[] = [];
     for (let step = 1; step <= 2; step++) {
-      const index = this.wrap(this.scrollIndex - step);
+      const index = this.wrap(currentIndex - step, n);
       if (usedIndices.has(index)) break;
       usedIndices.add(index);
       const position = step === 1 ? 'left-1' : 'left-2';
-      leftCards.unshift({ book: this.featuredBooks[index], index: index, position });
+      leftCards.unshift({ book: books[index], index: index, position });
     }
 
     // Add 2 cards on the right
     const rightCards: CarouselSlot[] = [];
     for (let step = 1; step <= 2; step++) {
-      const index = this.wrap(this.scrollIndex + step);
+      const index = this.wrap(currentIndex + step, n);
       if (usedIndices.has(index)) break;
       usedIndices.add(index);
       const position = step === 1 ? 'right-1' : 'right-2';
-      rightCards.push({ book: this.featuredBooks[index], index: index, position });
+      rightCards.push({ book: books[index], index: index, position });
     }
 
     const centerCard: CarouselSlot = {
-      book: this.featuredBooks[this.scrollIndex],
-      index: this.scrollIndex,
+      book: books[currentIndex],
+      index: currentIndex,
       position: 'center',
     };
     return [...leftCards, centerCard, ...rightCards];
   }
 
-  prevCard() {
-    this.scrollIndex = this.wrap(this.scrollIndex - 1);
+  prevCard(sectionKey: string, length: number) {
+    this.scrollIndices[sectionKey] = this.wrap((this.scrollIndices[sectionKey] || 0) - 1, length);
   }
 
-  nextCard() {
-    this.scrollIndex = this.wrap(this.scrollIndex + 1);
+  nextCard(sectionKey: string, length: number) {
+    this.scrollIndices[sectionKey] = this.wrap((this.scrollIndices[sectionKey] || 0) + 1, length);
   }
 
-  goToSlide(index: number) {
-    this.scrollIndex = index;
+  goToSlide(sectionKey: string, index: number) {
+    this.scrollIndices[sectionKey] = index;
+  }
+
+  getScrollIndex(sectionKey: string): number {
+    return this.scrollIndices[sectionKey] || 0;
   }
 
   // contains the index within the bounds of the books array
-  private wrap(index: number): number {
-    const length = this.featuredBooks.length;
+  private wrap(index: number, length: number): number {
+    if (length === 0) return 0;
     return ((index % length) + length) % length;
   }
 }

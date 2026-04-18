@@ -271,4 +271,16 @@ public class ItemService {
                 .map(id -> didacticCategoryRepository.findById(id).orElseThrow(EntityNotFoundException::new))
                 .collect(Collectors.toSet());
     }
+
+    public List<ItemDTO> get10LatestItems(Long schoolId) {
+        List<SchoolItemCopy> copies = schoolItemCopyRepository.findTop50BySchoolIdOrderByIdDesc(schoolId);
+
+        Set<Long> seenIds = new HashSet<>();
+        return copies.stream()
+                .map(SchoolItemCopy::getItem)
+                .filter(item -> seenIds.add(item.getId()))
+                .limit(10)
+                .map(this::mapToItemDTO)
+                .toList();
+    }
 }

@@ -89,6 +89,11 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getItemByTitle(title));
     }
 
+    @GetMapping("/books/latest/{schoolId}")
+    public ResponseEntity<List<ItemDTO>> getLatestItems(@PathVariable Long schoolId) {
+        return ResponseEntity.ok(itemService.get10LatestItems(schoolId));
+    }
+
     @PostMapping("/books")
     public ResponseEntity<ItemDTO> addItem(@RequestBody CreateItemDTO itemDTO) {
         return ResponseEntity.ok(itemService.addItem(itemDTO));
