@@ -37,7 +37,8 @@
                             <span (click)="removeBook(book.id)" class="removeBookButton">×</span>
                             <div class="book-cover-container" (click)="goToBookDetails(book.id)">
                                 @if(book.cover) {
-                                <img [src]="book!.cover" [alt]="book.title">
+                                <img [src]="'/api/books/' + book.id + '/cover'" [alt]="book.title || 'Boek cover'"
+                                    loading="lazy">
                                 }
                                 @else {
                                 <div class="cover-placeholder">📖</div>

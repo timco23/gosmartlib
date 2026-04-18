@@ -261,6 +261,10 @@ textarea.ng-invalid.ng-touched {
     accent-color: #8c1b3f;
 }
 
+#globalCollection {
+    accent-color: #8c1b3f;
+}
+
 #globallyFeatured {
     accent-color: #8c1b3f;
 }

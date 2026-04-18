@@ -12,7 +12,8 @@
         <ul>
             @for(collection of collections; track $index) {
             <li class="collection-container">
-                <div class="featured-badge" [class.featured]="collection.featured" [class.unfeatured]="!collection.featured">
+                <div class="featured-badge" [class.featured]="collection.featured"
+                    [class.unfeatured]="!collection.featured">
                     {{ collection.featured ? 'Uitgelicht' : 'Niet uitgelicht' }}
                 </div>
                 <div class="collection-info-header">
@@ -52,7 +53,8 @@
                         <div class="book-card" (click)="goToBookDetails(book.id)">
                             <div class="book-cover">
                                 @if(book.cover) {
-                                <img [src]="book.cover" [alt]="book.title">
+                                <img [src]="'/api/books/' + book.id + '/cover'" [alt]="book.title || 'Boek cover'"
+                                    loading="lazy">
                                 } @else {
                                 <div class="cover-placeholder">📖</div>
                                 }

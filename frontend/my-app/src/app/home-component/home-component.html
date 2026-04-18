@@ -21,7 +21,9 @@
                 <div class="center-top">
                   <div class="card-cover">
                     @if (book.cover) {
-                      <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                      <img                           [src]="'/api/books/' + book.id + '/cover'"
+                          [alt]="book.title || 'Boek cover'"
+                          loading="lazy" />
                     } @else {
                       <div class="cover-placeholder">📖</div>
                     }
@@ -64,7 +66,9 @@
                     <div class="center-top">
                       <div class="card-cover">
                         @if (slot.book.cover) {
-                          <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                          <img                           [src]="'/api/books/' + slot.book.id + '/cover'"
+                          [alt]="slot.book.title || 'Boek cover'"
+                          loading="lazy" />
                         } @else {
                           <div class="cover-placeholder">📖</div>
                         }
@@ -92,7 +96,9 @@
                   } @else {
                     <div class="card-cover">
                       @if (slot.book.cover) {
-                        <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                        <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                          [alt]="slot.book.title || 'Boek cover'"
+                          loading="lazy" />
                       } @else {
                         <div class="cover-placeholder">📖</div>
                       }
@@ -135,7 +141,9 @@
               <div class="center-top">
                 <div class="card-cover">
                   @if (book.cover) {
-                    <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                    <img [src]="'/api/books/' + book.id + '/cover'"
+                          [alt]="book.title || 'Boek cover'"
+                          loading="lazy" />
                   } @else {
                     <div class="cover-placeholder">📖</div>
                   }
@@ -178,7 +186,9 @@
                   <div class="center-top">
                     <div class="card-cover">
                       @if (slot.book.cover) {
-                        <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                        <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                          [alt]="slot.book.title || 'Boek cover'"
+                          loading="lazy" />
                       } @else {
                         <div class="cover-placeholder">📖</div>
                       }
@@ -206,7 +216,9 @@
                 } @else {
                   <div class="card-cover">
                     @if (slot.book.cover) {
-                      <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                      <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                          [alt]="slot.book.title || 'Boek cover'"
+                          loading="lazy" />
                     } @else {
                       <div class="cover-placeholder">📖</div>
                     }
@@ -251,7 +263,9 @@
                 <div class="center-top">
                   <div class="card-cover">
                     @if (book.cover) {
-                      <img [src]="book.cover" [alt]="book.title" class="cover-img" />
+                      <img [src]="'/api/books/' + book.id + '/cover'"
+                          [alt]="book.title || 'Boek cover'"
+                          loading="lazy" />
                     } @else {
                       <div class="cover-placeholder">📖</div>
                     }
@@ -294,7 +308,9 @@
                     <div class="center-top">
                       <div class="card-cover">
                         @if (slot.book.cover) {
-                          <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                          <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                          [alt]="slot.book.title || 'Boek cover'"
+                          loading="lazy" />
                         } @else {
                           <div class="cover-placeholder">📖</div>
                         }
@@ -322,7 +338,9 @@
                   } @else {
                     <div class="card-cover">
                       @if (slot.book.cover) {
-                        <img [src]="slot.book.cover" [alt]="slot.book.title" class="cover-img" />
+                        <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                          [alt]="slot.book.title || 'Boek cover'"
+                          loading="lazy" />
                       } @else {
                         <div class="cover-placeholder">📖</div>
                       }
@@ -360,7 +378,9 @@
                 <div class="card-cover">
                   @let cover = coverSrc(book);
                   @if (cover) {
-                    <img [src]="cover" [alt]="book.title" class="cover-img" />
+                    <img [src]="'/api/books/' + book.id + '/cover'"
+                          [alt]="book.title || 'Boek cover'"
+                          loading="lazy" />
                   } @else {
                     <div class="cover-placeholder">📖</div>
                   }
@@ -404,7 +424,7 @@
                     <div class="card-cover">
                       @let centerCover = coverSrc(slot.book);
                       @if (centerCover) {
-                        <img [src]="centerCover" [alt]="slot.book.title" class="cover-img" />
+                        <img [src]="centerCover" [alt]="slot.book.title" />
                       } @else {
                         <div class="cover-placeholder">📖</div>
                       }
