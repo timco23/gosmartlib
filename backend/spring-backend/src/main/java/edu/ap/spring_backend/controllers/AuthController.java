@@ -49,13 +49,33 @@ public class AuthController {
 
         String token = authorizationHeader.substring("Bearer ".length()).trim();
 
-        JwtService jwt = new JwtService(jwtSecret, jwtExpiresMinutes);
-        Integer userId = jwt.getUserIdFromToken(token);
+        User u = null;
+        //Hardcoded DEV tokens must be removed for production
+        if (!(token.equals("DEV_ADMIN_TOKEN") || token.equals("DEV_TEACHER_TOKEN") || token.equals("DEV_BIBLIOTHEEKBEHEERDER_TOKEN") || token.equals("DEV_STUDENT_TOKEN"))) {
+            JwtService jwt = new JwtService(jwtSecret, jwtExpiresMinutes);
+            Integer userId = jwt.getUserIdFromToken(token);
 
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) return ResponseEntity.status(401).build();
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) return ResponseEntity.status(401).build();
 
-        User u = userOpt.get();
+            u = userOpt.get();
+        }
+        else {
+            switch (token) {
+                case "DEV_ADMIN_TOKEN":
+                    u = userRepository.findByEmail("admin@gsmartlib.tech").get();
+                    break;
+                case "DEV_TEACHER_TOKEN":
+                    u = userRepository.findByEmail("leerkracht.dev@gsmartlib.tech").get();
+                    break;
+                case "DEV_BIBLIOTHEEKBEHEERDER_TOKEN":
+                    u = userRepository.findByEmail("bibliotheekbeheerder.dev@gsmartlib.tech").get();
+                    break;
+                case "DEV_STUDENT_TOKEN":
+                    u = userRepository.findByEmail("leerling.dev@gsmartlib.tech").get();
+                     break;
+            }
+        }
 
         /// Makes a LoginResponse like the frontend expects (name/role/email)
         LoginResponse resp = new LoginResponse(u.getName(), u.getRole().name(), u.getEmail());
