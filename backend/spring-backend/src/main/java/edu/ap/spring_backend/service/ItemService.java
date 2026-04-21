@@ -61,9 +61,11 @@ public class ItemService {
         .and(withGenres(request.genreIds()))
         .and(withSubgenres(request.subgenreIds()))
         .and(withDidactic(request.didactic()))
-        .and(withDidacticCategories(Boolean.TRUE.equals(request.didactic()) ? request.didacticCategoryIds() : null))
-        .and(withSchoolId(request.schoolId()));
+        .and(withDidacticCategories(Boolean.TRUE.equals(request.didactic()) ? request.didacticCategoryIds() : null));
 
+        if(!request.globalBooks()) {
+            spec = spec.and(withSchoolId(request.schoolId()));
+        }
         Sort sort = createSort(request.sortBy(), request.sortDirection());
         Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
 

@@ -17,5 +17,6 @@ public record ItemRequestDTO(
         List<Long> subgenreIds,
         List<Long> didacticCategoryIds,
         Boolean didactic,
-        Long schoolId
+        Long schoolId,
+        Boolean globalBooks
 ) {}
