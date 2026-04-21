@@ -58,6 +58,7 @@ export class BookListPage implements OnInit {
   minScore?: number;
   selectedTags: Tag[] = [];
   school: School | null = null;
+  getSchoolSpecificBooks: boolean = true;
 
   allTags: Tag[] = [];
   tagService = inject(TagService);
@@ -117,6 +118,7 @@ export class BookListPage implements OnInit {
         this.search,
         this.languages,
         this.school.id,
+        this.getSchoolSpecificBooks,
         this.minPages,
         this.maxPages,
         this.minScore,
@@ -238,5 +240,9 @@ export class BookListPage implements OnInit {
 
   checkDetails(id: number) {
     this.router.navigate(['/books', id]);
+  }
+
+  toggleSchoolSpecificBooks() {
+    this.loadBooks();
   }
 }

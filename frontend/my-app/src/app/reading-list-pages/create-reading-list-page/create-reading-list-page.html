@@ -28,7 +28,7 @@
                     <div class="book-cover-container" (click)="goToBookDetails(book.id)">
                       @if (book.id) {
                         <img
-                          [src]="'/api/books/' + book.id + '/cover'"
+                          [src]="coverSrc(book)"
                           [alt]="book.title || 'Boek cover'"
                           loading="lazy"
                         />

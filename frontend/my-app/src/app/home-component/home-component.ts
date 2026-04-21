@@ -8,6 +8,7 @@ import { SchoolService } from '../services/school.service';
 import { UserService } from '../services/user.service';
 import { TagService } from '../services/tag.service';
 import { CollectionService } from '../services/collection-service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-home-component',
@@ -32,6 +33,7 @@ export class HomeComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
   school: School | null = null;
+  apiBaseUrl = environment.apiUrl;
 
   // Track scroll indices for different sections
   // 'featured' for featuredBooks

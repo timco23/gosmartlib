@@ -3,6 +3,7 @@ import { ReadingListService } from '../../services/readingList-service';
 import { ReadingList, CarouselSlot, Book } from '../../../types/types';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { BookService } from '../../services/book-service';
 
 @Component({
   selector: 'app-reading-list-detail-page',
@@ -22,6 +23,7 @@ export class ReadingListDetailPage implements OnInit {
   route = inject(ActivatedRoute);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
+  bookService = inject(BookService);
 
   ngOnInit() {
     this.route.paramMap.subscribe((p) => {
@@ -115,5 +117,10 @@ export class ReadingListDetailPage implements OnInit {
 
   goToBookDetails(id: number) {
     this.router.navigate(['/books', id])
+  }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
   }
 }

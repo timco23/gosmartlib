@@ -186,4 +186,9 @@ export class CreateCollectionPage {
     this.form.controls["uitgelicht"].reset()
     this.form.controls["globaalUitgelicht"].reset()
   }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
+  }
 }

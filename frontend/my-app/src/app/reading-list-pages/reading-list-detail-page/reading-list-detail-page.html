@@ -38,7 +38,7 @@
                   <div class="card-cover">
                     @if (slot.book.id) {
                       <img
-                        [src]="'/api/books/' + slot.book.id + '/cover'"
+                        [src]="coverSrc(slot.book)"
                         [alt]="slot.book.title || 'Boek cover'"
                         class="cover-img"
                         loading="lazy"

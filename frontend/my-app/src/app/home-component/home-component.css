@@ -86,11 +86,15 @@ h1 {
   gap: 1.25rem;
   max-width: 1400px;
   margin-bottom: 2rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .static-cards.single {
   justify-content: center;
   margin-bottom: 2rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .static-card {

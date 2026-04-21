@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { CollectionService } from '../../services/collection-service';
 import { SchoolService } from '../../services/school.service';
 import { UserService } from '../../services/user.service';
+import { BookService } from '../../services/book-service';
 
 @Component({
   selector: 'app-global-collection-page',
@@ -22,6 +23,7 @@ export class GlobalCollectionPage {
   authService = inject(AuthService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef)
+  bookService = inject(BookService);
 
   ngOnInit(): void {
     this.getCollections();
@@ -92,5 +94,10 @@ export class GlobalCollectionPage {
 
   goBackToCollections() {
     this.router.navigate(["/collections"])
+  }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
   }
 }

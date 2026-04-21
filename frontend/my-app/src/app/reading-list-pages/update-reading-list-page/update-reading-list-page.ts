@@ -181,4 +181,9 @@ export class UpdateReadingListPage {
   goToReadingLists() {
     this.router.navigate(["/lists"])
   }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
+  }
 }

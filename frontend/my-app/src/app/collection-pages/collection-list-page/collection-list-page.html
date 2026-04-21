@@ -53,7 +53,7 @@
                         <div class="book-card" (click)="goToBookDetails(book.id)">
                             <div class="book-cover">
                                 @if(book.cover) {
-                                <img [src]="'/api/books/' + book.id + '/cover'" [alt]="book.title || 'Boek cover'"
+                                <img [src]="coverSrc(book)" [alt]="book.title || 'Boek cover'"
                                     loading="lazy">
                                 } @else {
                                 <div class="cover-placeholder">📖</div>

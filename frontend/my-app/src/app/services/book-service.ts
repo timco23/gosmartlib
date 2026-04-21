@@ -32,6 +32,7 @@ export class BookService {
     search: string = '',
     languages: string[] = [],
     schoolId: number,
+    schoolSpecificBooks: boolean,
     minPages?: number,
     maxPages?: number,
     minScore?: number,
@@ -46,7 +47,8 @@ export class BookService {
       .set('size', size)
       .set('sortBy', sortBy)
       .set('sortDirection', sortDirection)
-      .set('schoolId', schoolId);
+      .set('schoolId', schoolId)
+      .set('schoolSpecificBooks', schoolSpecificBooks);
 
     if (search) params = params.set('search', search);
     if (languages.length > 0) languages.forEach((l) => (params = params.append('languages', l)));

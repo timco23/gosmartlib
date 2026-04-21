@@ -82,7 +82,7 @@
                     <div class="book-cover">
                       @if (book.id) {
                         <img
-                          [src]="'/api/books/' + book.id + '/cover'"
+                          [src]="coverSrc(book)"
                           [alt]="book.title || 'Boek cover'"
                           loading="lazy"
                         />

@@ -6,6 +6,7 @@ import { UserService } from '../../services/user.service';
 import { Router } from '@angular/router';
 import { ShareListPopup } from '../share-list-popup/share-list-popup';
 import { environment } from '../../../environments/environment';
+import { BookService } from '../../services/book-service';
 
 @Component({
   selector: 'app-reading-list-page',
@@ -25,6 +26,7 @@ export class ReadingListPage implements OnInit {
   readingListService = inject(ReadingListService);
   userService = inject(UserService);
   authService = inject(AuthService);
+  bookService = inject(BookService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef)
 
@@ -108,5 +110,10 @@ export class ReadingListPage implements OnInit {
 
   devGoToDetails(id: number) {
     this.router.navigate(["/lists", id])
+  }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
   }
 }

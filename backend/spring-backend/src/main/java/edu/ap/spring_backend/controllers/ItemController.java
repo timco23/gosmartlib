@@ -82,7 +82,7 @@ public class ItemController {
             @RequestParam(defaultValue = "title") @Pattern(regexp = "title|author|score|pages") String sortBy,
             @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE) String sortDirection,
             @RequestParam Long schoolId,
-            @RequestParam Boolean globalBooks,
+            @RequestParam Boolean schoolSpecificBooks,
             @RequestParam(required = false) @Size(max = 100) String search,
             @RequestParam(required = false) @Size(max = 10) List<String> languages,
             @RequestParam(required = false) @Min(0) Integer minPages,
@@ -108,7 +108,7 @@ public class ItemController {
 
         ItemRequestDTO request = new ItemRequestDTO(
                 page, size, sortBy, sortDirection, search, languages, minPages, maxPages, minScore,
-                tagIds, genreIds, subgenreIds, didacticCategoryIds, didactic, schoolId, globalBooks);
+                tagIds, genreIds, subgenreIds, didacticCategoryIds, didactic, schoolId, schoolSpecificBooks);
 
         return ResponseEntity.ok(itemService.getFilteredItems(request));
     }

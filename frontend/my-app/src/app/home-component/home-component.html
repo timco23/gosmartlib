@@ -21,7 +21,7 @@
                 <div class="center-top">
                   <div class="card-cover">
                     @if (book.cover) {
-                      <img                           [src]="'/api/books/' + book.id + '/cover'"
+                      <img                           [src]="apiBaseUrl + '/books/' + book.id + '/cover'"
                           [alt]="book.title || 'Boek cover'"
                           loading="lazy" />
                     } @else {
@@ -66,7 +66,7 @@
                     <div class="center-top">
                       <div class="card-cover">
                         @if (slot.book.cover) {
-                          <img                           [src]="'/api/books/' + slot.book.id + '/cover'"
+                          <img                           [src]="apiBaseUrl + '/books/' + slot.book.id + '/cover'"
                           [alt]="slot.book.title || 'Boek cover'"
                           loading="lazy" />
                         } @else {
@@ -96,7 +96,7 @@
                   } @else {
                     <div class="card-cover">
                       @if (slot.book.cover) {
-                        <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                        <img [src]="apiBaseUrl + '/books/' + slot.book.id + '/cover'"
                           [alt]="slot.book.title || 'Boek cover'"
                           loading="lazy" />
                       } @else {
@@ -141,7 +141,7 @@
               <div class="center-top">
                 <div class="card-cover">
                   @if (book.cover) {
-                    <img [src]="'/api/books/' + book.id + '/cover'"
+                    <img [src]="apiBaseUrl + '/books/' + book.id + '/cover'"
                           [alt]="book.title || 'Boek cover'"
                           loading="lazy" />
                   } @else {
@@ -186,7 +186,7 @@
                   <div class="center-top">
                     <div class="card-cover">
                       @if (slot.book.cover) {
-                        <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                        <img [src]="apiBaseUrl + '/books/' + slot.book.id + '/cover'"
                           [alt]="slot.book.title || 'Boek cover'"
                           loading="lazy" />
                       } @else {
@@ -216,7 +216,7 @@
                 } @else {
                   <div class="card-cover">
                     @if (slot.book.cover) {
-                      <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                      <img [src]="apiBaseUrl + '/books/' + slot.book.id + '/cover'"
                           [alt]="slot.book.title || 'Boek cover'"
                           loading="lazy" />
                     } @else {
@@ -263,7 +263,7 @@
                 <div class="center-top">
                   <div class="card-cover">
                     @if (book.cover) {
-                      <img [src]="'/api/books/' + book.id + '/cover'"
+                      <img [src]="apiBaseUrl + '/books/' + book.id + '/cover'"
                           [alt]="book.title || 'Boek cover'"
                           loading="lazy" />
                     } @else {
@@ -308,7 +308,7 @@
                     <div class="center-top">
                       <div class="card-cover">
                         @if (slot.book.cover) {
-                          <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                          <img [src]="apiBaseUrl + '/books/' + slot.book.id + '/cover'"
                           [alt]="slot.book.title || 'Boek cover'"
                           loading="lazy" />
                         } @else {
@@ -338,7 +338,7 @@
                   } @else {
                     <div class="card-cover">
                       @if (slot.book.cover) {
-                        <img [src]="'/api/books/' + slot.book.id + '/cover'"
+                        <img [src]="apiBaseUrl + '/books/' + slot.book.id + '/cover'"
                           [alt]="slot.book.title || 'Boek cover'"
                           loading="lazy" />
                       } @else {
@@ -378,7 +378,7 @@
                 <div class="card-cover">
                   @let cover = coverSrc(book);
                   @if (cover) {
-                    <img [src]="'/api/books/' + book.id + '/cover'"
+                    <img [src]="apiBaseUrl + '/books/' + book.id + '/cover'"
                           [alt]="book.title || 'Boek cover'"
                           loading="lazy" />
                   } @else {

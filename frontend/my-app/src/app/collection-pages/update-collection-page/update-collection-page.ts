@@ -190,4 +190,9 @@ export class UpdateCollectionPage {
   goToCollections() {
     this.location.back();
   }
+
+  coverSrc(book: any): string | null {
+    const id = Number(book?.id);
+    return Number.isFinite(id) && id > 0 ? this.bookService.getBookCoverUrl(id) : null;
+  }
 }

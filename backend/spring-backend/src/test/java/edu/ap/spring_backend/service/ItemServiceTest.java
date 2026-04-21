@@ -105,7 +105,8 @@ class ItemServiceTest {
                 null,        // subgenreIds
                 null,        // didacticCategoryIds
                 null,        // didactic
-                1L           // schoolId
+                1L,          // schoolId
+                false        // globalBooks
         );
         Page<Item> page = new PageImpl<>(List.of(testItem));
         when(itemRepository.findByTitle("Test Title")).thenReturn(Optional.of(testItem));
@@ -137,7 +138,8 @@ class ItemServiceTest {
                 null, // subgenreIds
                 null, // didacticCategoryIds
                 null, // didactic
-                1L    // schoolId
+                1L,   // schoolId
+                false// globalBooks
         );
         when(itemRepository.findByTitle("Test Title")).thenReturn(Optional.of(testItem));
         when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
