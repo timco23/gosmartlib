@@ -24,7 +24,7 @@ export class BookImportEnrichmentComponent implements OnInit {
       .filter((row) => this.rowNeedsEnrichment(row))
       .map((row) => ({
         original: row,
-        campusInput: row.campus,
+        campusInput: row.campus.toLowerCase().replace(/ /g, ''),
         conditionNieuw: row.conditionNieuw,
         conditionGoed: row.conditionGoed,
         conditionGebruikt: row.conditionGebruikt,
@@ -37,10 +37,9 @@ export class BookImportEnrichmentComponent implements OnInit {
   rowNeedsEnrichment(row: BookImportRow): boolean {
     const conditionSum =
       row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd;
-    const missingCampus = row.campus === '' && this.school.campuses.length > 1;
     const missingConditions = conditionSum < row.copies;
     const isbnConflict = !!row.existingIsbn && row.existingIsbn !== row.isbn;
-    return missingCampus || missingConditions || isbnConflict;
+    return missingConditions || isbnConflict;
   }
 
   conditionSum(state: EnrichedRowState): number {
