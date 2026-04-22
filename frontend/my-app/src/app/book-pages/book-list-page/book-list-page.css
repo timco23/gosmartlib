@@ -311,6 +311,21 @@
   color: black;
 }
 
+.badge-genre {
+  background: #8c1b3f;
+  color: white;
+}
+
+.badge-subgenre {
+  background: #f4baba;
+  color: black;
+}
+
+.badge-didactic {
+  background: #16376a;
+  color: white;
+}
+
 /* Score */
 .book-score {
   display: flex;

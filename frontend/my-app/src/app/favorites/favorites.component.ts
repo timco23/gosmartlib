@@ -1,10 +1,14 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { BookService } from '../services/book-service';
-import { Book, LoginResponse, Tag } from '../../types/types';
+import { Book, DidacticCategory, Genre, LoginResponse, Subgenre, Tag } from '../../types/types';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
+import { GenreService } from '../services/genre.service';
+import { SubgenreService } from '../services/subgenre.service';
+import { TagService } from '../services/tag.service';
+import { DidacticCategoryService } from '../services/didactic-category.service';
 
 @Component({
   selector: 'app-favorites',
@@ -20,6 +24,10 @@ export class FavoritesComponent {
   bookApi = inject(BookService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
+  genreService = inject(GenreService);
+  subgenreService = inject(SubgenreService);
+  tagService = inject(TagService);
+  didacticCategoryService = inject(DidacticCategoryService);
 
   currentPage: number = 0;
   pageSize: number = 10;
@@ -27,18 +35,46 @@ export class FavoritesComponent {
   books: Book[] = [];
   allBooks: Book[] = [];
 
+  allGenres: Genre[] = [];
+  allSubgenres: Subgenre[] = [];
+  allTags: Tag[] = [];
+  allDidacticCategories: DidacticCategory[] = [];
+
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.loadBooks();
+    this.genreService.getGenres().subscribe(g => {this.allGenres = g; this.cdr.detectChanges();});
+    this.subgenreService.getSubgenres().subscribe(s => {this.allSubgenres = s; this.cdr.detectChanges();});
+    this.tagService.getTags().subscribe(t => {this.allTags = t; this.cdr.detectChanges();});
+    this.didacticCategoryService.getDidacticCategories().subscribe(c => {this.allDidacticCategories = c; this.cdr.detectChanges();});
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
+
+    this.loadBooks(); 
   }
 
   sortedTags(tags: Tag[]): Tag[] {
     return [...tags].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getSortedGenres(ids: number[]): Genre[] {
+    return (ids || [])
+      .map(id => this.allGenres.find(g => g.id === id)!)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getSortedSubgenres(ids: number[]): Subgenre[] {
+    return (ids || [])
+      .map(id => this.allSubgenres.find(s => s.id === id)!)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getSortedDidacticCategories(ids: number[]): DidacticCategory[] {
+    return (ids || [])
+      .map(id => this.allDidacticCategories.find(c => c.id === id)!)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   loadBooks(): void {

@@ -21,6 +21,9 @@ import { TagService } from '../../services/tag.service';
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
+import { GenreService } from '../../services/genre.service';
+import { SubgenreService } from '../../services/subgenre.service';
+import { DidacticCategoryService } from '../../services/didactic-category.service';
 
 @Component({
   selector: 'app-book-list-page',
@@ -61,7 +64,13 @@ export class BookListPage implements OnInit {
   getSchoolSpecificBooks: boolean = true;
 
   allTags: Tag[] = [];
+  allGenres: Genre[] = [];
+  allSubgenres: Subgenre[] = [];
+  allDidacticCategories: DidacticCategory[] = [];
   tagService = inject(TagService);
+  genreService = inject(GenreService);
+  subgenreService = inject(SubgenreService)
+  didacticCategoryService = inject(DidacticCategoryService);
 
   selectedGenres: Genre[] = [];
   selectedSubgenres: Subgenre[] = [];
@@ -85,6 +94,9 @@ export class BookListPage implements OnInit {
                 this.tagService.getTags().subscribe((tags) => {
                   this.allTags = tags;
                 });
+                this.genreService.getGenres().subscribe((g) => {this.allGenres = g; this.cdr.detectChanges();});
+                this.subgenreService.getSubgenres().subscribe((s) => {this.allSubgenres = s; this.cdr.detectChanges();});
+                this.didacticCategoryService.getDidacticCategories().subscribe((c) => {this.allDidacticCategories = c; this.cdr.detectChanges();});
                 this.loadBooks();
               },
             });
@@ -244,5 +256,23 @@ export class BookListPage implements OnInit {
 
   toggleSchoolSpecificBooks() {
     this.loadBooks();
+  }
+
+  getSortedGenres(ids: number[]): Genre[] {
+    return (
+      ids.map((id) => this.allGenres.find((g) => g.id === id)!).sort((a, b) => a!.name.localeCompare(b!.name))
+    );
+  }
+
+  getSortedSubgenres(ids: number[]): Subgenre[] {
+    return (
+     ids.map((id) => this.allSubgenres.find((g) => g.id === id)!).sort((a, b) => a!.name.localeCompare(b!.name))
+    );
+  }
+
+  getSortedDidacticCategories(ids: number[]): DidacticCategory[] {
+    return (
+      ids.map((id) => this.allDidacticCategories.find((c) => c.id === id)!).sort((a, b) => a!.name.localeCompare(b!.name))
+    );
   }
 }

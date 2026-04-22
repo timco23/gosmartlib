@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
-import { LoginResponse, Book, CarouselSlot, School, Tag, Collection } from '../../types/types';
+import { LoginResponse, Book, CarouselSlot, School, Tag, Collection, Genre, Subgenre } from '../../types/types';
 import { SchoolService } from '../services/school.service';
 import { UserService } from '../services/user.service';
 import { TagService } from '../services/tag.service';
 import { CollectionService } from '../services/collection-service';
 import { environment } from '../../environments/environment';
+import { GenreService } from '../services/genre.service';
+import { SubgenreService } from '../services/subgenre.service';
 
 @Component({
   selector: 'app-home-component',
@@ -46,12 +48,19 @@ export class HomeComponent implements OnInit {
   };
 
   tagService = inject(TagService);
+  genreService = inject(GenreService);
+  subgenreService = inject(SubgenreService);
+
   allTags: Tag[] = [];
+  allGenres: Genre[] = [];
+  allSubgenres: Subgenre[] = [];
 
   ngOnInit() {
     this.tagService.getTags().subscribe((tags) => {
       this.allTags = tags;
     });
+    this.genreService.getGenres().subscribe(g => {this.allGenres = g; this.cdr.detectChanges();});
+    this.subgenreService.getSubgenres().subscribe(s => {this.allSubgenres = s; this.cdr.detectChanges();});
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
@@ -143,7 +152,19 @@ export class HomeComponent implements OnInit {
     return (tags ?? []).map((tag) => {
       // optioneel: vervang door object uit allTags voor volledige gegevens
       return this.allTags.find((t) => t.id === tag.id) ?? tag;
-    });
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getSortedGenres(ids: number[]): Genre[] {
+    return (ids || [])
+      .map(id => this.allGenres.find(g => g.id === id)!)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getSortedSubgenres(ids: number[]): Subgenre[] {
+    return (ids || [])
+      .map(id => this.allSubgenres.find(s => s.id === id)!)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   // Returns the cards that should be visible in the carousel for a given section

@@ -78,6 +78,54 @@ main {
   color: #666;
 }
 
+/* Badges */
+.book-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-self: center;
+  gap: 0.375rem;
+  margin-top: 0.125rem;
+  max-width: 40%;
+}
+
+.badge {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 1.25rem;
+}
+
+.badge-language {
+  background: #f0efe4;
+  color: #8c1b3f;
+  border: 1px solid #bfbfe8;
+}
+
+.badge-pages {
+  background: #bfbfe8;
+  color: black;
+}
+
+.badge-tag {
+  background: #c2e569;
+  color: black;
+}
+
+.badge-genre {
+  background: #8c1b3f;
+  color: white;
+}
+
+.badge-subgenre {
+  background: #f4baba;
+  color: black;
+}
+
+.badge-didactic {
+  background: #16376a;
+  color: white;
+}
+
 .book-score {
   display: flex;
   align-items: center;
