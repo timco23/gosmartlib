@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.Optional;
 
 @Order(1)
@@ -27,7 +29,10 @@ public class GoogleBooksProvider implements BookMetadataProvider {
     private String apiKey;
 
     public GoogleBooksProvider(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
+        this.restTemplate = builder
+                .connectTimeout(Duration.ofSeconds(5))
+                .readTimeout(Duration.ofSeconds(10))
+                .build();
     }
 
     @Override
@@ -53,7 +58,7 @@ public class GoogleBooksProvider implements BookMetadataProvider {
                     && !response.items().isEmpty()) {
                 return Optional.of(toBookMetadata(response.items().getFirst().volumeInfo()));
             }
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             return Optional.empty();
         }
         return Optional.empty();
