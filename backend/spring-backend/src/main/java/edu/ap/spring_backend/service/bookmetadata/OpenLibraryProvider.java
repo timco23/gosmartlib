@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -21,12 +22,10 @@ public class OpenLibraryProvider implements BookMetadataProvider {
 
     private static final String BASE_URL =
             "https://openlibrary.org/api/books?bibkeys=ISBN:%s&format=json&jscmd=data";
-    private static final long DELAY_MS = 3000;
     private static final Pattern YEAR_PATTERN = Pattern.compile("\\b(\\d{4})\\b");
     private static final ParameterizedTypeReference<Map<String, OpenLibraryResponse>> RESPONSE_TYPE =
             new ParameterizedTypeReference<>() {};
-    private static final Object LOCK = new Object();
-    private static long lastCallTime = 0;
+    private static final SlidingWindowRateLimiter rateLimiter = new SlidingWindowRateLimiter(100, 300_000);
 
     private final RestTemplate restTemplate;
 
@@ -34,7 +33,10 @@ public class OpenLibraryProvider implements BookMetadataProvider {
     private boolean enabled;
 
     public OpenLibraryProvider(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
+        this.restTemplate = builder
+                .connectTimeout(Duration.ofSeconds(5))
+                .readTimeout(Duration.ofSeconds(10))
+                .build();
     }
 
     @Override
@@ -46,7 +48,12 @@ public class OpenLibraryProvider implements BookMetadataProvider {
     @Override
     public Optional<BookMetadata> fetchByIsbn(String isbn) {
         try {
-            throttle();
+            rateLimiter.acquire();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Optional.empty();
+        }
+        try {
             Map<String, OpenLibraryResponse> body = restTemplate.exchange(
                     String.format(BASE_URL, isbn), HttpMethod.GET, null, RESPONSE_TYPE
             ).getBody();
@@ -59,21 +66,6 @@ public class OpenLibraryProvider implements BookMetadataProvider {
             return Optional.of(toBookMetadata(bookData));
         } catch (Exception e) {
             return Optional.empty();
-        }
-    }
-
-    /**
-     * Enforces a 3-second gap between calls to stay within Open Library's rate limit of 100 req/5 min.
-     */
-    private void throttle() {
-        synchronized (LOCK) {
-            long now = System.currentTimeMillis();
-            long wait = DELAY_MS - (now - lastCallTime);
-            if (wait > 0) {
-                try { Thread.sleep(wait); }
-                catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-            }
-            lastCallTime = System.currentTimeMillis();
         }
     }
 

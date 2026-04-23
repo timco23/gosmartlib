@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,9 +20,7 @@ import java.util.Optional;
 public class HardcoverProvider implements BookMetadataProvider {
 
     private static final String URL = "https://api.hardcover.app/v1/graphql";
-    private static final long DELAY_MS = 1000;
-    private static final Object LOCK = new Object();
-    private static long lastCallTime = 0;
+    private static final SlidingWindowRateLimiter rateLimiter = new SlidingWindowRateLimiter(60, 60_000);
 
     private final RestTemplate restTemplate;
 
@@ -33,7 +31,10 @@ public class HardcoverProvider implements BookMetadataProvider {
     private String apiKey;
 
     public HardcoverProvider(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
+        this.restTemplate = builder
+                .connectTimeout(Duration.ofSeconds(5))
+                .readTimeout(Duration.ofSeconds(10))
+                .build();
     }
 
     @Override
@@ -45,7 +46,12 @@ public class HardcoverProvider implements BookMetadataProvider {
     @Override
     public Optional<BookMetadata> fetchByIsbn(String isbn) {
         try {
-            throttle();
+            rateLimiter.acquire();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Optional.empty();
+        }
+        try {
             String query = """
                     { editions(where: { isbn_13: { _eq: "%s" } }) {
                         pages
@@ -72,21 +78,6 @@ public class HardcoverProvider implements BookMetadataProvider {
             return Optional.of(toBookMetadata(response.data().editions().getFirst()));
         } catch (Exception e) {
             return  Optional.empty();
-        }
-    }
-
-    /**
-     * Enforces a 1-second gap between calls to stay within Hardcover's rate limit of 60 req/min.
-     */
-    private void throttle() {
-        synchronized (LOCK) {
-            long now = System.currentTimeMillis();
-            long wait = DELAY_MS - (now - lastCallTime);
-            if (wait > 0) {
-                try { Thread.sleep(wait); }
-                catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-            }
-            lastCallTime = System.currentTimeMillis();
         }
     }
 

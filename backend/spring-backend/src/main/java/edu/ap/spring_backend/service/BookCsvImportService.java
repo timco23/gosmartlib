@@ -1,6 +1,5 @@
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.dto.BookMetadata;
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
@@ -13,7 +12,8 @@ import edu.ap.spring_backend.jpa.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import edu.ap.spring_backend.service.bookmetadata.BookMetadataService;
+import edu.ap.spring_backend.dto.ItemEnrichmentEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,7 +40,7 @@ import java.util.Set;
  *   Confirm phase (confirmImport):
  *       Re-validates all rows, then writes them to the db
  *       For each row the service reuses an existing Item or creates a new one
- *       New items are enriched with metadata from the Google Books API if an ISBN is present
+ *       New items are saved with default values and enriched asynchronously after the transaction commits
  *       If updateExistingIsbn is true on a row, the existing Item's ISBN is updated
  *       One SchoolItemCopy is created per requested copy, distributed across condition options, remaining copies receive 'ONGEDEFINIEERD'
  */
@@ -58,16 +58,16 @@ public class BookCsvImportService {
     private final ItemRepository itemRepository;
     private final SchoolItemCopyRepository schoolItemCopyRepository;
     private final SchoolRepository schoolRepository;
-    private final BookMetadataService bookMetadataService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public BookCsvImportService(ItemRepository itemRepository,
             SchoolItemCopyRepository schoolItemCopyRepository,
             SchoolRepository schoolRepository,
-            BookMetadataService bookMetadataService) {
+            ApplicationEventPublisher eventPublisher) {
         this.itemRepository = itemRepository;
         this.schoolItemCopyRepository = schoolItemCopyRepository;
         this.schoolRepository = schoolRepository;
-        this.bookMetadataService = bookMetadataService;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -185,9 +185,10 @@ public class BookCsvImportService {
         }
 
         List<Integer> allCopyIds = new ArrayList<>();
+        List<ItemEnrichmentEvent.TargetItem> toEnrich = new ArrayList<>();
         int totalCopies = 0;
         for (BookImportRow row : dto.rows()) {
-            Item item = findOrCreateItem(row);
+            Item item = findOrCreateItem(row, toEnrich);
             if (row.updateExistingIsbn() && !row.isbn().isEmpty()) {
                 item.setIsbn(row.isbn());
                 itemRepository.save(item);
@@ -197,42 +198,30 @@ public class BookCsvImportService {
             totalCopies += row.copies();
         }
 
+        if (!toEnrich.isEmpty()) {
+            eventPublisher.publishEvent(new ItemEnrichmentEvent(toEnrich));
+        }
+
         return new CsvImportDTO(List.of(), dto.rows().size(), totalCopies, allCopyIds);
     }
 
     /**
-     * Returns an existing Item matched by title, or creates and saves a new one.
-     * New items are enriched with metadata from the Google Books API when an ISBN is present.
-     * Fields not returned by the API keep their default values.
+     * Returns an existing Item matched by title, or creates and saves a new one with default values.
+     * New items with an ISBN are queued for asynchronous metadata enrichment via ItemEnrichmentEvent.
      */
-    private Item findOrCreateItem(BookImportRow row) {
+    private Item findOrCreateItem(BookImportRow row, List<ItemEnrichmentEvent.TargetItem> toEnrich) {
         Optional<Item> existing = itemRepository.findByTitle(row.title());
         if (existing.isPresent()) return existing.get();
 
-        String description = DEFAULT_DESCRIPTION;
-        String publisher = DEFAULT_PUBLISHER;
-        String language = DEFAULT_LANGUAGE;
-        String cover = "";
-        int pageCount = 0;
-        int releaseYear = 0;
-
-        if (!row.isbn().isEmpty()) {
-            Optional<BookMetadata> metadata = bookMetadataService.fetchByIsbn(row.isbn());
-            if (metadata.isPresent()) {
-                BookMetadata m = metadata.get();
-                if (m.description() != null) description = m.description();
-                if (m.publisher()   != null) publisher   = m.publisher();
-                if (m.language()    != null) language    = m.language();
-                if (m.pageCount()   != null) pageCount   = m.pageCount();
-                if (m.releaseYear() != null) releaseYear = m.releaseYear();
-                if (m.coverUrl()    != null) cover       = m.coverUrl();
-            }
-        }
-
-        Item newItem = new Item(description, 0, 0.0, cover, pageCount,
-                language, releaseYear, row.isbn(), row.author(), publisher, row.title(),
+        Item newItem = new Item(DEFAULT_DESCRIPTION, 0, 0.0, "", 0,
+                DEFAULT_LANGUAGE, 0, row.isbn(), row.author(), DEFAULT_PUBLISHER, row.title(),
                 new HashSet<>());
         itemRepository.save(newItem);
+
+        if (!row.isbn().isEmpty()) {
+            toEnrich.add(new ItemEnrichmentEvent.TargetItem(newItem.getId(), row.isbn()));
+        }
+
         return newItem;
     }
 
