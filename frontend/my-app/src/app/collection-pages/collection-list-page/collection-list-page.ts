@@ -6,10 +6,11 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { SchoolService } from '../../services/school.service';
 import { BookService } from '../../services/book-service';
+import { PopUpComponent } from '../../pop-up/pop-up.component';
 
 @Component({
   selector: 'app-collection-list-page',
-  imports: [],
+  imports: [PopUpComponent],
   templateUrl: './collection-list-page.html',
   styleUrl: './collection-list-page.css',
 })
@@ -19,6 +20,7 @@ export class CollectionListPage {
   loadingError: boolean = false;
   school: School | null = null;
   role = Role;
+  showDeleteConfirm: boolean = false;
 
   collectionService = inject(CollectionService);
   userService = inject(UserService);
@@ -57,10 +59,19 @@ export class CollectionListPage {
     });
   }
 
-  deleteCollection(id: number) {
+  deleteCollection(value: string, id: number) {
+    if(value === 'confirm') {
     this.collectionService.deleteCollection(id).subscribe({
       next: () => this.getCollections()
     });
+    }
+    this.showDeleteConfirm = false;
+    this.cdr.detectChanges();
+  }
+
+  showConfirmDelete() {
+    this.showDeleteConfirm = true;
+    this.cdr.detectChanges();
   }
 
   getCollections() {
