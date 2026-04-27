@@ -1,0 +1,7 @@
+<div class="forbidden-page">
+  <h1>Je hebt geen toegang tot deze pagina</h1>
+  <p *ngIf="from">
+    Opgevraagde pagina: <strong>{{ from }}</strong>
+  </p>
+  <a routerLink="/home" class="home-button">Ga naar home</a>
+</div>

@@ -5,25 +5,28 @@
     <div class="header-actions">
       <h2>Boeken</h2>
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
-      <a class="secondary-button" [routerLink]="['/tags']">Tags beheren</a>
-      <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
+        <a class="secondary-button" [routerLink]="['/tags']">Tags beheren</a>
+        <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
       }
     </div>
   </header>
 
   <div class="catalog-layout">
-    <!-- FILTER SIDEBAR -->
     <aside class="filter-panel">
       <h3 class="filter-title">Filteren & sorteren</h3>
 
-      <!-- Search by title or author-->
       <div class="filter-group">
         <label class="filter-label" for="search">Zoeken op titel of auteur</label>
-        <input class="filter-input" id="search" type="text" placeholder="Bijv. Harry Potter…" [(ngModel)]="search"
-          (ngModelChange)="onSearchChange($event)" />
+        <input
+          class="filter-input"
+          id="search"
+          type="text"
+          placeholder="Bijv. Harry Potter…"
+          [(ngModel)]="search"
+          (ngModelChange)="onSearchChange($event)"
+        />
       </div>
 
-      <!-- Sorting -->
       <div class="filter-group">
         <label class="filter-label" for="sort">Sorteren op</label>
         <select class="filter-select" id="sort" (change)="onSortChange($event)">
@@ -35,91 +38,134 @@
         </select>
       </div>
 
-      @if(authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
-      <div class="filter-group">
-        <label class="filter-label">Selectie</label>
-        <div class="toggle-group">
-          <label class="toggle-item">
-            <input type="checkbox" [(ngModel)]="getSchoolSpecificBooks" (change)="toggleSchoolSpecificBooks()" />
-            Alleen boeken uit eigen school
-          </label>
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+        <div class="filter-group">
+          <label class="filter-label">Selectie</label>
+          <div class="toggle-group">
+            <label class="toggle-item">
+              <input
+                type="checkbox"
+                [(ngModel)]="getSchoolSpecificBooks"
+                (change)="toggleSchoolSpecificBooks()"
+              />
+              Alleen boeken uit eigen school
+            </label>
+          </div>
         </div>
-      </div>
       }
 
-      <!-- Language -->
-      <div class="filter-group">
-        <label class="filter-label">Taal</label>
+      <!-- ...existing code... -->
+
+      <details class="filter-group" open>
+        <summary class="filter-label">Taal</summary>
         <div class="toggle-group">
           <label class="toggle-item">
-            <input type="checkbox" [checked]="languages.includes('Nederlands')"
-              (change)="onLanguageChange('Nederlands', $any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Nederlands')"
+              (change)="onLanguageChange('Nederlands', $any($event.target).checked)"
+            />
             Nederlands
           </label>
           <label class="toggle-item">
-            <input type="checkbox" [checked]="languages.includes('Engels')"
-              (change)="onLanguageChange('Engels', $any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Engels')"
+              (change)="onLanguageChange('Engels', $any($event.target).checked)"
+            />
             Engels
           </label>
           <label class="toggle-item">
-            <input type="checkbox" [checked]="languages.includes('Frans')"
-              (change)="onLanguageChange('Frans', $any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Frans')"
+              (change)="onLanguageChange('Frans', $any($event.target).checked)"
+            />
             Frans
           </label>
           <label class="toggle-item">
-            <input type="checkbox" [checked]="languages.includes('Duits')"
-              (change)="onLanguageChange('Duits', $any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Duits')"
+              (change)="onLanguageChange('Duits', $any($event.target).checked)"
+            />
             Duits
           </label>
           <label class="toggle-item">
-            <input type="checkbox" [checked]="languages.includes('Andere')"
-              (change)="onLanguageChange('Andere', $any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="languages.includes('Andere')"
+              (change)="onLanguageChange('Andere', $any($event.target).checked)"
+            />
             Andere
           </label>
         </div>
-      </div>
+      </details>
 
-      <!-- Leefwereldlabels -->
-      <div class="filter-group">
-        <label class="filter-label">Leefwereldlabels</label>
-        <app-tag-selection-menu [initialTags]="selectedTags" (tagsChanged)="onTagsChanged($event)" />
-      </div>
+      <details class="filter-group" open>
+        <summary class="filter-label">Leesniveau</summary>
+        <select
+          id="readingLevel"
+          class="filter-select"
+          [ngModel]="selectedReadingLevel"
+          (ngModelChange)="onReadingLevelChange($event)"
+        >
+          <option value="">Alle niveaus</option>
+          @for (level of readingLevels; track level.id) {
+            <option [value]="level.id">{{ level.name }}</option>
+          }
+        </select>
+      </details>
 
-      <!-- Genres -->
-      <div class="filter-group">
-        <label class="filter-label">Genres</label>
-        <app-genre-selection-menu [initialGenres]="selectedGenres" (genresChanged)="onGenresChanged($event)" />
-      </div>
+      <details class="filter-group" open>
+        <summary class="filter-label">Leefwereldlabels</summary>
+        <app-tag-selection-menu
+          [initialTags]="selectedTags"
+          (tagsChanged)="onTagsChanged($event)"
+        />
+      </details>
 
-      <!-- Subgenres -->
-      <div class="filter-group">
-        <label class="filter-label">Subgenres</label>
-        <app-subgenre-selection-menu [initialSubgenres]="selectedSubgenres"
-          (subgenresChanged)="onSubgenresChanged($event)" />
-      </div>
+      <details class="filter-group" open>
+        <summary class="filter-label">Genres</summary>
+        <app-genre-selection-menu
+          [initialGenres]="selectedGenres"
+          (genresChanged)="onGenresChanged($event)"
+        />
+      </details>
+
+      <details class="filter-group" open>
+        <summary class="filter-label">Subgenres</summary>
+        <app-subgenre-selection-menu
+          [initialSubgenres]="selectedSubgenres"
+          (subgenresChanged)="onSubgenresChanged($event)"
+        />
+      </details>
 
       @if (canUseDidacticFilters) {
-      <!-- Didactische boeken -->
-      <div class="filter-group">
-        <label class="filter-label" for="didacticFilter">Didactische boeken</label>
-        <select id="didacticFilter" class="filter-select" [ngModel]="didactic"
-          (ngModelChange)="onDidacticFilterChange($event)">
-          <option [ngValue]="undefined">Alle boeken</option>
-          <option [ngValue]="false">Niet didactisch</option>
-          <option [ngValue]="true">Didactisch</option>
-        </select>
-      </div>
+        <details class="filter-group" open>
+          <summary class="filter-label">Didactische boeken</summary>
 
-      <!-- Didactische tags (alleen tonen als didactic = true) -->
-      @if (didactic === true) {
-      <div class="filter-group">
-        <app-didactic-category-selection-menu [initialCategories]="selectedCategories"
-          (categoriesChanged)="onDidacticTagsChanged($event)" />
-      </div>
-      }
+          <select
+            id="didacticFilter"
+            class="filter-select"
+            [ngModel]="didactic"
+            (ngModelChange)="onDidacticFilterChange($event)"
+          >
+            <option [ngValue]="undefined">Alle boeken</option>
+            <option [ngValue]="false">Niet didactisch</option>
+            <option [ngValue]="true">Didactisch</option>
+          </select>
+
+          @if (didactic === true) {
+            <label class="filter-label didactic-sub-label">Didactische labels</label>
+            <app-didactic-category-selection-menu
+              [initialCategories]="selectedCategories"
+              (categoriesChanged)="onDidacticTagsChanged($event)"
+            />
+          }
+        </details>
       }
 
-      <!-- Page count -->
       <div class="filter-group">
         <label class="filter-label">Aantal pagina's</label>
         <div class="range-labels">
@@ -127,87 +173,116 @@
           <span>{{ maxPages ?? 1000 }}</span>
         </div>
         <div class="range-track">
-          <input class="range-slider" type="range" min="0" max="1000" [value]="minPages ?? 0"
-            (change)="minPages = $any($event.target).value; onSliderChange()" />
-          <input class="range-slider" type="range" min="0" max="1000" [value]="maxPages ?? 1000"
-            (change)="maxPages = $any($event.target).value; onSliderChange()" />
+          <input
+            class="range-slider"
+            type="range"
+            min="0"
+            max="1000"
+            [value]="minPages ?? 0"
+            (change)="minPages = $any($event.target).value; onSliderChange()"
+          />
+          <input
+            class="range-slider"
+            type="range"
+            min="0"
+            max="1000"
+            [value]="maxPages ?? 1000"
+            (change)="maxPages = $any($event.target).value; onSliderChange()"
+          />
         </div>
       </div>
 
-      <!-- Minimum Rating -->
       <div class="filter-group">
         <label class="filter-label">Minimale beoordeling</label>
         <div class="range-labels">
           <span>{{ minScore ?? 0 }}</span>
           <span>5.0</span>
         </div>
-        <input class="range-slider full-width" type="range" min="0" max="5" step="0.1" [value]="minScore ?? 0"
-          (change)="minScore = $any($event.target).value; onSliderChange()" />
+        <input
+          class="range-slider full-width"
+          type="range"
+          min="0"
+          max="5"
+          step="0.1"
+          [value]="minScore ?? 0"
+          (change)="minScore = $any($event.target).value; onSliderChange()"
+        />
       </div>
 
       <button class="reset-button" (click)="onResetFilters()">Filters wissen</button>
     </aside>
 
-    <!-- Book List -->
     <main class="books-card">
-      @if (books.length > 0) {
-      <h3>Huidige boeken</h3>
+      @if (visibleBooks.length > 0) {
+        <h3>Huidige boeken</h3>
 
-      <ul class="book-list">
-        @for (book of books; track book.id) {
-        <li class="book-item">
-          <!-- Cover image -->
-          <div class="book-cover">
-            @if (book.id) {
-            <img [src]="api.getBookCoverUrl(book.id)" [alt]="book.title" class="cover-img" loading="lazy" />
-            } @else {
-            <div class="cover-placeholder">📖</div>
-            }
-          </div>
-          <div class="book-info">
-            <span class="book-title">{{ book.title }}</span>
-            <span class="book-meta">{{ book.author }} · {{ book.releaseYear }}</span>
-          </div>
+        <ul class="book-list library-grid">
+          @for (book of visibleBooks; track book.id) {
+            <li class="book-item">
+              <div class="book-cover">
+                @if (book.id) {
+                  <img
+                    [src]="api.getBookCoverUrl(book.id)"
+                    [alt]="book.title"
+                    class="cover-img"
+                    loading="lazy"
+                  />
+                } @else {
+                  <div class="cover-placeholder">📖</div>
+                }
+              </div>
 
-          <div class="book-badges">
-            <span class="badge badge-language">{{ book.language }}</span>
-            @for (genre of getSortedGenres(book.genres); track $index) {
-            <span class="badge badge-genre">{{ genre.name }}</span>
-            }
-            @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
-            <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-            }
-            @for (tag of sortedTags(book.tags); track tag.id) {
-            <span class="badge badge-tag">{{ tag.name }}</span>
-            }
-            @if (book.isDidactic) {
-            @for (cat of getSortedDidacticCategories(book.didacticCategories); track $index) {
-            <span class="badge badge-didactic">{{ cat.name }}</span>
-            }
-            }
-          </div>
+              <div class="book-info">
+                <span class="book-title">{{ book.title }}</span>
+                <span class="book-meta">{{ book.author }} · {{ book.releaseYear }}</span>
+              </div>
 
-          <div class="book-score">
-            <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }} / 5</span>
-          </div>
+              <div class="book-badges">
+                <span class="badge badge-language">{{ book.language }}</span>
+                @for (genre of getSortedGenres(book.genres); track $index) {
+                  <span class="badge badge-genre">{{ genre.name }}</span>
+                }
+                @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
+                  <span class="badge badge-subgenre">{{ subgenre.name }}</span>
+                }
+                @for (tag of sortedTags(book.tags); track tag.id) {
+                  <span class="badge badge-tag">{{ tag.name }}</span>
+                }
+                @if (book.isDidactic) {
+                  @for (cat of getSortedDidacticCategories(book.didacticCategories); track $index) {
+                    <span class="badge badge-didactic">{{ cat.name }}</span>
+                  }
+                }
+              </div>
 
-          <div class="book-actions">
-            <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
-          </div>
-        </li>
-        }
-      </ul>
-      <div class="pagination">
-        <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
-          ← Vorige
-        </button>
-        <span class="page-indicator">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
-        <button class="page-button" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
-          Volgende →
-        </button>
-      </div>
+              <div class="book-score">
+                <span class="score-value"
+                  >Beoordeling: {{ book.reviewScore | number: '1.1-1' }} / 5</span
+                >
+              </div>
+
+              <div class="book-actions">
+                <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
+              </div>
+            </li>
+          }
+        </ul>
+
+        <div class="pagination">
+          <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
+            ← Vorige
+          </button>
+          <span class="page-indicator">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
+          <button
+            class="page-button"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages - 1"
+          >
+            Volgende →
+          </button>
+        </div>
       } @else {
-      <h3>Geen boeken gevonden</h3>
+        <h3>Geen boeken gevonden</h3>
       }
     </main>
   </div>

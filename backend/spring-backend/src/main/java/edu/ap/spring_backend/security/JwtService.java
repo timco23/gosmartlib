@@ -1,37 +1,42 @@
 package edu.ap.spring_backend.security;
 
 import edu.ap.spring_backend.jpa.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import java.util.Map;
 
 /**
- * Utility class for creating and validating JWT tokens.
+ * Service responsible for creating and validating JSON Web Tokens (JWT).
+ * Handles token generation, parsing, and extracting user information.
  */
+@Service
 public class JwtService {
 
-    private final String secret;
+    private final SecretKey key;
     private final long expiresMinutes;
 
-    /**
-     * @param secret secret used to sign/verify tokens
-     * @param expiresMinutes token lifetime in minutes
-     */
-    public JwtService(String secret, long expiresMinutes) {
-        this.secret = secret;
+    public JwtService(
+        @Value("${app.jwt.secret}") String secret,
+        @Value("${app.jwt.expires-minutes}") long expiresMinutes
+    ) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expiresMinutes = expiresMinutes;
     }
 
-   /**
-     * Creates a signed JWT for a user.
-     * @param user user to include in the token
-     * @return JWT string
+      /**
+     * Creates a signed JWT for the given user.
+     * @param user the user to include in the token
+     * @return signed JWT string
      */
     public String generateToken(User user) {
         Instant now = Instant.now();
@@ -48,25 +53,26 @@ public class JwtService {
                 .claims(claims)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+                .signWith(key)
                 .compact();
     }
 
-     /**
+      /**
      * Verifies the token signature and returns its claims.
      * @param token raw JWT (without "Bearer ")
-     * @return parsed token payload and claims
+     * @return parsed JWT claims
      */
     public Jws<Claims> parse(String token) {
     return Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+            .verifyWith(key)
             .build()
             .parseSignedClaims(token);
     }
 
-    /**
+     /**
+     * Extracts the user ID from the JWT subject (sub claim).
      * @param token raw JWT
-     * @return user id from the token subject (sub)
+     * @return user ID
      */
     public Integer getUserIdFromToken(String token) {
         String sub = parse(token).getPayload().getSubject();
