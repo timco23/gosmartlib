@@ -28,7 +28,12 @@
         </div>
       </header>
       @if (deleteError) {
-        <p class="warning">Er is iets misgegaaan met het verwijderen van dit boek.</p>
+        <app-pop-up
+          title="Boek verwijderen mislukt"
+          message="Er is iets misgegaan bij het verwijderen van het boek."
+          [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+          (actionClicked)="closeNotification()"
+        />
       }
       @if (bookHasCopyError) {
         <app-pop-up
@@ -179,7 +184,7 @@
   }
   @if (showDeleteConfirmation()) {
     <div class="overlay">
-      <div class="content">
+      <!-- <div class="content">
         <button class="close-btn" (click)="cancelDelete()">&times;</button>
         <h2 class="popup-title">Boek verwijderen</h2>
         <p>
@@ -190,39 +195,34 @@
           <button class="primary-btn" (click)="checkIfInCollection()">Verwijderen</button>
           <button class="secondary-btn" (click)="cancelDelete()">Annuleren</button>
         </div>
+      </div> -->
+
+      <app-pop-up [message]="'Dit boek staat momenteel in een of meerdere leeslijsten. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle leeslijsten verdwijnen.'"
+        [actions]="[
+          { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+          { label: 'Verwijderen', type: 'danger', value: 'confirm' }
+        ]" (actionClicked)="cancelDelete()" />
       </div>
-    </div>
   }
 
   @if (showDeleteConfirmationForCollections()) {
     <div class="overlay">
-      <div class="content">
-        <button class="close-btn" (click)="cancelDelete()">&times;</button>
-        <h2 class="popup-title">Boek verwijderen</h2>
-        <p>
-          Dit boek staat momenteel in een of meerdere collecties. Weet u zeker dat u dit boek wilt
-          verwijderen? Het zal uit alle collecties verdwijnen.
-        </p>
-        <div class="popup-actions">
-          <button class="primary-btn" (click)="confirmDelete()">Verwijderen</button>
-          <button class="secondary-btn" (click)="cancelDelete()">Annuleren</button>
-        </div>
-      </div>
+      <app-pop-up [message]="'Dit boek staat momenteel in een of meerdere collecties. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle collecties verdwijnen.'"
+        [actions]="[
+          { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+          { label: 'Verwijderen', type: 'danger', value: 'confirm' }
+        ]" (actionClicked)="cancelDelete()" />
     </div>
   }
 
   @if (showUnableToDelete()) {
     <div class="overlay">
-      <div class="content">
-        <button class="close-btn" (click)="cancelDelete()">&times;</button>
-        <h2 class="popup-title">Boek verwijderen</h2>
-        <p>
-          Kan boek niet verwijderen omdat deze momenteel door de admin uitgelicht wordt in een collectie.
-        </p>
-        <div class="popup-actions">
-          <button class="primary-btn" (click)="cancelDelete()">Accepteren</button>
-        </div>
-      </div>
+      <app-pop-up
+            title="Boek verwijderen mislukt"
+            message="Kan boek niet verwijderen omdat deze momenteel door de admin uitgelicht wordt in een collectie."
+            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+            (actionClicked)="closeNotification()"
+          />
     </div>
   }
 </div>
