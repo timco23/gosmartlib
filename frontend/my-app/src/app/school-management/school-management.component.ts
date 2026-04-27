@@ -4,10 +4,11 @@ import { SchoolService } from '../services/school.service';
 import { CommonModule } from '@angular/common';
 import { Campus, School } from '../../types/types';
 import { FormsModule } from '@angular/forms';
+import { PopUpComponent } from "../pop-up/pop-up.component";
 
 @Component({
   selector: 'app-school-management',
-  imports: [ReactiveFormsModule, CommonModule, FormsModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, PopUpComponent],
   standalone: true,
   templateUrl: './school-management.component.html',
   styleUrl: './school-management.component.css'
@@ -82,6 +83,11 @@ export class SchoolManagementComponent {
     this.campusInput = '';
   }
 
+  onDeleteDialogAction(value: string) {
+    if (value === 'confirm') this.confirmDeleteSchool();
+    else this.showDeleteConfirm = false;
+  }
+
   // Campus toevoegen
   addCampus() {
     if (this.campusInput.trim()) {
@@ -97,7 +103,7 @@ export class SchoolManagementComponent {
 
   onSubmit() {
     if (this.schoolForm.invalid) return;
-    
+
     const schoolData = { ...this.schoolForm.value, campuses: this.campuses };
 
     if (this.editingSchool) {

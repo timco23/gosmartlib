@@ -350,3 +350,9 @@ export interface BookSelectorItem {
   authorName?: string;
   isbn?: string;
 }
+
+export interface ConfirmDialogAction {
+  label: string;
+  type?: 'primary' | 'danger' | 'cancel';
+  value: string;
+}
