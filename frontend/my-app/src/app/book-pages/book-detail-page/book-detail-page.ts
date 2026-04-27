@@ -26,10 +26,11 @@ import { ReviewList } from '../review-list/review-list';
 import { ReviewForm } from '../review-form/review-form';
 import { ReadingListService } from '../../services/readingList-service';
 import { CollectionService } from '../../services/collection-service';
+import { PopUpComponent } from "../../pop-up/pop-up.component";
 
 @Component({
   selector: 'app-book-detail-page',
-  imports: [RouterLink, CommonModule, ReviewForm, ReviewList],
+  imports: [RouterLink, CommonModule, ReviewForm, ReviewList, PopUpComponent],
   templateUrl: './book-detail-page.html',
   styleUrl: './book-detail-page.css',
 })
@@ -404,6 +405,11 @@ export class BookDetailPage implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  closeNotification() {
+    this.bookHasCopyError = false;
+    this.cdr.detectChanges();
   }
 
   backToList() {

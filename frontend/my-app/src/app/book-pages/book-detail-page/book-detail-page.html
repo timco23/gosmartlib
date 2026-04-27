@@ -31,10 +31,12 @@
         <p class="warning">Er is iets misgegaaan met het verwijderen van dit boek.</p>
       }
       @if (bookHasCopyError) {
-        <p class="warning">
-          Een school heeft dit boek momenteel als exemplaar. Verwijder alle exemplaren van dit boek
-          om het boek te kunnen verwijderen.
-        </p>
+        <app-pop-up
+          title="Boek verwijderen mislukt"
+          message="Het boek kan niet verwijderd worden omdat er nog exemplaren van dit boek aanwezig zijn. Verwijder eerst alle exemplaren."
+          [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+          (actionClicked)="closeNotification()"
+        />
       }
 
       <section class="book-top-grid">
