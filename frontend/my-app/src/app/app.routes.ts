@@ -23,33 +23,54 @@ import { CollectionListPage } from './collection-pages/collection-list-page/coll
 import { CreateCollectionPage } from './collection-pages/create-collection-page/create-collection-page';
 import { GlobalCollectionPage } from './collection-pages/global-collection-page/global-collection-page';
 import { UpdateCollectionPage } from './collection-pages/update-collection-page/update-collection-page';
+import { ForbiddenComponent } from './forbidden-component/forbidden-component';
+import { ADMIN_ONLY, ALL_USERS, LIBRARIAN_PLUS, TEACHER_PLUS } from './guards/roles';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'oauth-callback', component: OauthCallback },
-  { path: 'oauth/callback', component: OauthCallback },
-  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
-  { path: 'books', component: BookListPage, canActivate: [authGuard] },
-  { path: 'books/add', component: AddBookPage, canActivate: [authGuard] },
-  { path: 'books/:id', component: BookDetailPage, canActivate: [authGuard] },
-  { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard] },
-  { path: 'books/:id/barcodes', component: BarcodePrintPage, canActivate: [authGuard] },
-  { path: 'barcodes', component: BarcodePrintPage, canActivate: [authGuard] },
-  { path: 'profile', component: Profile, canActivate: [authGuard] },
-  { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard] },
-  { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard] },
-  { path: 'tags', component: TagManagement, canActivate: [authGuard] },
-  { path: 'lists', component: ReadingListPage, canActivate: [authGuard] },
-  { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard] },
-  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard] },
-  { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard] },
-  { path: 'lendings', component: LendingManagementComponent, canActivate: [authGuard] },
-  { path: 'lendings/lend', component: LendBookComponent, canActivate: [authGuard] },
-  { path: 'lendings/return', component: ReturnBookComponent, canActivate: [authGuard] },
-  { path: 'collections', component: CollectionListPage, canActivate: [authGuard] },
-  { path: 'collections/add', component: CreateCollectionPage, canActivate: [authGuard] },
-  { path: 'collections/global', component: GlobalCollectionPage, canActivate: [authGuard] },
-  { path: 'collections/:id/edit', component: UpdateCollectionPage, canActivate: [authGuard] },
+  { path: 'forbidden', component: ForbiddenComponent },
+
+
+  { path: 'books/add', component: AddBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'books/:id/barcodes', component: BarcodePrintPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+
+  // LEERLING +
+  { path: 'home', component: HomeComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
+  { path: 'books', component: BookListPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
+  { path: 'books/:id', component: BookDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
+  { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
+  { path: 'profile', component: Profile, canActivate: [authGuard], data: { roles: ALL_USERS } },
+
+  // LEERKRACHT +
+  { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+
+  // BIBLIOTHEEKBEHEERDER +
+  { path: 'tags', component: TagManagement, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'books/add', component: AddBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'books/:id/barcodes', component: BarcodePrintPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'barcodes', component: BarcodePrintPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'lendings', component: LendingManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'lendings/lend', component: LendBookComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'lendings/return', component: ReturnBookComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'collections', component: CollectionListPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'collections/add', component: CreateCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'collections/global', component: GlobalCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'collections/:id/edit', component: UpdateCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+
+  // ADMIN
+  { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
+  { path: 'schools/add', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
+  { path: 'schools/:id/edit', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
+
+  // alias voor typo /school
+  { path: 'school', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
+
   { path: '**', redirectTo: 'login' },
 ];
