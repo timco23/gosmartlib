@@ -2,7 +2,7 @@
   @if (books.length > 0) {
     <h3>Huidige favoriete boeken</h3>
 
-    <ul class="book-list">
+    <ul class="book-list library-grid">
       @for (book of books; track book.id) {
         <li class="book-item">
           <div class="book-cover">
@@ -13,6 +13,7 @@
               <div class="cover-placeholder">📖</div>
             }
           </div>
+
           <div class="book-info">
             <span class="book-title">{{ book.title }}</span>
             <span class="book-meta">{{ book.author }} · {{ book.releaseYear }}</span>
@@ -21,18 +22,18 @@
           <div class="book-badges">
             <span class="badge badge-language">{{ book.language }}</span>
             @for (genre of getSortedGenres(book.genres); track $index) {
-            <span class="badge badge-genre">{{ genre.name }}</span>
+              <span class="badge badge-genre">{{ genre.name }}</span>
             }
             @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
-            <span class="badge badge-subgenre">{{ subgenre.name }}</span>
+              <span class="badge badge-subgenre">{{ subgenre.name }}</span>
             }
             @for (tag of sortedTags(book.tags); track tag.id) {
-            <span class="badge badge-tag">{{ tag.name }}</span>
+              <span class="badge badge-tag">{{ tag.name }}</span>
             }
             @if (book.isDidactic) {
-            @for (cat of getSortedDidacticCategories(book.didacticCategories); track $index) {
-            <span class="badge badge-didactic">{{ cat.name }}</span>
-            }
+              @for (cat of getSortedDidacticCategories(book.didacticCategories); track $index) {
+                <span class="badge badge-didactic">{{ cat.name }}</span>
+              }
             }
           </div>
 
@@ -42,16 +43,14 @@
             >
           </div>
 
-          <div>
-            <button class="delete-button" (click)="deleteFavorite(book.id)">Verwijderen</button>
-          </div>
-
           <div class="book-actions">
+            <button class="delete-button" (click)="deleteFavorite(book.id!)">Verwijderen</button>
             <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
           </div>
         </li>
       }
     </ul>
+
     <div class="pagination">
       <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
         ← Vorige

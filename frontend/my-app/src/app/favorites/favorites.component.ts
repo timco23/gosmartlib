@@ -30,7 +30,7 @@ export class FavoritesComponent {
   didacticCategoryService = inject(DidacticCategoryService);
 
   currentPage: number = 0;
-  pageSize: number = 10;
+  pageSize: number = 15;
   totalPages: number = 0;
   books: Book[] = [];
   allBooks: Book[] = [];
@@ -43,16 +43,28 @@ export class FavoritesComponent {
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.genreService.getGenres().subscribe(g => {this.allGenres = g; this.cdr.detectChanges();});
-    this.subgenreService.getSubgenres().subscribe(s => {this.allSubgenres = s; this.cdr.detectChanges();});
-    this.tagService.getTags().subscribe(t => {this.allTags = t; this.cdr.detectChanges();});
-    this.didacticCategoryService.getDidacticCategories().subscribe(c => {this.allDidacticCategories = c; this.cdr.detectChanges();});
+    this.genreService.getGenres().subscribe((g) => {
+      this.allGenres = g;
+      this.cdr.detectChanges();
+    });
+    this.subgenreService.getSubgenres().subscribe((s) => {
+      this.allSubgenres = s;
+      this.cdr.detectChanges();
+    });
+    this.tagService.getTags().subscribe((t) => {
+      this.allTags = t;
+      this.cdr.detectChanges();
+    });
+    this.didacticCategoryService.getDidacticCategories().subscribe((c) => {
+      this.allDidacticCategories = c;
+      this.cdr.detectChanges();
+    });
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
     });
 
-    this.loadBooks(); 
+    this.loadBooks();
   }
 
   sortedTags(tags: Tag[]): Tag[] {
@@ -61,19 +73,19 @@ export class FavoritesComponent {
 
   getSortedGenres(ids: number[]): Genre[] {
     return (ids || [])
-      .map(id => this.allGenres.find(g => g.id === id)!)
+      .map((id) => this.allGenres.find((g) => g.id === id)!)
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   getSortedSubgenres(ids: number[]): Subgenre[] {
     return (ids || [])
-      .map(id => this.allSubgenres.find(s => s.id === id)!)
+      .map((id) => this.allSubgenres.find((s) => s.id === id)!)
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   getSortedDidacticCategories(ids: number[]): DidacticCategory[] {
     return (ids || [])
-      .map(id => this.allDidacticCategories.find(c => c.id === id)!)
+      .map((id) => this.allDidacticCategories.find((c) => c.id === id)!)
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 

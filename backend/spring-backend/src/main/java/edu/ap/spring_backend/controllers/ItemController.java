@@ -17,7 +17,6 @@ import edu.ap.spring_backend.service.BookCoverCacheService;
 import java.nio.charset.StandardCharsets;
 import org.springframework.util.DigestUtils;
 import org.springframework.http.CacheControl;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import java.time.Duration;
 
@@ -78,7 +77,7 @@ public class ItemController {
     @GetMapping("/filteredBooks")
     public ResponseEntity<PageResponseDTO<ItemDTO>> getAllFilteredItems(
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "10") @Min(1) @Max(10) int size,
+            @RequestParam(defaultValue = "15") @Min(1) @Max(15) int size,
             @RequestParam(defaultValue = "title") @Pattern(regexp = "title|author|score|pages") String sortBy,
             @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE) String sortDirection,
             @RequestParam Long schoolId,
