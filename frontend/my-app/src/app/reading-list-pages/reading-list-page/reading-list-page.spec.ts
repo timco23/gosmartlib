@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ReadingListPage } from './reading-list-page';
+import { PopUpComponent } from '../../pop-up/pop-up.component';
 
 describe('ReadingListPage', () => {
   let component: ReadingListPage;
