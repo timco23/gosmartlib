@@ -35,6 +35,8 @@ import { ReadingLevelService } from '../../services/reading-level.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { SchoolService } from '../../services/school.service';
 import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
+import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { NgClass } from "../../../../node_modules/@angular/common/types/_common_module-chunk";
 
 @Component({
   selector: 'app-update-book-page',
@@ -47,7 +49,8 @@ import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-gr
     ReadingLevelSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
     CampusCopyGroupComponent,
-  ],
+    PopUpComponent
+],
   templateUrl: './update-book-page.html',
   styleUrl: './update-book-page.css',
 })
@@ -64,6 +67,9 @@ export class UpdateBookPage implements OnInit {
   readingLevelService = inject(ReadingLevelService);
   didacticCategoryService = inject(DidacticCategoryService);
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+  // Delete confirmation state
+  DeleteConfirmation: boolean = false;
 
   // Book form state
   form: FormGroup;
@@ -436,17 +442,36 @@ export class UpdateBookPage implements OnInit {
     this.copyError = false;
   }
 
-  deleteCopy(copyId: any) {
-    this.deleteError = null;
-    this.api.deleteCopy(copyId!).subscribe({
-      next: () => {
-        this.loadCopies();
-      },
-      error: (err) => {
-        this.deleteError = err.error || 'Er is een fout opgetreden bij het verwijderen.';
-        this.cdr.detectChanges();
-      },
+  showDeleteConfirmation(copyId: any) {
+    this.api.getCopyById(copyId).subscribe(copy => {
+      if(copy.copy_status === 'UITGELEEND'){
+         this.DeleteConfirmation = true;
+      } else {
+        this.deleteCopy('confirm', copyId);
+      }
     });
+  }
+
+  deleteCopy(value: string, copyId: any) {
+    if (value === 'confirm') {
+      this.deleteError = null;
+
+      this.api.getCopyById(copyId).subscribe(copy => {
+
+        this.api.deleteCopy(copyId!).subscribe({
+          next: () => {
+            this.loadCopies();
+            console.log("deleted copy with id: " + copyId);
+          },
+          error: (err) => {
+            console.log("error deleting copy with id: " + copyId, err);
+            this.deleteError = err.error || 'Er is een fout opgetreden bij het verwijderen.';
+            this.cdr.detectChanges();
+          },
+        });
+      });
+    }
+    this.DeleteConfirmation = false;
   }
 
   // Drag & drop

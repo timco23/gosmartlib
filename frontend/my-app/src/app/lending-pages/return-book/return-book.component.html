@@ -59,8 +59,24 @@
           </div>
         </div>
       }
-
+      
       <button type="submit" class="add-button">Boek terugbrengen</button>
     </form>
+    
+    @if (returnConfirmation) {
+  <app-pop-up
+    [message]="returnConfirmationMessage"
+    [actions]="popUpActions"
+    (actionClicked)="onDeleteDialogAction($event)" />
+  }
+
+  @if (selectBookError) {
+    <app-pop-up
+            title="Boek uitlenen mislukt"
+            message="Selecteer eerst een boek."
+            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+            (actionClicked)="closeNotification()"
+          />
+  }
   </div>
 </body>

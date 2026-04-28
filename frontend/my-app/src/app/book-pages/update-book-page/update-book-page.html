@@ -109,8 +109,10 @@
         <h3>Exemplaren ({{ copies.length }})</h3>
 
         @if (deleteError) {
-          <p id="warning">{{ deleteError }}</p>
-        }
+                            <app-pop-up [message]="'Er is een fout opgetreden bij het verwijderen van het exemplaar. Probeer het opnieuw.'"
+                            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+                            (actionClicked)="deleteError = null"/>
+                          }
 
         @if (editingCopyId) {
           <div class="edit-copy-card">
@@ -209,9 +211,16 @@
                           <button type="button" class="EditButton" (click)="startEdit(copy)">
                             Wijzigen
                           </button>
-                          <button type="button" class="DeleteButton" (click)="deleteCopy(copy.id)">
+                          <button type="button" class="DeleteButton" (click)="showDeleteConfirmation(copy.id)">
                             Verwijderen
                           </button>
+                          @if (copy.copy_status === 'UITGELEEND' && DeleteConfirmation) {
+                            <app-pop-up [message]="'U gaat een exemplaar verwijderen dat momenteel uitgeleend is. Weet u zeker dat u dit exemplaar wilt verwijderen?'"
+                              [actions]="[
+                              { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+                              { label: 'Verwijderen', type: 'danger', value: 'confirm' }
+                            ]" (actionClicked)="deleteCopy($event, copy.id)" />
+                          }
                         </td>
                       </tr>
                     }

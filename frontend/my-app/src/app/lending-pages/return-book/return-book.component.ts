@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { Book, School, SchoolItemCopy, UserProfile } from '../../../types/types';
+import { Book, ConfirmDialogAction, School, SchoolItemCopy, UserProfile } from '../../../types/types';
 import { SchoolService } from '../../services/school.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
@@ -7,10 +7,11 @@ import { BookService } from '../../services/book-service';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LendingService } from '../../services/lending.service';
+import { PopUpComponent } from '../../pop-up/pop-up.component';
 
 @Component({
   selector: 'app-return-book',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, PopUpComponent],
   templateUrl: './return-book.component.html',
   styleUrl: './return-book.component.css',
 })
@@ -24,6 +25,9 @@ export class ReturnBookComponent {
   public lendings: any[] = [];
   public currentLending: any = null;
 
+  returnConfirmation: boolean = false;
+  selectBookError: boolean = false;
+
   public bookSelected: boolean = false;
   public barcode: string = '';
 
@@ -36,6 +40,15 @@ export class ReturnBookComponent {
   private router = inject(Router);
 
   bookApi = inject(BookService);
+
+  popUpActions: ConfirmDialogAction[] = [
+  { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+  { label: 'Verwijderen', type: 'danger', value: 'confirm' }
+];
+
+  get returnConfirmationMessage(): string {
+    return `Bent u zeker dat ${this.currentLending?.borrowerName} het boek "${this.currentBook?.title}" terugbrengt?`;
+  }
 
   constructor(private bookService: BookService) {}
 
@@ -182,18 +195,10 @@ export class ReturnBookComponent {
     this.cdr.detectChanges();
   }
 
-  onSubmit(): void {
-    if (!this.currentSchoolCopy || !this.currentLending) {
-      alert('Selecteer eerst een boek.');
-      return;
-    }
-
-    const bevestigd = confirm(
-      `Bent u zeker dat ${this.currentLending.borrowerName} het boek "${this.currentBook?.title}" terugbrengt?`,
-    );
-    if (!bevestigd) return;
-
-    this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
+  onDeleteDialogAction(value: string): void {
+    if (!this.currentSchoolCopy) return;
+    if (value === 'confirm') {
+      this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
       next: () => {
         console.log('Copy status updated');
         this.lendingService
@@ -226,6 +231,22 @@ export class ReturnBookComponent {
         alert('Boek retourneren mislukt, probeer later opnieuw.');
       },
     });
+    }
+    this.returnConfirmation = false;
+  }
+
+  onSubmit(): void {
+    if (!this.currentSchoolCopy || !this.currentLending) {
+      this.selectBookError = true;
+      return;
+    }
+
+    this.returnConfirmation = true;
+  }
+
+  closeNotification() {
+    this.selectBookError = false;
+    this.cdr.detectChanges();
   }
 
   coverSrcFromLending(lending: any): string {
