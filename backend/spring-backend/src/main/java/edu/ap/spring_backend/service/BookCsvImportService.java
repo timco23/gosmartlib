@@ -30,11 +30,12 @@ import java.util.Set;
 /**
  * Service responsible for bulk-importing books from a semicolon-delimited CSV file.
  * The expected CSV columns are:
- * Titel;Auteur;ISBN;Exemplaar_aantal;Conditie_nieuw;Conditie_goed;Conditie_gebruikt;Conditie_beschadigd;Campus
+ * Titel;Auteur;ISBN;Conditie_nieuw;Conditie_goed;Conditie_gebruikt;Conditie_beschadigd;Campus
  *
  * Import follows a two-phase approach:
  *   Preview phase (previewImport):
- *       Parses and validates all rows; all errors are collected before returning
+ *       Parses and validates all rows
+ *       all errors are collected and divided into a 'error' or 'criticalError' list before returning
  *       Returns the parsed rows so the user may optionally enrich them
  *       If a row's ISBN conflicts with an existing Item's ISBN, the existingIsbn field is set
  *   Confirm phase (confirmImport):
@@ -47,7 +48,7 @@ import java.util.Set;
 @Service
 public class BookCsvImportService {
 
-    private static final int EXPECTED_COLUMN_COUNT = 9;
+    private static final int EXPECTED_COLUMN_COUNT = 8;
     private static final int MAX_ROW_COUNT = 1000;
     private static final long MAX_FILE_SIZE_BYTES = 1024 * 1024; // 1 MB
 
@@ -81,16 +82,17 @@ public class BookCsvImportService {
      */
     public CsvPreviewDTO previewImport(MultipartFile file, Long schoolId) {
         if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            return new CsvPreviewDTO(List.of("Bestand is te groot. Maximum bestandsgrootte is 1 MB."), List.of());
+            return new CsvPreviewDTO(List.of("Bestand is te groot. Maximum bestandsgrootte is 1 MB."), List.of(), List.of());
         }
 
         String filename = file.getOriginalFilename();
         if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
-            return new CsvPreviewDTO(List.of("Ongeldig bestandstype. Alleen .csv bestanden zijn toegestaan."), List.of());
+            return new CsvPreviewDTO(List.of("Ongeldig bestandstype. Alleen .csv bestanden zijn toegestaan."), List.of(), List.of());
         }
 
         School school = schoolRepository.findById(schoolId).orElseThrow(EntityNotFoundException::new);
 
+        List<String> criticalErrors = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         List<BookImportRow> rows = new ArrayList<>();
         Set<String> seenKeys = new HashSet<>();
@@ -106,57 +108,52 @@ public class BookCsvImportService {
                         .parse(reader)) {
 
             int rowNum = 1;
-            for (CSVRecord record : parser) {
+            for (CSVRecord csvRecord : parser) {
                 rowNum++;
 
                 if (rowNum > MAX_ROW_COUNT + 1) {
-                    errors.add("Bestand bevat meer dan " + MAX_ROW_COUNT + " rijen. Maximum is " + MAX_ROW_COUNT + " rijen.");
+                    criticalErrors.add("Bestand bevat meer dan " + MAX_ROW_COUNT + " rijen. Maximum is " + MAX_ROW_COUNT + " rijen.");
                     break;
                 }
 
-                if (record.size() != EXPECTED_COLUMN_COUNT) {
-                    errors.add("Rij " + rowNum + ": incorrecte hoeveelheid kolommen (" + record.size()
+                if (csvRecord.size() != EXPECTED_COLUMN_COUNT) {
+                    criticalErrors.add("Rij " + rowNum + ": incorrecte hoeveelheid kolommen (" + csvRecord.size()
                             + " gevonden, " + EXPECTED_COLUMN_COUNT + " verwacht).");
                     continue;
                 }
 
-                String title = getColumnValue(record, "Titel");
-                String author = getColumnValue(record, "Auteur");
-                String isbn = getColumnValue(record, "ISBN");
-                String copiesStr = getColumnValue(record, "Exemplaar_aantal");
-                String campus = getColumnValue(record, "Campus");
+                String title = getColumnValue(csvRecord, "Titel");
+                String author = getColumnValue(csvRecord, "Auteur");
+                String isbn = getColumnValue(csvRecord, "ISBN");
+                String campus = getColumnValue(csvRecord, "Campus");
 
-                int copies = 1;
-                if (!copiesStr.isEmpty()) {
-                    try {
-                        copies = Integer.parseInt(copiesStr);
-                    } catch (NumberFormatException e) {
-                        errors.add("Rij " + rowNum + ": 'Exemplaar_aantal' moet een getal zijn.");
-                    }
+                int condNieuw    = parseCount(getColumnValue(csvRecord, "Conditie_nieuw"),      "Conditie_nieuw",      rowNum, errors);
+                int condGoed     = parseCount(getColumnValue(csvRecord, "Conditie_goed"),       "Conditie_goed",       rowNum, errors);
+                int condGebruikt = parseCount(getColumnValue(csvRecord, "Conditie_gebruikt"),   "Conditie_gebruikt",   rowNum, errors);
+                int condBeschadigd = parseCount(getColumnValue(csvRecord, "Conditie_beschadigd"), "Conditie_beschadigd", rowNum, errors);
+
+                int copyAmount = condNieuw + condGoed + condGebruikt + condBeschadigd;
+                if (copyAmount == 0) {
+                    copyAmount = 1;
                 }
-
-                int condNieuw    = parseCount(getColumnValue(record, "Conditie_nieuw"),      "Conditie_nieuw",      rowNum, errors);
-                int condGoed     = parseCount(getColumnValue(record, "Conditie_goed"),       "Conditie_goed",       rowNum, errors);
-                int condGebruikt = parseCount(getColumnValue(record, "Conditie_gebruikt"),   "Conditie_gebruikt",   rowNum, errors);
-                int condBeschadigd = parseCount(getColumnValue(record, "Conditie_beschadigd"), "Conditie_beschadigd", rowNum, errors);
 
                 String existingIsbn = detectIsbnConflict(title, isbn);
 
                 BookImportRow row = new BookImportRow(rowNum, title, author, isbn,
-                        copies, condNieuw, condGoed, condGebruikt, condBeschadigd, campus, existingIsbn, false);
+                        copyAmount, condNieuw, condGoed, condGebruikt, condBeschadigd, campus, existingIsbn, false);
                 validateRow(row, school, seenKeys, errors);
                 rows.add(row);
             }
 
         } catch (Exception e) {
-            return new CsvPreviewDTO(List.of("Fout bij verwerken van CSV-bestand."), List.of());
+            return new CsvPreviewDTO(List.of("Fout bij verwerken van CSV-bestand."), List.of(), List.of());
         }
 
-        if (!errors.isEmpty()) {
-            return new CsvPreviewDTO(errors, List.of());
+        if (!criticalErrors.isEmpty()) {
+            return new CsvPreviewDTO(criticalErrors, List.of(), List.of());
         }
 
-        return new CsvPreviewDTO(List.of(), rows);
+        return new CsvPreviewDTO(criticalErrors, errors, rows);
     }
 
     /**
@@ -276,9 +273,6 @@ public class BookCsvImportService {
         if (!row.isbn().isEmpty() && !row.isbn().matches("\\d{13}"))
             errors.add("Rij " + rowNum + ": 'ISBN' moet exact 13 cijfers bevatten.");
 
-        if (row.copies() < 1)
-            errors.add("Rij " + rowNum + ": 'Exemplaar_aantal' moet een positief getal zijn.");
-
         if (row.conditionNieuw() < 0)
             errors.add("Rij " + rowNum + ": 'Conditie_nieuw' mag niet negatief zijn.");
         if (row.conditionGoed() < 0)
@@ -287,12 +281,6 @@ public class BookCsvImportService {
             errors.add("Rij " + rowNum + ": 'Conditie_gebruikt' mag niet negatief zijn.");
         if (row.conditionBeschadigd() < 0)
             errors.add("Rij " + rowNum + ": 'Conditie_beschadigd' mag niet negatief zijn.");
-
-        int condSum = row.conditionNieuw() + row.conditionGoed()
-                + row.conditionGebruikt() + row.conditionBeschadigd();
-        if (condSum > row.copies())
-            errors.add("Rij " + rowNum + ": som van conditie-aantallen (" + condSum
-                    + ") overschrijdt 'Exemplaar_aantal' (" + row.copies() + ").");
 
         if (!row.campus().isEmpty() && school.getCampuses().stream()
                 .noneMatch(c -> normalize(c.getName()).equals(normalize(row.campus()))))
