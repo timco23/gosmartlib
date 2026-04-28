@@ -85,6 +85,7 @@ export class BookListPage implements OnInit {
   allGenres: Genre[] = [];
   allSubgenres: Subgenre[] = [];
   allDidacticCategories: DidacticCategory[] = [];
+  booksToBeAddedToReadingList: Book[] = [];
 
   get canUseDidacticFilters(): boolean {
     return this.authService.atLeastHasRole(this.role.LEERKRACHT);
@@ -394,5 +395,13 @@ export class BookListPage implements OnInit {
     }
 
     return { id: null, name: null };
+  }
+
+  addBookToReadingList(book: Book) {
+    this.booksToBeAddedToReadingList.push(book);
+  }
+
+  makeReadingListWithBooks() {
+    this.router.navigate(["/lists/add"], {queryParams: {"ids": this.booksToBeAddedToReadingList.map((book) => book.id).join(",")}})
   }
 }
