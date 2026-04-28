@@ -134,7 +134,9 @@
           <h3>Recensies</h3>
           <p class="muted">
             <app-star-display [score]="displayedReviewScore" />
-            {{ displayedReviewScore }} van 5
+            @if (displayedReviewScore > 0) {
+              {{ displayedReviewScore }} van 5
+            }
           </p>
           <p class="muted">Totaal aantal reviews: {{ displayedReviewCount }}</p>
 

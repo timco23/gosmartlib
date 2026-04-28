@@ -8,3 +8,8 @@
   width: 20px;
   height: 20px;
 }
+
+.no-reviews {
+  font-size: 0.75rem;
+  color: #555;
+}
