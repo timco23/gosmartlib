@@ -2,35 +2,130 @@
   <div class="enrichment-header">
     <h2>Importgegevens aanvullen</h2>
     <p>
-      De onderstaande rijen bevatten ontbrekende informatie. Vul de lege velden in of sla over om te
-      importeren zonder aanpassingen.
+      De onderstaande rijen bevatten ontbrekende of ongeldige informatie. Pas de velden aan voor het
+      importeren.
     </p>
   </div>
 
   @for (state of enrichableStates; track state.original.rowNumber) {
-    <div class="enrichment-row" [ngClass]="{ 'has-error': state.validationError }">
-      <div class="row-title">
-        <strong>Rij {{ state.original.rowNumber }}: {{ state.original.title }}</strong>
-        <span class="row-author">{{ state.original.author }}</span>
-        <span class="row-copies"
-          >{{ state.original.copies }}
-          {{ state.original.copies === 1 ? 'exemplaar' : 'exemplaren' }}</span
+    <div
+      class="enrichment-row"
+      [ngClass]="{
+        'has-error':
+          state.validationErrors.length > 0 || getRowErrors(state.original.rowNumber).length > 0,
+      }"
+    >
+      <div class="row-header">
+        <div class="row-header-left">
+          <strong>Rij {{ state.original.rowNumber }}</strong>
+          @if (
+            getRowErrors(state.original.rowNumber).length > 0 || state.validationErrors.length > 0
+          ) {
+            <ul class="row-backend-errors">
+              @for (err of getRowErrors(state.original.rowNumber); track err) {
+                <li>{{ err }}</li>
+              }
+              @for (err of state.validationErrors; track err) {
+                <li>{{ err }}</li>
+              }
+            </ul>
+          }
+        </div>
+        <button
+          type="button"
+          class="delete-row-btn"
+          (click)="onDeleteRow(state.original.rowNumber)"
         >
+          Verwijderen
+        </button>
       </div>
 
-      @if (school.campuses.length > 1) {
+      <div class="editable-fields-group">
         <div class="field-group">
-          <label>Campus</label>
-          <select [(ngModel)]="state.campusInput">
-            <option value="">Geen</option>
-            @for (campus of school.campuses; track campus.id) {
-              <option [value]="campus.name.toLowerCase().replace(' ', '')">
-                {{ campus.name }}
-              </option>
-            }
-          </select>
+          <label>Titel</label>
+          <input
+            type="text"
+            [(ngModel)]="state.titleInput"
+            [ngClass]="{ 'field-invalid': state.invalidFields.has('title') }"
+          />
         </div>
-      }
+        <div class="field-group">
+          <label>Auteur</label>
+          <input
+            type="text"
+            [(ngModel)]="state.authorInput"
+            [ngClass]="{ 'field-invalid': state.invalidFields.has('author') }"
+          />
+        </div>
+        <div class="field-group">
+          <label>ISBN</label>
+          <input
+            type="text"
+            [(ngModel)]="state.isbnInput"
+            [ngClass]="{ 'field-invalid': state.invalidFields.has('isbn') }"
+          />
+        </div>
+        @if (school.campuses.length > 1) {
+          <div class="field-group campus-field">
+            <label>Campus</label>
+            <select
+              [(ngModel)]="state.campusInput"
+              [ngClass]="{ 'field-invalid': state.invalidFields.has('campus') }"
+            >
+              <option value="">Geen</option>
+              @for (campus of school.campuses; track campus.id) {
+                <option [value]="campus.name.toLowerCase().replace(' ', '')">
+                  {{ campus.name }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+      </div>
+
+      <div class="condition-group">
+        <label class="condition-label"
+          >Conditieverdeling (totaal: {{ conditionSum(state) }})</label
+        >
+        <div class="condition-inputs">
+          <div class="condition-input">
+            <label>Nieuw</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="state.conditionNieuw"
+              [ngClass]="{ 'field-invalid': state.invalidFields.has('conditionSum') }"
+            />
+          </div>
+          <div class="condition-input">
+            <label>Goed</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="state.conditionGoed"
+              [ngClass]="{ 'field-invalid': state.invalidFields.has('conditionSum') }"
+            />
+          </div>
+          <div class="condition-input">
+            <label>Gebruikt</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="state.conditionGebruikt"
+              [ngClass]="{ 'field-invalid': state.invalidFields.has('conditionSum') }"
+            />
+          </div>
+          <div class="condition-input">
+            <label>Beschadigd</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="state.conditionBeschadigd"
+              [ngClass]="{ 'field-invalid': state.invalidFields.has('conditionSum') }"
+            />
+          </div>
+        </div>
+      </div>
 
       @if (state.original.existingIsbn) {
         <div class="field-group isbn-conflict-group">
@@ -62,45 +157,11 @@
           </div>
         </div>
       }
-
-      @if (conditionSum(state) < state.original.copies || conditionSum(state) > 0) {
-        <div class="condition-group">
-          <label class="condition-label"
-            >Conditieverdeling (totaal: {{ state.original.copies }})</label
-          >
-          <div class="condition-inputs">
-            <div class="condition-input">
-              <label>Nieuw</label>
-              <input type="number" min="0" [(ngModel)]="state.conditionNieuw" />
-            </div>
-            <div class="condition-input">
-              <label>Goed</label>
-              <input type="number" min="0" [(ngModel)]="state.conditionGoed" />
-            </div>
-            <div class="condition-input">
-              <label>Gebruikt</label>
-              <input type="number" min="0" [(ngModel)]="state.conditionGebruikt" />
-            </div>
-            <div class="condition-input">
-              <label>Beschadigd</label>
-              <input type="number" min="0" [(ngModel)]="state.conditionBeschadigd" />
-            </div>
-          </div>
-          <p class="condition-remaining">
-            Ongedefinieerd: {{ state.original.copies - conditionSum(state) }}
-          </p>
-        </div>
-      }
-
-      @if (state.validationError) {
-        <p class="row-error">{{ state.validationError }}</p>
-      }
     </div>
   }
 
   <div class="enrichment-buttons">
     <button type="button" class="primary-btn" (click)="onConfirm()">Bevestigen</button>
-    <button type="button" class="secondary-btn" (click)="onSkip()">Aanpassingen overslaan</button>
     <button type="button" class="cancel-btn" (click)="onCancel()">Bulk import annuleren</button>
   </div>
 </div>

@@ -29,23 +29,61 @@
   border-color: #c0392b;
 }
 
-.row-title {
+.row-header {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
-  flex-wrap: wrap;
 }
 
-.row-author {
-  color: #666;
-  font-size: 13px;
+.row-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.row-copies {
-  color: #666;
+.delete-row-btn {
+  background: none;
+  border: 1px solid #c0392b;
+  color: #c0392b;
+  padding: 4px 10px;
+  border-radius: 5px;
   font-size: 13px;
-  margin-left: auto;
+  cursor: pointer;
+}
+
+.delete-row-btn:hover {
+  background: #c0392b;
+  color: white;
+}
+
+.editable-fields-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.editable-fields-group .field-group {
+  margin-bottom: 0;
+}
+
+.editable-fields-group input[type='text'],
+.editable-fields-group input[type='number'] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #b0ae9e;
+  font-size: 14px;
+  background-color: #f0efe4;
+}
+
+.editable-fields-group input:focus {
+  outline: none;
+  border-color: #8c1b3f;
+  box-shadow: 0 0 3px rgba(140, 27, 63, 0.4);
 }
 
 .field-group {
@@ -65,7 +103,8 @@
   border-radius: 6px;
   border: 1px solid #b0ae9e;
   font-size: 14px;
-  max-width: 260px;
+  width: 100%;
+  box-sizing: border-box;
   background-color: #f0efe4;
 }
 
@@ -110,10 +149,15 @@
   cursor: pointer;
 }
 
+.campus-field {
+  width: 100%;
+}
+
 .condition-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-bottom: 12px;
 }
 
 .condition-label {
@@ -159,10 +203,27 @@
   margin: 4px 0 0 0;
 }
 
-.row-error {
+.field-invalid {
+  border: 2px solid #8c1b3f !important;
+  background-color: #fde8ef !important;
+  box-shadow: 0 0 6px rgba(140, 27, 63, 0.5) !important;
+}
+
+.row-backend-errors,
+.row-validation-errors {
   color: #c0392b;
   font-size: 13px;
-  margin: 8px 0 0 0;
+  margin: 0;
+  padding-left: 16px;
+}
+
+.row-backend-errors li,
+.row-validation-errors li {
+  margin-bottom: 2px;
+}
+
+.row-validation-errors {
+  margin-top: 8px;
 }
 
 .enrichment-buttons {
