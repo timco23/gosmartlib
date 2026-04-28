@@ -17,10 +17,22 @@ export class LendingHistoryComponent {
   lendings: Lending[] = [];
   currentUser: LoginResponse | null = null;
   cdr = inject(ChangeDetectorRef);
-  bookApi: BookService = inject(BookService); 
+  bookApi: BookService = inject(BookService);
   failedCoverIds = new Set<number>();
 
-  constructor(private authService: AuthService) { }
+  currentPage = 0;
+  pageSize = 2;
+
+  get totalPages(): number {
+    return Math.ceil(this.lendings.length / this.pageSize);
+  }
+
+  get visibleLendings(): Lending[] {
+    const start = this.currentPage * this.pageSize;
+    return this.lendings.slice(start, start + this.pageSize);
+  }
+
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     this.authService.currentUser$
@@ -33,8 +45,23 @@ export class LendingHistoryComponent {
       )
       .subscribe((data: Lending[]) => {
         this.lendings = data;
+        this.currentPage = 0;
         this.cdr.detectChanges();
       });
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
   }
 
   coverSrcFromLending(lending: Lending): string | null {

@@ -2,12 +2,10 @@
   <header class="lendings-header">
     <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
   </header>
-
   <div class="lendings-card">
     <h3>Huidige uitleningen</h3>
-
     <ul class="lending-list">
-      @for (lending of lendings; track lending.id) {
+      @for (lending of visibleLendings; track lending.id) {
         <li class="lending-item">
           @let cover = coverSrcFromLending(lending);
           @if (cover) {
@@ -25,17 +23,14 @@
             <span class="label">Titel</span>
             <span class="value">{{ lending.bookTitle }}</span>
           </div>
-
           <div class="lending-field">
             <span class="label">Auteur</span>
             <span class="value">{{ lending.bookAuthor }}</span>
           </div>
-
           <div class="lending-field">
             <span class="label">Uitgeleend op</span>
             <span class="value">{{ lending.lendingDate }}</span>
           </div>
-
           <div class="lending-field">
             <span class="label">Teruggebracht op</span>
             <span class="value">{{ lending.dateReturned }}</span>
@@ -43,5 +38,17 @@
         </li>
       }
     </ul>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
+          ← Vorige
+        </button>
+        <span class="page-indicator">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
+        <button class="page-button" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
+          Volgende →
+        </button>
+      </div>
+    }
   </div>
 </body>
