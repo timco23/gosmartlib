@@ -1,0 +1,24 @@
+@if(readingListQueue.length > 0) {
+<body class="popup-container">
+    <div class="handle">
+        <div class="queue-count">{{readingListQueue().length}}</div>
+        <p class="popup-header">Leeslijst</p>
+    </div>
+    
+    <main class="content-wrapper">
+        <div class="inner-container">
+            @for (book of readingListQueue(); track $index) {
+                <div class="book-card">
+                    <div class="delete-button" (click)="removeBookFromQueue(book)">×</div>
+                    <img class="book-cover" [src]="book.cover" alt="Cover">
+                    <p class="book-title">{{book.title}}</p>
+                </div>
+            }
+        </div>
+        <div class="action-buttons">
+            <button class="clear-button" (click)="clearQueue()">Leegmaken</button>
+            <button class="create-list-button" (click)="makeReadingListWithBooks()">Lijst maken</button>
+        </div>
+    </main>
+</body>
+}

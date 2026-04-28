@@ -26,6 +26,7 @@ import {
   Subgenre,
   Tag,
 } from '../../../types/types';
+import { ReadingListSlideOutPopUp } from '../reading-list-slide-out-pop-up/reading-list-slide-out-pop-up';
 
 @Component({
   selector: 'app-book-list-page',
@@ -37,6 +38,7 @@ import {
     GenreSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
     SubgenreSelectionMenuComponent,
+    ReadingListSlideOutPopUp
   ],
   templateUrl: './book-list-page.html',
   styleUrl: './book-list-page.css',
@@ -399,9 +401,5 @@ export class BookListPage implements OnInit {
 
   addBookToReadingList(book: Book) {
     this.booksToBeAddedToReadingList.push(book);
-  }
-
-  makeReadingListWithBooks() {
-    this.router.navigate(["/lists/add"], {queryParams: {"ids": this.booksToBeAddedToReadingList.map((book) => book.id).join(",")}})
   }
 }
