@@ -195,7 +195,6 @@ export interface BookImportRow {
   title: string;
   author: string;
   isbn: string;
-  copies: number;
   conditionNieuw: number;
   conditionGoed: number;
   conditionGebruikt: number;
@@ -207,17 +206,27 @@ export interface BookImportRow {
 
 export interface EnrichedRowState {
   original: BookImportRow;
+  titleInput: string;
+  authorInput: string;
+  isbnInput: string;
   campusInput: string;
   conditionNieuw: number;
   conditionGoed: number;
   conditionGebruikt: number;
   conditionBeschadigd: number;
   updateExistingIsbn: boolean;
-  validationError: string;
+  validationErrors: string[];
+  invalidFields: Set<string>;
+}
+
+export interface RowError {
+  rowNumber: number;
+  message: string;
 }
 
 export interface CsvPreviewDTO {
-  errors: string[];
+  criticalErrors: string[];
+  errors: RowError[];
   rows: BookImportRow[];
 }
 
@@ -227,7 +236,7 @@ export interface CsvConfirmDTO {
 }
 
 export interface CsvImportDTO {
-  errors: string[];
+  errors: RowError[];
   importedBooks: number;
   importedCopies: number;
   copyIds: number[];

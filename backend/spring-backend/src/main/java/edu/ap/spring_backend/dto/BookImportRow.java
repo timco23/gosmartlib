@@ -5,7 +5,6 @@ public record BookImportRow(
         String title,
         String author,
         String isbn,
-        int copies,
         int conditionNieuw,
         int conditionGoed,
         int conditionGebruikt,

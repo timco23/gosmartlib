@@ -39,8 +39,8 @@
     <app-book-import-enrichment
       [allRows]="previewRows"
       [school]="school"
+      [rowErrors]="previewRowErrors"
       (confirmed)="onEnrichmentConfirmed($event)"
-      (skipped)="onEnrichmentSkipped()"
       (cancelled)="onEnrichmentCancelled()"
     />
   }
