@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
-import { BookImportRow, EnrichedRowState, School } from '../../../types/types';
+import { BookImportRow, EnrichedRowState, RowError, School } from '../../../types/types';
 
 @Component({
   selector: 'app-book-import-enrichment',
@@ -12,7 +12,7 @@ import { BookImportRow, EnrichedRowState, School } from '../../../types/types';
 export class BookImportEnrichmentComponent implements OnInit, OnChanges {
   @Input() allRows: BookImportRow[] = [];
   @Input() school!: School;
-  @Input() rowErrors: string[] = [];
+  @Input() rowErrors: RowError[] = [];
 
   @Output() confirmed = new EventEmitter<BookImportRow[]>();
   @Output() cancelled = new EventEmitter<void>();
@@ -25,12 +25,8 @@ export class BookImportEnrichmentComponent implements OnInit, OnChanges {
     if (changes['rowErrors'] && !changes['rowErrors'].firstChange) {
       this.errorsByRow = new Map();
       this.rowErrors.forEach((error) => {
-        const match = error.match(/^Rij (\d+): (.+)$/);
-        if (match) {
-          const rowNum = parseInt(match[1], 10);
-          if (!this.errorsByRow.has(rowNum)) this.errorsByRow.set(rowNum, []);
-          this.errorsByRow.get(rowNum)!.push(match[2]);
-        }
+        if (!this.errorsByRow.has(error.rowNumber)) this.errorsByRow.set(error.rowNumber, []);
+        this.errorsByRow.get(error.rowNumber)!.push(error.message);
       });
 
       const existingRowNumbers = new Set(this.enrichableStates.map((s) => s.original.rowNumber));
@@ -57,14 +53,8 @@ export class BookImportEnrichmentComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.rowErrors.forEach((error) => {
-      const match = error.match(/^Rij (\d+): (.+)$/);
-      if (match) {
-        const rowNum = parseInt(match[1], 10);
-        if (!this.errorsByRow.has(rowNum)) {
-          this.errorsByRow.set(rowNum, []);
-        }
-        this.errorsByRow.get(rowNum)!.push(match[2]);
-      }
+      if (!this.errorsByRow.has(error.rowNumber)) this.errorsByRow.set(error.rowNumber, []);
+      this.errorsByRow.get(error.rowNumber)!.push(error.message);
     });
 
     this.localRows = this.allRows.map((r) => ({ ...r }));

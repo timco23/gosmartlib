@@ -4,6 +4,6 @@ import java.util.List;
 
 public record CsvPreviewDTO(
         List<String> criticalErrors,
-        List<String> errors,
+        List<RowError> errors,
         List<BookImportRow> rows) {
 }

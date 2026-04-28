@@ -219,9 +219,14 @@ export interface EnrichedRowState {
   invalidFields: Set<string>;
 }
 
+export interface RowError {
+  rowNumber: number;
+  message: string;
+}
+
 export interface CsvPreviewDTO {
   criticalErrors: string[];
-  errors: string[];
+  errors: RowError[];
   rows: BookImportRow[];
 }
 
@@ -231,7 +236,7 @@ export interface CsvConfirmDTO {
 }
 
 export interface CsvImportDTO {
-  errors: string[];
+  errors: RowError[];
   importedBooks: number;
   importedCopies: number;
   copyIds: number[];

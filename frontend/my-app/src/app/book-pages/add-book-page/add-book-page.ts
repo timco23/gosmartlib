@@ -20,6 +20,7 @@ import {
   CsvConfirmDTO,
   CsvImportDTO,
   CsvPreviewDTO,
+  RowError,
   School,
   Tag,
   Genre,
@@ -118,7 +119,7 @@ export class AddBookPage implements OnInit {
 
   // CSV import state
   previewErrors: string[] = [];
-  previewRowErrors: string[] = [];
+  previewRowErrors: RowError[] = [];
   previewRows: BookImportRow[] | null = null;
   showEnrichment: boolean = false;
   importResult: CsvImportDTO | null = null;
@@ -508,8 +509,13 @@ export class AddBookPage implements OnInit {
         this.importLoading = false;
         this.importLoadingMessage = '';
         if (result.errors.length > 0) {
-          this.previewRowErrors = result.errors;
-          this.showEnrichment = true;
+          const generalErrors = result.errors.filter((e) => e.rowNumber === 0).map((e) => e.message);
+          if (generalErrors.length > 0) {
+            this.previewErrors = generalErrors;
+          } else {
+            this.previewRowErrors = result.errors;
+            this.showEnrichment = true;
+          }
         } else {
           this.showEnrichment = false;
           this.previewRows = null;
