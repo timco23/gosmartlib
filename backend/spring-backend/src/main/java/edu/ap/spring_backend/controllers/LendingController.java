@@ -28,6 +28,11 @@ public class LendingController {
         return lendingService.getAll();
     }
 
+    @GetMapping("/all/user/{userId}")
+    public Object getAllLendingsByUserId(@PathVariable Long userId) {
+        return lendingService.getAllByUserId(userId);
+    }
+
     @GetMapping("/{id}")
     public Object getLendingById(@PathVariable Long id) {
         return lendingService.getById(id);
