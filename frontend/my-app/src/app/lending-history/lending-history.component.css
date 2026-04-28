@@ -93,3 +93,36 @@
   background: #f1f1f1;
   border-radius: 6px;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #bfbfe8;
+}
+
+.page-button {
+  background-color: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.page-button:hover:not([disabled]) {
+  background-color: #6f1532;
+}
+
+.page-button[disabled] {
+  background-color: #bfbfe8;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 0.875rem;
+  color: black;
+}
