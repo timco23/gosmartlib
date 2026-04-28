@@ -145,7 +145,7 @@ public class ReviewService {
                 || profanityFilterService.containsProfanity(dto.description())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review bevat ongepaste woorden.");
         }
-        Review review = new Review(title, description, dto.stars(), item, user);
+        Review review = new Review(title, description, dto.stars(), item, user, dto.isAnonymous());
         reviewRepository.save(review);
 
         updateItemReviewStats(item);
@@ -245,6 +245,8 @@ public class ReviewService {
                 ? review.getAuthor().getFirstName() + " " + review.getAuthor().getName()
                 : review.getAuthor().getName();
 
+        // The backend ALWAYS passes the real name
+        // The frontend determines what is displayed based on isAnonymous and userRole
         return new ReviewDTO(
                 review.getId(),
                 review.getTitle(),
@@ -253,7 +255,8 @@ public class ReviewService {
                 review.getCreatedAt(),
                 authorName,
                 review.getAuthor().getEmail(),
-                review.getAuthor().getSmartschoolUsername()
+                review.getAuthor().getSmartschoolUsername(),
+                review.isAnonymous()
         );
     }
 

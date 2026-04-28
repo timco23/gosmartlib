@@ -22,5 +22,6 @@ public record ReviewDTO(
         @JsonProperty("createdAt") LocalDate createdAt,
         @JsonProperty("authorName") String authorName,
         @JsonProperty("authorEmail") String authorEmail,
-        @JsonProperty("authorSmartschoolUsername") String authorSmartschoolUsername
+        @JsonProperty("authorSmartschoolUsername") String authorSmartschoolUsername,
+        @JsonProperty("isAnonymous") boolean isAnonymous
 ) {}

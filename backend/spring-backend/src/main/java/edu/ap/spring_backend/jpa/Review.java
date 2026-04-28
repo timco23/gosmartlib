@@ -30,6 +30,9 @@ public class Review {
     @Column(nullable = false)
     private LocalDate createdAt;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isAnonymous; 
+
     // If createdAt is still null then sets createdAt to LocalDate.now()
     @PrePersist
     public void prePersist() {
@@ -46,18 +49,18 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    //Defaul constructur
     public Review() {}
 
     /**
      * Creates a review and sets the creation date to today.
      */
-    public Review(String title, String description, int stars, Item item, User author) {
+    public Review(String title, String description, int stars, Item item, User author, boolean isAnonymous) {
         this.title = title;
         this.description = description;
         this.stars = stars;
         this.item = item;
         this.author = author;
+        this.isAnonymous = isAnonymous;
         this.createdAt = LocalDate.now();
     }
 }
