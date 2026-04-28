@@ -21,7 +21,7 @@ export class LendingHistoryComponent {
   failedCoverIds = new Set<number>();
 
   currentPage = 0;
-  pageSize = 2;
+  pageSize = 10;
 
   get totalPages(): number {
     return Math.ceil(this.lendings.length / this.pageSize);
