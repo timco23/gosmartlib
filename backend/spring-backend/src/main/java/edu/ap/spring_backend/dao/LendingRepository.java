@@ -10,5 +10,5 @@ import edu.ap.spring_backend.jpa.Lending;
 @Repository
 public interface LendingRepository extends ListCrudRepository<Lending, Long> {
     boolean existsByBook_Id(int copyId);
-    List<Lending> findByBorrowerId(Long userId);
+    List<Lending> findByBorrowerEmail(String email);
 }

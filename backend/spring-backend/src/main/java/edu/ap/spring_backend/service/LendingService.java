@@ -193,8 +193,8 @@ public class LendingService {
                 saved.getExtended());
     }
 
-        public List<LendingDTO> getAllByUserId(Long userId) {
-                return lendingRepository.findByBorrowerId(userId).stream()
+        public List<LendingDTO> getAllByUser(String email) {
+                return lendingRepository.findByBorrowerEmail(email).stream()
                         .map(lending -> new LendingDTO(
                                 lending.getId(),
                                 getBorrowerName(lending),

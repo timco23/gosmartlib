@@ -1,1 +1,52 @@
-<p>lending-history works!</p>
+<body class="lendings-container">
+  <header class="lendings-header">
+    <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+  </header>
+
+  <div class="lendings-card">
+    <h3>Huidige uitleningen</h3>
+
+    <ul class="lending-list">
+      @for (lending of lendings; track lending.id) {
+        <li class="lending-item">
+          @let cover = coverSrcFromLending(lending);
+          @if (cover) {
+            <img
+              class="cover-img"
+              [src]="cover"
+              [alt]="lending.bookTitle || 'Boek cover'"
+              loading="lazy"
+              (error)="onCoverError($event, lending)"
+            />
+          } @else {
+            <div class="cover-placeholder">📖</div>
+          }
+          <div class="lending-field">
+            <span class="label">Titel</span>
+            <span class="value">{{ lending.bookTitle }}</span>
+          </div>
+
+          <div class="lending-field">
+            <span class="label">Uitgeleend aan</span>
+            <span class="value">{{ lending.borrowerName }}</span>
+          </div>
+
+          <div class="lending-field">
+            <span class="label">Auteur</span>
+            <span class="value">{{ lending.bookAuthor }}</span>
+          </div>
+
+          <div class="lending-field">
+            <span class="label">Uitgeleend op</span>
+            <span class="value">{{ lending.lendingDate }}</span>
+          </div>
+
+          <div class="lending-field">
+            <span class="label">Terug te brengen op</span>
+            <span class="value">{{ lending.returnDate }}</span>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</body>

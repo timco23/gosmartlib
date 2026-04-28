@@ -43,7 +43,7 @@ export class ReturnBookComponent {
 
   popUpActions: ConfirmDialogAction[] = [
   { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-  { label: 'Verwijderen', type: 'danger', value: 'confirm' }
+  { label: 'Terugbrengen', type: 'primary', value: 'confirm' }
 ];
 
   get returnConfirmationMessage(): string {

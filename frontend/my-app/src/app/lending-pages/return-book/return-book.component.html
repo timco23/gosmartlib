@@ -72,9 +72,9 @@
 
   @if (selectBookError) {
     <app-pop-up
-            title="Boek uitlenen mislukt"
+            title="Boek terugbrengen mislukt"
             message="Selecteer eerst een boek."
-            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+            [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
             (actionClicked)="closeNotification()"
           />
   }
