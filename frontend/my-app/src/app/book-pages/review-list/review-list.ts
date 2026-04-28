@@ -22,6 +22,20 @@ export class ReviewList {
 
   constructor(private authService: AuthService) {}
 
+  getDisplayName(review: Review): string {
+    // Admins and Library Administrators ALWAYS see the real name
+    if (this.isAdminOrBeheerder) {
+      return review.authorName;
+    }
+
+    // Regular users see "Anoniem" if it is an anonymous review
+    if (review.isAnonymous) {
+      return 'Anoniem';
+    }
+
+    return review.authorName;
+  }
+
   canDelete(review: Review): boolean {
     const u: any = this.authService.getCurrentUser?.();
     if (!u) return false;

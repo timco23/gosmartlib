@@ -15,7 +15,9 @@
     <div class="review-card">
       <div class="review-card-header">
         <div class="review-meta">
-          <span class="review-author">{{ review.authorName }}</span>
+          <span [class.anonymous]="review.isAnonymous && !isAdminOrBeheerder" class="review-author">
+            {{ getDisplayName(review) }}
+          </span>
           <span class="review-date">{{ review.createdAt | date: 'dd-MM-yyyy' }}</span>
         </div>
 

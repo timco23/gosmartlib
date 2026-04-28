@@ -26,6 +26,11 @@
     rows="5"
   ></textarea>
 
+  <div class="anonymous-checkbox">
+    <input type="checkbox" id="anonymous" [(ngModel)]="isAnonymous" name="isAnonymous" />
+    <label for="anonymous">Anoniem plaatsen</label>
+  </div>
+
   @if (errorMessage) {
     <p class="error-message">{{ errorMessage }}</p>
   }

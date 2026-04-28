@@ -19,6 +19,7 @@ export class ReviewForm {
   description = '';
   isSubmitting = false;
   errorMessage = '';
+  isAnonymous = false;
 
   setStars(n: number): void {
     this.stars = n;
@@ -57,8 +58,9 @@ export class ReviewForm {
 
     this.submitted.emit({
       stars: this.stars,
-      title: title.length ? title : null, // titel optional
+      title: title.length ? title : null, 
       description: description.length ? description : undefined,
+      isAnonymous: this.isAnonymous,
     });
 
     this.isSubmitting = false;

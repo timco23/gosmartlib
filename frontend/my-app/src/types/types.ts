@@ -327,12 +327,14 @@ export interface Review {
   authorName: string;
   authorEmail?: string;
   authorSmartschoolUsername?: string;
+  isAnonymous?: boolean;
 }
 
 export interface CreateReview {
   title?: string | null;
   description?: string;
   stars: number;
+  isAnonymous?: boolean;
 }
 
 export interface BarcodePrintItem {

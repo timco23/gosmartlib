@@ -161,3 +161,8 @@
 .cancel-btn:hover {
   background-color: #e0dfcf;
 }
+
+.review-author.anonymous {
+  color: #888;
+  font-style: italic;
+}
