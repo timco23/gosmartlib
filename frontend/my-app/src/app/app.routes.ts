@@ -25,6 +25,7 @@ import { GlobalCollectionPage } from './collection-pages/global-collection-page/
 import { UpdateCollectionPage } from './collection-pages/update-collection-page/update-collection-page';
 import { ForbiddenComponent } from './forbidden-component/forbidden-component';
 import { ADMIN_ONLY, ALL_USERS, LIBRARIAN_PLUS, TEACHER_PLUS } from './guards/roles';
+import { LendingHistoryComponent } from './lending-history/lending-history.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -43,6 +44,7 @@ export const routes: Routes = [
   { path: 'books/:id', component: BookDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'profile', component: Profile, canActivate: [authGuard], data: { roles: ALL_USERS } },
+  { path: 'lendingHistory', component: LendingHistoryComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
 
   // LEERKRACHT +
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
