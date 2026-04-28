@@ -27,10 +27,11 @@ import { ReviewForm } from '../review-form/review-form';
 import { ReadingListService } from '../../services/readingList-service';
 import { CollectionService } from '../../services/collection-service';
 import { PopUpComponent } from "../../pop-up/pop-up.component";
+import { StarDisplayComponent } from '../../star-display/star-display.component';
 
 @Component({
   selector: 'app-book-detail-page',
-  imports: [RouterLink, CommonModule, ReviewForm, ReviewList, PopUpComponent],
+  imports: [RouterLink, CommonModule, ReviewForm, ReviewList, PopUpComponent, StarDisplayComponent],
   templateUrl: './book-detail-page.html',
   styleUrl: './book-detail-page.css',
 })

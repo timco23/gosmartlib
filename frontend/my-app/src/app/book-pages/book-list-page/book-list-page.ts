@@ -15,6 +15,7 @@ import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/
 import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
 import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
+import { StarDisplayComponent } from '../../star-display/star-display.component';
 import {
   Book,
   DidacticCategory,
@@ -37,6 +38,7 @@ import {
     GenreSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
     SubgenreSelectionMenuComponent,
+    StarDisplayComponent,
   ],
   templateUrl: './book-list-page.html',
   styleUrl: './book-list-page.css',

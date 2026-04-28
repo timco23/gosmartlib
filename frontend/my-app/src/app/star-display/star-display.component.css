@@ -1,0 +1,10 @@
+.star-display {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.star {
+  width: 20px;
+  height: 20px;
+}
