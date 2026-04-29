@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, Renderer2, signal } from '@angular/core';
 import { ConfirmDialogAction } from '../../types/types';
 import { CommonModule } from '@angular/common';
 
@@ -8,15 +8,26 @@ import { CommonModule } from '@angular/common';
   templateUrl: './pop-up.component.html',
   styleUrl: './pop-up.component.css'
 })
-export class PopUpComponent {
+export class PopUpComponent implements OnDestroy, OnInit {
   @Input() title?: string;
   @Input() message: string = '';
   @Input() actions: ConfirmDialogAction[] = [
     { label: 'Annuleren', type: 'cancel', value: 'cancel' },
     { label: 'Bevestigen', type: 'primary', value: 'confirm' }
   ];
+  renderer = inject(Renderer2)
 
   @Output() actionClicked = new EventEmitter<string>();
+
+  //Locks scrolling for body of the entire page
+  ngOnInit(): void {
+    this.renderer.addClass(document.body, 'no-scroll');
+  }
+
+  ngOnDestroy() {
+    this.renderer.removeClass(document.body, 'no-scroll');
+  }
+
 
   onAction(value: string) {
     this.actionClicked.emit(value);

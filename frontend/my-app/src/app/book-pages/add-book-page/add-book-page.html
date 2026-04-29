@@ -127,7 +127,7 @@
               </div>
 
               <app-book-selector-popup-component
-                [isOpen]="isBookPopupOpen"
+                [(isOpen)]="isBookPopupOpen"
                 [books]="(globalBookList | async) ?? []"
                 [limit]="10"
                 [selectedId]="selectedBookId"

@@ -76,18 +76,7 @@ export class BookDetailPage implements OnInit {
   favorites: any[] = [];
 
   ratingLevels: number[] = [5, 4, 3, 2, 1];
-
-  //Locks scrolling for body of the entire page
-  constructor() {
-    effect(() => {
-      if (this.showDeleteConfirmation() || this.showUnableToDelete() || this.showDeleteConfirmationForCollections()) {
-        this.renderer.addClass(document.body, 'no-scroll');
-      } else {
-        this.renderer.removeClass(document.body, 'no-scroll');
-      }
-    });
-  }
-
+  
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;

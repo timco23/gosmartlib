@@ -1,5 +1,9 @@
-@if(readingListQueue.length > 0) {
-<body class="popup-container">
+@if(readingListQueue().length > 0) {
+    @if(showPopUp()) {
+    <app-pop-up [title]="'Boek al in leeslijst'" [message]="'Kan boek niet aan leeslijst toevoegen omdat deze zich al in de leeslijst bevindt.'" [actions]="popUpActions" (actionClicked)="closePopUp()"></app-pop-up>
+    }
+
+<body class="popup-container" animate.enter="sliding">
     <div class="handle">
         <div class="queue-count">{{readingListQueue().length}}</div>
         <p class="popup-header">Leeslijst</p>
@@ -10,7 +14,7 @@
             @for (book of readingListQueue(); track $index) {
                 <div class="book-card">
                     <div class="delete-button" (click)="removeBookFromQueue(book)">×</div>
-                    <img class="book-cover" [src]="book.cover" alt="Cover">
+                    <img class="book-cover" [src]="api.getBookCoverUrl(book.id)" alt="Cover">
                     <p class="book-title">{{book.title}}</p>
                 </div>
             }

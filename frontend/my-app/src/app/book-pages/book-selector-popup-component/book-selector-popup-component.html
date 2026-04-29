@@ -1,8 +1,8 @@
-<div class="backdrop" *ngIf="isOpen" (click)="close.emit()">
+<div class="backdrop" *ngIf="isOpen()" (click)="closePopup()">
   <div class="card" (click)="$event.stopPropagation()">
     <div class="header">
       <h3>Kies een boek</h3>
-      <button type="button" class="icon-btn" (click)="close.emit()">✕</button>
+      <button type="button" class="icon-btn" (click)="closePopup()">✕</button>
     </div>
 
     <input

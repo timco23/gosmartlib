@@ -88,6 +88,7 @@ export class BookListPage implements OnInit {
   allSubgenres: Subgenre[] = [];
   allDidacticCategories: DidacticCategory[] = [];
   booksToBeAddedToReadingList: Book[] = [];
+  showReadingListPopUp: Boolean = false;
 
   get canUseDidacticFilters(): boolean {
     return this.authService.atLeastHasRole(this.role.LEERKRACHT);
@@ -400,6 +401,11 @@ export class BookListPage implements OnInit {
   }
 
   addBookToReadingList(book: Book) {
-    this.booksToBeAddedToReadingList.push(book);
+    if (!this.booksToBeAddedToReadingList.includes(book)) {
+      this.booksToBeAddedToReadingList.push(book);
+    }
+    else {
+      this.showReadingListPopUp = true;
+    }
   }
 }

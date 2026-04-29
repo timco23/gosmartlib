@@ -4,10 +4,14 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
+  Renderer2,
   SimpleChanges,
+  effect,
   inject,
+  model,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BookSelectorItem } from '../../../types/types';
@@ -23,8 +27,9 @@ import { firstValueFrom, Observable } from 'rxjs';
 })
 export class BookSelectorPopupComponent implements OnChanges, OnInit {
   private readonly bookService = inject(BookService);
+  renderer = inject(Renderer2)
 
-  @Input() isOpen = false;
+  isOpen = model<boolean>(false);
   @Input() books: BookSelectorItem[] = [];
   @Input() limit = 10;
   @Input() selectedId: string | number | null = null;
@@ -35,7 +40,6 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   @Input() getMeta: (book: BookSelectorItem) => string = (b) =>
     [b.author ?? b.authorName, b.isbn].filter(Boolean).join(' • ');
 
-  @Output() close = new EventEmitter<void>();
   @Output() bookSelected = new EventEmitter<BookSelectorItem>();
 
   searchTerm = '';
@@ -45,12 +49,23 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   private readonly pageSize = 200;
   private readonly maxPages = 50;
 
+  //Locks scrolling for body of the entire page, not just this component.
+  constructor() {
+    effect(() => {
+      if (this.isOpen()) {
+        this.renderer.addClass(document.body, 'no-scroll');
+      } else {
+        this.renderer.removeClass(document.body, 'no-scroll');
+      }
+    });
+  }
+
   ngOnInit(): void {
     void this.loadFallbackBooks();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isOpen'] && this.isOpen) {
+    if (changes['isOpen'] && this.isOpen()) {
       this.searchTerm = '';
     }
     if (changes['isOpen'] || changes['books']) {
@@ -135,5 +150,9 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
       .trim();
+  }
+
+  closePopup() {
+    this.isOpen.set(false);
   }
 }
