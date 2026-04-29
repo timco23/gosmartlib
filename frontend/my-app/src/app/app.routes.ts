@@ -53,7 +53,6 @@ export const routes: Routes = [
   { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
 
   // BIBLIOTHEEKBEHEERDER +
-  { path: 'tags', component: TagManagement, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'books/add', component: AddBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'books/:id/barcodes', component: BarcodePrintPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
@@ -70,6 +69,7 @@ export const routes: Routes = [
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
   { path: 'schools/add', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
   { path: 'schools/:id/edit', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
+  { path: 'tags', component: TagManagement, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
 
   // alias voor typo /school
   { path: 'school', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
