@@ -105,6 +105,7 @@ public class WebSecurityConfig {
 
                 // ADMIN
                 .requestMatchers("/schools/**", "/users/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/user/school").hasAuthority("ADMIN")
 
                 .anyRequest().authenticated()
             )
