@@ -51,7 +51,7 @@
                         <span class="badge badge-tag">{{ tag.name }}</span>
                       }
                     </div>
-                    <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                    <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                   </div>
                 </div>
               </div>
@@ -102,7 +102,7 @@
                             <span class="badge badge-tag">{{ tag.name }}</span>
                           }
                         </div>
-                        <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                        <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                       </div>
                     </div>
                   } @else {
@@ -183,7 +183,7 @@
                       <span class="badge badge-tag">{{ tag.name }}</span>
                     }
                   </div>                  
-                  <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                  <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                 </div>
               </div>            
             </div>
@@ -234,7 +234,7 @@
                           <span class="badge badge-tag">{{ tag.name }}</span>
                         }
                       </div>                      
-                      <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                      <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                     </div>
                   </div>
                 } @else {
@@ -317,7 +317,7 @@
                         <span class="badge badge-tag">{{ tag.name }}</span>
                       }
                     </div>
-                    <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                    <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                   </div>
                 </div>
               </div>
@@ -368,7 +368,7 @@
                             <span class="badge badge-tag">{{ tag.name }}</span>
                           }
                         </div>
-                        <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                        <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                       </div>
                     </div>
                   } @else {
@@ -444,7 +444,7 @@
                       <span class="badge badge-tag">{{ tag.name }}</span>
                     }
                   </div> 
-                  <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                  <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                 </div>
               </div>           
             </div>
@@ -494,7 +494,7 @@
                           <span class="badge badge-tag">{{ tag.name }}</span>
                         }
                       </div>  
-                      <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                      <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                     </div>
                   </div>
                 } @else {
