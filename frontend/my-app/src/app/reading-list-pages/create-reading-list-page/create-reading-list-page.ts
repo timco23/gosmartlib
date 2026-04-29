@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ReadingListService } from '../../services/readingList-service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -21,6 +21,7 @@ export class CreateReadingListPage implements OnInit {
   userService = inject(UserService)
   bookService = inject(BookService)
   cdr = inject(ChangeDetectorRef)
+  route = inject(ActivatedRoute)
 
   form: FormGroup;
   user: UserProfile | null = null;
@@ -53,6 +54,14 @@ export class CreateReadingListPage implements OnInit {
               this.user = userData;
               this.loading = false;
               this.cdr.detectChanges();
+              
+              this.route.queryParams.subscribe(params => {
+                if (params["ids"]) {
+                  const idsString: string = params["ids"];
+                  this.itemIds = idsString.split(",").map((idString) => parseInt(idString));
+                  this.loadBooks();
+                }
+              })
             },
             error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
           })
