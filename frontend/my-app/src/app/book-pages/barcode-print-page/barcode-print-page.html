@@ -6,9 +6,7 @@
       <button type="button" class="btn-secondary" (click)="back()">Terug</button>
       <div class="selection-controls">
         <button type="button" class="btn-neutral" (click)="toggleAll(true)">Selecteer alles</button>
-        <button type="button" class="btn-neutral" (click)="toggleAll(false)">
-          Deselecteer alles
-        </button>
+        <button type="button" class="btn-neutral" (click)="toggleAll(false)">Deselecteer alles</button>
       </div>
       <button
         type="button"
@@ -26,15 +24,27 @@
       <p class="status-message no-print">Geen exemplaren gevonden.</p>
     } @else {
       <div class="copy-list no-print">
+        <div class="copy-header">
+          <span class="col-check"></span>
+          <span>Boektitel</span>
+          <span>Barcode</span>
+          <span>Conditie</span>
+          <span>Campus</span>
+        </div>
         @for (item of items; track item.copy.id) {
-          <label class="copy-row">
+          <label class="copy-row" [class.is-selected]="item.selected">
             <input type="checkbox" [(ngModel)]="item.selected" />
-            <span>{{ bookTitles.get(item.copy.itemId) }}</span>
-            <span>{{ item.copy.barcode }}</span>
+            <span>{{ bookTitles.get(item.copy.itemId) ?? '—' }}</span>
+            <span class="mono">{{ item.copy.barcode }}</span>
             <span>{{ item.copy.condition }}</span>
-            <span>{{ item.copy.campus?.name }}</span>
+            <span>{{ item.copy.campus?.name ?? '—' }}</span>
           </label>
         }
+      </div>
+
+      <div class="section-header no-print">
+        <span class="section-title">Barcodeoverzicht</span>
+        <span class="section-count">{{ selectedItems.length }} geselecteerd</span>
       </div>
 
       <div class="barcode-labels">

@@ -242,3 +242,30 @@ textarea.ng-invalid.ng-touched {
 .clear-selected-btn:active {
   transform: translateY(1px);
 }
+
+.optional-book-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.optional-book-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.optional-book-actions .secondary-btn {
+  width: 50%;
+  padding: 12px 20px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.optional-book-actions .clear-selected-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 6px;
+}

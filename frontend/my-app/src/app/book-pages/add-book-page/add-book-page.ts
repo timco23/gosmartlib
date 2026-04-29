@@ -593,9 +593,4 @@ export class AddBookPage implements OnInit {
 
     this.closeBookPopup();
   }
-
-  clearSelectedBook(): void {
-    this.selectedBook = null;
-    this.selectedBookId = null;
-  }
 }

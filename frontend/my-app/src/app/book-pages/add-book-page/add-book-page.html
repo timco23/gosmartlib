@@ -75,6 +75,33 @@
                 {{ schoolErrorMessage }}
               </p>
             } @else {
+              <div class="form-group optional-book-selector">
+                <label>Selecteer een boek uit de database (optioneel)</label>
+                <div class="optional-book-actions">
+                  <button type="button" class="secondary-btn" (click)="openBookPopup()">
+                    {{ selectedBook ? bookTitle(selectedBook) : 'Zoek en selecteer boek' }}
+                  </button>
+
+                  @if (selectedBook) {
+                    <button type="button" class="clear-selected-btn" (click)="resetForm()">
+                      Wissen
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <app-book-selector-popup-component
+                [isOpen]="isBookPopupOpen"
+                [books]="(globalBookList | async) ?? []"
+                [limit]="10"
+                [selectedId]="selectedBookId"
+                [getId]="bookId"
+                [getTitle]="bookTitle"
+                [getMeta]="bookMeta"
+                (close)="closeBookPopup()"
+                (bookSelected)="onBookSelected($event)"
+              ></app-book-selector-popup-component>
+
               <label for="isbn">ISBN</label>
               <input
                 [readonly]="isReadOnly"
@@ -82,11 +109,8 @@
                 id="isbn"
                 type="text"
                 formControlName="isbn"
+                placeholder="Vul de ISBN in om automatisch gegevens te kunnen ophalen en invullen"
               />
-              <p>
-                Gebruik deze knop om te proberen de bovenstaande ISBN te gebruiken om onderstaande
-                velden automatisch in te vullen.
-              </p>
               <button
                 type="button"
                 (click)="loadDetailsViaISBN()"
@@ -106,37 +130,6 @@
                   {{ missingFields.join(', ') }}
                 </p>
               }
-
-              <div class="form-group optional-book-selector">
-                <label>Selecteer een boek (optioneel)</label>
-                <div class="optional-book-actions">
-                  <button type="button" class="secondary-btn" (click)="openBookPopup()">
-                    {{ selectedBook ? bookTitle(selectedBook) : 'Zoek en selecteer boek' }}
-                  </button>
-
-                  @if (selectedBook) {
-                    <button type="button" class="clear-selected-btn" (click)="clearSelectedBook()">
-                      Wissen
-                    </button>
-                  }
-                </div>
-
-                @if (selectedBook) {
-                  <small>{{ bookMeta(selectedBook) }}</small>
-                }
-              </div>
-
-              <app-book-selector-popup-component
-                [isOpen]="isBookPopupOpen"
-                [books]="(globalBookList | async) ?? []"
-                [limit]="10"
-                [selectedId]="selectedBookId"
-                [getId]="bookId"
-                [getTitle]="bookTitle"
-                [getMeta]="bookMeta"
-                (close)="closeBookPopup()"
-                (bookSelected)="onBookSelected($event)"
-              ></app-book-selector-popup-component>
 
               <label for="title">Titel</label>
               <input
@@ -161,22 +154,24 @@
                 [readonly]="isReadOnly"
                 [ngClass]="{ readOnly: isReadOnly }"
               ></textarea>
-              <label for="publisher">Uitgeverij (optioneel)</label>
+              <label for="publisher">Uitgeverij</label>
               <input
                 [readonly]="isReadOnly"
                 [ngClass]="{ readOnly: isReadOnly }"
                 id="publisher"
                 type="text"
                 formControlName="uitgeverij"
+                placeholder="Optioneel"
               />
 
-              <label for="releaseYear">Uitgavejaar (optioneel)</label>
+              <label for="releaseYear">Uitgavejaar</label>
               <input
                 [readonly]="isReadOnly"
                 [ngClass]="{ readOnly: isReadOnly }"
                 id="releaseYear"
                 type="number"
                 formControlName="uitgaveJaar"
+                placeholder="Optioneel"
               />
               <label for="language">Taal</label>
               <select
@@ -192,23 +187,25 @@
                 <option value="DUITS">Duits</option>
                 <option value="ANDERE">Andere</option>
               </select>
-              <label for="pageCount">Aantal paginas (optioneel)</label>
+              <label for="pageCount">Aantal paginas</label>
               <input
                 [readonly]="isReadOnly"
                 [ngClass]="{ readOnly: isReadOnly }"
                 id="pageCount"
                 type="number"
                 formControlName="paginaAantal"
+                placeholder="Optioneel"
               />
-              <label for="cover">Cover URL (optioneel)</label>
+              <label for="cover">Cover URL</label>
               <input
                 [readonly]="isReadOnly"
                 [ngClass]="{ readOnly: isReadOnly }"
                 id="cover"
                 type="url"
                 formControlName="cover"
+                placeholder="Optioneel"
               />
-<label>Tags</label>
+              <label>Tags</label>
               <div [class.selection-readonly]="isReadOnly">
                 <app-tag-selection-menu
                   [initialTags]="selectedTags"
@@ -283,9 +280,6 @@
               <div class="form-buttons">
                 <button type="button" class="secondary-btn" (click)="backToList()">
                   Annuleren
-                </button>
-                <button type="button" class="secondary-btn" (click)="resetForm()">
-                  Wissen
                 </button>
                 <button type="submit" class="primary-btn">Toevoegen</button>
               </div>
