@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { BookService } from '../../services/book-service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
-import { BarcodePrintItem } from '../../../types/types';
+import { BarcodePrintItem, SchoolItemCopy } from '../../../types/types';
 
 @Component({
   selector: 'app-barcode-print-page',
@@ -23,6 +24,7 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
 
   items: BarcodePrintItem[] = [];
+  bookTitles: Map<number, string> = new Map();
   loading = true;
 
   private objectUrls: string[] = [];
@@ -52,6 +54,7 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
         this.loading = false;
         this.cdr.detectChanges();
         this.fetchBarcodeImages();
+        this.fetchBookTitles(copies);
       },
     });
   }
@@ -77,6 +80,7 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
             this.loading = false;
             this.cdr.detectChanges();
             this.fetchBarcodeImages();
+            this.fetchBookTitles(copies);
           });
         });
       });
@@ -93,6 +97,17 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
       });
+    });
+  }
+
+  private fetchBookTitles(copies: SchoolItemCopy[]): void {
+    const uniqueItemIds = [...new Set(copies.map((copy) => copy.itemId))];
+    if (uniqueItemIds.length === 0) return;
+    forkJoin(uniqueItemIds.map((id) => this.api.getBookById(id))).subscribe({
+      next: (books) => {
+        books.forEach((book) => this.bookTitles.set(book.id!, book.title));
+        this.cdr.detectChanges();
+      },
     });
   }
 

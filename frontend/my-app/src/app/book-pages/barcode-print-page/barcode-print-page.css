@@ -44,7 +44,9 @@ button {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
   width: auto;
   margin: 0;
 }
@@ -125,6 +127,14 @@ button:active {
   flex-shrink: 0;
 }
 
+.copy-row span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ── Barcode grid ─────────────────────────────────────────── */
 
 .barcode-labels {
@@ -145,14 +155,23 @@ button:active {
 }
 
 .barcode-label img {
-  width: 280px;
+  width: 180px;
 }
 
 .barcode-text {
   font-family: monospace;
   font-size: 0.9rem;
   color: #444;
-  margin: 8px 0 0;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.barcode-book-title {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #444;
+  margin: 2px 0 0;
+  padding: 0;
 }
 
 /* ── Status messages ──────────────────────────────────────── */
