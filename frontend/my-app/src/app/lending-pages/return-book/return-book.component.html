@@ -59,6 +59,14 @@
           </div>
         </div>
       }
+
+      <select name="Condition" id="" [(ngModel)]="selectedCondition">
+        <option value="" disabled selected>Conditie bij terugbrengen</option>
+        <option value="NIEUW">Nieuw</option>
+        <option value="GOED">Goed</option>
+        <option value="GEBRUIKT">Gebruikt</option>
+        <option value="BESCHADIGD">Beschadigd</option>
+      </select>
       
       <button type="submit" class="add-button">Boek terugbrengen</button>
     </form>

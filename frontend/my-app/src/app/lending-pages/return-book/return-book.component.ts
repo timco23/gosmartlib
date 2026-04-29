@@ -24,6 +24,7 @@ export class ReturnBookComponent {
   public users: UserProfile[] = [];
   public lendings: any[] = [];
   public currentLending: any = null;
+  public selectedCondition: string = '';
 
   returnConfirmation: boolean = false;
   selectBookError: boolean = false;
@@ -134,10 +135,11 @@ export class ReturnBookComponent {
         }
 
         this.currentSchoolCopy = copy;
-
+        
         this.bookService.getBookById(copy.itemId).subscribe({
           next: (book) => {
             this.currentBook = book ?? null;
+            this.selectedCondition = copy.condition ?? '';
             this.cdr.detectChanges();
           },
           error: () => {
@@ -209,6 +211,15 @@ export class ReturnBookComponent {
           .subscribe({
             next: () => {
               console.log('Lending updated');
+
+              this.bookService.setCondition(this.currentSchoolCopy!.id, this.selectedCondition).subscribe({
+                next: () => {
+                  console.log('Copy condition updated');
+                },
+                error: (err) => {
+                  console.error('Error updating copy condition:', err);
+                },
+              });
 
               this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
                 next: () => {

@@ -89,3 +89,13 @@ input:disabled {
   cursor: not-allowed;
   background-color: var(--color-background-secondary, #f5f5f5);
 }
+
+select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #bfbfe8;
+  font-size: 14px;
+  background: white;
+  width: 100%;
+  box-sizing: border-box;
+}
