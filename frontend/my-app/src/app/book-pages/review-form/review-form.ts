@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { CreateReview } from '../../../types/types';
+import { StarDisplayComponent } from '../../star-display/star-display.component';
 
 @Component({
   selector: 'app-review-form',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, StarDisplayComponent],
   templateUrl: './review-form.html',
   styleUrl: './review-form.css',
 })
@@ -15,22 +15,10 @@ export class ReviewForm {
 
   stars = 0;
   hoverStar = 0;
-  title = '';
   description = '';
   isSubmitting = false;
   errorMessage = '';
-
-  setStars(n: number): void {
-    this.stars = n;
-  }
-
-  setHover(n: number): void {
-    this.hoverStar = n;
-  }
-
-  clearHover(): void {
-    this.hoverStar = 0;
-  }
+  isAnonymous = false;
 
   submit(): void {
     this.errorMessage = '';
@@ -40,13 +28,7 @@ export class ReviewForm {
       return;
     }
 
-    const title = this.title.trim();
     const description = this.description.trim();
-
-    if (title.length > 80) {
-      this.errorMessage = 'Titel mag maximaal 80 karakters bevatten.';
-      return;
-    }
 
     if (description.length > 800) {
       this.errorMessage = 'Beschrijving mag maximaal 800 karakters bevatten.';
@@ -57,14 +39,15 @@ export class ReviewForm {
 
     this.submitted.emit({
       stars: this.stars,
-      title: title.length ? title : null, // titel optional
       description: description.length ? description : undefined,
+      isAnonymous: this.isAnonymous,
     });
 
     this.isSubmitting = false;
   }
 
-  cancel() {
+  cancel(): void {
+    this.errorMessage = '';
     this.cancelled.emit();
   }
 }

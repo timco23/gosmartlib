@@ -44,14 +44,8 @@
                       @for (genre of getSortedGenres(book.genres); track $index) {
                       <span class="badge badge-genre">{{ genre.name }}</span>
                       }
-                      @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
-                      <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                      }
-                      @for (tag of mapTagObjects(book.tags); track tag.id) {
-                        <span class="badge badge-tag">{{ tag.name }}</span>
-                      }
                     </div>
-                    <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                    <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                   </div>
                 </div>
               </div>
@@ -95,14 +89,8 @@
                           @for (genre of getSortedGenres(slot.book.genres); track $index) {
                           <span class="badge badge-genre">{{ genre.name }}</span>
                           }
-                          @for (subgenre of getSortedSubgenres(slot.book.subgenres); track $index) {
-                          <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                          }
-                          @for (tag of mapTagObjects(slot.book.tags); track tag.id) {
-                            <span class="badge badge-tag">{{ tag.name }}</span>
-                          }
                         </div>
-                        <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                        <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                       </div>
                     </div>
                   } @else {
@@ -176,14 +164,8 @@
                     @for (genre of getSortedGenres(book.genres); track $index) {
                     <span class="badge badge-genre">{{ genre.name }}</span>
                     }
-                    @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
-                    <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                    }
-                    @for (tag of mapTagObjects(book.tags); track tag.id) {
-                      <span class="badge badge-tag">{{ tag.name }}</span>
-                    }
-                  </div>                  
-                  <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                  </div>
+                  <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                 </div>
               </div>            
             </div>
@@ -227,14 +209,8 @@
                         @for (genre of getSortedGenres(slot.book.genres); track $index) {
                         <span class="badge badge-genre">{{ genre.name }}</span>
                         }
-                        @for (subgenre of getSortedSubgenres(slot.book.subgenres); track $index) {
-                        <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                        }
-                        @for (tag of mapTagObjects(slot.book.tags); track tag.id) {
-                          <span class="badge badge-tag">{{ tag.name }}</span>
-                        }
                       </div>                      
-                      <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                      <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                     </div>
                   </div>
                 } @else {
@@ -310,14 +286,8 @@
                       @for (genre of getSortedGenres(book.genres); track $index) {
                       <span class="badge badge-genre">{{ genre.name }}</span>
                       }
-                      @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
-                      <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                      }
-                      @for (tag of mapTagObjects(book.tags); track tag.id) {
-                        <span class="badge badge-tag">{{ tag.name }}</span>
-                      }
                     </div>
-                    <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                    <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                   </div>
                 </div>
               </div>
@@ -361,14 +331,8 @@
                           @for (genre of getSortedGenres(slot.book.genres); track $index) {
                           <span class="badge badge-genre">{{ genre.name }}</span>
                           }
-                          @for (subgenre of getSortedSubgenres(slot.book.subgenres); track $index) {
-                          <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                          }
-                          @for (tag of mapTagObjects(slot.book.tags); track tag.id) {
-                            <span class="badge badge-tag">{{ tag.name }}</span>
-                          }
                         </div>
-                        <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                        <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                       </div>
                     </div>
                   } @else {
@@ -437,14 +401,8 @@
                     @for (genre of getSortedGenres(book.genres); track $index) {
                     <span class="badge badge-genre">{{ genre.name }}</span>
                     }
-                    @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
-                    <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                    }
-                    @for (tag of mapTagObjects(book.tags); track tag.id) {
-                      <span class="badge badge-tag">{{ tag.name }}</span>
-                    }
-                  </div> 
-                  <span class="score-value">Beoordeling: {{ book.reviewScore | number: '1.1-1' }}</span>
+                  </div>
+                  <app-star-display [score]="book.reviewScore" class="star-display"></app-star-display>
                 </div>
               </div>           
             </div>
@@ -487,14 +445,8 @@
                         @for (genre of getSortedGenres(slot.book.genres); track $index) {
                         <span class="badge badge-genre">{{ genre.name }}</span>
                         }
-                        @for (subgenre of getSortedSubgenres(slot.book.subgenres); track $index) {
-                        <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                        }
-                        @for (tag of mapTagObjects(slot.book.tags); track tag.id) {
-                          <span class="badge badge-tag">{{ tag.name }}</span>
-                        }
                       </div>  
-                      <span class="score-value">Beoordeling: {{ slot.book.reviewScore | number: '1.1-1' }}</span>
+                      <app-star-display [score]="slot.book.reviewScore" class="star-display"></app-star-display>
                     </div>
                   </div>
                 } @else {

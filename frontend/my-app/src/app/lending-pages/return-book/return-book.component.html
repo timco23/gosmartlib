@@ -53,14 +53,38 @@
             <h3>Boek details</h3>
             <p><strong>Titel:</strong> {{ currentBook.title }}</p>
             <p><strong>Auteur:</strong> {{ currentBook.author }}</p>
-            <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>
+            <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>app-pop
             <p><strong>Conditie:</strong> {{ currentSchoolCopy?.condition }}</p>
             <p><strong>Uitgeleend aan:</strong> {{ currentLending?.borrowerName }}</p>
           </div>
         </div>
       }
 
+      <select name="Condition" id="" [(ngModel)]="selectedCondition">
+        <option value="" disabled selected>Conditie bij terugbrengen</option>
+        <option value="NIEUW">Nieuw</option>
+        <option value="GOED">Goed</option>
+        <option value="GEBRUIKT">Gebruikt</option>
+        <option value="BESCHADIGD">Beschadigd</option>
+      </select>
+      
       <button type="submit" class="add-button">Boek terugbrengen</button>
     </form>
+    
+    @if (returnConfirmation) {
+  <app-pop-up
+    [message]="returnConfirmationMessage"
+    [actions]="popUpActions"
+    (actionClicked)="onDeleteDialogAction($event)" />
+  }
+
+  @if (selectBookError) {
+    <app-pop-up
+            title="Boek terugbrengen mislukt"
+            message="Selecteer eerst een boek."
+            [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+            (actionClicked)="closeNotification()"
+          />
+  }
   </div>
 </body>

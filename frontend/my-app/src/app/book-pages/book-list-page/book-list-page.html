@@ -5,8 +5,10 @@
 
     <div class="header-actions">
       <h2>Boeken</h2>
-      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+      @if (authService.atLeastHasRole(role.ADMIN)) {
         <a class="secondary-button" [routerLink]="['/tags']">Tags beheren</a>
+      }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
         <a class="add-button" [routerLink]="['/books/add']">Boek toevoegen</a>
       }
     </div>
@@ -243,26 +245,15 @@
                 @for (genre of getSortedGenres(book.genres); track $index) {
                   <span class="badge badge-genre">{{ genre.name }}</span>
                 }
-                @for (subgenre of getSortedSubgenres(book.subgenres); track $index) {
-                  <span class="badge badge-subgenre">{{ subgenre.name }}</span>
-                }
-                @for (tag of sortedTags(book.tags); track tag.id) {
-                  <span class="badge badge-tag">{{ tag.name }}</span>
-                }
-                @if (book.isDidactic) {
-                  @for (cat of getSortedDidacticCategories(book.didacticCategories); track $index) {
-                    <span class="badge badge-didactic">{{ cat.name }}</span>
+              </div>
+
+              <div class="book-bottom">
+                <div class="book-score">
+                  <app-star-display [score]="book.reviewScore" />
+                  @if (book.reviewScore > 0) {
+                    <span class="score-value">{{ book.reviewScore | number: '1.1-1' }} / 5</span>
                   }
-                }
-              </div>
-
-              <div class="book-score">
-                <span class="score-value"
-                  >Beoordeling: {{ book.reviewScore | number: '1.1-1' }} / 5</span
-                >
-              </div>
-
-              <div class="book-actions">
+                </div>
                 <button class="list-button" (click)="addBookToReadingList(book)">Aan leeslijst toevoegen</button>
                 <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
               </div>

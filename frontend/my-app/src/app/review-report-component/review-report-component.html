@@ -1,0 +1,19 @@
+<div class="report-overlay" *ngIf="visible">
+  <div class="report-modal">
+    <div class="report-header">
+      <div class="report-title">Rapporteer review</div>
+      <div class="report-hint">Beschrijf kort waarom.</div>
+    </div>
+
+    <textarea
+      [(ngModel)]="reason"
+      maxlength="800"
+      placeholder="Waarom rapporteer je deze review?"
+    ></textarea>
+
+    <div class="actions">
+      <button class="confirm-btn" (click)="onSubmit()">Rapporteer</button>
+      <button class="cancel-btn" (click)="cancel.emit()">Annuleren</button>
+    </div>
+  </div>
+</div>

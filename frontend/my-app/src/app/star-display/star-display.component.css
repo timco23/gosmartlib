@@ -1,0 +1,19 @@
+.star-display {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.star-display.interactive .star {
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.star-display.interactive .star:hover {
+  transform: scale(1.15);
+}
+
+.no-reviews {
+  font-size: 0.75rem;
+  color: #555;
+}

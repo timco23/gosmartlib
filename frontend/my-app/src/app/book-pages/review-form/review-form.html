@@ -1,23 +1,12 @@
 <div class="review-form">
   <div class="review-form-header">
-    <h3>Recensie schrijven</h3>
+    <h3>Review schrijven</h3>
     <button class="close-btn" type="button" (click)="cancel()">✕</button>
   </div>
 
   <div class="stars">
-    @for (i of [1, 2, 3, 4, 5]; track i) {
-      <span
-        class="star"
-        [class.filled]="i <= (hoverStar || stars)"
-        (mouseenter)="setHover(i)"
-        (mouseleave)="clearHover()"
-        (click)="setStars(i)"
-        >★</span
-      >
-    }
+    <app-star-display [score]="stars" [interactive]="true" [size]="28" (scoreChange)="stars = $event" />
   </div>
-
-  <input type="text" placeholder="Titel (optioneel)" [(ngModel)]="title" name="title" />
 
   <textarea
     placeholder="Beschrijving (optioneel)"
@@ -25,6 +14,11 @@
     name="description"
     rows="5"
   ></textarea>
+
+  <div class="anonymous-checkbox">
+    <input type="checkbox" id="anonymous" [(ngModel)]="isAnonymous" name="isAnonymous" />
+    <label for="anonymous">Anoniem plaatsen</label>
+  </div>
 
   @if (errorMessage) {
     <p class="error-message">{{ errorMessage }}</p>
@@ -36,6 +30,6 @@
     [disabled]="stars === 0 || isSubmitting"
     (click)="submit()"
   >
-    Recensie publiceren
+    Review publiceren
   </button>
 </div>

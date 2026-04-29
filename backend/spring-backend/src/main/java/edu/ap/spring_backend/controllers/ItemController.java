@@ -283,4 +283,9 @@ public class ItemController {
             @PathVariable int copyId, @RequestParam String status) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopyStatus(copyId, status));
     }
+
+    @PutMapping("/books/copies/{copyId}/condition")
+    public ResponseEntity<SchoolItemCopyDTO> updateCopyCondition(@PathVariable int copyId, @RequestParam String condition) {
+        return ResponseEntity.ok(schoolItemCopyService.updateCopyCondition(copyId, condition));
+    }
 }

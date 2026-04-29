@@ -1,0 +1,128 @@
+.lendings-container {
+  max-width: 75rem;
+  margin: 2.5rem auto;
+  padding: 1.25rem;
+}
+
+.lendings-header {
+  margin-bottom: 1.25rem;
+}
+
+.back-link {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  color: #8c1b3f;
+}
+
+/* Outer card */
+.lendings-card {
+  background: #f0efe4;
+  border-radius: 0.625rem;
+  padding: 1.5625rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.lendings-card h3 {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+/* List */
+.lending-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Each lending row */
+.lending-item {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.625rem;
+  background: white;
+  transition: background 0.2s;
+}
+
+.lending-item:hover {
+  background: #fcf3f3;
+}
+
+/* Individual field */
+.lending-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.lending-field .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.lending-field .value {
+  font-size: 0.9375rem;
+  color: black;
+}
+
+.cover-img {
+  width: 56px;
+  height: 80px;
+  min-width: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+.cover-placeholder {
+  width: 56px;
+  height: 80px;
+  min-width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #bfbfe8;
+}
+
+.page-button {
+  background-color: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.page-button:hover:not([disabled]) {
+  background-color: #6f1532;
+}
+
+.page-button[disabled] {
+  background-color: #bfbfe8;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 0.875rem;
+  color: black;
+}

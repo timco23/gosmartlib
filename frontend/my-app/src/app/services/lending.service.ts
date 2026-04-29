@@ -35,4 +35,10 @@ export class LendingService {
   extendLending(id: number): Observable<Lending> {
     return this.http.post<Lending>(`${this.apiUrl}/${id}/extend`, {});
   }
+
+  getLendingsByUserId(email: string): Observable<Lending[]> {
+    return this.http.get<Lending[]>(`${this.apiUrl}/user`, {
+      params: { email }
+    });
+  }
 }

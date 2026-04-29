@@ -368,19 +368,23 @@
   color: white;
 }
 
+.book-list.library-grid .book-bottom {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .book-list.library-grid .book-score {
-  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .score-value {
   font-size: 0.75rem;
   color: #555;
-}
-
-.book-list.library-grid .book-actions {
-  margin-top: auto;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .details-button {

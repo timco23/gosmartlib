@@ -30,20 +30,7 @@
 }
 
 .stars {
-  display: flex;
-  gap: 4px;
   margin-bottom: 12px;
-  font-size: 28px;
-}
-
-.star {
-  cursor: pointer;
-  color: #ccc;
-  transition: color 0.15s;
-}
-
-.star.filled {
-  color: #f5a623;
 }
 
 input[type='text'],
@@ -87,4 +74,26 @@ textarea {
 
 .submit-btn:hover:not(:disabled) {
   background-color: #6f1532;
+}
+
+.anonymous-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.anonymous-checkbox input[type='checkbox'] {
+  width: auto;
+  padding: 0;
+  border: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+.anonymous-checkbox label {
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+  color: #333;
 }

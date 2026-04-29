@@ -1,0 +1,54 @@
+<body class="lendings-container">
+  <header class="lendings-header">
+    <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+  </header>
+  <div class="lendings-card">
+    <h3>Mijn uitleenhistoriek</h3>
+    <ul class="lending-list">
+      @for (lending of visibleLendings; track lending.id) {
+      <li class="lending-item">
+        @let cover = coverSrcFromLending(lending);
+        @if (cover) {
+        <img class="cover-img" [src]="cover" [alt]="lending.bookTitle || 'Boek cover'" loading="lazy"
+          (error)="onCoverError($event, lending)" />
+        } @else {
+        <div class="cover-placeholder">📖</div>
+        }
+        <div class="lending-field">
+          <span class="label">Titel</span>
+          <span class="value">{{ lending.bookTitle }}</span>
+        </div>
+        <div class="lending-field">
+          <span class="label">Auteur</span>
+          <span class="value">{{ lending.bookAuthor }}</span>
+        </div>
+        <div class="lending-field">
+          <span class="label">Uitgeleend op</span>
+          <span class="value">{{ lending.lendingDate }}</span>
+        </div>
+        @if (lending.dateReturned) {
+        <div class="lending-field">
+          <span class="label">Teruggebracht op</span>
+          <span class="value">{{ lending.dateReturned }}</span>
+        </div>
+        } @else {
+        <div class="lending-field">
+          <span class="value">Nog niet teruggebracht</span>
+        </div>
+        }
+      </li> }
+    </ul>
+
+    @if (totalPages > 1) {
+    <div class="pagination">
+      <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">
+        ← Vorige
+      </button>
+      <span class="page-indicator">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
+      <button class="page-button" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
+        Volgende →
+      </button>
+    </div>
+    }
+  </div>
+</body>

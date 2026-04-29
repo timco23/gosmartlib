@@ -25,6 +25,7 @@ import { GlobalCollectionPage } from './collection-pages/global-collection-page/
 import { UpdateCollectionPage } from './collection-pages/update-collection-page/update-collection-page';
 import { ForbiddenComponent } from './forbidden-component/forbidden-component';
 import { ADMIN_ONLY, ALL_USERS, LIBRARIAN_PLUS, TEACHER_PLUS } from './guards/roles';
+import { LendingHistoryComponent } from './lending-history/lending-history.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -43,6 +44,7 @@ export const routes: Routes = [
   { path: 'books/:id', component: BookDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'profile', component: Profile, canActivate: [authGuard], data: { roles: ALL_USERS } },
+  { path: 'lendingHistory', component: LendingHistoryComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
 
   // LEERKRACHT +
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
@@ -51,7 +53,6 @@ export const routes: Routes = [
   { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
 
   // BIBLIOTHEEKBEHEERDER +
-  { path: 'tags', component: TagManagement, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'books/add', component: AddBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'books/:id/edit', component: UpdateBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'books/:id/barcodes', component: BarcodePrintPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
@@ -68,6 +69,7 @@ export const routes: Routes = [
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
   { path: 'schools/add', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
   { path: 'schools/:id/edit', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
+  { path: 'tags', component: TagManagement, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
 
   // alias voor typo /school
   { path: 'school', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },

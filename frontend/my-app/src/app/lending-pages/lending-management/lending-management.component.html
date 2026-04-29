@@ -30,15 +30,15 @@
             <span class="label">Titel</span>
             <span class="value">{{ lending.bookTitle }}</span>
           </div>
-
-          <div class="lending-field">
-            <span class="label">Uitgeleend aan</span>
-            <span class="value">{{ lending.borrowerName }}</span>
-          </div>
-
+          
           <div class="lending-field">
             <span class="label">Auteur</span>
             <span class="value">{{ lending.bookAuthor }}</span>
+          </div>
+          
+          <div class="lending-field">
+            <span class="label">Uitgeleend aan</span>
+            <span class="value">{{ lending.borrowerName }}</span>
           </div>
 
           <div class="lending-field">
@@ -67,4 +67,20 @@
       }
     </ul>
   </div>
+
+    @if (extendConfirmation) {
+  <app-pop-up
+    [message]="extendConfirmationMessage"
+    [actions]="popUpActions"
+    (actionClicked)="onExtendDialogAction($event)" />
+  }
+
+  @if (extendError) {
+    <app-pop-up
+            title="Verlengen niet mogelijk"
+            message="Deze lening kan niet meer verlengd worden."
+            [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+            (actionClicked)="closeExtendErrorPopup()"
+          />
+  }
 </body>

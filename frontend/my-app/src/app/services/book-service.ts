@@ -206,4 +206,10 @@ export class BookService {
       responseType: 'blob',
     });
   }
+
+  setCondition(copyId: number, condition: string): Observable<SchoolItemCopy> {
+    return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${copyId}/condition`, null, {
+      params: { condition: condition },
+    });
+  }
 }

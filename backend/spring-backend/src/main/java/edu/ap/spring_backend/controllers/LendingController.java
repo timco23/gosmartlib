@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ap.spring_backend.dto.LendingDTO;
@@ -26,6 +27,11 @@ public class LendingController {
     @GetMapping()
     public Object getAllLendings() {
         return lendingService.getAll();
+    }
+
+    @GetMapping("/user")
+    public Object getAllLendingsByUser(@RequestParam String email) {
+        return lendingService.getAllByUser(email);
     }
 
     @GetMapping("/{id}")

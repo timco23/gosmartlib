@@ -20,6 +20,7 @@ import {
   CsvConfirmDTO,
   CsvImportDTO,
   CsvPreviewDTO,
+  RowError,
   School,
   Tag,
   Genre,
@@ -118,6 +119,7 @@ export class AddBookPage implements OnInit {
 
   // CSV import state
   previewErrors: string[] = [];
+  previewRowErrors: RowError[] = [];
   previewRows: BookImportRow[] | null = null;
   showEnrichment: boolean = false;
   importResult: CsvImportDTO | null = null;
@@ -129,15 +131,15 @@ export class AddBookPage implements OnInit {
       itemId: ['0', [Validators.required]],
       titel: ['', [Validators.required, Validators.maxLength(255)]],
       auteur: ['', [Validators.required, Validators.maxLength(255)]],
-      beschrijving: ['', [Validators.required, Validators.maxLength(1000)]],
+      beschrijving: ['', [Validators.maxLength(1000)]],
       uitgeverij: ['', [Validators.maxLength(255)]],
       isbn: ['', [Validators.maxLength(20)]],
       uitgaveJaar: [0, [Validators.min(0), Validators.max(new Date().getFullYear())]],
       taal: ['', [Validators.required]],
       paginaAantal: [0, [Validators.min(0)]],
       cover: ['', [Validators.maxLength(255)]],
-      reviewScore: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
-      reviewCount: [0, [Validators.required, Validators.min(0)]],
+      reviewScore: [0],
+      reviewCount: [0],
       isDidactic: [false, [Validators.required]],
     });
   }
@@ -206,7 +208,7 @@ export class AddBookPage implements OnInit {
       readingLevel: this.selectedReadingLevel?.id ?? null,
       didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
       isDidactic: raw.isDidactic || this.selectedDidacticCategories.length > 0,
-      description: raw.beschrijving,
+      description: raw.beschrijving?.trim() || 'Geen beschrijving beschikbaar',
       featured: false,
       itemId: parseInt(raw.itemId),
       title: raw.titel,
@@ -217,8 +219,8 @@ export class AddBookPage implements OnInit {
       language: raw.taal,
       pageCount: raw.paginaAantal,
       cover: raw.cover,
-      reviewScore: raw.reviewScore,
-      reviewCount: raw.reviewCount,
+      reviewScore: 0,
+      reviewCount: 0,
       campusId: firstRow.campusId,
       copy_status: firstRow.copy_status,
       condition: firstRow.condition,
@@ -412,6 +414,41 @@ export class AddBookPage implements OnInit {
     this.router.navigate(['/books']);
   }
 
+  resetForm(): void {
+    this.isReadOnly = false;
+    this.selectedBook = null;
+    this.selectedBookId = null;
+    this.nothingFound = false;
+    this.missingFields = [];
+    this.copyAlreadyExists = false;
+    this.incompleteForm = false;
+    this.copyError = false;
+    this.form.reset({
+      itemId: '0',
+      titel: '',
+      auteur: '',
+      beschrijving: '',
+      uitgeverij: '',
+      isbn: '',
+      uitgaveJaar: 0,
+      taal: '',
+      paginaAantal: 0,
+      cover: '',
+      reviewScore: 0,
+      reviewCount: 0,
+      isDidactic: false,
+    });
+    this.campusGroups = [
+      { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] },
+    ];
+    this.selectedTags = [];
+    this.selectedGenres = [];
+    this.selectedSubgenres = [];
+    this.selectedReadingLevel = null;
+    this.selectedDidacticCategories = [];
+    this.cdr.detectChanges();
+  }
+
   // Copy
   addCampusGroup() {
     this.campusGroups.push({
@@ -437,6 +474,7 @@ export class AddBookPage implements OnInit {
     if (!input.files?.length || !this.school?.id) return;
 
     this.previewErrors = [];
+    this.previewRowErrors = [];
     this.previewRows = null;
     this.showEnrichment = false;
     this.importResult = null;
@@ -447,11 +485,13 @@ export class AddBookPage implements OnInit {
     this.api.previewImport(input.files[0], this.school.id).subscribe({
       next: (result: CsvPreviewDTO) => {
         this.importLoading = false;
-        if (result.errors.length > 0) {
-          this.previewErrors = result.errors;
+        if (result.criticalErrors.length > 0) {
+          this.previewErrors = result.criticalErrors;
         } else {
           this.previewRows = result.rows;
-          const needsEnrichment = result.rows.some((row) => this.rowNeedsEnrichment(row));
+          this.previewRowErrors = result.errors;
+          const needsEnrichment =
+            result.rows.some((row) => this.rowNeedsEnrichment(row)) || result.errors.length > 0;
           if (needsEnrichment) {
             this.showEnrichment = true;
           } else {
@@ -471,26 +511,18 @@ export class AddBookPage implements OnInit {
   }
 
   rowNeedsEnrichment(row: BookImportRow): boolean {
-    const conditionSum =
-      row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd;
-    const isbnConflict = !!row.existingIsbn && row.existingIsbn !== row.isbn;
-    return conditionSum < row.copies || isbnConflict;
+    return !!row.existingIsbn && row.existingIsbn !== row.isbn;
   }
 
   onEnrichmentConfirmed(rows: BookImportRow[]): void {
-    this.showEnrichment = false;
     this.confirmImport(rows);
-  }
-
-  onEnrichmentSkipped(): void {
-    this.showEnrichment = false;
-    this.confirmImport(this.previewRows!);
   }
 
   onEnrichmentCancelled(): void {
     this.showEnrichment = false;
     this.previewRows = null;
     this.previewErrors = [];
+    this.previewRowErrors = [];
     this.importResult = null;
     this.cdr.detectChanges();
   }
@@ -498,18 +530,34 @@ export class AddBookPage implements OnInit {
   private confirmImport(rows: BookImportRow[]): void {
     if (!this.school?.id) return;
 
-    const totalCopies = rows.reduce((sum, row) => sum + row.copies, 0);
+    const totalCopies = rows.reduce(
+      (sum, row) => sum + row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd,
+      0,
+    );
     this.importLoading = true;
     this.importLoadingMessage = `${rows.length} ${rows.length === 1 ? 'boek' : 'boeken'} en ${totalCopies} ${totalCopies === 1 ? 'exemplaar' : 'exemplaren'} worden geïmporteerd. Dit kan een tijd duren...`;
-    this.previewRows = null;
     this.cdr.detectChanges();
 
     const dto: CsvConfirmDTO = { schoolId: this.school.id, rows };
     this.api.confirmImport(dto).subscribe({
       next: (result: CsvImportDTO) => {
-        this.importResult = result;
         this.importLoading = false;
         this.importLoadingMessage = '';
+        if (result.errors.length > 0) {
+          const generalErrors = result.errors.filter((e) => e.rowNumber === 0).map((e) => e.message);
+          if (generalErrors.length > 0) {
+            this.previewErrors = generalErrors;
+          } else {
+            this.previewRowErrors = result.errors;
+            this.showEnrichment = true;
+          }
+        } else {
+          this.showEnrichment = false;
+          this.previewRows = null;
+          this.previewRowErrors = [];
+          this.importResult = result;
+          this.saveToImportHistory(result);
+        }
         this.cdr.detectChanges();
       },
       error: () => {
@@ -529,6 +577,18 @@ export class AddBookPage implements OnInit {
     });
   }
 
+  private saveToImportHistory(result: CsvImportDTO): void {
+    const entry = {
+      date: new Date().toISOString(),
+      importedBooks: result.importedBooks,
+      importedCopies: result.importedCopies,
+      copyIds: result.copyIds,
+    };
+    const existing = JSON.parse(localStorage.getItem('gosmartlib_barcode_history') ?? '[]');
+    existing.unshift(entry);
+    localStorage.setItem('gosmartlib_barcode_history', JSON.stringify(existing.slice(0, 5)));
+  }
+
   //Book selector methods
   openBookPopup(): void {
     this.isBookPopupOpen = true;
@@ -545,10 +605,5 @@ export class AddBookPage implements OnInit {
     this.loadBookDetails();
 
     this.closeBookPopup();
-  }
-
-  clearSelectedBook(): void {
-    this.selectedBook = null;
-    this.selectedBookId = null;
   }
 }

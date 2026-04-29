@@ -85,7 +85,6 @@ CREATE TABLE IF NOT EXISTS user (
 
 CREATE TABLE IF NOT EXISTS review (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(80),
     description TEXT,
     stars TINYINT NOT NULL CHECK (stars >= 1 AND stars <= 5),
     created_at DATE NOT NULL,
@@ -418,7 +417,7 @@ CREATE TABLE IF NOT EXISTS collection_item (
 CREATE TABLE IF NOT EXISTS lending (
     id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     borrower_id INT NOT NULL,
-    book_id INT NOT NULL,
+    book_id INT NULL,
     school_id BIGINT NOT NULL,
     lending_date DATE,
     return_date DATE,

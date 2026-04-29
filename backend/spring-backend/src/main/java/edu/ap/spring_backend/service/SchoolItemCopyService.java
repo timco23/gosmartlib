@@ -11,6 +11,7 @@ import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Campus;
 import edu.ap.spring_backend.jpa.CopyStatus;
 import edu.ap.spring_backend.jpa.Item;
+import edu.ap.spring_backend.jpa.ItemCondition;
 import edu.ap.spring_backend.jpa.School;
 import org.springframework.stereotype.Service;
 import edu.ap.spring_backend.dao.LendingRepository;
@@ -154,6 +155,14 @@ public class SchoolItemCopyService {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
                 .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
         copy.setCopy_status(CopyStatus.valueOf(status));
+        schoolItemCopyRepository.save(copy);
+        return mapToDTO(copy);
+    }
+
+    public SchoolItemCopyDTO updateCopyCondition(int copyId, String condition) throws EntityNotFoundException {
+        SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
+                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+        copy.setCondition(ItemCondition.valueOf(condition));
         schoolItemCopyRepository.save(copy);
         return mapToDTO(copy);
     }

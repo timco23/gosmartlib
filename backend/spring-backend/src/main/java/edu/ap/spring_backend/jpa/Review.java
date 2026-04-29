@@ -18,9 +18,6 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = true, length = 80)
-    private String title;
-
     @Column(columnDefinition = "TEXT", nullable = true, length = 800)
     private String description;
 
@@ -29,6 +26,9 @@ public class Review {
 
     @Column(nullable = false)
     private LocalDate createdAt;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isAnonymous; 
 
     // If createdAt is still null then sets createdAt to LocalDate.now()
     @PrePersist
@@ -46,18 +46,21 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    //Defaul constructur
+
+    @Column(nullable = false)
+    private int reportCount = 0;
+
     public Review() {}
 
     /**
      * Creates a review and sets the creation date to today.
      */
-    public Review(String title, String description, int stars, Item item, User author) {
-        this.title = title;
+    public Review(String description, int stars, Item item, User author, boolean isAnonymous) {
         this.description = description;
         this.stars = stars;
         this.item = item;
         this.author = author;
+        this.isAnonymous = isAnonymous;
         this.createdAt = LocalDate.now();
     }
 }
