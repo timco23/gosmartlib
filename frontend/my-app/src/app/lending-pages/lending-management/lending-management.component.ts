@@ -1,12 +1,13 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { Lending } from '../../../types/types';
+import { ConfirmDialogAction, Lending } from '../../../types/types';
 import { LendingService } from '../../services/lending.service';
 import { RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
+import { PopUpComponent } from '../../pop-up/pop-up.component';
 
 @Component({
   selector: 'app-lending-management',
-  imports: [RouterLink],
+  imports: [RouterLink, PopUpComponent],
   templateUrl: './lending-management.component.html',
   styleUrl: './lending-management.component.css',
 })
@@ -15,6 +16,16 @@ export class LendingManagementComponent {
   public lendings: Lending[] = [];
   cdr = inject(ChangeDetectorRef);
   bookApi = inject(BookService);
+
+  currentLending: Lending | null = null;
+  extendConfirmation: boolean = false;
+  extendConfirmationMessage: string = '';
+  extendError: boolean = false;
+
+  popUpActions: ConfirmDialogAction[] = [
+    { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+    { label: 'Verlengen', type: 'primary', value: 'confirm' }
+  ];
 
   private failedCoverIds = new Set<number>();
 
@@ -33,30 +44,14 @@ export class LendingManagementComponent {
 
   onExtend(lending: Lending): void {
     if (lending.extended) {
-      alert('Deze lening is al verlengd.');
+      this.extendError = true;
       return;
     }
 
-    const bevestigd = confirm(
-      `Bent u zeker dat u de lening van "${lending.bookTitle}" voor ${lending.borrowerName} wilt verlengen?`,
-    );
-    if (!bevestigd) return;
+    this.currentLending = lending;
 
-    this.lendingService.extendLending(lending.id).subscribe({
-      next: (updatedLending) => {
-        const index = this.lendings.findIndex((l) => l.id === lending.id);
-        if (index !== -1) {
-          this.lendings[index] = updatedLending;
-          this.cdr.detectChanges();
-        }
-      },
-      error: (err) => {
-        console.error('Fout bij verlengen van lening:', err);
-        alert(
-          'Er is een fout opgetreden bij het verlengen van de lening. Probeer het later opnieuw.',
-        );
-      },
-    });
+    this.extendConfirmation = true;
+    this.extendConfirmationMessage = `Bent u zeker dat u de lening van "${lending.bookTitle}" wilt verlengen?`;
   }
 
   coverSrcFromLending(lending: Lending): string | null {
@@ -71,5 +66,30 @@ export class LendingManagementComponent {
       this.failedCoverIds.add(id);
       this.cdr.detectChanges();
     }
+  }
+
+  closeExtendErrorPopup(): void {
+    this.extendError = false;
+  }
+
+  onExtendDialogAction(value: string): void {
+    this.extendConfirmation = false;
+    if (value !== 'confirm' || !this.currentLending) return;
+
+    const lending = this.currentLending;
+
+    this.lendingService.extendLending(lending.id).subscribe({
+      next: (updatedLending) => {
+        const index = this.lendings.findIndex((l) => l.id === lending.id);
+        if (index !== -1) {
+          this.lendings[index] = updatedLending;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.error('Fout bij verlengen van lening:', err);
+        alert('Er is een fout opgetreden bij het verlengen van de lening. Probeer het later opnieuw.');
+      },
+    });
   }
 }
