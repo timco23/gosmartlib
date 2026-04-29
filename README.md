@@ -28,6 +28,14 @@ OAUTH_DEFAULT_SCHOOL_ID=1
 # External metadata APIs
 HARDCOVER_API_KEY=yourApiKey
 GOOGLE_BOOKS_API_KEY=yourApiKey
+
+# For bad words
+MODERATION_API_KEY=hf_xxxJOUW_TOKEN_HIER
+
+Key ophalen (kort):
+1. Hugging Face → Profiel aanmaken → Settings → Access Tokens → Create new token (Fine-grained) → Token name (ex: hf_mijntoken)
+2. Vink enkel "Make calls to Inference Providers" aan
+
 ```
 
 ### 2. Start de applicatie (lokaal)

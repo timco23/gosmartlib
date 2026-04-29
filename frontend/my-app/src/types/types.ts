@@ -329,7 +329,6 @@ export enum ItemCondition {
 
 export interface Review {
   id: number;
-  title: string | null;
   description: string | null;
   stars: number;
   createdAt: string;
@@ -337,13 +336,17 @@ export interface Review {
   authorEmail?: string;
   authorSmartschoolUsername?: string;
   isAnonymous?: boolean;
+  reportCount?: number;
 }
 
 export interface CreateReview {
-  title?: string | null;
   description?: string;
   stars: number;
   isAnonymous?: boolean;
+}
+
+export interface CreateReviewReport {
+  reason?: string;
 }
 
 export interface BarcodePrintItem {
