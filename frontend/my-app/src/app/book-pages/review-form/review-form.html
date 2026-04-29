@@ -1,14 +1,12 @@
 <div class="review-form">
   <div class="review-form-header">
-    <h3>Recensie schrijven</h3>
+    <h3>Review schrijven</h3>
     <button class="close-btn" type="button" (click)="cancel()">✕</button>
   </div>
 
   <div class="stars">
     <app-star-display [score]="stars" [interactive]="true" [size]="28" (scoreChange)="stars = $event" />
   </div>
-
-  <input type="text" placeholder="Titel (optioneel)" [(ngModel)]="title" name="title" />
 
   <textarea
     placeholder="Beschrijving (optioneel)"
@@ -32,6 +30,6 @@
     [disabled]="stars === 0 || isSubmitting"
     (click)="submit()"
   >
-    Recensie publiceren
+    Review publiceren
   </button>
 </div>

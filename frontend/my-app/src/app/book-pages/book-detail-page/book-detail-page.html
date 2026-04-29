@@ -131,13 +131,8 @@
 
       <section class="reviews-section modern-reviews">
         <aside class="panel reviews-summary">
-          <h3>Recensies</h3>
-          <div class="muted review-score-row">
-            <app-star-display [score]="displayedReviewScore" />
-            @if (displayedReviewScore > 0) {
-              <span>{{ displayedReviewScore }} van 5</span>
-            }
-          </div>
+          <h3>Reviews</h3>
+          <p class="muted">★ ★ ★ ★ ★ {{ displayedReviewScore }} van 5</p>
           <p class="muted">Totaal aantal reviews: {{ displayedReviewCount }}</p>
 
           @for (level of ratingLevels; track level) {
@@ -153,19 +148,16 @@
 
         <div class="reviews-content">
           <div class="reviews-header">
-            <h3>Recensies</h3>
+            <h3>Reviews</h3>
             @if (!showReviewForm) {
               <button class="add-review-btn" type="button" (click)="showReviewForm = true">
-                Recensie schrijven
+                Review schrijven
               </button>
             }
           </div>
 
           @if (showReviewForm) {
-            <app-review-form
-              (submitted)="submitReview($event)"
-              (cancelled)="showReviewForm = false"
-            >
+            <app-review-form (submitted)="submitReview($event)" (cancelled)="onReviewCancelled()">
             </app-review-form>
           }
 
@@ -179,6 +171,7 @@
             [currentUserName]="currentUserNameForReviews"
             (deleteReview)="onDeleteReview($event)"
             (deleteAll)="onDeleteAllReviews()"
+            (reportReview)="onReportReview($event)"
           >
           </app-review-list>
         </div>
@@ -192,29 +185,36 @@
       <app-pop-up [message]="'Dit boek staat momenteel in een of meerdere leeslijsten. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle leeslijsten verdwijnen.'"
         [actions]="[
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-          { label: 'Verwijderen', type: 'danger', value: 'confirm' }
-        ]" (actionClicked)="cancelDelete()" />
-      </div>
+          { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+        ]"
+        (actionClicked)="cancelDelete()"
+      />
+    </div>
   }
 
   @if (showDeleteConfirmationForCollections()) {
     <div class="overlay">
-      <app-pop-up [message]="'Dit boek staat momenteel in een of meerdere collecties. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle collecties verdwijnen.'"
+      <app-pop-up
+        [message]="
+          'Dit boek staat momenteel in een of meerdere collecties. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle collecties verdwijnen.'
+        "
         [actions]="[
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-          { label: 'Verwijderen', type: 'danger', value: 'confirm' }
-        ]" (actionClicked)="cancelDelete()" />
+          { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+        ]"
+        (actionClicked)="cancelDelete()"
+      />
     </div>
   }
 
   @if (showUnableToDelete()) {
     <div class="overlay">
       <app-pop-up
-            title="Boek verwijderen mislukt"
-            message="Kan boek niet verwijderen omdat deze momenteel door de admin uitgelicht wordt in een collectie."
-            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
-            (actionClicked)="closeNotification()"
-          />
+        title="Boek verwijderen mislukt"
+        message="Kan boek niet verwijderen omdat deze momenteel door de admin uitgelicht wordt in een collectie."
+        [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+        (actionClicked)="closeNotification()"
+      />
     </div>
   }
 </div>

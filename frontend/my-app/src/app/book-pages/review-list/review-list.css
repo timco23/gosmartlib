@@ -35,6 +35,10 @@
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 16px;
+  align-items: start;
 }
 
 .review-card-header {
@@ -158,4 +162,64 @@
 .review-author.anonymous {
   color: #888;
   font-style: italic;
+}
+
+.review-main {
+  min-width: 0;
+}
+
+.review-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.flag-btn {
+  position: relative;
+  background: #fff;
+  border: 1px solid #8c1b3f;
+  color: #8c1b3f;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  width: auto;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.flag-btn:hover {
+  background: #8c1b3f;
+  color: #fff;
+  border-color: #8c1b3f;
+}
+
+.report-form {
+  margin-top: 10px;
+}
+
+.report-form textarea {
+  width: 100%;
+  border: 1px solid #bfbfe8;
+  border-radius: 6px;
+  padding: 8px;
+  resize: vertical;
+}
+
+.report-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .review-card {
+    grid-template-columns: 1fr;
+  }
+  .review-side {
+    align-items: flex-start;
+  }
 }

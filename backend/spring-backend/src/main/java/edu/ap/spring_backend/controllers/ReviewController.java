@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.CreateReviewDTO;
+import edu.ap.spring_backend.dto.CreateReviewReportDTO;
 import edu.ap.spring_backend.dto.ReviewDTO;
 import edu.ap.spring_backend.service.ReviewService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,10 +30,6 @@ public class ReviewController {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ReviewService reviewService;
 
-    /**
-     * Constructs the controller with required service.
-     * @param reviewService service handling review logic
-     */
     public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
     }
@@ -100,6 +97,26 @@ public class ReviewController {
         String requester = resolveRequester(authentication, request);
         reviewService.deleteAllReviewsForItem(itemId, requester);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Reports a review.
+     * @param itemId the item ID
+     * @param reviewId current review
+     * @param authentication current authenticated user
+     * @param dto the dto for creating a review report
+     */
+    @PostMapping("/{reviewId}/reports")
+    public ResponseEntity<Void> reportReview(
+            @PathVariable Long itemId,
+            @PathVariable Long reviewId,
+            @Valid @RequestBody CreateReviewReportDTO dto,
+            Authentication authentication,
+            HttpServletRequest request
+    ) {
+        String requester = resolveRequester(authentication, request);
+        reviewService.reportReview(itemId, reviewId, dto, requester);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
    /**
