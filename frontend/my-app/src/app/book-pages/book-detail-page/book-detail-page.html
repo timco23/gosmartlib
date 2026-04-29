@@ -132,7 +132,12 @@
       <section class="reviews-section modern-reviews">
         <aside class="panel reviews-summary">
           <h3>Reviews</h3>
-          <p class="muted">★ ★ ★ ★ ★ {{ displayedReviewScore }} van 5</p>
+          <div class="muted review-score-row">
+            <app-star-display [score]="displayedReviewScore" />
+            @if (displayedReviewScore > 0) {
+              <span>{{ displayedReviewScore }} / 5</span>
+            }
+          </div>
           <p class="muted">Totaal aantal reviews: {{ displayedReviewCount }}</p>
 
           @for (level of ratingLevels; track level) {
