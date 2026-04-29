@@ -39,7 +39,7 @@ import { ReadingListSlideOutPopUp } from '../reading-list-slide-out-pop-up/readi
     GenreSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
     SubgenreSelectionMenuComponent,
-    ReadingListSlideOutPopUp
+    ReadingListSlideOutPopUp,
     StarDisplayComponent,
   ],
   templateUrl: './book-list-page.html',
