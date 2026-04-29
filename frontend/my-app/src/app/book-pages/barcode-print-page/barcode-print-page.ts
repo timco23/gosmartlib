@@ -26,10 +26,14 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   items: BarcodePrintItem[] = [];
   bookTitles: Map<number, string> = new Map();
   loading = true;
+  historyOpen = false;
+  importHistory: { date: string; importedBooks: number; importedCopies: number; copyIds: number[] }[] = [];
 
   private objectUrls: string[] = [];
 
   ngOnInit(): void {
+    this.importHistory = JSON.parse(localStorage.getItem('gosmartlib_barcode_history') ?? '[]');
+
     const params = this.route.snapshot.paramMap;
     const queryParams = this.route.snapshot.queryParamMap;
     const copyIds = queryParams.getAll('copyIds').map(Number);
@@ -109,6 +113,21 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  loadFromHistory(entry: { copyIds: number[] }): void {
+    this.historyOpen = false;
+    this.objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    this.objectUrls = [];
+    this.items = [];
+    this.bookTitles = new Map();
+    this.loading = true;
+    this.cdr.detectChanges();
+    this.loadCopiesByIds(entry.copyIds);
+  }
+
+  formatHistoryDate(iso: string): string {
+    return new Date(iso).toLocaleString('nl-BE', { dateStyle: 'short', timeStyle: 'short' });
   }
 
   toggleAll(selected: boolean): void {

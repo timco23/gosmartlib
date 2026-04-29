@@ -4,6 +4,25 @@
   <div class="page-card">
     <div class="controls no-print">
       <button type="button" class="btn-secondary" (click)="back()">Terug</button>
+
+      @if (importHistory.length > 0) {
+        <div class="history-dropdown">
+          <button type="button" class="btn-neutral history-toggle" (click)="historyOpen = !historyOpen">
+            Vorige imports {{ historyOpen ? '▴' : '▾' }}
+          </button>
+          @if (historyOpen) {
+            <div class="history-menu">
+              @for (entry of importHistory; track entry.date) {
+                <button type="button" class="history-item" (click)="loadFromHistory(entry)">
+                  <span class="history-date">{{ formatHistoryDate(entry.date) }}</span>
+                  <span class="history-meta">{{ entry.importedBooks }} boeken · {{ entry.importedCopies }} exemplaren</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
       <div class="selection-controls">
         <button type="button" class="btn-neutral" (click)="toggleAll(true)">Selecteer alles</button>
         <button type="button" class="btn-neutral" (click)="toggleAll(false)">Deselecteer alles</button>
