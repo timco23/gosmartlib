@@ -208,23 +208,7 @@
                 type="url"
                 formControlName="cover"
               />
-              <label for="reviewScore">Review score</label>
-              <input
-                [readonly]="isReadOnly"
-                [ngClass]="{ readOnly: isReadOnly }"
-                id="reviewScore"
-                type="number"
-                formControlName="reviewScore"
-              />
-              <label for="reviewCount">Aantal reviews</label>
-              <input
-                [readonly]="isReadOnly"
-                [ngClass]="{ readOnly: isReadOnly }"
-                id="reviewCount"
-                type="number"
-                formControlName="reviewCount"
-              />
-              <label>Tags</label>
+<label>Tags</label>
               <div [class.selection-readonly]="isReadOnly">
                 <app-tag-selection-menu
                   [initialTags]="selectedTags"
@@ -299,6 +283,9 @@
               <div class="form-buttons">
                 <button type="button" class="secondary-btn" (click)="backToList()">
                   Annuleren
+                </button>
+                <button type="button" class="secondary-btn" (click)="resetForm()">
+                  Wissen
                 </button>
                 <button type="submit" class="primary-btn">Toevoegen</button>
               </div>

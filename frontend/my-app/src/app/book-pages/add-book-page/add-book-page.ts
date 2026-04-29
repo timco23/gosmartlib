@@ -131,15 +131,15 @@ export class AddBookPage implements OnInit {
       itemId: ['0', [Validators.required]],
       titel: ['', [Validators.required, Validators.maxLength(255)]],
       auteur: ['', [Validators.required, Validators.maxLength(255)]],
-      beschrijving: ['', [Validators.required, Validators.maxLength(1000)]],
+      beschrijving: ['', [Validators.maxLength(1000)]],
       uitgeverij: ['', [Validators.maxLength(255)]],
       isbn: ['', [Validators.maxLength(20)]],
       uitgaveJaar: [0, [Validators.min(0), Validators.max(new Date().getFullYear())]],
       taal: ['', [Validators.required]],
       paginaAantal: [0, [Validators.min(0)]],
       cover: ['', [Validators.maxLength(255)]],
-      reviewScore: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
-      reviewCount: [0, [Validators.required, Validators.min(0)]],
+      reviewScore: [0],
+      reviewCount: [0],
       isDidactic: [false, [Validators.required]],
     });
   }
@@ -208,7 +208,7 @@ export class AddBookPage implements OnInit {
       readingLevel: this.selectedReadingLevel?.id ?? null,
       didacticCategories: this.selectedDidacticCategories.map((d) => d.id),
       isDidactic: raw.isDidactic || this.selectedDidacticCategories.length > 0,
-      description: raw.beschrijving,
+      description: raw.beschrijving?.trim() || 'Geen beschrijving beschikbaar',
       featured: false,
       itemId: parseInt(raw.itemId),
       title: raw.titel,
@@ -219,8 +219,8 @@ export class AddBookPage implements OnInit {
       language: raw.taal,
       pageCount: raw.paginaAantal,
       cover: raw.cover,
-      reviewScore: raw.reviewScore,
-      reviewCount: raw.reviewCount,
+      reviewScore: 0,
+      reviewCount: 0,
       campusId: firstRow.campusId,
       copy_status: firstRow.copy_status,
       condition: firstRow.condition,
@@ -412,6 +412,41 @@ export class AddBookPage implements OnInit {
 
   backToList() {
     this.router.navigate(['/books']);
+  }
+
+  resetForm(): void {
+    this.isReadOnly = false;
+    this.selectedBook = null;
+    this.selectedBookId = null;
+    this.nothingFound = false;
+    this.missingFields = [];
+    this.copyAlreadyExists = false;
+    this.incompleteForm = false;
+    this.copyError = false;
+    this.form.reset({
+      itemId: '0',
+      titel: '',
+      auteur: '',
+      beschrijving: '',
+      uitgeverij: '',
+      isbn: '',
+      uitgaveJaar: 0,
+      taal: '',
+      paginaAantal: 0,
+      cover: '',
+      reviewScore: 0,
+      reviewCount: 0,
+      isDidactic: false,
+    });
+    this.campusGroups = [
+      { campusId: 0, copyCount: 1, rows: [{ condition: 'NIEUW', copy_status: 'BESCHIKBAAR' }] },
+    ];
+    this.selectedTags = [];
+    this.selectedGenres = [];
+    this.selectedSubgenres = [];
+    this.selectedReadingLevel = null;
+    this.selectedDidacticCategories = [];
+    this.cdr.detectChanges();
   }
 
   // Copy
