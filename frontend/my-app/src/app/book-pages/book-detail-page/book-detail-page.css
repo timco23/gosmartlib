@@ -71,6 +71,13 @@
   font-size: 14px;
 }
 
+.review-score-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.25rem;
+}
+
 .mini-btn {
   margin-left: auto;
   width: auto;

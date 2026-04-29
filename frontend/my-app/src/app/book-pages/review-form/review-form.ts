@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { CreateReview } from '../../../types/types';
+import { StarDisplayComponent } from '../../star-display/star-display.component';
 
 @Component({
   selector: 'app-review-form',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, StarDisplayComponent],
   templateUrl: './review-form.html',
   styleUrl: './review-form.css',
 })
@@ -14,24 +14,11 @@ export class ReviewForm {
   @Output() cancelled = new EventEmitter<void>();
 
   stars = 0;
-  hoverStar = 0;
   title = '';
   description = '';
   isSubmitting = false;
   errorMessage = '';
   isAnonymous = false;
-
-  setStars(n: number): void {
-    this.stars = n;
-  }
-
-  setHover(n: number): void {
-    this.hoverStar = n;
-  }
-
-  clearHover(): void {
-    this.hoverStar = 0;
-  }
 
   submit(): void {
     this.errorMessage = '';
@@ -58,7 +45,7 @@ export class ReviewForm {
 
     this.submitted.emit({
       stars: this.stars,
-      title: title.length ? title : null, 
+      title: title.length ? title : null,
       description: description.length ? description : undefined,
       isAnonymous: this.isAnonymous,
     });

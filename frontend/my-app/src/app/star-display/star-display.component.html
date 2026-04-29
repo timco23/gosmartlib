@@ -1,7 +1,15 @@
-@if (score > 0) {
-  <span class="star-display">
+@if (score > 0 || interactive) {
+  <span class="star-display" [class.interactive]="interactive">
     @for (star of stars; track $index) {
-      <svg class="star" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        class="star"
+        viewBox="0 0 24 24"
+        [style.width.px]="size"
+        [style.height.px]="size"
+        (mouseenter)="onMouseEnter($index)"
+        (mouseleave)="onMouseLeave()"
+        (click)="onClick($index)"
+      >
         <defs>
           <clipPath [id]="'star-fill-' + instanceId + '-' + $index">
             <rect x="0" y="0" [attr.width]="star.fill * 24" height="24" />

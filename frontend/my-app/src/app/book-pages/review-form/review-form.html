@@ -5,16 +5,7 @@
   </div>
 
   <div class="stars">
-    @for (i of [1, 2, 3, 4, 5]; track i) {
-      <span
-        class="star"
-        [class.filled]="i <= (hoverStar || stars)"
-        (mouseenter)="setHover(i)"
-        (mouseleave)="clearHover()"
-        (click)="setStars(i)"
-        >★</span
-      >
-    }
+    <app-star-display [score]="stars" [interactive]="true" [size]="28" (scoreChange)="stars = $event" />
   </div>
 
   <input type="text" placeholder="Titel (optioneel)" [(ngModel)]="title" name="title" />

@@ -61,15 +61,8 @@
 }
 
 .review-stars {
-  font-size: 18px;
-}
-
-.star {
-  color: #ccc;
-}
-
-.star.filled {
-  color: #f5a623;
+  display: flex;
+  align-items: center;
 }
 
 .review-title {

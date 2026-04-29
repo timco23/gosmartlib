@@ -2,10 +2,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Review } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
+import { StarDisplayComponent } from '../../star-display/star-display.component';
 
 @Component({
   selector: 'app-review-list',
-  imports: [CommonModule],
+  imports: [CommonModule, StarDisplayComponent],
   templateUrl: './review-list.html',
   styleUrl: './review-list.css',
 })
@@ -60,10 +61,6 @@ export class ReviewList {
   get isAdminOrBeheerder(): boolean {
     const r = this.userRole?.toUpperCase();
     return r === 'ADMIN' || r === 'BIBLIOTHEEKBEHEERDER';
-  }
-
-  starsArray(): number[] {
-    return [1, 2, 3, 4, 5];
   }
 
   onDeleteReview(review: Review): void {
