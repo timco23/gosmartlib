@@ -27,9 +27,10 @@
           </div>
 
           <div class="book-score">
-            <span class="score-value"
-              >Beoordeling: {{ book.reviewScore | number: '1.1-1' }} / 5</span
-            >
+            <app-star-display [score]="book.reviewScore" />
+            @if (book.reviewScore > 0) {
+              <span class="score-value">{{ book.reviewScore | number: '1.1-1' }} / 5</span>
+            }
           </div>
 
           <div class="book-actions">
