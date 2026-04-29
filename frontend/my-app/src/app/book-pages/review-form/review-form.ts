@@ -15,7 +15,6 @@ export class ReviewForm {
 
   stars = 0;
   hoverStar = 0;
-  title = '';
   description = '';
   isSubmitting = false;
   errorMessage = '';
@@ -41,13 +40,7 @@ export class ReviewForm {
       return;
     }
 
-    const title = this.title.trim();
     const description = this.description.trim();
-
-    if (title.length > 80) {
-      this.errorMessage = 'Titel mag maximaal 80 karakters bevatten.';
-      return;
-    }
 
     if (description.length > 800) {
       this.errorMessage = 'Beschrijving mag maximaal 800 karakters bevatten.';
@@ -58,7 +51,6 @@ export class ReviewForm {
 
     this.submitted.emit({
       stars: this.stars,
-      title: title.length ? title : null, 
       description: description.length ? description : undefined,
       isAnonymous: this.isAnonymous,
     });
@@ -66,7 +58,8 @@ export class ReviewForm {
     this.isSubmitting = false;
   }
 
-  cancel() {
+  cancel(): void {
+    this.errorMessage = '';
     this.cancelled.emit();
   }
 }

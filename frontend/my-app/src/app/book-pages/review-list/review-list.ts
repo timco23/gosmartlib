@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Review } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
+import { ReviewReportComponent } from '../../review-report-component/review-report-component';
 
 @Component({
   selector: 'app-review-list',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, ReviewReportComponent],
   templateUrl: './review-list.html',
   styleUrl: './review-list.css',
 })
@@ -16,9 +18,12 @@ export class ReviewList {
 
   @Output() deleteReview = new EventEmitter<number>();
   @Output() deleteAll = new EventEmitter<void>();
+  @Output() reportReview = new EventEmitter<{ reviewId: number; reason?: string }>();
 
   confirmMessage: string | null = null;
   private pendingAction: (() => void) | null = null;
+  activeReportReviewId: number | null = null;
+  reportReason = '';
 
   constructor(private authService: AuthService) {}
 
@@ -88,5 +93,39 @@ export class ReviewList {
   cancelConfirm(): void {
     this.confirmMessage = null;
     this.pendingAction = null;
+  }
+
+  private isOwner(review: Review): boolean {
+    const u: any = this.authService.getCurrentUser?.();
+    if (!u) return false;
+
+    const userEmail = (u.email ?? '').toLowerCase();
+    const userSs = (
+      u.smartschoolUsername ??
+      u.smartschool_username ??
+      u.username ??
+      ''
+    ).toLowerCase();
+
+    const ownerByEmail = (review.authorEmail ?? '').toLowerCase() === userEmail;
+    const ownerBySs = !!userSs && (review.authorSmartschoolUsername ?? '').toLowerCase() === userSs;
+    return ownerByEmail || ownerBySs;
+  }
+
+  canReport(review: Review): boolean {
+    return !this.isOwner(review);
+  }
+
+  openReportForm(reviewId: number): void {
+    this.activeReportReviewId = this.activeReportReviewId === reviewId ? null : reviewId;
+  }
+
+  cancelReportForm(): void {
+    this.activeReportReviewId = null;
+  }
+
+  submitReportFromComponent(event: { reviewId: number; reason?: string }): void {
+    this.reportReview.emit(event);
+    this.cancelReportForm();
   }
 }

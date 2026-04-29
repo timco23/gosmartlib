@@ -85,7 +85,6 @@ CREATE TABLE IF NOT EXISTS user (
 
 CREATE TABLE IF NOT EXISTS review (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(80),
     description TEXT,
     stars TINYINT NOT NULL CHECK (stars >= 1 AND stars <= 5),
     created_at DATE NOT NULL,

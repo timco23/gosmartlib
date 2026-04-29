@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, effect, OnInit, inject, Renderer2, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  effect,
+  OnInit,
+  inject,
+  Renderer2,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import {
@@ -26,7 +34,7 @@ import { ReviewList } from '../review-list/review-list';
 import { ReviewForm } from '../review-form/review-form';
 import { ReadingListService } from '../../services/readingList-service';
 import { CollectionService } from '../../services/collection-service';
-import { PopUpComponent } from "../../pop-up/pop-up.component";
+import { PopUpComponent } from '../../pop-up/pop-up.component';
 
 @Component({
   selector: 'app-book-detail-page',
@@ -69,8 +77,8 @@ export class BookDetailPage implements OnInit {
   subgenreService = inject(SubgenreService);
   didacticService = inject(DidacticCategoryService);
   readingLevelService = inject(ReadingLevelService);
-  readingListService = inject(ReadingListService)
-  collectionService = inject(CollectionService)
+  readingListService = inject(ReadingListService);
+  collectionService = inject(CollectionService);
 
   isFavorite: boolean = false;
   favorites: any[] = [];
@@ -80,7 +88,11 @@ export class BookDetailPage implements OnInit {
   //Locks scrolling for body of the entire page
   constructor() {
     effect(() => {
-      if (this.showDeleteConfirmation() || this.showUnableToDelete() || this.showDeleteConfirmationForCollections()) {
+      if (
+        this.showDeleteConfirmation() ||
+        this.showUnableToDelete() ||
+        this.showDeleteConfirmationForCollections()
+      ) {
         this.renderer.addClass(document.body, 'no-scroll');
       } else {
         this.renderer.removeClass(document.body, 'no-scroll');
@@ -235,6 +247,25 @@ export class BookDetailPage implements OnInit {
     });
   }
 
+  onReportReview(event: { reviewId: number; reason?: string }): void {
+    if (!this.book) return;
+
+    this.reviewService
+      .reportReview(this.book.id, event.reviewId, { reason: event.reason })
+      .subscribe({
+        next: () => {
+          this.loadReviews();
+          this.api.getBookById(this.book!.id).subscribe((b) => {
+            this.book = b;
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.reviewServerError = 'Rapporteren mislukt. Probeer later opnieuw.';
+        },
+      });
+  }
+
   checkIfFavorite() {
     if (this.book && this.favorites) {
       this.isFavorite = this.favorites.some((fav: any) => fav.id === this.book?.id);
@@ -320,15 +351,19 @@ export class BookDetailPage implements OnInit {
   }
 
   get readingLevelName(): string {
-    return (this.book?.readingLevel as any)?.name
-      ?? this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.name
-      ?? '';
+    return (
+      (this.book?.readingLevel as any)?.name ??
+      this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.name ??
+      ''
+    );
   }
 
   get readingLevelDescription(): string {
-    return (this.book?.readingLevel as any)?.description
-      ?? this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.description
-      ?? '';
+    return (
+      (this.book?.readingLevel as any)?.description ??
+      this.readingLevels.find((r) => r.id === this.book?.readingLevel)?.description ??
+      ''
+    );
   }
 
   deleteBook(id: number) {
@@ -339,8 +374,7 @@ export class BookDetailPage implements OnInit {
         if (isFeatured) {
           this.showUnableToDelete.set(true);
           this.cdr.detectChanges();
-        }
-        else {
+        } else {
           this.readingListService.checkIfItemIsInReadingList(id).subscribe({
             next: (isInList) => {
               if (isInList) {
@@ -353,15 +387,15 @@ export class BookDetailPage implements OnInit {
             error: () => {
               this.deleteError = true;
               this.cdr.detectChanges();
-            }
+            },
           });
         }
       },
       error: () => {
         this.deleteError = true;
         this.cdr.detectChanges();
-      }
-    })
+      },
+    });
   }
 
   checkIfInCollection() {
@@ -369,25 +403,24 @@ export class BookDetailPage implements OnInit {
       next: (isInCollection) => {
         if (isInCollection) {
           this.showDeleteConfirmationForCollections.set(true);
-          this.showDeleteConfirmation.set(false)
+          this.showDeleteConfirmation.set(false);
           this.cdr.detectChanges();
-        }
-        else {
+        } else {
           this.confirmDelete();
         }
       },
       error: () => {
         this.deleteError = true;
         this.cdr.detectChanges();
-      }
-    })
+      },
+    });
   }
 
   confirmDelete() {
     if (this.book) {
       this.executeDelete(this.book.id);
       this.showDeleteConfirmation.set(false);
-      this.showDeleteConfirmationForCollections.set(false)
+      this.showDeleteConfirmationForCollections.set(false);
     }
   }
 
@@ -403,7 +436,7 @@ export class BookDetailPage implements OnInit {
       error: () => {
         this.bookHasCopyError = true;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -435,4 +468,8 @@ export class BookDetailPage implements OnInit {
     });
   }
 
+  onReviewCancelled(): void {
+    this.reviewServerError = '';
+    this.showReviewForm = false;
+  }
 }
