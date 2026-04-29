@@ -1,8 +1,10 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SchoolService } from '../services/school.service';
+import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 import { CommonModule } from '@angular/common';
-import { Campus, School } from '../../types/types';
+import { Campus, School, UserProfile } from '../../types/types';
 import { FormsModule } from '@angular/forms';
 import { PopUpComponent } from "../pop-up/pop-up.component";
 
@@ -23,11 +25,16 @@ export class SchoolManagementComponent {
   showDeleteConfirm: boolean = false;
   campusInput: string = '';
   campuses: Campus[] = [];
+  currentUser: UserProfile | null = null;
+  showSwitchSchoolConfirm: boolean = false;
+  schoolToSwitch: School | null = null;
 
   constructor(
     private fb: FormBuilder,
     private schoolService: SchoolService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private userService: UserService
   ) {
     this.schoolForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -50,6 +57,40 @@ export class SchoolManagementComponent {
 
   ngOnInit(): void {
     this.loadSchools();
+    this.loadCurrentUser();
+  }
+
+  loadCurrentUser() {
+    const loginUser = this.authService.getCurrentUser();
+    if (loginUser?.email) {
+      this.userService.getUser(loginUser.email).subscribe(profile => {
+        this.currentUser = profile;
+        this.cdr.detectChanges();
+      });
+    }
+  }
+
+  initiateSwitchSchool(school: School) {
+    this.schoolToSwitch = school;
+    this.showSwitchSchoolConfirm = true;
+  }
+
+  processSchoolSwitchDialog(value: string) {
+    const email = this.authService.getCurrentUser()?.email;
+    if (value === 'confirm' && this.schoolToSwitch?.id && email) {
+      this.userService.changeSchool(email, this.schoolToSwitch.id).subscribe({
+        next: (updatedUser) => {
+          this.currentUser = updatedUser;
+          this.showSwitchSchoolConfirm = false;
+          this.schoolToSwitch = null;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('error:', err)
+      });
+    } else {
+      this.showSwitchSchoolConfirm = false;
+      this.schoolToSwitch = null;
+    }
   }
 
   viewSchool(school: School) {

@@ -5,13 +5,21 @@
     <button class="add-school-btn" (click)="addingSchool = true">School toevoegen</button>
     @if (schools) {
     <ul>
-      <li *ngFor="let school of schools" class="SchoolItem">
+      @for (school of schools; track school.id) {
+      <li class="SchoolItem">
         <span class="school-name">{{ school.name }}</span>
         <div class="button-group">
+          @if (school.id !== undefined && currentUser?.schoolId === school.id) {
+            <span class="current-school-badge">Huidige school</span>
+          }
+          @if (school.id === undefined || currentUser?.schoolId !== school.id) {
+            <button class="SwitchButton" (click)="initiateSwitchSchool(school)">Activeer</button>
+          }
           <button class="DetailsButton" (click)="viewSchool(school)">Details</button>
           <button class="EditButton" (click)="selectSchool(school)">Bewerken</button>
         </div>
       </li>
+      }
     </ul>
     }
   </div>
@@ -66,7 +74,9 @@
       <h3>Campussen</h3>
       @if (viewingSchool.campuses && viewingSchool.campuses.length > 0) {
       <ul class="campus-details-list">
-        <li *ngFor="let campus of viewingSchool.campuses">{{ campus.name }}</li>
+        @for (campus of viewingSchool.campuses; track campus.name) {
+        <li>{{ campus.name }}</li>
+        }
       </ul>
       }
       @if (!viewingSchool.campuses || viewingSchool.campuses.length === 0) {
@@ -138,10 +148,12 @@
 
       @if (campuses.length > 0) {
       <ul class="campus-list">
-        <li *ngFor="let campus of campuses; let i = index">
+        @for (campus of campuses; track campus.name; let i = $index) {
+        <li>
           {{ campus.name }}
           <button type="button" class="remove-btn" (click)="removeCampus(i)">×</button>
         </li>
+        }
       </ul>
       }
       <label>
@@ -175,6 +187,14 @@
       }
     </form>
   </div>
+  }
+
+  @if (showSwitchSchoolConfirm) {
+  <app-pop-up [message]="'Bent u zeker dat u wil wisselen naar <strong>' + schoolToSwitch?.name + '</strong>?'"
+    [actions]="[
+      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+      { label: 'Wisselen', type: 'primary', value: 'confirm' }
+    ]" (actionClicked)="processSchoolSwitchDialog($event)" />
   }
 
   @if (showDeleteConfirm) {

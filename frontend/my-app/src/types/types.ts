@@ -13,6 +13,7 @@ export interface UserProfile {
   studentNumber?: string;
   className?: string;
   schoolName?: string;
+  schoolId?: number;
   items_borrowed: number;
 }
 
