@@ -24,6 +24,7 @@ export class LendBookComponent {
   public books: Book[] = [];
   public currentLending: Lending | null = null;
   public currentUser: UserProfile | null = null;
+  public duration: number = 0;
 
   public bookSelected: boolean = false;
   public barcode: string = '';
@@ -111,6 +112,7 @@ export class LendBookComponent {
                 this.userService.getFromSchool(schoolId).subscribe({
                   next: (users) => {
                     this.users = users;
+                    this.duration = this.school?.lendingPeriodDays ?? 0;
                     this.cdr.detectChanges();
                   },
                 });
@@ -246,14 +248,10 @@ export class LendBookComponent {
       copyBarcode: this.currentSchoolCopy.barcode ?? '',
       schoolId: this.school.id ?? -1,
       lendingDate: new Date().toISOString().split('T')[0],
-      returnDate: new Date(Date.now() + this.school.lendingPeriodDays * 24 * 60 * 60 * 1000)
+      returnDate: new Date(Date.now() + this.duration * 24 * 60 * 60 * 1000)
         .toISOString()
         .split('T')[0],
     };
-
-    console.log('user: ', this.currentUser);
-    console.log('aantal toegelaten leningen: ', this.school.maxLendsStudent);
-    console.log('aantal leningen gebruiker: ', this.currentUser.items_borrowed);
 
     if (this.currentUser.items_borrowed < this.school.maxLendsStudent) {
       this.lendingService.createLending(request).subscribe({
