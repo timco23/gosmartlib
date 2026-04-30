@@ -1,6 +1,6 @@
 <main [class.detailed]="detailedView">
       @if (books!.length > 0) {
-        <div class="carousel-outer">
+        <div class="carousel-outer" (mouseenter)="stopAutoScroll()" (mouseleave)="startAutoScroll()">
           @if (scrollable) {
             <button class="carousel-arrow" (click)="prevCard()">&lt;</button>
           }
