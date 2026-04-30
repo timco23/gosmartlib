@@ -28,10 +28,41 @@
   <div>
     <h2>{{ editingSchool ? 'School bewerken' : 'School toevoegen' }}</h2>
     <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
-      <label>Naam</label>
+
+      <h3>Schoolinformatie</h3>
+
+      <label [class.label-readonly]="isLibrarian">Naam</label>
       <input placeholder="Naam" formControlName="name" />
-      <label>Adres</label>
+
+      <label [class.label-readonly]="isLibrarian">Adres</label>
       <input placeholder="Adres" formControlName="address" />
+
+      <label [class.label-readonly]="isLibrarian">Campussen</label>
+      @if (!isLibrarian) {
+        <div class="campus-input-row">
+          <input type="text" placeholder="Campus naam" [(ngModel)]="campusInput" [ngModelOptions]="{ standalone: true }"
+            (keyup.enter)="addCampus()" />
+          <button type="button" (click)="addCampus()">Toevoegen</button>
+        </div>
+      }
+      @if (campuses.length > 0) {
+      <ul class="campus-list" [class.campus-list--readonly]="isLibrarian">
+        @for (campus of campuses; track campus.name; let i = $index) {
+        <li>
+          {{ campus.name }}
+          @if (!isLibrarian) {
+            <button type="button" class="remove-btn" (click)="removeCampus(i)">×</button>
+          }
+        </li>
+        }
+      </ul>
+      }
+      @if (campuses.length === 0 && isLibrarian) {
+        <p class="no-data">Geen campussen</p>
+      }
+
+      <h3>Bibliotheekinstellingen</h3>
+
       <label>Uitleenperiode (dagen)</label>
       <input type="number" min="0" formControlName="lendingPeriodDays" />
       <label>Verlengperiode (dagen)</label>
@@ -48,26 +79,6 @@
       <input type="number" min="0" formControlName="lenderLateNotificationPeriod" />
       <label>Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen na inleverdatum)</label>
       <input type="number" min="0" formControlName="librarianNotificationNotReturned" />
-      <label>Campussen</label>
-      @if (!isLibrarian) {
-        <div class="campus-input-row">
-          <input type="text" placeholder="Campus naam" [(ngModel)]="campusInput" [ngModelOptions]="{ standalone: true }"
-            (keyup.enter)="addCampus()" />
-          <button type="button" (click)="addCampus()">Toevoegen</button>
-        </div>
-      }
-      @if (campuses.length > 0) {
-      <ul class="campus-list">
-        @for (campus of campuses; track campus.name; let i = $index) {
-        <li>
-          {{ campus.name }}
-          @if (!isLibrarian) {
-            <button type="button" class="remove-btn" (click)="removeCampus(i)">×</button>
-          }
-        </li>
-        }
-      </ul>
-      }
       <label>
         <input type="checkbox" formControlName="librarianRequestNotification" />
         Melding voor bibliotheekbeheerder bij verzoek
@@ -88,6 +99,7 @@
         <input type="checkbox" formControlName="reviewModeration" />
         Recensies modereren
       </label>
+
       <div class="button-row">
         <button type="button" class="cancel-button" (click)="cancelForm()">Annuleren</button>
         <button type="submit">Opslaan</button>

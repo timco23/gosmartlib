@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { SchoolService } from '../services/school.service';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Campus, School, UserProfile } from '../../types/types';
 import { FormsModule } from '@angular/forms';
 import { PopUpComponent } from "../pop-up/pop-up.component";
@@ -34,7 +34,8 @@ export class SchoolManagementComponent {
     private schoolService: SchoolService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private location: Location
   ) {
     this.schoolForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -127,7 +128,7 @@ export class SchoolManagementComponent {
 
   cancelForm() {
     if (this.isLibrarian) {
-      this.loadCurrentSchoolForLibrarian();
+      this.location.back();
       return;
     }
     this.addingSchool = false;
