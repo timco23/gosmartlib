@@ -4,10 +4,11 @@ import { LendingService } from '../../services/lending.service';
 import { RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-lending-management',
-  imports: [RouterLink, PopUpComponent],
+  imports: [RouterLink, PopUpComponent, FormsModule],
   templateUrl: './lending-management.component.html',
   styleUrl: './lending-management.component.css',
 })
@@ -26,6 +27,18 @@ export class LendingManagementComponent {
     { label: 'Annuleren', type: 'cancel', value: 'cancel' },
     { label: 'Verlengen', type: 'primary', value: 'confirm' }
   ];
+
+  searchQuery: string = '';
+
+  get filteredLendings(): Lending[] {
+    const q = this.searchQuery.toLowerCase().trim();
+    if (!q) return this.lendings;
+    return this.lendings.filter(l =>
+      l.bookTitle?.toLowerCase().includes(q) ||
+      l.bookAuthor?.toLowerCase().includes(q) ||
+      l.borrowerName?.toLowerCase().includes(q)
+    );
+  }
 
   private failedCoverIds = new Set<number>();
 

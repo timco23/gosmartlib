@@ -131,3 +131,22 @@ button.add-button {
   background: #f1f1f1;
   border-radius: 6px;
 }
+.search-bar {
+  margin-bottom: 1rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  background: white;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #8c1b3f;
+}
