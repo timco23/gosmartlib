@@ -20,7 +20,6 @@ export class SchoolManagementComponent {
   schoolForm: FormGroup;
   addingSchool: boolean = false;
   editingSchool: School | null = null;
-  viewingSchool: School | null = null;
   schools: School[] = [];
   showDeleteConfirm: boolean = false;
   campusInput: string = '';
@@ -28,6 +27,7 @@ export class SchoolManagementComponent {
   currentUser: UserProfile | null = null;
   showSwitchSchoolConfirm: boolean = false;
   schoolToSwitch: School | null = null;
+  isLibrarian: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -56,8 +56,16 @@ export class SchoolManagementComponent {
   }
 
   ngOnInit(): void {
-    this.loadSchools();
+    const loginUser = this.authService.getCurrentUser();
+    this.isLibrarian = loginUser?.role === 'BIBLIOTHEEKBEHEERDER';
+
     this.loadCurrentUser();
+
+    if (this.isLibrarian) {
+      this.loadCurrentSchoolForLibrarian();
+    } else {
+      this.loadSchools();
+    }
   }
 
   loadCurrentUser() {
@@ -68,6 +76,17 @@ export class SchoolManagementComponent {
         this.cdr.detectChanges();
       });
     }
+  }
+
+  loadCurrentSchoolForLibrarian() {
+    this.schoolService.getCurrentSchool().subscribe(school => {
+      this.editingSchool = school;
+      this.schoolForm.patchValue(school);
+      this.campuses = school.campuses ? [...school.campuses] : [];
+      this.schoolForm.get('name')?.disable();
+      this.schoolForm.get('address')?.disable();
+      this.cdr.detectChanges();
+    });
   }
 
   initiateSwitchSchool(school: School) {
@@ -93,14 +112,6 @@ export class SchoolManagementComponent {
     }
   }
 
-  viewSchool(school: School) {
-    this.viewingSchool = school;
-  }
-
-  closeDetails() {
-    this.viewingSchool = null;
-  }
-
   loadSchools() {
     this.schoolService.getAll().subscribe(data => {
       this.schools = [...data];
@@ -109,16 +120,18 @@ export class SchoolManagementComponent {
   }
 
   selectSchool(school: School) {
-    this.viewingSchool = null;
     this.editingSchool = school;
     this.schoolForm.patchValue(school);
     this.campuses = school.campuses ? [...school.campuses] : [];
   }
 
   cancelForm() {
+    if (this.isLibrarian) {
+      this.loadCurrentSchoolForLibrarian();
+      return;
+    }
     this.addingSchool = false;
     this.editingSchool = null;
-    this.viewingSchool = null;
     this.schoolForm.reset();
     this.campuses = [];
     this.campusInput = '';
@@ -129,7 +142,6 @@ export class SchoolManagementComponent {
     else this.showDeleteConfirm = false;
   }
 
-  // Campus toevoegen
   addCampus() {
     if (this.campusInput.trim()) {
       this.campuses.push({ name: this.campusInput.trim() });
@@ -137,7 +149,6 @@ export class SchoolManagementComponent {
     }
   }
 
-  // Campus verwijderen
   removeCampus(index: number) {
     this.campuses.splice(index, 1);
   }
@@ -147,7 +158,13 @@ export class SchoolManagementComponent {
 
     const schoolData = { ...this.schoolForm.value, campuses: this.campuses };
 
-    if (this.editingSchool) {
+    if (this.isLibrarian && this.editingSchool) {
+      const updated: School = { ...this.editingSchool, ...schoolData };
+      this.schoolService.updateCurrentSchoolSettings(updated).subscribe({
+        next: () => this.loadCurrentSchoolForLibrarian(),
+        error: (err) => console.error('error:', err)
+      });
+    } else if (this.editingSchool) {
       const updated: School = { ...this.editingSchool, ...schoolData };
       this.schoolService.update(updated).subscribe({
         next: () => {

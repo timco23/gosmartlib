@@ -1,5 +1,5 @@
 <div class="school-list">
-  @if (!addingSchool && !editingSchool && !viewingSchool) {
+  @if (!addingSchool && !editingSchool && !isLibrarian) {
   <div>
     <h2>Scholen</h2>
     <button class="add-school-btn" (click)="addingSchool = true">School toevoegen</button>
@@ -15,103 +15,12 @@
           @if (school.id === undefined || currentUser?.schoolId !== school.id) {
             <button class="SwitchButton" (click)="initiateSwitchSchool(school)">Activeer</button>
           }
-          <button class="DetailsButton" (click)="viewSchool(school)">Details</button>
           <button class="EditButton" (click)="selectSchool(school)">Bewerken</button>
         </div>
       </li>
       }
     </ul>
     }
-  </div>
-  }
-
-  <!-- Details view (read-only) -->
-  @if (viewingSchool) {
-  <div>
-    <h2>School details: {{ viewingSchool.name }}</h2>
-    <div class="details-container">
-      <div class="detail-item">
-        <label>Naam:</label>
-        <span>{{ viewingSchool.name }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Adres:</label>
-        <span>{{ viewingSchool.address }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Uitleenperiode (dagen):</label>
-        <span>{{ viewingSchool.lendingPeriodDays }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Verlengperiode (dagen):</label>
-        <span>{{ viewingSchool.extendPeriodDays }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Maximum aantal verlengingen:</label>
-        <span>{{ viewingSchool.maxExtends }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Maximum aantal uitleningen per leerling:</label>
-        <span>{{ viewingSchool.maxLendsStudent }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Maximum aantal uitleningen per leerkracht:</label>
-        <span>{{ viewingSchool.maxLendTeacher }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Herinnering lener (dagen voor inleverdatum):</label>
-        <span>{{ viewingSchool.lenderNotificationPeriod }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Te-laat melding lener (dagen na inleverdatum):</label>
-        <span>{{ viewingSchool.lenderLateNotificationPeriod }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen):</label>
-        <span>{{ viewingSchool.librarianNotificationNotReturned }}</span>
-      </div>
-
-      <h3>Campussen</h3>
-      @if (viewingSchool.campuses && viewingSchool.campuses.length > 0) {
-      <ul class="campus-details-list">
-        @for (campus of viewingSchool.campuses; track campus.name) {
-        <li>{{ campus.name }}</li>
-        }
-      </ul>
-      }
-      @if (!viewingSchool.campuses || viewingSchool.campuses.length === 0) {
-      <p class="no-data">Geen campussen</p>
-      }
-
-      <h3>Instellingen</h3>
-      <div class="detail-item">
-        <label>Melding voor bibliotheekbeheerder bij verzoek:</label>
-        <span>{{ viewingSchool.librarianRequestNotification ? '✓ Ja' : '✗ Nee' }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Collectie zichtbaar voor externen:</label>
-        <span>{{ viewingSchool.externalVisibility ? '✓ Ja' : '✗ Nee' }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Uitlenen aan externen toegestaan:</label>
-        <span>{{ viewingSchool.externalLending ? '✓ Ja' : '✗ Nee' }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Recensies inschakelen:</label>
-        <span>{{ viewingSchool.reviews ? '✓ Ja' : '✗ Nee' }}</span>
-      </div>
-      <div class="detail-item">
-        <label>Recensies modereren:</label>
-        <span>{{ viewingSchool.reviewModeration ? '✓ Ja' : '✗ Nee' }}</span>
-      </div>
-
-      <div class="button-row">
-        <button type="button" class="cancel-button" (click)="closeDetails()">Terug</button>
-        <button type="button" class="EditButton EditButton--details" (click)="selectSchool(viewingSchool)">
-          Bewerken
-        </button>
-      </div>
-    </div>
   </div>
   }
 
@@ -140,18 +49,21 @@
       <label>Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen na inleverdatum)</label>
       <input type="number" min="0" formControlName="librarianNotificationNotReturned" />
       <label>Campussen</label>
-      <div class="campus-input-row">
-        <input type="text" placeholder="Campus naam" [(ngModel)]="campusInput" [ngModelOptions]="{ standalone: true }"
-          (keyup.enter)="addCampus()" />
-        <button type="button" (click)="addCampus()">Toevoegen</button>
-      </div>
-
+      @if (!isLibrarian) {
+        <div class="campus-input-row">
+          <input type="text" placeholder="Campus naam" [(ngModel)]="campusInput" [ngModelOptions]="{ standalone: true }"
+            (keyup.enter)="addCampus()" />
+          <button type="button" (click)="addCampus()">Toevoegen</button>
+        </div>
+      }
       @if (campuses.length > 0) {
       <ul class="campus-list">
         @for (campus of campuses; track campus.name; let i = $index) {
         <li>
           {{ campus.name }}
-          <button type="button" class="remove-btn" (click)="removeCampus(i)">×</button>
+          @if (!isLibrarian) {
+            <button type="button" class="remove-btn" (click)="removeCampus(i)">×</button>
+          }
         </li>
         }
       </ul>
@@ -180,7 +92,7 @@
         <button type="button" class="cancel-button" (click)="cancelForm()">Annuleren</button>
         <button type="submit">Opslaan</button>
       </div>
-      @if (editingSchool) {
+      @if (editingSchool && !isLibrarian) {
       <button type="button" class="DeleteButton" style="width: 100%; margin-top: 8px" (click)="confirmDelete()">
         School verwijderen
       </button>

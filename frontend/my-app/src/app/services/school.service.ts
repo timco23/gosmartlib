@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class SchoolService {
   private apiUrl = `${environment.apiUrl}/schools`;
-  
+
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<School[]> {
@@ -27,8 +27,14 @@ export class SchoolService {
   update(school: School): Observable<School> {
     return this.http.put<School>(`${this.apiUrl}/${school.id}`, school);
   }
-
   getByName(name: string): Observable<School> {
     return this.http.get<School>(`${this.apiUrl}/search`, { params: {name: name}});
+  }
+
+  getCurrentSchool(): Observable<School> {
+    return this.http.get<School>(`${this.apiUrl}/current`);
+  }
+  updateCurrentSchoolSettings(school: School): Observable<School> {
+    return this.http.put<School>(`${this.apiUrl}/current/settings`, school);
   }
 }
