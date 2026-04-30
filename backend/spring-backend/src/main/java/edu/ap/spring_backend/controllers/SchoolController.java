@@ -1,11 +1,17 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dao.UserRepository;
+import edu.ap.spring_backend.dto.SchoolDTO;
 import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.jpa.School;
+import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.service.SchoolService;
 import edu.ap.spring_backend.service.UserService;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -15,10 +21,12 @@ public class SchoolController {
 
     private final SchoolService schoolService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public SchoolController(SchoolService schoolService, UserService userService) {
+    public SchoolController(SchoolService schoolService, UserService userService, UserRepository userRepository) {
         this.schoolService = schoolService;
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -27,12 +35,12 @@ public class SchoolController {
     }
 
     @GetMapping("/search")
-    public School getSchoolByName(@RequestParam String name)  {
+    public School getSchoolByName(@RequestParam String name) {
         return schoolService.getSchoolByName(name);
     }
 
     @GetMapping("/{id}")
-    public School getSchoolById(@PathVariable Long id)  {
+    public School getSchoolById(@PathVariable Long id) {
         return schoolService.getSchoolById(id);
     }
 
@@ -54,5 +62,46 @@ public class SchoolController {
     @GetMapping("/users")
     public List<UserResponse> getUsersBySchool(@RequestParam Long schoolId) {
         return userService.getUsersBySchool(schoolId);
+    }
+
+    /**
+     * Returns the school linked to the authenticated user.
+     * Accessible by BIBLIOTHEEKBEHEERDER and ADMIN.
+     */
+    @GetMapping("/current")
+    public SchoolDTO getCurrentSchool(Authentication auth) {
+        User user = resolveUser(auth);
+        if (user.getSchool() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No school linked to this user");
+        }
+        return SchoolDTO.from(schoolService.getSchoolById(user.getSchool().getId()));
+    }
+
+    /**
+     * Updates the lending settings of the authenticated user's school.
+     * Name, address and campuses are not modifiable through this endpoint.
+     * Accessible by BIBLIOTHEEKBEHEERDER and ADMIN.
+     */
+    @PutMapping("/current/settings")
+    public SchoolDTO updateCurrentSchoolSettings(@RequestBody School settings, Authentication auth) {
+        User user = resolveUser(auth);
+        if (user.getSchool() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No school linked to this user");
+        }
+        return SchoolDTO.from(schoolService.updateSchoolSettings(user.getSchool().getId(), settings));
+    }
+
+    /**
+     * Extracts the authenticated user from the Spring Security context.
+     * The principal is stored as the user's numeric ID (set by JwtAuthenticationFilter).
+     */
+    private User resolveUser(Authentication auth) {
+        try {
+            Integer userId = Integer.valueOf(auth.getName());
+            return userRepository.findById(userId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        } catch (NumberFormatException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid authentication principal");
+        }
     }
 }
