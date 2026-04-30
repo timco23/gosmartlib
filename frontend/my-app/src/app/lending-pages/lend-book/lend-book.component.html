@@ -19,6 +19,18 @@
       </div>
 
       <div class="form-group">
+        <label for="show-multiple-books">
+          <input
+            type="checkbox"
+            id="show-multiple-books"
+            name="showMultipleBooks"
+            [(ngModel)]="showMultipleBooks"
+          />
+          Meerdere boeken uitlenen
+        </label>
+      </div>
+
+      <div class="form-group">
         <label>Boek</label>
         <button type="button" class="choose-book-btn" (click)="openBookPopup()">
           {{ selectedBook ? bookTitle(selectedBook) : 'Kies een boek' }}
@@ -41,16 +53,18 @@
         (bookSelected)="onBookSelected($event)"
       ></app-book-selector-popup-component>
 
-      @if (currentCopies.length > 0) {
-        <div class="form-group">
-          <label for="copy">Exemplaar</label>
-          <select id="copy" name="copy" (change)="onCopySelect($event)">
-            <option value="" disabled selected>Kies een exemplaar</option>
-            @for (copy of currentCopies; track copy.barcode) {
-              <option [value]="copy.barcode">{{ copy.barcode }} — {{ copy.condition }}</option>
-            }
-          </select>
-        </div>
+      @for (copy of currentCopies; track copy.barcode) {
+        @if (showMultipleBooks || selectedCopies.length === 0 || isCopySelected(copy)) {
+          <label class="copy-option">
+            <input
+              type="checkbox"
+              [value]="copy.barcode"
+              [checked]="isCopySelected(copy)"
+              (change)="onCopyToggle(copy, $event)"
+            />
+            {{ copy.barcode }} — {{ copy.condition }}
+          </label>
+        }
       }
 
       <div class="form-group">
