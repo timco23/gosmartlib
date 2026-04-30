@@ -35,14 +35,14 @@ import { GenreService } from '../../services/genre.service';
 import { SubgenreService } from '../../services/subgenre.service';
 import { ReadingLevelService } from '../../services/reading-level.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
-import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
-import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
-import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
-import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
-import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { BookImportEnrichmentComponent } from '../book-import-enrichment/book-import-enrichment.component';
 import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
 import { BookSelectorPopupComponent } from '../book-selector-popup-component/book-selector-popup-component';
+import { DidacticCategorySelectionMenuComponent } from '../../widgets/selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
+import { GenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
+import { ReadingLevelSelectionMenuComponent } from '../../widgets/selection-menu-pages/reading-level/reading-level.component';
+import { SubgenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
+import { TagSelectionMenu } from '../../widgets/selection-menu-pages/tag-selection-menu/tag-selection-menu';
 
 @Component({
   selector: 'app-add-book-page',

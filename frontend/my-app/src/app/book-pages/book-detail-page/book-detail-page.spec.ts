@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BookDetailPage } from './book-detail-page';
-import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 
 describe('BookDetailPage', () => {
   let component: BookDetailPage;

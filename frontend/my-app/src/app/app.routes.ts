@@ -9,7 +9,7 @@ import { Login } from './login/login';
 import { authGuard } from './guards/auth-guard';
 import { Profile } from './profile/profile';
 import { SchoolManagementComponent } from './school-management/school-management.component';
-import { TagManagement } from './tag-management/tag-management.component';
+import { TagManagement } from './widgets/tag-management/tag-management.component';
 import { FavoritesComponent } from './favorites/favorites.component';
 import { OauthCallback } from './oauth-callback/oauth-callback';
 import { ReadingListPage } from './reading-list-pages/reading-list-page/reading-list-page';

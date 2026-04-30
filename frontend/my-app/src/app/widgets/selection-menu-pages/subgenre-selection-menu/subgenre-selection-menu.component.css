@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+/* Filter */
+.filter-row {
+  margin-bottom: 0.75rem;
+}
+
+.filter-row input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.filter-row input:focus {
+  outline: none;
+  border-color: #8c1b3f;
+  box-shadow: 0 0 3px rgba(140, 27, 63, 0.4);
+}
+
+/* Subgenre count */
+.subgenre-count {
+  font-size: 0.8125rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+/* Subgenre list */
+.subgenre-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.subgenre-item {
+  padding: 0.5rem 0.75rem;
+  transition: background 0.15s ease;
+}
+
+.subgenre-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.subgenre-item:hover {
+  background: #faf7f4;
+}
+
+.subgenre-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: normal;
+  margin-top: 0;
+}
+
+.subgenre-item input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  accent-color: #8c1b3f;
+  cursor: pointer;
+}
+
+/* Default badge */
+.badge-default {
+  margin-left: auto;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 999px;
+}

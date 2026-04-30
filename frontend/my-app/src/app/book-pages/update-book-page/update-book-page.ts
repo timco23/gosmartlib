@@ -21,11 +21,6 @@ import {
   CreateSchoolItemCopyPayload,
   CampusCopyGroup,
 } from '../../../types/types';
-import { TagSelectionMenu } from '../../selection-menu-pages/tag-selection-menu/tag-selection-menu';
-import { GenreSelectionMenuComponent } from '../../selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
-import { SubgenreSelectionMenuComponent } from '../../selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
-import { ReadingLevelSelectionMenuComponent } from '../../selection-menu-pages/reading-level/reading-level.component';
-import { DidacticCategorySelectionMenuComponent } from '../../selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { TagService } from '../../services/tag.service';
@@ -35,8 +30,13 @@ import { ReadingLevelService } from '../../services/reading-level.service';
 import { DidacticCategoryService } from '../../services/didactic-category.service';
 import { SchoolService } from '../../services/school.service';
 import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
-import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 import { NgClass } from "../../../../node_modules/@angular/common/types/_common_module-chunk";
+import { DidacticCategorySelectionMenuComponent } from '../../widgets/selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
+import { GenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
+import { ReadingLevelSelectionMenuComponent } from '../../widgets/selection-menu-pages/reading-level/reading-level.component';
+import { SubgenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
+import { TagSelectionMenu } from '../../widgets/selection-menu-pages/tag-selection-menu/tag-selection-menu';
 
 @Component({
   selector: 'app-update-book-page',

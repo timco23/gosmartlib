@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject, model } from '@angular/core';
 import { Book, ConfirmDialogAction } from '../../../types/types';
 import { Router } from '@angular/router';
-import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 import { BookService } from '../../services/book-service';
 
 @Component({

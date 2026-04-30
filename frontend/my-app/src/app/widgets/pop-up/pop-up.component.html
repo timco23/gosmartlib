@@ -1,0 +1,19 @@
+<div class="overlay">
+  <div class="confirm-dialog">
+    @if (title) {
+      <h3>{{ title }}</h3>
+    }
+    <p [innerHTML]="message"></p>
+    <div class="button-row">
+      @for (action of actions; track action.value) {
+        <button
+          type="button"
+          [class]="getButtonClass(action)"
+          (click)="onAction(action.value)"
+        >
+          {{ action.label }}
+        </button>
+      }
+    </div>
+  </div>
+</div>

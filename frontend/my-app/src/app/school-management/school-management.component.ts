@@ -4,7 +4,7 @@ import { SchoolService } from '../services/school.service';
 import { CommonModule } from '@angular/common';
 import { Campus, School } from '../../types/types';
 import { FormsModule } from '@angular/forms';
-import { PopUpComponent } from "../pop-up/pop-up.component";
+import { PopUpComponent } from "../widgets/pop-up/pop-up.component";
 
 @Component({
   selector: 'app-school-management',

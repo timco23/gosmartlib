@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Review } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { ReviewReportComponent } from '../../review-report-component/review-report-component';
-import { StarDisplayComponent } from '../../star-display/star-display.component';
+import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
 
 @Component({
   selector: 'app-review-list',

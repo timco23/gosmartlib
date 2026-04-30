@@ -7,7 +7,7 @@ import { BookService } from '../../services/book-service';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LendingService } from '../../services/lending.service';
-import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-return-book',

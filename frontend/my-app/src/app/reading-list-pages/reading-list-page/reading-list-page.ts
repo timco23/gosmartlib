@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { ShareListPopup } from '../share-list-popup/share-list-popup';
 import { environment } from '../../../environments/environment';
 import { BookService } from '../../services/book-service';
-import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-reading-list-page',

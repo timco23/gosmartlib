@@ -34,8 +34,8 @@ import { ReviewList } from '../review-list/review-list';
 import { ReviewForm } from '../review-form/review-form';
 import { ReadingListService } from '../../services/readingList-service';
 import { CollectionService } from '../../services/collection-service';
-import { PopUpComponent } from "../../pop-up/pop-up.component";
-import { StarDisplayComponent } from '../../star-display/star-display.component';
+import { PopUpComponent } from "../../widgets/pop-up/pop-up.component";
+import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
 
 @Component({
   selector: 'app-book-detail-page',

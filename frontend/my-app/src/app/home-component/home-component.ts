@@ -11,7 +11,7 @@ import { CollectionService } from '../services/collection-service';
 import { environment } from '../../environments/environment';
 import { GenreService } from '../services/genre.service';
 import { SubgenreService } from '../services/subgenre.service';
-import { StarDisplayComponent } from "../star-display/star-display.component";
+import { StarDisplayComponent } from "../widgets/star-display/star-display.component";
 
 @Component({
   selector: 'app-home-component',

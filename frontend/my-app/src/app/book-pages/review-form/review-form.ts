@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CreateReview } from '../../../types/types';
-import { StarDisplayComponent } from '../../star-display/star-display.component';
+import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
 
 @Component({
   selector: 'app-review-form',

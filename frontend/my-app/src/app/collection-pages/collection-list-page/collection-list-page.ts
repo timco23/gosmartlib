@@ -6,7 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { SchoolService } from '../../services/school.service';
 import { BookService } from '../../services/book-service';
-import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-collection-list-page',

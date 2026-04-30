@@ -9,7 +9,7 @@ import { GenreService } from '../services/genre.service';
 import { SubgenreService } from '../services/subgenre.service';
 import { TagService } from '../services/tag.service';
 import { DidacticCategoryService } from '../services/didactic-category.service';
-import { StarDisplayComponent } from '../star-display/star-display.component';
+import { StarDisplayComponent } from '../widgets/star-display/star-display.component';
 
 @Component({
   selector: 'app-favorites',

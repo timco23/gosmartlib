@@ -3,7 +3,7 @@ import { ConfirmDialogAction, Lending } from '../../../types/types';
 import { LendingService } from '../../services/lending.service';
 import { RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
-import { PopUpComponent } from '../../pop-up/pop-up.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-lending-management',

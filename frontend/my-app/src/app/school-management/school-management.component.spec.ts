@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SchoolManagementComponent } from './school-management.component';
-import { PopUpComponent } from '../pop-up/pop-up.component';
+import { PopUpComponent } from '../widgets/pop-up/pop-up.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
