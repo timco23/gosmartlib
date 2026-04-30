@@ -91,16 +91,30 @@
       }
 
       <div class="form-group">
-        <label for="duration">Uitleen periode (dagen)</label>
-        <input
-          type="number"
-          id="duration"
-          name="duration"
-          [(ngModel)]="duration"
-          placeholder="Uitleen periode (dagen)"
-          required
-        />
+        <label for="show-duration">
+          <input
+            type="checkbox"
+            id="show-duration"
+            name="showDuration"
+            [(ngModel)]="showDurationInput"
+          />
+          Aangepaste uitleen periode
+        </label>
       </div>
+
+      @if (showDurationInput) {
+        <div class="form-group">
+          <label for="duration">Uitleen periode (dagen)</label>
+          <input
+            type="number"
+            id="duration"
+            name="duration"
+            [(ngModel)]="duration"
+            placeholder="Uitleen periode (dagen)"
+            required
+          />
+        </div>
+      }
 
       <button type="submit" class="add-button">Boek uitlenen</button>
     </form>

@@ -26,6 +26,19 @@ export class LendBookComponent {
   public currentUser: UserProfile | null = null;
   public duration: number = 0;
 
+  private _showDurationInput: boolean = false;
+
+  get showDurationInput(): boolean {
+    return this._showDurationInput;
+  }
+
+  set showDurationInput(value: boolean) {
+    this._showDurationInput = value;
+    if (!value) {
+      this.duration = this.school?.lendingPeriodDays ?? 0;
+    }
+  }
+
   public bookSelected: boolean = false;
   public barcode: string = '';
 
