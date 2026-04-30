@@ -152,3 +152,21 @@ input:disabled {
   background: #8c1b3f;
   color: white;
 }
+/* add to selection button */
+.add-book-btn {
+  background: transparent;
+  color: #8c1b3f;
+  border: 1px solid #8c1b3f;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.add-book-btn:hover {
+  background: #8c1b3f;
+  color: white;
+}
