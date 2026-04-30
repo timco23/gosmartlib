@@ -90,7 +90,17 @@
         </div>
       }
 
-      <input type="number" name="duration" [(ngModel)]="duration" placeholder="Uitleen periode (dagen)" required />
+      <div class="form-group">
+        <label for="duration">Uitleen periode (dagen)</label>
+        <input
+          type="number"
+          id="duration"
+          name="duration"
+          [(ngModel)]="duration"
+          placeholder="Uitleen periode (dagen)"
+          required
+        />
+      </div>
 
       <button type="submit" class="add-button">Boek uitlenen</button>
     </form>
