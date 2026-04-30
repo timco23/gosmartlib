@@ -134,3 +134,21 @@ input:disabled {
   height: 16px;
   cursor: pointer;
 }
+
+/* Delete button */
+.clear-book-btn {
+  background: transparent;
+  color: #8c1b3f;
+  border: 1px solid #8c1b3f;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  width: fit-content;
+}
+
+.clear-book-btn:hover {
+  background: #8c1b3f;
+  color: white;
+}

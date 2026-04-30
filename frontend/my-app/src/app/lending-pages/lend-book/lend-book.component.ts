@@ -29,11 +29,12 @@ export class LendBookComponent {
 
   private _showDurationInput: boolean = false;
   showMultipleBooks: boolean = false;
+  public selectedBooks: { book: Book; copy: SchoolItemCopy }[] = [];
 
   get showDurationInput(): boolean {
     return this._showDurationInput;
   }
-
+  
   set showDurationInput(value: boolean) {
     this._showDurationInput = value;
     if (!value) {
@@ -73,6 +74,7 @@ export class LendBookComponent {
     this.selectedBook = selected;
     this.selectedBookId = id;
     this.bookSelected = true;
+
 
     this.currentBook = selected;
     this.currentSchoolCopy = null;
@@ -235,7 +237,7 @@ export class LendBookComponent {
 
   onCopyToggle(copy: SchoolItemCopy, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
-
+    
     if (this.showMultipleBooks) {
       if (checked) {
         this.selectedCopies = [...this.selectedCopies, copy];
@@ -243,9 +245,13 @@ export class LendBookComponent {
         this.selectedCopies = this.selectedCopies.filter(c => c.barcode !== copy.barcode);
       }
     } else {
-      this.selectedCopies = checked ? [copy] : [];
+      if (checked) {
+        this.selectedCopies = [copy];
+      } else {
+        this.selectedCopies = [];
+      }
     }
-
+  
     this.currentSchoolCopy = this.selectedCopies[0] ?? null;
     this.cdr.detectChanges();
   }
@@ -266,9 +272,17 @@ export class LendBookComponent {
   }
 
   onSubmit(): void {
-    const copies = this.showMultipleBooks ? this.selectedCopies : (this.currentSchoolCopy ? [this.currentSchoolCopy] : []);
+    let copies: SchoolItemCopy[] = [];
 
-    if (!this.currentUser || copies.length === 0 || !this.school) return;
+    if (this.showMultipleBooks) {
+      copies = this.selectedBooks.map((s) => s.copy);
+    } else if (this.currentSchoolCopy) {
+      copies = [this.currentSchoolCopy];
+    }
+
+    if (!this.currentUser || copies.length === 0 || !this.school) {
+      return;
+    }
 
     const remainingCapacity = this.school.maxLendsStudent - this.currentUser.items_borrowed;
     if (copies.length > remainingCapacity) {
@@ -276,19 +290,21 @@ export class LendBookComponent {
       return;
     }
 
-    const requests = copies.map(copy => ({
+    const requests = copies.map((copy) => ({
       borrowerId: this.currentUser!.id ?? -1,
       copyBarcode: copy.barcode ?? '',
       schoolId: this.school!.id ?? -1,
       lendingDate: new Date().toISOString().split('T')[0],
       returnDate: new Date(Date.now() + this.duration * 24 * 60 * 60 * 1000)
-        .toISOString().split('T')[0],
+        .toISOString()
+        .split('T')[0],
     }));
 
     const submits = requests.map((request, i) =>
-      this.lendingService.createLending(request).toPromise().then(() =>
-        this.bookService.setCopyStatus(copies[i].id, 'UITGELEEND').toPromise()
-      )
+      this.lendingService
+        .createLending(request)
+        .toPromise()
+        .then(() => this.bookService.setCopyStatus(copies[i].id, 'UITGELEEND').toPromise())
     );
 
     Promise.all(submits)
@@ -299,7 +315,7 @@ export class LendBookComponent {
         return Promise.all(increments);
       })
       .then(() => this.router.navigate(['/lendings']))
-      .catch(err => {
+      .catch((err) => {
         console.error('Error creating lendings:', err);
         alert('Lening aanmaken mislukt, probeer later opnieuw.');
       });
@@ -308,5 +324,33 @@ export class LendBookComponent {
   coverSrcFromLending(lending: any): string {
     const book = lending?.book ?? lending?.item ?? lending ?? this.currentBook ?? null;
     return this.bookApi.getBookCoverSrc(book) ?? '';
+  }
+
+  addBookToSelection(): void {
+    if (!this.currentBook || this.selectedCopies.length === 0) {
+      return;
+    }
+  
+    for (const copy of this.selectedCopies) {
+      let alreadyAdded = false;
+      for (const s of this.selectedBooks) {
+        if (s.copy.barcode === copy.barcode) {
+          alreadyAdded = true;
+          break;
+        }
+      }
+      if (!alreadyAdded) {
+        this.selectedBooks.push({ book: this.currentBook, copy: copy });
+      }
+    }
+  
+    this.clearSelectedBook();
+    this.selectedCopies = [];
+    this.cdr.detectChanges();
+  }
+
+  removeBookFromSelection(index: number): void {
+    this.selectedBooks.splice(index, 1);
+    this.cdr.detectChanges();
   }
 }

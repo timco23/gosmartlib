@@ -34,57 +34,66 @@
       }
     
     <div class="form-group">
-        <label>Boek</label>
-        <button type="button" class="choose-book-btn" (click)="openBookPopup()">
-          {{ selectedBook ? bookTitle(selectedBook) : 'Kies een boek' }}
-        </button>
-        @if (selectedBook) {
-          <small>{{ bookMeta(selectedBook) }}</small>
-          <button type="button" class="clear-book-btn" (click)="clearSelectedBook()">Wissen</button>
-        }
-      </div>
-
-      <app-book-selector-popup-component
-        [isOpen]="isBookPopupOpen"
-        [books]="books"
-        [limit]="10"
-        [selectedId]="selectedBookId"
-        [getId]="bookId"
-        [getTitle]="bookTitle"
-        [getMeta]="bookMeta"
-        (close)="closeBookPopup()"
-        (bookSelected)="onBookSelected($event)"
-      ></app-book-selector-popup-component>
-
-      @for (copy of currentCopies; track copy.barcode) {
-        @if (showMultipleBooks || selectedCopies.length === 0 || isCopySelected(copy)) {
-          <label class="copy-option">
-            <input
-              type="checkbox"
-              [value]="copy.barcode"
-              [checked]="isCopySelected(copy)"
-              (change)="onCopyToggle(copy, $event)"
-            />
-            {{ copy.barcode }} — {{ copy.condition }}
-          </label>
-        }
+      <label>Boek</label>
+      <button type="button" class="choose-book-btn" (click)="openBookPopup()">
+        {{ selectedBook ? bookTitle(selectedBook) : 'Kies een boek' }}
+      </button>
+      @if (selectedBook) {
+        <small>{{ bookMeta(selectedBook) }}</small>
+        <button type="button" class="clear-book-btn" (click)="clearSelectedBook()">Wissen</button>
       }
+    </div>
 
+    <app-book-selector-popup-component
+      [isOpen]="isBookPopupOpen"
+      [books]="books"
+      [limit]="10"
+      [selectedId]="selectedBookId"
+      [getId]="bookId"
+      [getTitle]="bookTitle"
+      [getMeta]="bookMeta"
+      (close)="closeBookPopup()"
+      (bookSelected)="onBookSelected($event)"
+    ></app-book-selector-popup-component>
+
+    @if (currentCopies.length > 0) {
       <div class="form-group">
-        <label for="book">Boek</label>
-        <input
-          type="text"
-          id="book"
-          name="book"
-          placeholder="Barcode"
-          [(ngModel)]="barcode"
-          (ngModelChange)="onBarcodeChange($event)"
-          [disabled]="bookSelected"
-          [style.opacity]="bookSelected ? '0.5' : '1'"
-          [required]="!bookSelected"
-        />
+        <label>Exemplaar</label>
+        <div class="copies-list">
+          @for (copy of currentCopies; track copy.barcode) {
+            @if (showMultipleBooks || selectedCopies.length === 0 || isCopySelected(copy)) {
+              <label class="copy-option">
+                <input
+                  type="checkbox"
+                  [value]="copy.barcode"
+                  [checked]="isCopySelected(copy)"
+                  (change)="onCopyToggle(copy, $event)"
+                />
+                {{ copy.barcode }} — {{ copy.condition }}
+              </label>
+            }
+          }
+        </div>
       </div>
+    }
 
+    @if (showMultipleBooks && currentBook && selectedCopies.length > 0) {
+      <button type="button" class="add-book-btn" (click)="addBookToSelection()">
+        + Voeg {{ selectedCopies.length > 1 ? selectedCopies.length + ' exemplaren' : 'exemplaar' }} toe aan lijst
+      </button>
+    }
+
+    @if (showMultipleBooks && selectedBooks.length > 0) {
+      <div class="selected-books-list">
+        <label>Geselecteerde boeken</label>
+        @for (entry of selectedBooks; track entry.copy.barcode; let i = $index) {
+          <div class="selected-book-entry">
+            <span>{{ bookTitle(entry.book) }} — {{ entry.copy.barcode }}</span>
+            <button type="button" class="clear-book-btn" (click)="removeBookFromSelection(i)">✕</button>
+          </div>
+        }
+      </div>
+    }
       @if (currentBook != null) {
         <div class="book-preview">
           @let cover = bookApi.getBookCoverSrc(currentBook);
