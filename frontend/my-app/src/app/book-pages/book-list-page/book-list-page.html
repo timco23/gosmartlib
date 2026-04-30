@@ -247,15 +247,19 @@
                 }
               </div>
 
-              <div class="book-bottom">
+              <div class="book-bottom" [class.has-reading-list]="authService.atLeastHasRole(role.LEERKRACHT)">
                 <div class="book-score">
                   <app-star-display [score]="book.reviewScore" />
                   @if (book.reviewScore > 0) {
                     <span class="score-value">{{ book.reviewScore | number: '1.1-1' }} / 5</span>
                   }
                 </div>
-                <button class="list-button" (click)="addBookToReadingList(book)">Aan leeslijst toevoegen</button>
-                <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
+                <div class="book-actions">
+                  @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+                    <button class="list-button" (click)="addBookToReadingList(book)">Aan leeslijst toevoegen</button>
+                  }
+                  <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
+                </div>
               </div>
             </li>
           }

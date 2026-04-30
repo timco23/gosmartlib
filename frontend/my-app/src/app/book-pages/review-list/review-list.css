@@ -175,6 +175,13 @@
   gap: 10px;
 }
 
+.review-side-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
 .flag-btn {
   position: relative;
   background: #fff;

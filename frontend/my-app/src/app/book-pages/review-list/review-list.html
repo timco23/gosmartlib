@@ -24,11 +24,7 @@
             </span>
             <span class="review-date">{{ review.createdAt | date: 'dd-MM-yyyy' }}</span>
           </div>
-
-        <div class="review-stars">
-          <app-star-display [score]="review.stars" />
         </div>
-      </div>
 
         @if (review.description) {
           <p class="review-description">{{ review.description }}</p>
@@ -42,16 +38,22 @@
       </div>
 
       <div class="review-side">
-        @if (canReport(review)) {
-          <button
-            class="flag-btn"
-            type="button"
-            title="Rapporteer deze review"
-            (click)="openReportForm(review.id)"
-          >
-            🚩 Rapporteer
-          </button>
-        }
+        <div class="review-side-actions">
+          <div class="review-stars">
+            <app-star-display [score]="review.stars" />
+          </div>
+
+          @if (canReport(review)) {
+            <button
+              class="flag-btn"
+              type="button"
+              title="Rapporteer deze review"
+              (click)="openReportForm(review.id)"
+            >
+              🚩 Rapporteer
+            </button>
+          }
+        </div>
 
         <app-review-report-component
           [reviewId]="review.id"

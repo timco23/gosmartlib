@@ -258,7 +258,7 @@ textarea.ng-invalid.ng-touched {
 .optional-book-actions .secondary-btn {
   width: 50%;
   padding: 12px 20px;
-  text-align: left;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
