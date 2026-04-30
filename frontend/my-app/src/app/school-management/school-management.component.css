@@ -73,6 +73,8 @@ h3 {
   border-radius: 6px;
   cursor: pointer;
   font-size: 15px;
+  width: auto;
+  margin-top: 0;
 }
 
 .DetailsButton:hover {
@@ -87,6 +89,8 @@ h3 {
   border-radius: 6px;
   cursor: pointer;
   font-size: 15px;
+  width: auto;
+  margin-top: 0;
 }
 
 .EditButton:hover {
@@ -331,4 +335,29 @@ button[type='submit']:hover {
 
 .DeleteButton:hover {
   background: #6f1532;
+}
+
+.current-school-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  color: #2f2f2f;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.SwitchButton {
+  padding: 6px 14px;
+  background: #c2e569;
+  color: #2f2f2f;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  width: auto;
+  margin-top: 0;
+}
+
+.SwitchButton:hover {
+  background: #afd44f;
 }
