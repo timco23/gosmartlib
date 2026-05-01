@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { SchoolService } from '../services/school.service';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Campus, School, UserProfile } from '../../types/types';
 import { FormsModule } from '@angular/forms';
 import { PopUpComponent } from "../pop-up/pop-up.component";
@@ -20,7 +20,6 @@ export class SchoolManagementComponent {
   schoolForm: FormGroup;
   addingSchool: boolean = false;
   editingSchool: School | null = null;
-  viewingSchool: School | null = null;
   schools: School[] = [];
   showDeleteConfirm: boolean = false;
   campusInput: string = '';
@@ -28,13 +27,19 @@ export class SchoolManagementComponent {
   currentUser: UserProfile | null = null;
   showSwitchSchoolConfirm: boolean = false;
   schoolToSwitch: School | null = null;
+  isLibrarian: boolean = false;
+  campusesModified: boolean = false;
+  saveStatus: 'success' | 'error' | null = null;
+  showBackConfirm: boolean = false;
+  private saveStatusTimer: any = null;
 
   constructor(
     private fb: FormBuilder,
     private schoolService: SchoolService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private location: Location
   ) {
     this.schoolForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -56,8 +61,16 @@ export class SchoolManagementComponent {
   }
 
   ngOnInit(): void {
-    this.loadSchools();
+    const loginUser = this.authService.getCurrentUser();
+    this.isLibrarian = loginUser?.role === 'BIBLIOTHEEKBEHEERDER';
+
     this.loadCurrentUser();
+
+    if (this.isLibrarian) {
+      this.loadCurrentSchoolForLibrarian();
+    } else {
+      this.loadSchools();
+    }
   }
 
   loadCurrentUser() {
@@ -70,7 +83,20 @@ export class SchoolManagementComponent {
     }
   }
 
-  initiateSwitchSchool(school: School) {
+  loadCurrentSchoolForLibrarian() {
+    this.schoolService.getCurrentSchool().subscribe(school => {
+      this.editingSchool = school;
+      this.schoolForm.patchValue(school);
+      this.campuses = school.campuses ? [...school.campuses] : [];
+      this.schoolForm.get('name')?.disable();
+      this.schoolForm.get('address')?.disable();
+      this.schoolForm.markAsPristine();
+      this.campusesModified = false;
+      this.cdr.detectChanges();
+    });
+  }
+
+  switchSchool(school: School) {
     this.schoolToSwitch = school;
     this.showSwitchSchoolConfirm = true;
   }
@@ -93,14 +119,6 @@ export class SchoolManagementComponent {
     }
   }
 
-  viewSchool(school: School) {
-    this.viewingSchool = school;
-  }
-
-  closeDetails() {
-    this.viewingSchool = null;
-  }
-
   loadSchools() {
     this.schoolService.getAll().subscribe(data => {
       this.schools = [...data];
@@ -109,19 +127,37 @@ export class SchoolManagementComponent {
   }
 
   selectSchool(school: School) {
-    this.viewingSchool = null;
     this.editingSchool = school;
     this.schoolForm.patchValue(school);
     this.campuses = school.campuses ? [...school.campuses] : [];
+    this.schoolForm.markAsPristine();
+    this.campusesModified = false;
   }
 
   cancelForm() {
+    if (this.hasUnsavedChanges) {
+      this.showBackConfirm = true;
+      return;
+    }
+    this.navigateBack();
+  }
+
+  onBackConfirmAction(value: string) {
+    this.showBackConfirm = false;
+    if (value === 'confirm') this.navigateBack();
+  }
+
+  private navigateBack() {
+    if (this.isLibrarian) {
+      this.location.back();
+      return;
+    }
     this.addingSchool = false;
     this.editingSchool = null;
-    this.viewingSchool = null;
     this.schoolForm.reset();
     this.campuses = [];
     this.campusInput = '';
+    this.campusesModified = false;
   }
 
   onDeleteDialogAction(value: string) {
@@ -129,17 +165,21 @@ export class SchoolManagementComponent {
     else this.showDeleteConfirm = false;
   }
 
-  // Campus toevoegen
   addCampus() {
     if (this.campusInput.trim()) {
       this.campuses.push({ name: this.campusInput.trim() });
       this.campusInput = '';
+      this.campusesModified = true;
     }
   }
 
-  // Campus verwijderen
   removeCampus(index: number) {
     this.campuses.splice(index, 1);
+    this.campusesModified = true;
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return this.schoolForm.dirty || this.campusesModified;
   }
 
   onSubmit() {
@@ -147,24 +187,63 @@ export class SchoolManagementComponent {
 
     const schoolData = { ...this.schoolForm.value, campuses: this.campuses };
 
-    if (this.editingSchool) {
+    if (this.isLibrarian && this.editingSchool) {
+      const updated: School = { ...this.editingSchool, ...schoolData };
+      this.schoolService.updateCurrentSchoolSettings(updated).subscribe({
+        next: () => {
+          this.showSaveStatus('success');
+          this.loadCurrentSchoolForLibrarian();
+        },
+        error: (err) => {
+          console.error('error:', err);
+          this.showSaveStatus('error');
+        }
+      });
+    } else if (this.editingSchool) {
       const updated: School = { ...this.editingSchool, ...schoolData };
       this.schoolService.update(updated).subscribe({
-        next: () => {
-          this.cancelForm();
+        next: (saved) => {
+          this.editingSchool = saved;
+          this.schoolForm.patchValue(saved);
+          this.campuses = saved.campuses ? [...saved.campuses] : [];
+          this.schoolForm.markAsPristine();
+          this.campusesModified = false;
           this.loadSchools();
+          this.showSaveStatus('success');
         },
-        error: (err) => console.error('error:', err)
+        error: (err) => {
+          console.error('error:', err);
+          this.showSaveStatus('error');
+        }
       });
     } else {
       this.schoolService.create(schoolData).subscribe({
-        next: () => {
-          this.cancelForm();
+        next: (saved) => {
+          this.addingSchool = false;
+          this.editingSchool = saved;
+          this.schoolForm.patchValue(saved);
+          this.campuses = saved.campuses ? [...saved.campuses] : [];
+          this.schoolForm.markAsPristine();
+          this.campusesModified = false;
           this.loadSchools();
+          this.showSaveStatus('success');
         },
-        error: (err) => console.error('error:', err)
+        error: (err) => {
+          console.error('error:', err);
+          this.showSaveStatus('error');
+        }
       });
     }
+  }
+
+  private showSaveStatus(status: 'success' | 'error') {
+    if (this.saveStatusTimer) clearTimeout(this.saveStatusTimer);
+    this.saveStatus = status;
+    this.cdr.detectChanges();
+    this.saveStatusTimer = setTimeout(() => {
+      this.saveStatus = null;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 
   deleteSchool(school: School) {

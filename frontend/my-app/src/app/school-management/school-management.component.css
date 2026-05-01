@@ -11,11 +11,6 @@
   padding: 0;
 }
 
-.school-list li {
-  padding: 12px;
-  border-bottom: 1px solid #bfbfe8;
-}
-
 h2 {
   color: #8c1b3f;
   margin-bottom: 24px;
@@ -24,7 +19,7 @@ h2 {
 }
 
 h3 {
-  margin-top: 24px;
+  margin-top: 28px;
   margin-bottom: 12px;
   color: #8c1b3f;
   border-bottom: 2px solid #bfbfe8;
@@ -63,22 +58,7 @@ h3 {
 .button-group {
   display: flex;
   gap: 10px;
-}
-
-.DetailsButton {
-  padding: 10px 24px;
-  background: #8c1b3f;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 15px;
-  width: auto;
-  margin-top: 0;
-}
-
-.DetailsButton:hover {
-  background: #6f1532;
+  align-items: center;
 }
 
 .EditButton {
@@ -97,19 +77,40 @@ h3 {
   background: #333;
 }
 
-.EditButton--details {
+.SwitchButton {
+  padding: 6px 14px;
   background: #8c1b3f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  width: auto;
+  margin-top: 0;
 }
 
-.EditButton--details:hover {
+.SwitchButton:hover {
   background: #6f1532;
+}
+
+.current-school-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  color: #2f2f2f;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* FORM */
 
-form {
+.form-wrapper {
   max-width: 700px;
   margin: 40px auto;
+}
+
+form {
+  margin: 0;
   padding: 30px;
   background: white;
   border-radius: 10px;
@@ -125,6 +126,11 @@ label {
   font-weight: 600;
   color: black;
 }
+
+label.label-readonly {
+  color: #777;
+}
+
 
 label:has(input[type='checkbox']) {
   display: flex;
@@ -150,6 +156,13 @@ input:focus {
   outline: none;
   border-color: #8c1b3f;
   box-shadow: 0 0 0 3px rgba(140, 27, 63, 0.15);
+}
+
+input:disabled {
+  background: #f5f5f5;
+  border-color: #ddd;
+  color: #555;
+  cursor: not-allowed;
 }
 
 input[type='checkbox'] {
@@ -200,10 +213,16 @@ input[type='checkbox'] {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #f0efe4;
-  border: 1px solid #8c1b3f;
-  border-radius: 6px;
+  background: white;
+  border: 2px solid #bfbfe8;
+  border-radius: 8px;
   margin-bottom: 8px;
+}
+
+.campus-list--readonly li {
+  background: #f5f5f5;
+  border-color: #ddd;
+  color: #555;
 }
 
 .remove-btn {
@@ -226,50 +245,11 @@ input[type='checkbox'] {
   background: #6f1532;
 }
 
-/* DETAILS */
-
-.details-container {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  margin-top: 20px;
-  border: 1px solid #8c1b3f;
-}
-
-.detail-item {
-  display: flex;
-  padding: 12px 0;
-  border-bottom: 1px solid #8c1b3f;
-}
-
-.detail-item label {
-  font-weight: 600;
-  min-width: 380px;
-  max-width: 50%;
-}
-
-.detail-item span {
-  color: black;
-  padding-top: 0.8rem;
-}
-
-.campus-details-list {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0;
-}
-
-.campus-details-list li {
-  padding: 10px 14px;
-  background: white;
-  border: 1px solid #8c1b3f;
-  border-radius: 6px;
-  margin-bottom: 8px;
-}
-
 .no-data {
-  color: #555;
+  color: #999;
   font-style: italic;
+  font-size: 14px;
+  margin: 4px 0 16px 0;
 }
 
 /* BUTTONS */
@@ -309,6 +289,33 @@ button[type='submit']:hover {
   background: #afd44f;
 }
 
+button[type='submit']:disabled {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.save-status {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+.save-status--success {
+  background: #edf7ed;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.save-status--error {
+  background: #fdecea;
+  color: #b71c1c;
+  border: 1px solid #ef9a9a;
+}
+
 .button-row {
   display: flex;
   gap: 12px;
@@ -335,29 +342,4 @@ button[type='submit']:hover {
 
 .DeleteButton:hover {
   background: #6f1532;
-}
-
-.current-school-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 14px;
-  color: #2f2f2f;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.SwitchButton {
-  padding: 6px 14px;
-  background: #c2e569;
-  color: #2f2f2f;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  width: auto;
-  margin-top: 0;
-}
-
-.SwitchButton:hover {
-  background: #afd44f;
 }
