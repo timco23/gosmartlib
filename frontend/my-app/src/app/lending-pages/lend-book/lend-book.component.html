@@ -162,4 +162,29 @@
       <button type="submit" class="add-button">Boek uitlenen</button>
     </form>
   </div>
+
+  @if (showAlreadyAdded) {
+    <app-pop-up
+            title="Toevoegen mislukt"
+            message="Dit boek is al toegevoegd."
+            [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+            (actionClicked)="closeNotification('added')"
+          />
+  }
+  @if (showBookUnavailable) {
+    <app-pop-up
+            title="Boek niet beschikbaar"
+            message="Dit boek is momenteel niet beschikbaar voor uitlening."
+            [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+            (actionClicked)="closeNotification('unavailable')"
+          />
+  }
+  @if (showMaxLendings) {
+    <app-pop-up
+            title="Limiet bereikt"
+            message="Deze gebruiker kan geen boeken meer lenen."
+            [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+            (actionClicked)="closeNotification('maxLendings')"
+          />
+  }
 </body>

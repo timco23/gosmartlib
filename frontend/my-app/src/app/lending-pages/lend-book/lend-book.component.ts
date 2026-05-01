@@ -8,10 +8,11 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { LendingService } from '../../services/lending.service';
 import { BookSelectorPopupComponent } from '../../book-pages/book-selector-popup-component/book-selector-popup-component';
+import { PopUpComponent } from '../../pop-up/pop-up.component';
 
 @Component({
   selector: 'app-lend-book',
-  imports: [RouterLink, FormsModule, BookSelectorPopupComponent],
+  imports: [RouterLink, FormsModule, BookSelectorPopupComponent, PopUpComponent],
   templateUrl: './lend-book.component.html',
   styleUrl: './lend-book.component.css',
 })
@@ -30,6 +31,10 @@ export class LendBookComponent {
   private _showDurationInput: boolean = false;
   showMultipleBooks: boolean = false;
   public selectedBooks: { book: Book; copy: SchoolItemCopy }[] = [];
+
+  showAlreadyAdded: boolean = false;
+  showBookUnavailable: boolean = false;
+  showMaxLendings: boolean = false;
 
   @ViewChild('barcodeInput') barcodeInputRef!: ElementRef<HTMLInputElement>;
   
@@ -184,7 +189,7 @@ export class LendBookComponent {
         }
 
         if (copy.copy_status !== 'BESCHIKBAAR') {
-          alert(`Exemplaar ${copy.barcode} is niet beschikbaar (status: ${copy.copy_status}).`);
+          this.showBookUnavailable = true;
           this.barcode = '';
           this.currentSchoolCopy = null;
           this.currentBook = null;
@@ -205,7 +210,7 @@ export class LendBookComponent {
                 (s) => s.copy.barcode === this.currentSchoolCopy!.barcode
               );
               if (alreadyAdded) {
-                alert(`Exemplaar ${this.currentSchoolCopy.barcode} is al toegevoegd.`);
+                this.showAlreadyAdded = true;
                 this.barcode = '';
                 this.cdr.detectChanges();
                 setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 0);
@@ -320,7 +325,7 @@ export class LendBookComponent {
 
     const remainingCapacity = this.school.maxLendsStudent - this.currentUser.items_borrowed;
     if (copies.length > remainingCapacity) {
-      alert(`Deze gebruiker kan nog maar ${remainingCapacity} boek(en) lenen.`);
+      this.showMaxLendings = true;
       return;
     }
 
@@ -386,5 +391,15 @@ export class LendBookComponent {
   removeBookFromSelection(index: number): void {
     this.selectedBooks.splice(index, 1);
     this.cdr.detectChanges();
+  }
+  closeNotification(type: 'added' | 'unavailable' | 'maxLendings'): void {
+    if (type === 'added') {
+      this.showAlreadyAdded = false;
+    } else if (type === 'unavailable') {
+      this.showBookUnavailable = false;
+    }
+    else if (type === 'maxLendings') {
+      this.showMaxLendings = false;
+    }
   }
 }
