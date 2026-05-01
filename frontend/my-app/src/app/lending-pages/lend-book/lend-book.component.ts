@@ -213,6 +213,7 @@ export class LendBookComponent {
               }
               if (!alreadyAdded) {
                 this.selectedBooks.push({ book: this.currentBook, copy: this.currentSchoolCopy });
+                this.selectedBooks.sort((a, b) => a.book.title.localeCompare(b.book.title));
               }
               this.currentBook = null;
               this.currentSchoolCopy = null;
