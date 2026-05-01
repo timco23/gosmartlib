@@ -34,13 +34,17 @@ export class BookLendingHistoryComponent {
   ngOnInit(): void {
     const bookId = Number(this.route.snapshot.paramMap.get('bookId'));
 
-    this.currentBook = this.bookApi.getBookById(bookId);
+    this.bookApi.getBookById(bookId).subscribe((book: Book) => {
+      this.currentBook = book;
+    });
     
     this.api.getLendingsByBookId(bookId).subscribe((data: Lending[]) => {
       this.lendings = (data ?? []);
       this.currentPage = 0;
       this.cdr.detectChanges();
     });
+    
+    this.cdr.detectChanges();
   }
 
     nextPage(): void {

@@ -15,7 +15,7 @@
               [queryParams]="{ preselect: 'all' }"
               >Print barcodes</a
             >
-            <a class="history-button" [routerLink]="['/book-lending-history', book.id]">Lending history</a>
+            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Lending history</a>
             <a class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</a>
             <a class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
               {{ isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten' }}
