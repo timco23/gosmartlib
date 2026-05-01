@@ -47,4 +47,8 @@ export class LendingService {
       params: { email },
     });
   }
+
+  getLendingsByBookId(bookId: number): Observable<Lending[]> {
+    return this.http.get<Lending[]>(`${this.apiUrl}/book/${bookId}`);
+  }
 }

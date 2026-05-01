@@ -215,4 +215,27 @@ public class LendingService {
                                 lending.getExtended()))
                         .toList();
         }
+
+        public List<LendingDTO> getLendingsByBookId(Long bookId) {
+                return lendingRepository.findByBookId(bookId).stream()
+                        .map(lending -> new LendingDTO(
+                                lending.getId(),
+                                getBorrowerName(lending),
+                                lending.getBorrower() != null
+                                        ? lending.getBorrower().getId().longValue()
+                                        : null,
+                                lending.getBook().getItem().getTitle(),
+                                lending.getBook().getItem().getAuthor(),
+                                getItemId(lending),
+                                lending.getSchool().getId(),
+                                lending.getLendingDate().toString(),
+                                lending.getReturnDate().toString(),
+                                lending.getDateReturned() != null
+                                        ? lending.getDateReturned().toString()
+                                        : null,
+                                lending.getReturned(),
+                                lending.getBook().getBarcode(),
+                                lending.getExtended()))
+                        .toList();
+        }
 }

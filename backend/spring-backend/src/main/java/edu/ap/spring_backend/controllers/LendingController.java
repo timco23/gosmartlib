@@ -58,4 +58,9 @@ public class LendingController {
     public LendingDTO extendLending(@PathVariable Long id) {
         return lendingService.extendLending(id);
     }
+
+    @GetMapping("/book/{bookId}")
+    public Object getLendingsByBookId(@PathVariable Long bookId) {
+        return lendingService.getLendingsByBookId(bookId);
+    }
 }
