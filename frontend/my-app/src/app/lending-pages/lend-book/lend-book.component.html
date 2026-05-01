@@ -34,7 +34,7 @@
       }
     
     <div class="form-group">
-      <label>Boek</label>
+      <label>boek</label>
       <button type="button" class="choose-book-btn" (click)="openBookPopup()">
         {{ selectedBook ? bookTitle(selectedBook) : 'Kies een boek' }}
       </button>
@@ -43,6 +43,23 @@
         <button type="button" class="clear-book-btn" (click)="clearSelectedBook()">Wissen</button>
       }
     </div>
+
+      <div class="form-group">
+        <label for="book">Boek</label>
+        <input
+          #barcodeInput
+          type="text"
+          id="book"
+          name="book"
+          placeholder="Barcode"
+          [(ngModel)]="barcode"
+          (ngModelChange)="onBarcodeChange($event)"
+          [disabled]="bookSelected"
+          [style.opacity]="bookSelected ? '0.5' : '1'"
+          [required]="!bookSelected"
+        />
+      </div>
+
 
     <app-book-selector-popup-component
       [isOpen]="isBookPopupOpen"
@@ -56,6 +73,28 @@
       (bookSelected)="onBookSelected($event)"
     ></app-book-selector-popup-component>
 
+    @if (currentBook != null) {
+        <div class="book-preview">
+          @let cover = bookApi.getBookCoverSrc(currentBook);
+          @if (cover) {
+            <img
+              class="cover-img"
+              [src]="cover"
+              [alt]="currentBook.title || 'Boek cover'"
+              loading="lazy"
+            />
+          } @else {
+            <div class="cover-placeholder">📖</div>
+          }
+
+          <h3>Boek details</h3>
+          <p><strong>Titel:</strong> {{ currentBook.title }}</p>
+          <p><strong>Auteur:</strong> {{ currentBook.author }}</p>
+          <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>
+          <p><strong>Conditie:</strong> {{ currentSchoolCopy?.condition }}</p>
+        </div>
+      }
+      
     @if (currentCopies.length > 0) {
       <div class="form-group">
         <label>Exemplaar</label>
@@ -89,33 +128,11 @@
         @for (entry of selectedBooks; track entry.copy.barcode; let i = $index) {
           <div class="selected-book-entry">
             <span>{{ bookTitle(entry.book) }} — {{ entry.copy.barcode }}</span>
-            <button type="button" class="clear-book-btn" (click)="removeBookFromSelection(i)">✕</button>
+            <button type="button" class="clear-book-btn-x" (click)="removeBookFromSelection(i)">✕</button>
           </div>
         }
       </div>
     }
-      @if (currentBook != null) {
-        <div class="book-preview">
-          @let cover = bookApi.getBookCoverSrc(currentBook);
-          @if (cover) {
-            <img
-              class="cover-img"
-              [src]="cover"
-              [alt]="currentBook.title || 'Boek cover'"
-              loading="lazy"
-            />
-          } @else {
-            <div class="cover-placeholder">📖</div>
-          }
-
-          <h3>Boek details</h3>
-          <p><strong>Titel:</strong> {{ currentBook.title }}</p>
-          <p><strong>Auteur:</strong> {{ currentBook.author }}</p>
-          <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>
-          <p><strong>Conditie:</strong> {{ currentSchoolCopy?.condition }}</p>
-        </div>
-      }
-
       <div class="form-group">
         <label for="show-duration">
           <input

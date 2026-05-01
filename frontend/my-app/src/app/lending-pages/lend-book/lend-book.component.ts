@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BookService } from '../../services/book-service';
@@ -31,6 +31,8 @@ export class LendBookComponent {
   showMultipleBooks: boolean = false;
   public selectedBooks: { book: Book; copy: SchoolItemCopy }[] = [];
 
+  @ViewChild('barcodeInput') barcodeInputRef!: ElementRef<HTMLInputElement>;
+  
   get showDurationInput(): boolean {
     return this._showDurationInput;
   }
@@ -187,6 +189,20 @@ export class LendBookComponent {
           next: (book) => {
             this.currentBook = book ?? null;
             this.cdr.detectChanges();
+          
+            if (this.showMultipleBooks && this.currentBook && this.currentSchoolCopy) {
+              const alreadyAdded = this.selectedBooks.some(
+                (s) => s.copy.barcode === this.currentSchoolCopy!.barcode
+              );
+              if (!alreadyAdded) {
+                this.selectedBooks.push({ book: this.currentBook, copy: this.currentSchoolCopy });
+              }
+              this.currentBook = null;
+              this.currentSchoolCopy = null;
+              this.barcode = '';
+              this.cdr.detectChanges();
+              setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 0);
+            }
           },
           error: () => {
             this.currentBook = null;

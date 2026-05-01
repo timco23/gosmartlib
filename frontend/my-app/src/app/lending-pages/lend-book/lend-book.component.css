@@ -136,7 +136,7 @@ input:disabled {
 }
 
 /* Delete button */
-.clear-book-btn {
+.clear-book-btn, .clear-book-btn-x {
   background: transparent;
   color: #8c1b3f;
   border: 1px solid #8c1b3f;
@@ -148,10 +148,15 @@ input:disabled {
   width: fit-content;
 }
 
-.clear-book-btn:hover {
+.clear-book-btn:hover, .clear-book-btn-x:hover {
   background: #8c1b3f;
   color: white;
 }
+
+.clear-book-btn-x {
+  margin-left: 16px;
+}
+
 /* add to selection button */
 .add-book-btn {
   background: transparent;
