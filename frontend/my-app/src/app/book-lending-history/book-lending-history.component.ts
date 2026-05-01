@@ -1,12 +1,13 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, NgModule } from '@angular/core';
 import { Book, Lending } from '../../types/types';
 import { LendingService } from '../services/lending.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BookService } from '../services/book-service';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-book-lending-history',
-  imports: [RouterLink],
+  imports: [RouterLink, NgClass],
   templateUrl: './book-lending-history.component.html',
   styleUrl: './book-lending-history.component.css'
 })
@@ -23,12 +24,24 @@ export class BookLendingHistoryComponent {
   currentBook: any | null = null;
 
   get totalPages(): number {
-    return Math.ceil(this.lendings.length / this.pageSize);
+    return Math.ceil(this.sortedLendings.length / this.pageSize);
   }
 
   get visibleLendings(): Lending[] {
     const start = this.currentPage * this.pageSize;
-    return this.lendings.slice(start, start + this.pageSize);
+    return this.sortedLendings.slice(start, start + this.pageSize);
+  }
+
+  get sortedLendings(): Lending[] {
+    const active = this.lendings
+      .filter(l => !l.returned)
+      .sort((a, b) => new Date(a.returnDate).getTime() - new Date(b.returnDate).getTime());
+
+    const returned = this.lendings
+      .filter(l => l.returned)
+      .sort((a, b) => new Date(b.dateReturned!).getTime() - new Date(a.dateReturned!).getTime());
+
+    return [...active, ...returned];
   }
 
   ngOnInit(): void {
