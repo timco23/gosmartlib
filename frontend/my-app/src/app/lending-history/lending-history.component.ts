@@ -10,7 +10,7 @@ import { filter, switchMap } from 'rxjs';
   selector: 'app-lending-history',
   imports: [RouterLink],
   templateUrl: './lending-history.component.html',
-  styleUrl: './lending-history.component.css'
+  styleUrl: './lending-history.component.css',
 })
 export class LendingHistoryComponent {
   api: LendingService = inject(LendingService);
@@ -41,10 +41,10 @@ export class LendingHistoryComponent {
         switchMap((user) => {
           this.currentUser = user;
           return this.api.getLendingsByUserId(this.currentUser!.email);
-        })
+        }),
       )
       .subscribe((data: Lending[]) => {
-        this.lendings = data;
+        this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
         this.currentPage = 0;
         this.cdr.detectChanges();
       });

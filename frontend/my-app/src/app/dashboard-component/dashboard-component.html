@@ -1,0 +1,101 @@
+<section class="dashboard">
+  <div class="header">
+    <h1>Dashboard</h1>
+  </div>
+
+  <div class="legend">
+    <button
+      type="button"
+      class="legend-item all"
+      [class.active]="selectedFilter === 'ALL'"
+      (click)="setFilter('ALL')"
+    >
+      Alles
+    </button>
+    <button
+      type="button"
+      class="legend-item ok"
+      [class.active]="selectedFilter === 'OK'"
+      (click)="setFilter('OK')"
+    >
+      Op tijd
+    </button>
+    <button
+      type="button"
+      class="legend-item due-soon"
+      [class.active]="selectedFilter === 'DUE_SOON'"
+      (click)="setFilter('DUE_SOON')"
+    >
+      Bijna verlopen
+    </button>
+    <button
+      type="button"
+      class="legend-item overdue"
+      [class.active]="selectedFilter === 'OVERDUE'"
+      (click)="setFilter('OVERDUE')"
+    >
+      Te laat
+    </button>
+    <button
+      type="button"
+      class="legend-item returned"
+      [class.active]="selectedFilter === 'RETURNED'"
+      (click)="setFilter('RETURNED')"
+    >
+      Teruggebracht
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="state">Laden...</div>
+  } @else if (error) {
+    <div class="state error">{{ error }}</div>
+  } @else if (!filteredAndSortedLendings.length) {
+    <div class="state">Geen uitleningen voor deze filter.</div>
+  } @else {
+    <div class="grid">
+      @for (lending of filteredAndSortedLendings; track lending.id) {
+        <div class="tile" [ngClass]="tileClass(lending)">
+          <div class="tile-header">
+            <h3 class="title">{{ lending.bookTitle }}</h3>
+            <span class="status">{{ statusLabel(lending) }}</span>
+          </div>
+
+          <div class="meta">Auteur: {{ lending.bookAuthor }}</div>
+          <div class="meta">Uitgeleend aan: {{ lending.borrowerName }}</div>
+          <div class="meta">Uitleendatum: {{ formatDate(lending.lendingDate) }}</div>
+          <div class="meta">Vervaldatum: {{ formatDate(lending.returnDate) }}</div>
+
+          @if (!lending.returned) {
+            <div class="meta strong">Nog: {{ daysLeftLabel(lending) }}</div>
+          } @else {
+            <div class="meta">Teruggebracht op: {{ formatDate(lending.dateReturned) }}</div>
+          }
+
+          @if (lending.extended) {
+            <div class="badge">Verlengd</div>
+          }
+
+          @if (showManageActions()) {
+            <div class="actions">
+              <button
+                class="btn"
+                (click)="extend(lending)"
+                [disabled]="lending.returned || lending.extended"
+              >
+                Verlengen
+              </button>
+              <button
+                class="btn danger"
+                (click)="returnBook(lending)"
+                [disabled]="lending.returned"
+              >
+                Terugbrengen
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>
