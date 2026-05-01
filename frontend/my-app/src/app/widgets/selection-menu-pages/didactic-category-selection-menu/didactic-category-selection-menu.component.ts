@@ -10,8 +10,8 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DidacticCategoryService } from '../../services/didactic-category.service';
-import { DidacticCategory } from '../../../types/types';
+import { DidacticCategory } from '../../../../types/types';
+import { DidacticCategoryService } from '../../../services/didactic-category.service';
 
 @Component({
   selector: 'app-didactic-category-selection-menu',

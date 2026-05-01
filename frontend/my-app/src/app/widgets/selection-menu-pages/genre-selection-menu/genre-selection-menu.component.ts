@@ -9,9 +9,9 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { GenreService } from '../../services/genre.service';
-import { AuthService } from '../../services/auth.service';
-import { Genre, Role } from '../../../types/types';
+import { Role, Genre } from '../../../../types/types';
+import { AuthService } from '../../../services/auth.service';
+import { GenreService } from '../../../services/genre.service';
 
 @Component({
   selector: 'app-genre-selection-menu',

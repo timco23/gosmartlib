@@ -1,8 +1,8 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { Book, CarouselSlot, Genre } from '../../types/types';
+import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
+import { Book, CarouselSlot, Genre } from '../../../types/types';
 import { Router, RouterLink } from '@angular/router';
-import { BookService } from '../services/book-service';
-import { StarDisplayComponent } from '../widgets/star-display/star-display.component';
+import { BookService } from '../../services/book-service';
+import { StarDisplayComponent } from '../star-display/star-display.component';
 
 @Component({
   selector: 'app-book-carousel',
@@ -18,6 +18,7 @@ export class BookCarousel implements OnInit {
   @Input() progressDots: boolean = true;
   @Input() allGenres: Genre[] = [];
   autoScrollInterval: number = 5000;
+  cdr = inject(ChangeDetectorRef)
 
   get scrollable(): boolean {
     return this.books.length >= this.scrollableThreshold;
@@ -42,6 +43,12 @@ export class BookCarousel implements OnInit {
     }
 
     if (n === 2) {
+      if (this.detailedView) {
+        return [
+          { book: this.books[0], index: 0, position: 'center' },
+          { book: this.books[1], index: 1, position: 'center' }
+        ];
+      }
       return [
         { book: this.books[this.wrap(this.scrollIndex)], index: this.scrollIndex, position: 'center' },
         { book: this.books[this.wrap(this.scrollIndex + 1)], index: this.wrap(this.scrollIndex + 1), position: 'right-1' }
@@ -127,6 +134,7 @@ export class BookCarousel implements OnInit {
       this.stopAutoScroll();
       this.autoScrollTimer = setInterval(() => {
         this.scrollIndex = this.wrap(this.scrollIndex + 1);
+        this.cdr.detectChanges();
       }, this.autoScrollInterval);
     }
   }
@@ -135,6 +143,7 @@ export class BookCarousel implements OnInit {
     if (this.autoScrollTimer) {
       clearInterval(this.autoScrollTimer);
       this.autoScrollTimer = undefined;
+      this.cdr.detectChanges();
     }
   }
 

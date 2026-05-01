@@ -1,10 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { DidacticCategory, Genre, Subgenre, Tag } from '../../types/types';
-import { TagService } from '../services/tag.service';
 import { FormsModule } from '@angular/forms';
-import { GenreService } from '../services/genre.service';
-import { SubgenreService } from '../services/subgenre.service';
-import { DidacticCategoryService } from '../services/didactic-category.service';
+import { Tag, Genre, Subgenre, DidacticCategory } from '../../../types/types';
+import { DidacticCategoryService } from '../../services/didactic-category.service';
+import { GenreService } from '../../services/genre.service';
+import { SubgenreService } from '../../services/subgenre.service';
+import { TagService } from '../../services/tag.service';
 
 @Component({
   selector: 'app-tag-management',

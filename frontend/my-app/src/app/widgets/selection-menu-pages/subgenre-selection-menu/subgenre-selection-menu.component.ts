@@ -1,8 +1,8 @@
 import { Component, effect, inject, Input, input, output, SimpleChanges } from '@angular/core';
-import { Genre, Role, Subgenre, Tag } from '../../../types/types';
-import { AuthService } from '../../services/auth.service';
-import { SubgenreService } from '../../services/subgenre.service';
 import { FormsModule } from '@angular/forms';
+import { Role, Subgenre, Genre } from '../../../../types/types';
+import { AuthService } from '../../../services/auth.service';
+import { SubgenreService } from '../../../services/subgenre.service';
 
 @Component({
   selector: 'app-subgenre-selection-menu',

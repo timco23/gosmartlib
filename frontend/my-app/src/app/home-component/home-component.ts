@@ -12,11 +12,12 @@ import { environment } from '../../environments/environment';
 import { GenreService } from '../services/genre.service';
 import { SubgenreService } from '../services/subgenre.service';
 import { StarDisplayComponent } from "../widgets/star-display/star-display.component";
+import { BookCarousel } from '../widgets/book-carousel/book-carousel';
 
 @Component({
   selector: 'app-home-component',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink, StarDisplayComponent],
+  imports: [CommonModule, RouterModule, RouterLink, StarDisplayComponent, BookCarousel],
   templateUrl: './home-component.html',
   styleUrl: './home-component.css',
 })
@@ -97,6 +98,7 @@ export class HomeComponent implements OnInit {
       error: () => {
         this.error = 'Kon uitgelichte boeken niet laden.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -139,12 +141,14 @@ export class HomeComponent implements OnInit {
           error: () => {
             this.error = 'Kon uitgelichte collecties niet laden.';
             this.isLoading = false;
+            this.cdr.detectChanges();
           }
         })
       },
       error: () => {
         this.error = 'Kon uitgelichte globale collecties niet laden.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     })
   }

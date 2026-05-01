@@ -34,7 +34,7 @@ main {
 .carousel-outer {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
   margin: 0 auto;
   position: relative;
   width: 100%;
@@ -59,7 +59,7 @@ main {
 }
 
 .carousel-arrow:hover {
-  background: #c2e569;
+  background: #f8caca;
   color: #8c1b3f;
   border-color: #8c1b3f;
 }
@@ -79,7 +79,6 @@ main {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
 }
 
 /* Default View (Reading List/Collection) */
@@ -91,7 +90,7 @@ main:not(.detailed) .carousel-dots {
 main:not(.detailed) .carousel-outer {
   order: 2;
   height: 32rem;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 main:not(.detailed) .carousel-arrow {
@@ -180,7 +179,7 @@ main.detailed .carousel-outer {
   order: 1;
   height: 24rem;
   max-width: 1400px;
-  gap: 2rem;
+  gap: 4rem;
 }
 
 main.detailed .carousel-dots {
@@ -191,6 +190,7 @@ main.detailed .carousel-dots {
 
 main.detailed .carousel-viewport {
   gap: 0.75rem;
+  padding: 1rem 0;
 }
 
 main.detailed .carousel-card.is-side {
@@ -212,6 +212,17 @@ main.detailed .carousel-card.is-center {
   cursor: default;
 }
 
+/* Fix for single/few books in detailed view */
+main.detailed:not(.is-scrollable) .carousel-viewport {
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+main.detailed:not(.is-scrollable) .carousel-card.is-center {
+  flex: 1;
+  max-width: 44rem;
+}
+
 main.detailed .center-top {
   display: flex;
   flex: 1;
@@ -229,7 +240,8 @@ main.detailed .card-cover {
 
 main.detailed .is-center .card-cover {
   flex-shrink: 0;
-  width: 12rem;
+  max-width: 12rem;
+  width: fit-content;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -242,6 +254,12 @@ main.detailed .cover-img {
   object-fit: contain;
   object-position: center;
   display: block;
+}
+
+main.detailed .is-center .cover-img {
+  width: auto;
+  max-width: 100%;
+  object-position: center;
 }
 
 main.detailed .card-description-col {

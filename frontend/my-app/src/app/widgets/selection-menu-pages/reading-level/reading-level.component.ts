@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, input, OnInit, Output, output, SimpleChanges } from '@angular/core';
-import { ReadingLevelService } from '../../services/reading-level.service';
-import { Readinglevel } from '../../../types/types';
+import { Readinglevel } from '../../../../types/types';
+import { ReadingLevelService } from '../../../services/reading-level.service';
 
 @Component({
   selector: 'app-reading-level',

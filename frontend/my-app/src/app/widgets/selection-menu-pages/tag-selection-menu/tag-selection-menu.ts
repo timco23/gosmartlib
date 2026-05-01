@@ -1,8 +1,8 @@
 import { Component, EventEmitter, inject, Input, input, Output, output, SimpleChanges } from '@angular/core';
-import { Role, Tag } from '../../../types/types';
-import { TagService } from '../../services/tag.service';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { Role, Tag } from '../../../../types/types';
+import { AuthService } from '../../../services/auth.service';
+import { TagService } from '../../../services/tag.service';
 
 /**
  * Displays all available tags and lets the user toggle which tags

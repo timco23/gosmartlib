@@ -1,4 +1,4 @@
-<main [class.detailed]="detailedView">
+<main [class.detailed]="detailedView" [class.is-scrollable]="scrollable">
       @if (books!.length > 0) {
         <div class="carousel-outer" (mouseenter)="stopAutoScroll()" (mouseleave)="startAutoScroll()">
           @if (scrollable) {
@@ -9,8 +9,8 @@
             @for (slot of visibleSlots; track slot.book.id) {
               <div
                 class="carousel-card"
-                [class.is-center]="slot.position === 'center' && scrollable"
-                [class.is-side]="slot.position !== 'center' && scrollable"
+                [class.is-center]="slot.position === 'center'"
+                [class.is-side]="slot.position !== 'center'"
                 [class.detailed]="detailedView"
                 (click)="slot.position !== 'center' && scrollable ? goToSlide(slot.index) : null"
               >
@@ -89,7 +89,7 @@
           }
         </div>
 
-        @if (progressDots) {
+        @if (progressDots && scrollable) {
             <div class="carousel-dots">
           @for (item of books!; track $index) {
             <button
