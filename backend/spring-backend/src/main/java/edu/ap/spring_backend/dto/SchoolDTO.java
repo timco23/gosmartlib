@@ -1,0 +1,53 @@
+package edu.ap.spring_backend.dto;
+
+import edu.ap.spring_backend.jpa.School;
+
+import java.util.List;
+
+public record SchoolDTO(
+        Long id,
+        String name,
+        String address,
+        int lendingPeriodDays,
+        int extendPeriodDays,
+        int maxExtends,
+        int maxLendsStudent,
+        int maxLendTeacher,
+        int lenderNotificationPeriod,
+        int lenderLateNotificationPeriod,
+        int librarianNotificationNotReturned,
+        boolean librarianRequestNotification,
+        boolean externalVisibility,
+        boolean externalLending,
+        boolean reviews,
+        boolean reviewModeration,
+        List<CampusDTO> campuses
+) {
+    public record CampusDTO(Long id, String name) {}
+
+    public static SchoolDTO from(School school) {
+        List<CampusDTO> campusDTOs = school.getCampuses().stream()
+                .map(c -> new CampusDTO(c.getId(), c.getName()))
+                .toList();
+
+        return new SchoolDTO(
+                school.getId(),
+                school.getName(),
+                school.getAddress(),
+                school.getLendingPeriodDays(),
+                school.getExtendPeriodDays(),
+                school.getMaxExtends(),
+                school.getMaxLendsStudent(),
+                school.getMaxLendTeacher(),
+                school.getLenderNotificationPeriod(),
+                school.getLenderLateNotificationPeriod(),
+                school.getLibrarianNotificationNotReturned(),
+                school.getLibrarianRequestNotification(),
+                school.isExternalVisibility(),
+                school.isExternalLending(),
+                school.isReviews(),
+                school.isReviewModeration(),
+                campusDTOs
+        );
+    }
+}

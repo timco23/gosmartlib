@@ -64,6 +64,7 @@ export const routes: Routes = [
   { path: 'collections/add', component: CreateCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'collections/global', component: GlobalCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'collections/:id/edit', component: UpdateCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'school-settings', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
 
   // ADMIN
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
