@@ -27,6 +27,7 @@ import { ForbiddenComponent } from './forbidden-component/forbidden-component';
 import { ADMIN_ONLY, ALL_USERS, LIBRARIAN_PLUS, TEACHER_PLUS } from './guards/roles';
 import { LendingHistoryComponent } from './lending-history/lending-history.component';
 import { DashboardComponent } from './dashboard-component/dashboard-component';
+import { BookLendingHistoryComponent } from './book-lending-history/book-lending-history.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -67,6 +68,7 @@ export const routes: Routes = [
   { path: 'collections/global', component: GlobalCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'collections/:id/edit', component: UpdateCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'school-settings', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'book-lending-history', component: BookLendingHistoryComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
 
   // ADMIN
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
