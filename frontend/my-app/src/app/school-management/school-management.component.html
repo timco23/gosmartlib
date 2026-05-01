@@ -13,7 +13,7 @@
             <span class="current-school-badge">Huidige school</span>
           }
           @if (school.id === undefined || currentUser?.schoolId !== school.id) {
-            <button class="SwitchButton" (click)="initiateSwitchSchool(school)">Activeer</button>
+            <button class="SwitchButton" (click)="switchSchool(school)">Activeer</button>
           }
           <button class="EditButton" (click)="selectSchool(school)">Bewerken</button>
         </div>
@@ -25,7 +25,7 @@
   }
 
   @if (addingSchool || editingSchool) {
-  <div>
+  <div class="form-wrapper">
     <h2>{{ editingSchool ? 'School bewerken' : 'School toevoegen' }}</h2>
     <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
 
@@ -101,9 +101,15 @@
       </label>
 
       <div class="button-row">
-        <button type="button" class="cancel-button" (click)="cancelForm()">Annuleren</button>
-        <button type="submit">Opslaan</button>
+        <button type="button" class="cancel-button" (click)="cancelForm()">Terug</button>
+        <button type="submit" [disabled]="!hasUnsavedChanges">Opslaan</button>
       </div>
+      @if (saveStatus === 'success') {
+        <p class="save-status save-status--success">Wijzigingen opgeslagen.</p>
+      }
+      @if (saveStatus === 'error') {
+        <p class="save-status save-status--error">Opslaan mislukt. Probeer opnieuw.</p>
+      }
       @if (editingSchool && !isLibrarian) {
       <button type="button" class="DeleteButton" style="width: 100%; margin-top: 8px" (click)="confirmDelete()">
         School verwijderen
@@ -119,6 +125,14 @@
       { label: 'Annuleren', type: 'cancel', value: 'cancel' },
       { label: 'Wisselen', type: 'primary', value: 'confirm' }
     ]" (actionClicked)="processSchoolSwitchDialog($event)" />
+  }
+
+  @if (showBackConfirm) {
+  <app-pop-up message="Je hebt niet-opgeslagen wijzigingen. Weet je zeker dat je wil teruggaan?"
+    [actions]="[
+      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+      { label: 'Teruggaan', type: 'danger', value: 'confirm' }
+    ]" (actionClicked)="onBackConfirmAction($event)" />
   }
 
   @if (showDeleteConfirm) {

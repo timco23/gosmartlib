@@ -28,6 +28,10 @@ export class SchoolManagementComponent {
   showSwitchSchoolConfirm: boolean = false;
   schoolToSwitch: School | null = null;
   isLibrarian: boolean = false;
+  campusesModified: boolean = false;
+  saveStatus: 'success' | 'error' | null = null;
+  showBackConfirm: boolean = false;
+  private saveStatusTimer: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -86,11 +90,13 @@ export class SchoolManagementComponent {
       this.campuses = school.campuses ? [...school.campuses] : [];
       this.schoolForm.get('name')?.disable();
       this.schoolForm.get('address')?.disable();
+      this.schoolForm.markAsPristine();
+      this.campusesModified = false;
       this.cdr.detectChanges();
     });
   }
 
-  initiateSwitchSchool(school: School) {
+  switchSchool(school: School) {
     this.schoolToSwitch = school;
     this.showSwitchSchoolConfirm = true;
   }
@@ -124,9 +130,24 @@ export class SchoolManagementComponent {
     this.editingSchool = school;
     this.schoolForm.patchValue(school);
     this.campuses = school.campuses ? [...school.campuses] : [];
+    this.schoolForm.markAsPristine();
+    this.campusesModified = false;
   }
 
   cancelForm() {
+    if (this.hasUnsavedChanges) {
+      this.showBackConfirm = true;
+      return;
+    }
+    this.navigateBack();
+  }
+
+  onBackConfirmAction(value: string) {
+    this.showBackConfirm = false;
+    if (value === 'confirm') this.navigateBack();
+  }
+
+  private navigateBack() {
     if (this.isLibrarian) {
       this.location.back();
       return;
@@ -136,6 +157,7 @@ export class SchoolManagementComponent {
     this.schoolForm.reset();
     this.campuses = [];
     this.campusInput = '';
+    this.campusesModified = false;
   }
 
   onDeleteDialogAction(value: string) {
@@ -147,11 +169,17 @@ export class SchoolManagementComponent {
     if (this.campusInput.trim()) {
       this.campuses.push({ name: this.campusInput.trim() });
       this.campusInput = '';
+      this.campusesModified = true;
     }
   }
 
   removeCampus(index: number) {
     this.campuses.splice(index, 1);
+    this.campusesModified = true;
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return this.schoolForm.dirty || this.campusesModified;
   }
 
   onSubmit() {
@@ -162,27 +190,60 @@ export class SchoolManagementComponent {
     if (this.isLibrarian && this.editingSchool) {
       const updated: School = { ...this.editingSchool, ...schoolData };
       this.schoolService.updateCurrentSchoolSettings(updated).subscribe({
-        next: () => this.loadCurrentSchoolForLibrarian(),
-        error: (err) => console.error('error:', err)
+        next: () => {
+          this.showSaveStatus('success');
+          this.loadCurrentSchoolForLibrarian();
+        },
+        error: (err) => {
+          console.error('error:', err);
+          this.showSaveStatus('error');
+        }
       });
     } else if (this.editingSchool) {
       const updated: School = { ...this.editingSchool, ...schoolData };
       this.schoolService.update(updated).subscribe({
-        next: () => {
-          this.cancelForm();
+        next: (saved) => {
+          this.editingSchool = saved;
+          this.schoolForm.patchValue(saved);
+          this.campuses = saved.campuses ? [...saved.campuses] : [];
+          this.schoolForm.markAsPristine();
+          this.campusesModified = false;
           this.loadSchools();
+          this.showSaveStatus('success');
         },
-        error: (err) => console.error('error:', err)
+        error: (err) => {
+          console.error('error:', err);
+          this.showSaveStatus('error');
+        }
       });
     } else {
       this.schoolService.create(schoolData).subscribe({
-        next: () => {
-          this.cancelForm();
+        next: (saved) => {
+          this.addingSchool = false;
+          this.editingSchool = saved;
+          this.schoolForm.patchValue(saved);
+          this.campuses = saved.campuses ? [...saved.campuses] : [];
+          this.schoolForm.markAsPristine();
+          this.campusesModified = false;
           this.loadSchools();
+          this.showSaveStatus('success');
         },
-        error: (err) => console.error('error:', err)
+        error: (err) => {
+          console.error('error:', err);
+          this.showSaveStatus('error');
+        }
       });
     }
+  }
+
+  private showSaveStatus(status: 'success' | 'error') {
+    if (this.saveStatusTimer) clearTimeout(this.saveStatusTimer);
+    this.saveStatus = status;
+    this.cdr.detectChanges();
+    this.saveStatusTimer = setTimeout(() => {
+      this.saveStatus = null;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 
   deleteSchool(school: School) {
