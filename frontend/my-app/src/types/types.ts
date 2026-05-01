@@ -371,3 +371,7 @@ export interface ConfirmDialogAction {
   type?: 'primary' | 'danger' | 'cancel';
   value: string;
 }
+
+export type LendingStatus = 'OVERDUE' | 'DUE_SOON' | 'OK' | 'RETURNED';
+
+export type LendingFilter = 'ALL' | LendingStatus;

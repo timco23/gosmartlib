@@ -9,64 +9,95 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class ProfanityFilterService {
 
-    private final String moderationApiUrl;
     private final String moderationApiKey;
-    private final double toxicThreshold;
     private final ObjectMapper mapper = new ObjectMapper();
     private final HttpClient http = HttpClient.newHttpClient();
+    private static final int MIN_INPUT_LENGTH = 3;
+    private final Pattern blocklistPattern;
 
     public ProfanityFilterService(
-            @Value("${moderation.api.url:https://api-inference.huggingface.co/models/unitary/multilingual-toxic-xlm-roberta}") String moderationApiUrl,
             @Value("${moderation.api.key:}") String moderationApiKey,
-            @Value("${moderation.toxic-threshold:0.85}") double toxicThreshold
+            @Value("${moderation.blocklist:}") String blocklist
     ) {
-        this.moderationApiUrl = moderationApiUrl;
         this.moderationApiKey = moderationApiKey;
-        this.toxicThreshold = toxicThreshold;
+        this.blocklistPattern = buildBlocklistPattern(blocklist);
     }
 
     public boolean containsProfanity(String input) {
-        if (input == null || input.isBlank()) return false;
+        if (input == null) return false;
+        String text = input.trim();
+        if (text.isEmpty()) return false;
 
-        if (moderationApiKey == null || moderationApiKey.isBlank()) return true;
+        if (isBlockedByLocalList(text)) return true;
+        if (text.length() < MIN_INPUT_LENGTH) return false;
+        if (moderationApiKey == null || moderationApiKey.isBlank()) return false;
 
         try {
-            String payload = """
-                {"inputs": %s, "options": {"wait_for_model": true}}
-                """.formatted(mapper.writeValueAsString(input));
+            String payload = mapper.writeValueAsString(
+                java.util.Map.of("input", text, "model", "mistral-moderation-latest")
+            );
 
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(moderationApiUrl))
+                    .uri(URI.create("https://api.mistral.ai/v1/moderations"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + moderationApiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(payload))
                     .build();
 
             HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
-            if (res.statusCode() < 200 || res.statusCode() >= 300) return true;
+            if (res.statusCode() < 200 || res.statusCode() >= 300) return false;
 
             JsonNode root = mapper.readTree(res.body());
-            if (root.isObject() && (root.has("error") || root.has("message"))) return true;
-
-            if (!root.isArray() || root.isEmpty()) return false;
-
-            JsonNode arr = root.get(0).isArray() ? root.get(0) : root;
-            for (JsonNode n : arr) {
-                String label = n.path("label").asText("").toLowerCase(Locale.ROOT);
-                double score = n.path("score").asDouble(0.0);
-                if ((label.contains("toxic") || label.contains("insult") || label.contains("obscene"))
-                        && score >= toxicThreshold) {
-                    return true;
+            JsonNode results = root.path("results");
+            if (results.isArray() && !results.isEmpty()) {
+                JsonNode scores = results.get(0).path("category_scores");
+                double threshold = 0.5;
+                for (String cat : new String[]{"sexual", "hate_and_discrimination", "violent_crimes", "harassment", "selfharm"}) {
+                    if (scores.path(cat).asDouble(0.0) >= threshold) return true;
                 }
             }
             return false;
         } catch (Exception e) {
-            return true; 
+            return false;
         }
+    }
+
+    private boolean isBlockedByLocalList(String text) {
+        if (blocklistPattern == null) return false;
+        if (blocklistPattern.matcher(text).find()) return true;
+        String normalized = normalizeText(text);
+        return blocklistPattern.matcher(normalized).find();
+    }
+
+    private static String normalizeText(String text) {
+        String noSpacedLetters = text.replaceAll("(?<=\\b\\S)\\s(?=\\S\\b)", "");
+        String stripped = noSpacedLetters.replaceAll("[^\\p{L}\\p{N}\\s]", "");
+        String deduped = stripped.replaceAll("(\\p{L})\\1+", "$1");
+        return deduped.toLowerCase(Locale.ROOT);
+    }
+
+    private static Pattern buildBlocklistPattern(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+
+        var words = Arrays.stream(raw.split("[,;\\s]+"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Pattern::quote)
+                .collect(Collectors.toList());
+
+        if (words.isEmpty()) return null;
+
+        String regex = "(?:^|(?<=\\s)|(?<=[^\\p{L}\\p{N}]))("
+                + String.join("|", words)
+                + ")(?:$|(?=\\s)|(?=[^\\p{L}\\p{N}]))";
+        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 }

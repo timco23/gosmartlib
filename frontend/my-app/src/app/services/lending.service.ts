@@ -5,12 +5,12 @@ import { Observable } from 'rxjs';
 import { Lending, LendingRequest } from '../../types/types';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LendingService {
   private apiUrl = `${environment.apiUrl}/lendings`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getLendings(): Observable<Lending[]> {
     return this.http.get<Lending[]>(this.apiUrl);
@@ -20,8 +20,8 @@ export class LendingService {
     return this.http.post(this.apiUrl, request);
   }
 
-  updateLending(id: number, lending: any) {
-    return this.http.put(`${this.apiUrl}/${id}`, lending);
+  updateLending(id: number, lending: Lending): Observable<Lending> {
+    return this.http.put<Lending>(`${this.apiUrl}/${id}`, lending);
   }
 
   deleteLending(id: number) {
@@ -38,7 +38,13 @@ export class LendingService {
 
   getLendingsByUserId(email: string): Observable<Lending[]> {
     return this.http.get<Lending[]>(`${this.apiUrl}/user`, {
-      params: { email }
+      params: { email },
+    });
+  }
+
+  getLendingsByUser(email: string): Observable<Lending[]> {
+    return this.http.get<Lending[]>(`${this.apiUrl}/user`, {
+      params: { email },
     });
   }
 }

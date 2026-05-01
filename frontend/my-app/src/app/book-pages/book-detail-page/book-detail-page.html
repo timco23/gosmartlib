@@ -187,7 +187,10 @@
   }
   @if (showDeleteConfirmation()) {
     <div class="overlay">
-      <app-pop-up [message]="'Dit boek staat momenteel in een of meerdere leeslijsten. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle leeslijsten verdwijnen.'"
+      <app-pop-up
+        [message]="
+          'Dit boek staat momenteel in een of meerdere leeslijsten. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle leeslijsten verdwijnen.'
+        "
         [actions]="[
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
           { label: 'Verwijderen', type: 'danger', value: 'confirm' },

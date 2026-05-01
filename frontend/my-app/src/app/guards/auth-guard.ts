@@ -12,8 +12,9 @@ const DEV_ROLE_BY_TOKEN: Record<string, AppRole> = {
 
 function normalizeRole(value: unknown): AppRole | null {
   if (typeof value !== 'string') return null;
-  const upper = value.toUpperCase();
-  return isAppRole(upper) ? upper : null;
+  const upper = value.toUpperCase().trim();
+  const normalized = upper.startsWith('ROLE_') ? upper.substring(5) : upper;
+  return isAppRole(normalized) ? normalized : null;
 }
 
 function decodeBase64Url(input: string): string {
@@ -34,8 +35,31 @@ function getRoleFromToken(token: string): AppRole | null {
   try {
     const parts = token.split('.');
     if (parts.length < 2) return null;
-    const payload = JSON.parse(decodeBase64Url(parts[1])) as { role?: unknown };
-    return normalizeRole(payload.role);
+    const payload = JSON.parse(decodeBase64Url(parts[1])) as {
+      role?: unknown;
+      roles?: unknown;
+      authorities?: unknown;
+    };
+
+    const role = normalizeRole(payload.role);
+    if (role) return role;
+
+    const fromArray = (value: unknown): AppRole | null => {
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          const r = normalizeRole(v);
+          if (r) return r;
+        }
+      }
+      return null;
+    };
+
+    return (
+      fromArray(payload.roles) ||
+      fromArray(payload.authorities) ||
+      normalizeRole(payload.roles) ||
+      normalizeRole(payload.authorities)
+    );
   } catch {
     return null;
   }
