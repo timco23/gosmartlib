@@ -183,6 +183,16 @@ export class LendBookComponent {
           return;
         }
 
+        if (copy.copy_status !== 'BESCHIKBAAR') {
+          alert(`Exemplaar ${copy.barcode} is niet beschikbaar (status: ${copy.copy_status}).`);
+          this.barcode = '';
+          this.currentSchoolCopy = null;
+          this.currentBook = null;
+          this.cdr.detectChanges();
+          setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 0);
+          return;
+        }
+
         this.currentSchoolCopy = copy;
 
         this.bookService.getBookById(copy.itemId).subscribe({
@@ -194,6 +204,13 @@ export class LendBookComponent {
               const alreadyAdded = this.selectedBooks.some(
                 (s) => s.copy.barcode === this.currentSchoolCopy!.barcode
               );
+              if (alreadyAdded) {
+                alert(`Exemplaar ${this.currentSchoolCopy.barcode} is al toegevoegd.`);
+                this.barcode = '';
+                this.cdr.detectChanges();
+                setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 0);
+                return;
+              }
               if (!alreadyAdded) {
                 this.selectedBooks.push({ book: this.currentBook, copy: this.currentSchoolCopy });
               }
