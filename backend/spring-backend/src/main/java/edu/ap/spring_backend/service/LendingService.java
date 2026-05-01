@@ -217,7 +217,7 @@ public class LendingService {
         }
 
         public List<LendingDTO> getLendingsByBookId(Long bookId) {
-                return lendingRepository.findByBookId(bookId).stream()
+                return lendingRepository.findByBook_Item_Id(bookId).stream()
                         .map(lending -> new LendingDTO(
                                 lending.getId(),
                                 getBorrowerName(lending),
