@@ -124,7 +124,7 @@
 
     @if (showMultipleBooks && selectedBooks.length > 0) {
       <div class="selected-books-list">
-        <label>Geselecteerde boeken</label>
+        <label>Geselecteerde boeken ({{ selectedBooks.length }})</label>
         @for (entry of selectedBooks; track entry.copy.barcode; let i = $index) {
           <div class="selected-book-entry">
             <span>{{ bookTitle(entry.book) }} — {{ entry.copy.barcode }}</span>
