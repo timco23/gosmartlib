@@ -58,4 +58,10 @@ export class UserService {
       params: { email, schoolId: schoolId.toString() }
     });
   }
+
+  updateUserRole(email: string, role: string): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.apiUrl}/role`, null, {
+      params: { email, role }
+    });
+  }
 }
