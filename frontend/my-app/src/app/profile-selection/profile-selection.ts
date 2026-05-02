@@ -20,6 +20,8 @@ export class ProfileSelectionComponent implements OnInit {
   loading: boolean = true;
   error: string = '';
   isAdmin: boolean = false;
+  sortColumn: string = 'email';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   constructor(private userService: UserService, private router: Router, private authService: AuthService, private cdr: ChangeDetectorRef) {}
 
@@ -28,7 +30,7 @@ export class ProfileSelectionComponent implements OnInit {
     this.userService.getSchoolUsers().subscribe({
       next: (data) => {
         this.users = data;
-        this.filteredUsers = data;
+        this.applyFilterAndSort();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -42,10 +44,51 @@ export class ProfileSelectionComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.applyFilterAndSort();
+  }
+
+  sortBy(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.applyFilterAndSort();
+  }
+
+  private applyFilterAndSort(): void {
     const filter = this.emailFilter.toLowerCase().trim();
-    this.filteredUsers = filter
+    let result = filter
       ? this.users.filter(u => u.email?.toLowerCase().includes(filter))
-      : this.users;
+      : [...this.users];
+
+    result.sort((a, b) => {
+      let aVal = '';
+      let bVal = '';
+      switch (this.sortColumn) {
+        case 'naam':
+          aVal = `${a.name} ${a.firstName}`.toLowerCase();
+          bVal = `${b.name} ${b.firstName}`.toLowerCase();
+          break;
+        case 'email':
+          aVal = (a.email ?? '').toLowerCase();
+          bVal = (b.email ?? '').toLowerCase();
+          break;
+        case 'klas':
+          aVal = (a.className ?? '').toLowerCase();
+          bVal = (b.className ?? '').toLowerCase();
+          break;
+        case 'rol':
+          aVal = (a.role ?? '').toLowerCase();
+          bVal = (b.role ?? '').toLowerCase();
+          break;
+      }
+      const cmp = aVal.localeCompare(bVal);
+      return this.sortDirection === 'asc' ? cmp : -cmp;
+    });
+
+    this.filteredUsers = result;
   }
 
   openProfile(user: UserProfile): void {

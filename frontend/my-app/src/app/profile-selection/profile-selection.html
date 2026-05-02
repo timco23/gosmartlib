@@ -31,10 +31,10 @@
       <table class="users-table">
         <thead>
           <tr>
-            <th>Naam</th>
-            <th>E-mail</th>
-            <th>Klas</th>
-            <th>Rol</th>
+            <th (click)="sortBy('naam')" class="sortable">Naam <span class="sort-icon">{{ sortColumn === 'naam' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+            <th (click)="sortBy('email')" class="sortable">E-mail <span class="sort-icon">{{ sortColumn === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+            <th (click)="sortBy('klas')" class="sortable">Klas <span class="sort-icon">{{ sortColumn === 'klas' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+            <th (click)="sortBy('rol')" class="sortable">Rol <span class="sort-icon">{{ sortColumn === 'rol' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +42,7 @@
             <tr (click)="openProfile(user)" class="user-row">
               <td>{{ user.firstName }} {{ user.name }}</td>
               <td>{{ user.email }}</td>
-              <td>{{ user.className ?? '—' }}</td>
+              <td>{{ user.className ?? '-' }}</td>
               <td>
                 <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
                   {{ user.role }}
