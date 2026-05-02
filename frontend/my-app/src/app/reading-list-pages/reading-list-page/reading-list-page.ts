@@ -8,10 +8,11 @@ import { ShareListPopup } from '../share-list-popup/share-list-popup';
 import { environment } from '../../../environments/environment';
 import { BookService } from '../../services/book-service';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
+import { BookCarousel } from '../../widgets/book-carousel/book-carousel';
 
 @Component({
   selector: 'app-reading-list-page',
-  imports: [ShareListPopup, PopUpComponent],
+  imports: [ShareListPopup, PopUpComponent, BookCarousel],
   templateUrl: './reading-list-page.html',
   styleUrl: './reading-list-page.css',
 })

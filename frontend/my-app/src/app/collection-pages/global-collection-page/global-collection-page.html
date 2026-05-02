@@ -43,32 +43,7 @@
                     </div>
                 </div>
 
-                <div class="collection-books-carousel">
-                    @if(collection.items.length > 5) {
-                    <button class="carousel-arrow" (click)="prevBooks(collection)">
-                        &lt; </button>
-                    }
-
-                    <div class="books-grid">
-                        @for(book of getVisibleBooks(collection); track book.id) {
-                        <div class="book-card" (click)="goToBookDetails(book.id)">
-                            <div class="book-cover">
-                                @if(book.cover) {
-                                <img [src]="coverSrc(book)" [alt]="book.title || 'Boek cover'"
-                                    loading="lazy">
-                                } @else {
-                                <div class="cover-placeholder">📖</div>
-                                }
-                            </div>
-                            <p class="book-title">{{book.title}}</p>
-                        </div>
-                        }
-                    </div>
-
-                    @if(collection.items.length > 5) {
-                    <button class="carousel-arrow" (click)="nextBooks(collection)">&gt; </button>
-                    }
-                </div>
+                <app-book-carousel [books]="collection.items" [detailedView]="false" [progressDots]="false" [scrollableThreshold]="6"></app-book-carousel>
             </li>
             }
         </ul>

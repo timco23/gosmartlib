@@ -7,10 +7,11 @@ import { Router } from '@angular/router';
 import { SchoolService } from '../../services/school.service';
 import { BookService } from '../../services/book-service';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
+import { BookCarousel } from '../../widgets/book-carousel/book-carousel';
 
 @Component({
   selector: 'app-collection-list-page',
-  imports: [PopUpComponent],
+  imports: [PopUpComponent, BookCarousel],
   templateUrl: './collection-list-page.html',
   styleUrl: './collection-list-page.css',
 })

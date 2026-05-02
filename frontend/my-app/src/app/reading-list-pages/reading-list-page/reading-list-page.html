@@ -78,34 +78,7 @@
               </div>
             </div>
 
-            <div class="list-books-carousel">
-              @if (list.items.length > 5) {
-                <button class="carousel-arrow" (click)="prevBooks(list)">&lt;</button>
-              }
-
-              <div class="books-grid">
-                @for (book of getVisibleBooks(list); track book.id) {
-                  <div class="book-card" (click)="goToBookDetails(book.id)">
-                    <div class="book-cover">
-                      @if (book.id) {
-                        <img
-                          [src]="coverSrc(book)"
-                          [alt]="book.title || 'Boek cover'"
-                          loading="lazy"
-                        />
-                      } @else {
-                        <div class="cover-placeholder">📖</div>
-                      }
-                    </div>
-                    <p class="book-title">{{ book.title }}</p>
-                  </div>
-                }
-              </div>
-
-              @if (list.items.length > 5) {
-                <button class="carousel-arrow" (click)="nextBooks(list)">&gt;</button>
-              }
-            </div>
+            <app-book-carousel [books]="list.items" [detailedView]="false" [progressDots]="false" [scrollableThreshold]="6"></app-book-carousel>
           </li>
         }
       </ul>

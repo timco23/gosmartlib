@@ -6,10 +6,11 @@ import { CollectionService } from '../../services/collection-service';
 import { SchoolService } from '../../services/school.service';
 import { UserService } from '../../services/user.service';
 import { BookService } from '../../services/book-service';
+import { BookCarousel } from '../../widgets/book-carousel/book-carousel';
 
 @Component({
   selector: 'app-global-collection-page',
-  imports: [],
+  imports: [BookCarousel],
   templateUrl: './global-collection-page.html',
   styleUrl: './global-collection-page.css',
 })

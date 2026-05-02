@@ -1,4 +1,4 @@
-<main [class.detailed]="detailedView" [class.is-scrollable]="scrollable">
+<main [class.detailed]="detailedView" [class.is-scrollable]="scrollable" [class.has-3-slots]="visibleSlots.length === 3">
       @if (books!.length > 0) {
         <div class="carousel-outer" (mouseenter)="stopAutoScroll()" (mouseleave)="startAutoScroll()">
           @if (scrollable) {
@@ -12,14 +12,14 @@
                 [class.is-center]="slot.position === 'center'"
                 [class.is-side]="slot.position !== 'center'"
                 [class.detailed]="detailedView"
-                (click)="slot.position !== 'center' && scrollable ? goToSlide(slot.index) : null"
+                (click)="detailedView && slot.position !== 'center' && scrollable ? goToSlide(slot.index) : null"
               >
               @if (!detailedView) {
                 <div
                   class="card-content"
-                  (click)="slot.position === 'center'? goToBookDetails(slot.book.id) : null"
+                  (click)="goToBookDetails(slot.book.id)"
                 >
-                  <div class="card-cover">
+                  <div class="book-cover">
                     @if (slot.book.id) {
                       <img
                         [src]="coverSrc(slot.book)"
@@ -29,10 +29,7 @@
                       />
                     } 
                   </div>
-                  <div class="card-footer">
-                    <p class="book-title">{{ slot.book.title }}</p>
-                    <p class="book-author">{{ slot.book.author }}</p>
-                  </div>
+                  <p class="book-title">{{ slot.book.title }}</p>
                 </div>
               }
               @else {
@@ -42,6 +39,7 @@
                     @if (slot.book.cover) {
                       <img [src]="coverSrc(slot.book)"
                            [alt]="slot.book.title || 'Boek cover'"
+                           class="cover-img"
                            loading="lazy" />
                     }
                   </div>
@@ -71,6 +69,7 @@
                       @if (slot.book.cover) {
                         <img [src]="coverSrc(slot.book)"
                           [alt]="slot.book.title || 'Boek cover'"
+                          class="cover-img"
                           loading="lazy" />
                       }
                     </div>

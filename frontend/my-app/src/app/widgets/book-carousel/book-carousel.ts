@@ -38,6 +38,16 @@ export class BookCarousel implements OnInit {
 
     const n = this.books.length;
 
+    if (!this.detailedView) {
+      const visible: CarouselSlot[] = [];
+      const count = Math.min(n, 5);
+      for (let i = 0; i < count; i++) {
+        const index = this.wrap(this.scrollIndex + i);
+        visible.push({ book: this.books[index], index, position: 'center' });
+      }
+      return visible;
+    }
+
     if (n === 1) {
       return [{ book: this.books[0], index: 0, position: 'center' }];
     }
