@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ReadingListService } from '../../services/readingList-service';
-import { ReadingList, CarouselSlot, Book } from '../../../types/types';
+import { ReadingList, Book } from '../../../types/types';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BookService } from '../../services/book-service';
@@ -18,6 +18,9 @@ export class ReadingListDetailPage implements OnInit {
   loadingError: boolean = false;
   readingList: ReadingList | null = null;
   scrollIndex: number = 0;
+  isAnimating: boolean = true;
+  isMoving: boolean = false;
+  extendedItems: Book[] = [];
 
   readingListService = inject(ReadingListService);
   route = inject(ActivatedRoute);
@@ -33,6 +36,7 @@ export class ReadingListDetailPage implements OnInit {
       this.readingListService.getReadingListById(parseInt(id)).subscribe({
         next: (list) => {
           this.readingList = list;
+          this.prepareExtendedItems();
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -41,78 +45,134 @@ export class ReadingListDetailPage implements OnInit {
     })
   }
 
-  get visibleSlots(): CarouselSlot[] {
-    if (!this.readingList || !this.readingList.items || this.readingList.items.length === 0) return [];
+  private prepareExtendedItems() {
+    if (!this.readingList || this.readingList.items.length === 0) {
+      this.extendedItems = [];
+      return;
+    }
+    const items = this.readingList.items;
+    if (items.length < 6) {
+      this.extendedItems = items;
+      return;
+    }
+    // Add 5 clones at start and end for smooth looping
+    this.extendedItems = [...items.slice(-5), ...items, ...items.slice(0, 5)];
+  }
+
+  get normalizedScrollIndex(): number {
+    if (!this.readingList) return 0;
+    const n = this.readingList.items.length;
+    return (this.scrollIndex % n + n) % n;
+  }
+
+  get trackTransform(): string {
+    const items = this.readingList?.items || [];
+    const n = items.length;
+    if (n < 6) return 'none';
     
-    const books = this.readingList.items;
-    const n = books.length;
+    // Base index is 5 (due to clones)
+    const displayIndex = this.scrollIndex + 5;
+    
+    // Center the card: Since track has left: 50%, 
+    // we translate back by the distance from track start to card center.
+    // Fixed gap of 32px to match CSS.
+    return `translateX(calc(-1 * (${displayIndex} * (210px + 32px) + 105px)))`;
+  }
 
-    if (n === 1) {
-      return [{ book: books[0], index: 0, position: 'center' }];
-    }
-
-    if (n === 2) {
-      return [
-        { book: books[this.wrap(this.scrollIndex)], index: this.scrollIndex, position: 'center' },
-        { book: books[this.wrap(this.scrollIndex + 1)], index: this.wrap(this.scrollIndex + 1), position: 'right-1' }
-      ];
-    }
-
-    if (n === 3 || n === 4) {
-      return [
-        { book: books[this.wrap(this.scrollIndex - 1)], index: this.wrap(this.scrollIndex - 1), position: 'left-1' },
-        { book: books[this.scrollIndex], index: this.scrollIndex, position: 'center' },
-        { book: books[this.wrap(this.scrollIndex + 1)], index: this.wrap(this.scrollIndex + 1), position: 'right-1' }
-      ];
-    }
-
-    const slots: CarouselSlot[] = [];
-    const usedIndices = new Set<number>([this.scrollIndex]);
-
-    // Add 2 cards on the left
-    const leftCards: CarouselSlot[] = [];
-    for (let step = 1; step <= 2; step++) {
-      const index = this.wrap(this.scrollIndex - step);
-      if (usedIndices.has(index)) break;
-      usedIndices.add(index);
-      const position = step === 1 ? 'left-1' : 'left-2';
-      leftCards.unshift({ book: books[index], index: index, position });
-    }
-
-    // Add 2 cards on the right
-    const rightCards: CarouselSlot[] = [];
-    for (let step = 1; step <= 2; step++) {
-      const index = this.wrap(this.scrollIndex + step);
-      if (usedIndices.has(index)) break;
-      usedIndices.add(index);
-      const position = step === 1 ? 'right-1' : 'right-2';
-      rightCards.push({ book: books[index], index: index, position });
-    }
-
-    const centerCard: CarouselSlot = {
-      book: books[this.scrollIndex],
-      index: this.scrollIndex,
-      position: 'center',
-    };
-    return [...leftCards, centerCard, ...rightCards];
+  isCardActive(extendedIndex: number): boolean {
+    if (!this.readingList || this.readingList.items.length < 6) return false;
+    const n = this.readingList.items.length;
+    const normalizedIndex = extendedIndex - 5;
+    
+    // Check if this card matches the scrollIndex OR its wrapped equivalents
+    // This ensures clones are also highlighted when their original is at the focus
+    return normalizedIndex === this.scrollIndex || 
+           normalizedIndex === this.scrollIndex - n || 
+           normalizedIndex === this.scrollIndex + n;
   }
 
   prevCard() {
-    this.scrollIndex = this.wrap(this.scrollIndex - 1);
+    if (!this.readingList || this.isMoving) return;
+    const n = this.readingList.items.length;
+    
+    if (n < 6) {
+      this.scrollIndex = (this.scrollIndex - 1 + n) % n;
+      return;
+    }
+
+    this.isMoving = true;
+    this.scrollIndex--;
+    
+    // Check if we need to jump after this transition
+    const needsJump = this.scrollIndex < 0;
+
+    setTimeout(() => {
+      if (needsJump) {
+        this.isAnimating = false;
+        this.scrollIndex = n - 1;
+        this.cdr.detectChanges();
+        
+        // Force reflow
+        const track = document.querySelector('.carousel-track') as HTMLElement;
+        if (track) void track.offsetHeight;
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            this.isAnimating = true;
+            this.isMoving = false;
+            this.cdr.detectChanges();
+          });
+        });
+      } else {
+        this.isMoving = false;
+      }
+    }, 550);
   }
 
   nextCard() {
-    this.scrollIndex = this.wrap(this.scrollIndex + 1);
+    if (!this.readingList || this.isMoving) return;
+    const n = this.readingList.items.length;
+    
+    if (n < 6) {
+      this.scrollIndex = (this.scrollIndex + 1) % n;
+      return;
+    }
+
+    this.isMoving = true;
+    this.scrollIndex++;
+    
+    // Check if we need to jump after this transition
+    const needsJump = this.scrollIndex >= n;
+
+    setTimeout(() => {
+      if (needsJump) {
+        this.isAnimating = false;
+        this.scrollIndex = 0;
+        this.cdr.detectChanges();
+
+        const track = document.querySelector('.carousel-track') as HTMLElement;
+        if (track) void track.offsetHeight;
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            this.isAnimating = true;
+            this.isMoving = false;
+            this.cdr.detectChanges();
+          });
+        });
+      } else {
+        this.isMoving = false;
+      }
+    }, 550);
   }
 
   goToSlide(index: number) {
+    if (this.isMoving || !this.readingList) return;
+    this.isMoving = true;
     this.scrollIndex = index;
-  }
-
-  private wrap(index: number): number {
-    if (!this.readingList || !this.readingList.items) return 0;
-    const length = this.readingList.items.length;
-    return ((index % length) + length) % length;
+    setTimeout(() => {
+      this.isMoving = false;
+    }, 500);
   }
 
   goToBookDetails(id: number) {

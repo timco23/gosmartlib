@@ -30,34 +30,35 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    height: 32rem;
-    margin: 2rem 0;
+    height: 30rem; /* Slightly reduced to bring dots closer */
+    margin: 1.5rem 0;
     position: relative;
     width: 100%;
 }
 
 .carousel-arrow {
     flex-shrink: 0;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 2.8rem;
+    height: 2.8rem;
     border-radius: 50%;
-    border: 2px solid #8c1b3f;
+    border: 1px solid #8c1b3f;
     background: white;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     cursor: pointer;
     color: #8c1b3f;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
     z-index: 10;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom: 3rem;
+    font-weight: bold;
 }
 
 .carousel-arrow:hover {
-    background: #c2e569;
-    transform: scale(1.1);
+    background: #ffd6d6;
+    color: #8c1b3f;
+    border-color: #8c1b3f;
 }
 
 .carousel-viewport {
@@ -65,92 +66,156 @@ body {
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
+    justify-content: center; /* Centers items when not in carousel mode */
     overflow: hidden;
-    padding: 2rem 0.5rem;
+    padding: 1rem 0.5rem;
+}
+
+.carousel-outer.is-carousel .carousel-viewport {
+    justify-content: flex-start;
+}
+
+.carousel-track {
+    display: flex;
+    align-items: center;
+    gap: 32px; /* Fixed pixels to match TS calculation exactly */
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.carousel-outer.is-carousel .carousel-track {
+    left: 50%;
+}
+
+.carousel-track.no-transition,
+.carousel-track.no-transition .carousel-card {
+    transition: none !important;
+}
+
+.carousel-outer:not(.is-carousel) .carousel-track {
+    transform: none !important;
 }
 
 .carousel-card {
     border-radius: 12px;
-    background: #f0efe4;
+    background: white;
     overflow: hidden;
-    transition: all 0.3s ease;
+    /* Synchronized with track transition (0.5s) */
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, opacity 0.5s ease;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    width: 210px;
+    height: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: none; /* Removed border as requested */
+    opacity: 0.7;
 }
 
-.carousel-card.is-side {
-    width: 160px;
-    height: 240px;
-    opacity: 0.6;
+.carousel-outer:not(.is-carousel) .carousel-card {
+    opacity: 1 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    border: none !important;
 }
 
-.carousel-card.is-side:hover {
-    opacity: 0.9;
+.carousel-outer:not(.is-carousel) .carousel-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
 }
 
-.carousel-card.is-center {
-    width: 320px;
-    height: 440px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+.carousel-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    opacity: 1;
+}
+
+.carousel-card.active {
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: rgba(140, 27, 63, 0.2);
+}
+
+.carousel-card.active:hover {
+    transform: scale(1.05) translateY(-8px);
 }
 
 .card-content {
     display: flex;
     flex-direction: column;
+    align-items: center; /* Center horizontally */
     height: 100%;
     width: 100%;
 }
 
 .card-cover {
-    flex: 1;
+    width: 150px; /* Fixed width */
+    height: 250px; /* Fixed height */
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 1rem;
+    margin-top: 1rem; /* Spacing from top */
+    background: #f8f9fa;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    flex-shrink: 0; /* Don't allow it to shrink */
 }
 
 .cover-img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Back to cover to ensure 150x250 is filled */
 }
 
 .cover-placeholder {
-    font-size: 4rem;
+    font-size: 3rem;
 }
 
 .card-footer {
-    padding: 1rem;
+    width: 100%;
+    padding: 1.25rem 1rem;
     background: white;
-    text-align: center;
+    text-align: center; /* Centered for row look */
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: auto; /* Push to bottom */
 }
 
 .book-title {
     margin: 0;
-    font-weight: bold;
+    font-weight: 700;
     color: #8c1b3f;
     font-size: 1rem;
-    white-space: nowrap;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Support for multi-line title */
+    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    height: 2.6em; /* Ensure consistent height for 2 lines */
 }
 
 .book-author {
-    margin: 0.25rem 0 0;
+    margin: 0;
     color: #666;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .carousel-dots {
     display: flex;
     justify-content: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-top: -0.5rem; /* Pulled dots closer */
+    margin-bottom: 2rem;
 }
 
 .dot {

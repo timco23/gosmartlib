@@ -37,6 +37,7 @@ export class CreateReadingListPage implements OnInit {
   loadingBooks: boolean = false;
   emptyListError: boolean = false;
   itemInListError: boolean = false;
+  queryParamsLoaded: boolean = false;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -54,14 +55,16 @@ export class CreateReadingListPage implements OnInit {
               this.user = userData;
               this.loading = false;
               this.cdr.detectChanges();
-              
-              this.route.queryParams.subscribe(params => {
+              if (!this.queryParamsLoaded) {
+                this.route.queryParams.subscribe(params => {
+                this.queryParamsLoaded = true
                 if (params["ids"]) {
                   const idsString: string = params["ids"];
                   this.itemIds = idsString.split(",").map((idString) => parseInt(idString));
                   this.loadBooks();
                 }
               })
+              }
             },
             error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
           })
@@ -126,7 +129,7 @@ export class CreateReadingListPage implements OnInit {
       for (const id of this.itemIds) {
         this.bookService.getBookById(id).subscribe({
           next: (book) => {
-            this.books.push(book)
+            this.books.push(book);
             if (this.books.length == this.itemIds.length) {
               this.loadingBooks = false;
               this.cdr.detectChanges();
