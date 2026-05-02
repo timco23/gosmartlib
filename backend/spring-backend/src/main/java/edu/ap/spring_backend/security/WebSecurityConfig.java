@@ -103,7 +103,7 @@ public class WebSecurityConfig {
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.POST, "/books/**", "/items/**", "/tags/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.PUT, "/books/**", "/items/**", "/tags/**", "/schools/current/settings")
+                .requestMatchers(HttpMethod.PUT, "/books/**", "/items/**", "/tags/**", "/schools/current/settings", "/user/role")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.PATCH, "/books/**", "/items/**", "/tags/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
