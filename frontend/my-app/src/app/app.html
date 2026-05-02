@@ -10,6 +10,9 @@
       @if (authService.atLeastHasRole(role.ADMIN)) {
         <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
       }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && !authService.atLeastHasRole(role.ADMIN)) {
+        <a routerLink="/school-settings" class="nav-link" routerLinkActive="active">Schoolinstellingen</a>
+      }
       <a routerLink="/books" class="nav-link">Boeken</a>
       <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
       @if (authService.atLeastHasRole(role.LEERKRACHT)) {
@@ -37,6 +40,7 @@
           <a routerLink="/lendingHistory" (click)="closeDropdown()" class="dropdown-item">
             Mijn uitleenhistoriek
           </a>
+          <a routerLink="/dashboard" (click)="closeDropdown()" class="dropdown-item"> Dashboard </a>
           <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
         </div>
       }

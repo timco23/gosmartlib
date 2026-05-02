@@ -50,7 +50,9 @@ public class WebSecurityConfig {
                     "/collections/global/featured",
                     "/collections/school/*/featured",
                     "/api/collections/global/featured",
-                    "/api/collections/school/*/featured"
+                    "/api/collections/school/*/featured",
+                    "/lendings/user",
+                    "/api/lendings/user"
                 ).hasAnyAuthority(ALL_USERS)
 
                 .requestMatchers(HttpMethod.GET,
@@ -65,7 +67,10 @@ public class WebSecurityConfig {
                     "/didactic-categories/**",
                     "/tags/**",
                     "/schools/search",
-                    "/schools/search/**"
+                    "/schools/search/**",
+                    "/lendingHistory**",  
+                    "/dashboard**"
+
                 ).hasAnyAuthority(ALL_USERS)
 
                 // ALL USERS: POST /books/{id}/reviews
@@ -94,9 +99,11 @@ public class WebSecurityConfig {
                 // BIBLIOTHEEKBEHEERDER
                 .requestMatchers("/lendings/**", "/collections/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.GET, "/schools/current")
+                .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.POST, "/books/**", "/items/**", "/tags/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.PUT, "/books/**", "/items/**", "/tags/**")
+                .requestMatchers(HttpMethod.PUT, "/books/**", "/items/**", "/tags/**", "/schools/current/settings")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.PATCH, "/books/**", "/items/**", "/tags/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
@@ -105,6 +112,7 @@ public class WebSecurityConfig {
 
                 // ADMIN
                 .requestMatchers("/schools/**", "/users/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/user/school").hasAuthority("ADMIN")
 
                 .anyRequest().authenticated()
             )

@@ -1,5 +1,11 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { Book, ConfirmDialogAction, School, SchoolItemCopy, UserProfile } from '../../../types/types';
+import {
+  Book,
+  ConfirmDialogAction,
+  School,
+  SchoolItemCopy,
+  UserProfile,
+} from '../../../types/types';
 import { SchoolService } from '../../services/school.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
@@ -43,9 +49,9 @@ export class ReturnBookComponent {
   bookApi = inject(BookService);
 
   popUpActions: ConfirmDialogAction[] = [
-  { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-  { label: 'Terugbrengen', type: 'primary', value: 'confirm' }
-];
+    { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+    { label: 'Terugbrengen', type: 'primary', value: 'confirm' },
+  ];
 
   get returnConfirmationMessage(): string {
     return `Bent u zeker dat ${this.currentLending?.borrowerName} het boek "${this.currentBook?.title}" terugbrengt?`;
@@ -135,7 +141,7 @@ export class ReturnBookComponent {
         }
 
         this.currentSchoolCopy = copy;
-        
+
         this.bookService.getBookById(copy.itemId).subscribe({
           next: (book) => {
             this.currentBook = book ?? null;
@@ -201,47 +207,50 @@ export class ReturnBookComponent {
     if (!this.currentSchoolCopy) return;
     if (value === 'confirm') {
       this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
-      next: () => {
-        console.log('Copy status updated');
-        this.lendingService
-          .updateLending(this.currentLending.id, {
-            returned: true,
-            dateReturned: new Date().toISOString(),
-          })
-          .subscribe({
-            next: () => {
-              console.log('Lending updated');
+        next: () => {
+          console.log('Copy status updated');
+          this.lendingService
+            .updateLending(this.currentLending.id, {
+              ...this.currentLending,
+              returned: true,
+              dateReturned: new Date().toISOString(),
+            })
+            .subscribe({
+              next: () => {
+                console.log('Lending updated');
 
-              this.bookService.setCondition(this.currentSchoolCopy!.id, this.selectedCondition).subscribe({
-                next: () => {
-                  console.log('Copy condition updated');
-                },
-                error: (err) => {
-                  console.error('Error updating copy condition:', err);
-                },
-              });
+                this.bookService
+                  .setCondition(this.currentSchoolCopy!.id, this.selectedCondition)
+                  .subscribe({
+                    next: () => {
+                      console.log('Copy condition updated');
+                    },
+                    error: (err) => {
+                      console.error('Error updating copy condition:', err);
+                    },
+                  });
 
-              this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
-                next: () => {
-                  console.log('User borrowed count updated');
-                  this.router.navigate(['/lendings']);
-                },
-                error: (err) => {
-                  console.error('Error updating user borrowed count:', err);
-                },
-              });
-            },
-            error: (err) => {
-              console.error('Error updating lending:', err);
-              alert('Boek retourneren mislukt, probeer later opnieuw.');
-            },
-          });
-      },
-      error: (err) => {
-        console.error('Error updating copy status:', err);
-        alert('Boek retourneren mislukt, probeer later opnieuw.');
-      },
-    });
+                this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
+                  next: () => {
+                    console.log('User borrowed count updated');
+                    this.router.navigate(['/lendings']);
+                  },
+                  error: (err) => {
+                    console.error('Error updating user borrowed count:', err);
+                  },
+                });
+              },
+              error: (err) => {
+                console.error('Error updating lending:', err);
+                alert('Boek retourneren mislukt, probeer later opnieuw.');
+              },
+            });
+        },
+        error: (err) => {
+          console.error('Error updating copy status:', err);
+          alert('Boek retourneren mislukt, probeer later opnieuw.');
+        },
+      });
     }
     this.returnConfirmation = false;
   }

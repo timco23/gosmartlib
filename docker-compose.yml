@@ -45,6 +45,7 @@ services:
       - JWT_EXPIRES_MINUTES=${JWT_EXPIRES_MINUTES}
       - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY:-}
       - HARDCOVER_API_KEY=${HARDCOVER_API_KEY:-}
+      - MODERATION_API_KEY=${MODERATION_API_KEY:-}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"

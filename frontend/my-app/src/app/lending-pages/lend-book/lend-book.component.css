@@ -15,8 +15,8 @@
   text-decoration: none;
   color: black;
   font-weight: 500;
+  font-size: 0.875rem;
 }
-
 .back-link:hover {
   color: #8c1b3f;
 }
@@ -27,7 +27,6 @@
   gap: 1rem;
   margin-top: 0.625rem;
 }
-
 .header-actions h2 {
   margin: 0;
   font-size: 1.75rem;
@@ -37,7 +36,7 @@
 
 .lending-card {
   background-color: #f0efe4;
-  padding: 30px;
+  padding: 32px;
   border-radius: 10px;
   border: 1px solid #8c1b3f;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
@@ -48,59 +47,170 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
   font-weight: 600;
-  margin-top: 8px;
+  font-size: 0.875rem;
+  margin-top: 4px;
 }
 
-.form-group input {
-  padding: 10px;
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 0.9rem;
+  background: #fff;
 }
 
-.form-group input:focus {
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus {
   outline: none;
-  border-color: #d6822b;
-  box-shadow: 0 0 3px rgba(214, 130, 43, 0.4);
+  border-color: #8c1b3f;
+  box-shadow: 0 0 0 3px rgba(140, 27, 63, 0.12);
 }
 
-.add-button {
-  background: #8c1b3f;
-  color: white;
-  border: none;
-  padding: 10px 16px;
+.form-group select {
+  padding: 10px 12px;
   border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  margin-top: 10px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  background: #fff;
 }
 
-.add-button:hover {
-  background: #6f1532;
+.form-group select:focus {
+  outline: none;
+  border-color: #8c1b3f;
+  box-shadow: 0 0 0 3px rgba(140, 27, 63, 0.12);
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #8c1b3f;
+  cursor: pointer;
 }
 
 input:disabled {
   cursor: not-allowed;
-  background-color: var(--color-background-secondary, #f5f5f5);
+  background-color: #ebebeb;
+  opacity: 0.6;
+}
+
+.add-button {
+  width: 100%;
+  background: #8c1b3f;
+  color: white;
+  border: none;
+  padding: 11px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+.add-button:hover {
+  background: #6f1532;
 }
 
 .choose-book-btn {
   width: 100%;
-  min-height: 44px;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
+  min-height: 42px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
   background: #fff;
   padding: 10px 12px;
   text-align: left;
   cursor: pointer;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+}
+.choose-book-btn:hover {
+  border-color: #8c1b3f;
 }
 
-.choose-book-btn:hover {
-  border-color: #a0a0a0;
+.copies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  background: #fff;
+}
+
+.copy-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+.copy-option:hover {
+  background-color: #ece9e0;
+}
+
+.clear-book-btn,
+.clear-book-btn-x {
+  background: transparent;
+  color: #8c1b3f;
+  border: 1px solid #8c1b3f;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  width: fit-content;
+}
+.clear-book-btn:hover,
+.clear-book-btn-x:hover {
+  background: #8c1b3f;
+  color: white;
+}
+
+.add-book-btn {
+  background: transparent;
+  color: #8c1b3f;
+  border: 1px solid #8c1b3f;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.add-book-btn:hover {
+  background: #8c1b3f;
+  color: white;
+}
+
+.selected-books-list {
+  margin-bottom: 16px;
+}
+
+.selected-books-list > label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}
+
+.selected-book-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #ddd;
+  font-size: 0.875rem;
+  margin-bottom: 6px;
 }

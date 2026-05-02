@@ -29,12 +29,16 @@ OAUTH_DEFAULT_SCHOOL_ID=1
 HARDCOVER_API_KEY=yourApiKey
 GOOGLE_BOOKS_API_KEY=yourApiKey
 
-# For bad words
-MODERATION_API_KEY=hf_xxxJOUW_TOKEN_HIER
+# Voor scheldwoordfilter (reviews)
+MODERATION_API_KEY=jouw_mistral_key_hier
 
-Key ophalen (kort):
-1. Hugging Face → Profiel aanmaken → Settings → Access Tokens → Create new token (Fine-grained) → Token name (ex: hf_mijntoken)
-2. Vink enkel "Make calls to Inference Providers" aan
+Key ophalen (gratis, geen creditcard nodig):
+1. Ga naar console.mistral.ai → maak een account aan
+2. Kies "Gratis experimenteren" (Experiment plan)
+3. Verifieer je telefoonnummer
+4. Ga naar Organization → API Keys → "Create new key"
+5. Kies een Key name en de andere velden gewoon zo laten
+6. Kopieer de key — je ziet hem maar 1 keer!
 
 ```
 

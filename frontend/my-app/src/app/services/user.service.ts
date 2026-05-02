@@ -50,4 +50,10 @@ export class UserService {
       params: { userId: userId.toString() }
     });
   }
+
+  changeSchool(email: string, schoolId: number): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.apiUrl}/school`, null, {
+      params: { email, schoolId: schoolId.toString() }
+    });
+  }
 }

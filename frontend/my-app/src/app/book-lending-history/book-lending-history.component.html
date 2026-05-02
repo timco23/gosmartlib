@@ -1,0 +1,36 @@
+<section class="bookLendinghistory">
+  <div class="header">
+    <h1>Uitleenhistoriek van {{ currentBook?.title }}</h1>
+    <a class="back-link" [routerLink]="['/books', route.snapshot.paramMap.get('bookId')]">← Terug naar boek</a>
+  </div>
+
+  @if (!lendings.length) {
+    <div class="state">Geen uitleningen gevonden voor dit boek.</div>
+  } @else {
+    <div class="grid">
+      @for (lending of visibleLendings; track lending.id) {
+        <div class="tile" [ngClass]="lending.returned ? 'returned' : 'ok'">
+          <div class="tile-header">
+            <h3 class="title">{{ lending.borrowerName }}</h3>
+            <span class="status">{{ lending.returned ? 'Teruggebracht' : 'Uitgeleend' }}</span>
+          </div>
+          <div class="meta">Barcode: {{ lending.copyBarcode }}</div>
+          <div class="meta">Uitgeleend op: {{ lending.lendingDate }}</div>
+          @if (lending.dateReturned) {
+            <div class="meta">Teruggebracht op: {{ lending.dateReturned }}</div>
+          } @else {
+            <div class="meta">Nog niet teruggebracht</div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="btn" (click)="previousPage()" [disabled]="currentPage === 0">← Vorige</button>
+        <span class="meta">Pagina {{ currentPage + 1 }} van {{ totalPages }}</span>
+        <button class="btn" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">Volgende →</button>
+      </div>
+    }
+  }
+</section>

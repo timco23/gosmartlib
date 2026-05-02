@@ -7,8 +7,11 @@ import edu.ap.spring_backend.dto.UserResponse;
 import org.springframework.stereotype.Service;
 
 import edu.ap.spring_backend.dao.ItemRepository;
+import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Item;
+import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.User;
 
 import java.util.List;
@@ -17,10 +20,12 @@ import java.util.List;
 public class UserService {
         private final UserRepository userRepository;
         private final ItemRepository itemRepository;
+        private final SchoolRepository schoolRepository;
 
-        public UserService(UserRepository userRepository, ItemRepository itemRepository) {
+        public UserService(UserRepository userRepository, ItemRepository itemRepository, SchoolRepository schoolRepository) {
                 this.userRepository = userRepository;
                 this.itemRepository = itemRepository;
+                this.schoolRepository = schoolRepository;
         }
 
         public UserResponse getProfile(String email) {
@@ -110,6 +115,16 @@ public class UserService {
                 return buildUserResponse(user);
         }
 
+        public UserResponse changeUserSchool(String email, Long schoolId) {
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(EntityNotFoundException::new);
+                School school = schoolRepository.findById(schoolId)
+                                .orElseThrow(EntityNotFoundException::new);
+                user.setSchool(school);
+                userRepository.save(user);
+                return buildUserResponse(user);
+        }
+
         private UserResponse buildUserResponse(User user) {
                 return new UserResponse(
                                 user.getId(),
@@ -120,6 +135,7 @@ public class UserService {
                                 user.getStudentNumber(),
                                 user.getClassName(),
                                 user.getSchool() != null ? user.getSchool().getName() : null,
+                                user.getSchool() != null ? user.getSchool().getId() : null,
                                 user.getFavoriteBooks().stream().map(this::mapToItemDTO).toArray(ItemDTO[]::new),
                                 user.getItemsBorrowed());
         }

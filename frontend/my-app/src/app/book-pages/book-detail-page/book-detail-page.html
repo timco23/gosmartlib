@@ -15,6 +15,7 @@
               [queryParams]="{ preselect: 'all' }"
               >Print barcodes</a
             >
+            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Lending history</a>
             <a class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</a>
             <a class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
               {{ isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten' }}
@@ -187,7 +188,10 @@
   }
   @if (showDeleteConfirmation()) {
     <div class="overlay">
-      <app-pop-up [message]="'Dit boek staat momenteel in een of meerdere leeslijsten. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle leeslijsten verdwijnen.'"
+      <app-pop-up
+        [message]="
+          'Dit boek staat momenteel in een of meerdere leeslijsten. Weet u zeker dat u dit boek wilt verwijderen? Het zal uit alle leeslijsten verdwijnen.'
+        "
         [actions]="[
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
           { label: 'Verwijderen', type: 'danger', value: 'confirm' },

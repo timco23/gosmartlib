@@ -9,14 +9,16 @@
   </header>
 
   <div class="lendings-card">
-    <h3>Huidige uitleningen</h3>
-
-    <ul class="lending-list">
-      @for (lending of lendings; track lending.id) {
+      <h3>Huidige uitleningen</h3>
+      <div class="search-bar">
+        <input type="text" placeholder="Zoek op titel, auteur of lener..." [(ngModel)]="searchQuery" />
+      </div>
+      <ul class="lending-list">
+        @for (lending of filteredLendings; track lending.id) {
         <li class="lending-item">
           @let cover = coverSrcFromLending(lending);
           @if (cover) {
-            <img
+          <img
               class="cover-img"
               [src]="cover"
               [alt]="lending.bookTitle || 'Boek cover'"

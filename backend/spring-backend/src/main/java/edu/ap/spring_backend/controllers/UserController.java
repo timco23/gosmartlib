@@ -2,11 +2,13 @@ package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.UserResponse;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 /**
  * REST controller for user operations.
@@ -65,6 +67,17 @@ public class UserController {
             return ResponseEntity.ok("Book removed from favorites");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Admin-only
+    @PutMapping("/school")
+    public ResponseEntity<UserResponse> changeSchool(@RequestParam String email, @RequestParam Long schoolId) {
+        try {
+            UserResponse response = userService.changeUserSchool(email, schoolId);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
