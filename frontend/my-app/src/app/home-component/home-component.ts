@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
 import { LoginResponse, Book, CarouselSlot, School, Tag, Collection, Genre, Subgenre } from '../../types/types';
@@ -11,13 +11,12 @@ import { CollectionService } from '../services/collection-service';
 import { environment } from '../../environments/environment';
 import { GenreService } from '../services/genre.service';
 import { SubgenreService } from '../services/subgenre.service';
-import { StarDisplayComponent } from "../widgets/star-display/star-display.component";
 import { BookCarousel } from '../widgets/book-carousel/book-carousel';
 
 @Component({
   selector: 'app-home-component',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink, StarDisplayComponent, BookCarousel],
+  imports: [CommonModule, RouterModule, BookCarousel],
   templateUrl: './home-component.html',
   styleUrl: './home-component.css',
 })
