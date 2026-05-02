@@ -7,7 +7,10 @@ import edu.ap.spring_backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 /**
@@ -29,19 +32,22 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * Retrieves user profile by email.
-     * 
-     * @param email user's email address
-     * @return user profile data without password
-     * @throws RuntimeException if user not found
-     */
     @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getProfile(@RequestParam String email) {
-        logger.info("Profile request for email: {}", email);
-        UserResponse response = userService.getProfile(email);
-        logger.info("Profile retrieved for: {}", email);
+    public ResponseEntity<UserResponse> getOwnProfile(Authentication auth) {
+        UserResponse response = userService.getOwnProfile(Integer.parseInt(auth.getName()));
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<UserResponse> getProfileByEmail(@PathVariable String email) {
+        UserResponse response = userService.getProfile(email);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/school-users")
+    public ResponseEntity<List<UserResponse>> getSchoolUsers(Authentication auth) {
+        List<UserResponse> users = userService.getUsersByCurrentSchool(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/favorites")

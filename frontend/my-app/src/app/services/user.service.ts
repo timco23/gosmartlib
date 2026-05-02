@@ -12,15 +12,13 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Retrieves user profile by email.
-   * @param email user's email address
-   * @returns user profile data
-   */
-  getUser(email: string): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`, {
-      params: { email: email },
-    });
+  //email input is ignored
+  getUser(_email?: string): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`);
+  }
+
+  getProfileByEmail(email: string): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile/${encodeURIComponent(email)}`);
   }
 
   getFavorites(): Observable<any[]> {
@@ -37,6 +35,10 @@ export class UserService {
     return this.http.get<UserProfile[]>(`${environment.apiUrl}/schools/users`, {
       params: { schoolId: schoolId.toString() }
     });
+  }
+
+  getSchoolUsers(): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(`${environment.apiUrl}/user/school-users`);
   }
 
   addBorrowedItem(userId: number): Observable<void> {

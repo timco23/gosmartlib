@@ -99,7 +99,7 @@ public class WebSecurityConfig {
                 // BIBLIOTHEEKBEHEERDER
                 .requestMatchers("/lendings/**", "/collections/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.GET, "/schools/current")
+                .requestMatchers(HttpMethod.GET, "/schools/current", "/user/school-users", "/user/profile/*")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.POST, "/books/**", "/items/**", "/tags/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)

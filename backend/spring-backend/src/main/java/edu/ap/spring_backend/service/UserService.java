@@ -28,6 +28,12 @@ public class UserService {
                 this.schoolRepository = schoolRepository;
         }
 
+        public UserResponse getOwnProfile(Integer userId) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                return buildUserResponse(user);
+        }
+
         public UserResponse getProfile(String email) {
                 User user = userRepository.findByEmail(email)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -97,6 +103,15 @@ public class UserService {
                 return userRepository.findBySchoolId(schoolId).stream()
                                 .map(this::buildUserResponse)
                                 .toList();
+        }
+
+        public List<UserResponse> getUsersByCurrentSchool(Integer userId) {
+                User requester = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                if (requester.getSchool() == null) {
+                        return List.of();
+                }
+                return getUsersBySchool(requester.getSchool().getId());
         }
 
         public UserResponse addToItemsBorrowed(Integer userId) {

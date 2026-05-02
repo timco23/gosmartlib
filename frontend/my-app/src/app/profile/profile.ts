@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserProfile } from '../../types/types';
 import { UserService } from '../services/user.service';
@@ -25,24 +26,23 @@ export class Profile implements OnInit {
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private userService: UserService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.loadProfile();
+    this.route.queryParams.subscribe(params => {
+      const email = params['email'];
+      if (email) {
+        this.loadProfileByEmail(email);
+      } else {
+        this.loadOwnProfile();
+      }
+    });
   }
 
-  /**
-   * Loads user profile from backend.
-   */
-  loadProfile(): void {
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser?.email) {
-      this.error = 'Geen gebruiker ingelogd';
-      this.loading = false;
-      return;
-    }
-
-    this.userService.getUser(currentUser.email).subscribe({
+  loadOwnProfile(): void {
+    this.userService.getUser().subscribe({
       next: (data) => {
         this.profile = data;
         this.loading = false;
@@ -52,6 +52,25 @@ export class Profile implements OnInit {
         console.error('Failed to load profile', err);
         this.error = 'Kon profiel niet laden';
         this.loading = false;
+      },
+    });
+  }
+
+  loadProfileByEmail(email: string): void {
+    this.userService.getProfileByEmail(email).subscribe({
+      next: (data) => {
+        this.profile = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        if (err.status === 403) {
+          this.router.navigate(['/forbidden']);
+        } else {
+          console.error('Failed to load profile', err);
+          this.error = 'Kon profiel niet laden';
+          this.loading = false;
+        }
       },
     });
   }
