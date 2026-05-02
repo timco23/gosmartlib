@@ -32,18 +32,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * Retrieves user profile by email.
-     * 
-     * @param email user's email address
-     * @return user profile data without password
-     * @throws RuntimeException if user not found
-     */
     @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getProfile(@RequestParam String email) {
-        logger.info("Profile request for email: {}", email);
+    public ResponseEntity<UserResponse> getOwnProfile(Authentication auth) {
+        UserResponse response = userService.getOwnProfile(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<UserResponse> getProfileByEmail(@PathVariable String email) {
         UserResponse response = userService.getProfile(email);
-        logger.info("Profile retrieved for: {}", email);
         return ResponseEntity.ok(response);
     }
 

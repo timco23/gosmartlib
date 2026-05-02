@@ -28,6 +28,12 @@ public class UserService {
                 this.schoolRepository = schoolRepository;
         }
 
+        public UserResponse getOwnProfile(Integer userId) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                return buildUserResponse(user);
+        }
+
         public UserResponse getProfile(String email) {
                 User user = userRepository.findByEmail(email)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
