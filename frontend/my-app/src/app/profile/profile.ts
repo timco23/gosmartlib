@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserProfile } from '../../types/types';
 import { UserService } from '../services/user.service';
@@ -25,24 +26,23 @@ export class Profile implements OnInit {
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private userService: UserService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    this.loadProfile();
+    this.route.queryParams.subscribe(params => {
+      const email = params['email'] ?? this.authService.getCurrentUser()?.email;
+      if (!email) {
+        this.error = 'Geen gebruiker ingelogd';
+        this.loading = false;
+        return;
+      }
+      this.loadProfile(email);
+    });
   }
 
-  /**
-   * Loads user profile from backend.
-   */
-  loadProfile(): void {
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser?.email) {
-      this.error = 'Geen gebruiker ingelogd';
-      this.loading = false;
-      return;
-    }
-
-    this.userService.getUser(currentUser.email).subscribe({
+  loadProfile(email: string): void {
+    this.userService.getUser(email).subscribe({
       next: (data) => {
         this.profile = data;
         this.loading = false;

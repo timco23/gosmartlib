@@ -39,6 +39,10 @@ export class UserService {
     });
   }
 
+  getSchoolUsers(): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(`${environment.apiUrl}/user/school-users`);
+  }
+
   addBorrowedItem(userId: number): Observable<void> {
     return this.http.put<void>(`${environment.apiUrl}/user/addBorrowed`, null, {
       params: { userId: userId.toString() }

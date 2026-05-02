@@ -24,6 +24,9 @@
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
         <a routerLink="/collections" class="nav-link" routerLinkActive="active">Collecties</a>
       }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+        <a routerLink="/accounts" class="nav-link" routerLinkActive="active">Accounts</a>
+      }
     </div>
 
     <div class="user-menu">
