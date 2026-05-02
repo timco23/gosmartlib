@@ -99,6 +99,15 @@ public class UserService {
                                 .toList();
         }
 
+        public List<UserResponse> getUsersByCurrentSchool(Integer userId) {
+                User requester = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                if (requester.getSchool() == null) {
+                        return List.of();
+                }
+                return getUsersBySchool(requester.getSchool().getId());
+        }
+
         public UserResponse addToItemsBorrowed(Integer userId) {
                 User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
