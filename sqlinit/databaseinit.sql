@@ -62,7 +62,7 @@ create table if not exists item
 	book_language varchar(50) not null,
 	page_count smallint unsigned null,
 	cover varchar(200) null,
-	review_score decimal(2,1) check (review_score >= 0) not null,
+	review_score decimal(2,1) check(review_score >= 0) not null,
 	review_count int unsigned not null,
     book_description text not null
 );
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS user (
     password VARCHAR(255) NULL,
     role ENUM('ADMIN', 'BIBLIOTHEEKBEHEERDER', 'LEERKRACHT', 'LEERLING') NOT NULL,
     student_number VARCHAR(50),
-    class VARCHAR(50),
+    class VARCHAR(50) null,
     smartschool_username VARCHAR(255) UNIQUE, 
     school_id BIGINT, 
     refresh_token VARCHAR(512),
