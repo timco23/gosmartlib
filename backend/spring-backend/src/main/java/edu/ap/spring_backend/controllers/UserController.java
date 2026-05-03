@@ -77,20 +77,12 @@ public class UserController {
     }
 
     @PutMapping("/role")
-    public ResponseEntity<?> updateUserRole(
+    public ResponseEntity<UserResponse> updateUserRole(
             @RequestParam String email,
             @RequestParam String role,
             Authentication auth) {
-        try {
-            UserResponse response = userService.updateUserRole(Integer.parseInt(auth.getName()), email, role);
-            return ResponseEntity.ok(response);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(403).body(e.getMessage());
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        UserResponse response = userService.updateUserRole(Integer.parseInt(auth.getName()), email, role);
+        return ResponseEntity.ok(response);
     }
 
     // Admin-only

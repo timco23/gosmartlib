@@ -77,6 +77,12 @@ h2 {
   color: white !important;
 }
 
+.role-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .role-edit {
   display: flex;
   align-items: center;
@@ -112,13 +118,9 @@ h2 {
 .role-success {
   color: #155724;
   font-size: 14px;
-  display: block;
-  margin-top: 4px;
 }
 
 .role-error {
   color: #721c24;
   font-size: 14px;
-  display: block;
-  margin-top: 4px;
 }
