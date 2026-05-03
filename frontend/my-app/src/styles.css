@@ -12,6 +12,10 @@
   /* --- Navbar background (needs separate token for rgba transparency) --- */
   --navbar-bg: rgba(248, 247, 245, 0.95);
 
+  /* --- Inverse surface (stays dark in both modes) --- */
+  --color-inverse-bg:       #111111;
+  --color-inverse-bg-hover: #2d2d2d;
+
   /* --- Brand (same in both modes) --- */
   --color-primary:        #8c1b3f;
   --color-primary-dark:   #6f1532;
@@ -30,8 +34,7 @@
   --color-border-active: rgba(140, 27, 63, 0.35);
 
   /* --- Typography --- */
-  --font-display: 'Times New Roman', serif;
-  --font-body:    Calibri, Verdana, Arial, sans-serif;
+  --font-body: Calibri, Verdana, Arial, sans-serif;
 
   --text-xs:   0.6875rem;
   --text-sm:   0.8125rem;
@@ -90,6 +93,9 @@
   --color-surface-3: #303030;
 
   --navbar-bg: rgba(17, 17, 17, 0.95);
+
+  --color-inverse-bg:       #1c1c1c;
+  --color-inverse-bg-hover: #303030;
 
   --color-text-1: #f0f0f0;
   --color-text-2: #b4b4b4;
@@ -170,7 +176,7 @@ app-login {
 .back-link:hover { color: var(--color-primary); }
 
 .page-heading {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--color-text-1);

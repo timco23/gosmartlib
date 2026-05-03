@@ -29,7 +29,7 @@
 .nav-logo {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
   padding: var(--space-5) var(--space-4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -45,8 +45,14 @@
 }
 
 .nav-logo img {
-  height: 36px;
+  height: 48px;
   width: auto;
+}
+
+@media (max-width: 768px) {
+  .nav-logo img {
+    height: 36px;
+  }
 }
 
 /* --- Controls (theme + sidebar positie) --- */
@@ -129,7 +135,7 @@
   text-decoration: none;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   letter-spacing: 0.01em;
   border-left: 3px solid transparent;
   white-space: nowrap;
@@ -254,6 +260,10 @@
   border-left: none;
 }
 
+:host.sidebar-right .nav-logo {
+  align-items: flex-end;
+}
+
 :host.sidebar-right .dropdown-menu {
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
@@ -299,6 +309,10 @@
     display: block;
   }
 
+  .nav-logo {
+    align-items: flex-start;
+  }
+
   .navbar {
     position: fixed;
     top: 0;
@@ -323,19 +337,26 @@
     left: var(--space-4);
     width: 40px;
     height: 40px;
-    background: var(--color-primary);
+    background: var(--color-inverse-bg);
     color: #fff;
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
     z-index: 210;
     box-shadow: var(--shadow-md);
-    transition: background var(--transition-fast);
+    transition: background var(--transition-fast), left var(--transition-base), top var(--transition-base);
     flex-shrink: 0;
   }
 
+  /* logo: 500x148 SVG at height 36px → width ≈ 122px
+     nav-logo padding-left 16px + link padding 8px + logo 122px + link padding 8px + gap 8px = 162px */
+  :host:has(.navbar.mobile-open) .mobile-nav-toggle {
+    left: 162px;
+    top: 22px;
+  }
+
   .mobile-nav-toggle:hover {
-    background: var(--color-primary-bright);
+    background: var(--color-inverse-bg-hover);
   }
 
   .page-content {
@@ -358,5 +379,11 @@
   :host.sidebar-right .mobile-nav-toggle {
     left: auto;
     right: var(--space-4);
+  }
+
+  :host.sidebar-right:has(.navbar.mobile-open) .mobile-nav-toggle {
+    left: auto;
+    right: 162px;
+    top: 22px;
   }
 }
