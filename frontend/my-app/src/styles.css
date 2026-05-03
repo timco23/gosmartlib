@@ -1,8 +1,7 @@
-/* ============================================================
-   DESIGN TOKENS - GOSmartLib Design System
-   Light mode is the default. Dark mode activates via [data-theme="dark"] on <html>.
-   Fonts: Times New Roman (headings) + Calibri/Verdana (body).
-   ============================================================ */
+/*
+  Light mode is the default. Dark mode activates via [data-theme="dark"] on <html>.
+  Fonts: Times New Roman (headings) + Calibri/Verdana (body).
+*/
 :root {
   /* --- Backgrounds (light) --- */
   --color-bg:        #f8f7f5;
@@ -75,14 +74,15 @@
   --transition-base: 220ms ease;
   --transition-slow: 380ms ease;
 
-  /* --- Navbar height --- */
+  /* --- Layout --- */
   --navbar-height: 68px;
+  --sidebar-width: 220px;
 }
 
-/* ============================================================
-   DARK MODE OVERRIDES
-   Applied when <html data-theme="dark">
-   ============================================================ */
+/*
+  DARK MODE OVERRIDES
+  Applied when <html data-theme="dark">
+*/
 [data-theme="dark"] {
   --color-bg:        #111111;
   --color-surface-1: #1c1c1c;
@@ -106,9 +106,9 @@
   --shadow-red:   0 4px 20px rgba(140, 27, 63, 0.35);
 }
 
-/* ============================================================
-   BASE RESETS
-   ============================================================ */
+/*
+  BASE RESETS
+*/
 @media print {
   .navbar { display: none !important; }
 }
@@ -152,9 +152,9 @@ app-login {
   overflow: hidden;
 }
 
-/* ============================================================
-   SHARED COMPONENT PRIMITIVES
-   ============================================================ */
+/*
+  SHARED COMPONENT PRIMITIVES
+*/
 
 .back-link {
   display: inline-flex;

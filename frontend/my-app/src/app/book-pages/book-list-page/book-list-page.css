@@ -1,7 +1,7 @@
-/* ============================================================
-   BOOK LIST PAGE
-   Showcase implementation of the GOSmartLib design system.
-   ============================================================ */
+/*
+  BOOK LIST PAGE
+  Showcase implementation of the GOSmartLib design system.
+*/
 
 .books-container {
   max-width: 90rem;
@@ -93,16 +93,16 @@
   align-items: start;
 }
 
-/* ============================================================
-   FILTER SIDEBAR
-   ============================================================ */
+/*
+  FILTER SIDEBAR
+*/
 .filter-panel {
   background: var(--color-surface-1);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   position: sticky;
-  top: calc(var(--navbar-height) + var(--space-5));
+  top: var(--space-5);
   max-height: calc(100vh - var(--navbar-height) - var(--space-10));
   overflow-y: auto;
   scrollbar-width: thin;
@@ -307,9 +307,9 @@
   background: var(--color-primary-tint);
 }
 
-/* ============================================================
-   BOOK GRID AREA
-   ============================================================ */
+/*
+  BOOK GRID AREA
+*/
 .books-card {
   background: var(--color-surface-1);
   border: 1px solid var(--color-border);
@@ -611,9 +611,9 @@
   letter-spacing: 0.01em;
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+/*
+  RESPONSIVENESS
+*/
 @media (max-width: 960px) {
   .catalog-layout {
     grid-template-columns: 1fr;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, HostBinding } from '@angular/core';
 import { RouterOutlet, Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
@@ -17,7 +17,11 @@ export class App implements OnInit {
   currentUser: LoginResponse | null = null;
   dropdownOpen = false;
   isDarkMode = false;
+  sidebarRight = false;
+  mobileNavOpen = false;
   role = Role;
+
+  @HostBinding('class.sidebar-right') get sidebarRightClass() { return this.sidebarRight; }
 
   constructor(
     public authService: AuthService,
@@ -28,6 +32,9 @@ export class App implements OnInit {
     const savedTheme = localStorage.getItem('gsmart-theme');
     this.isDarkMode = savedTheme === 'dark';
     this.applyTheme();
+
+    this.sidebarRight = localStorage.getItem('gsmart-sidebar') === 'right';
+    this.applySidebarPosition();
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
@@ -57,6 +64,7 @@ export class App implements OnInit {
     }
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.mobileNavOpen = false;
       const currentUrl = this.router.url;
       const path = currentUrl.split('?')[0];
       const isLoggedIn = this.authService.isLoggedIn();
@@ -79,8 +87,26 @@ export class App implements OnInit {
     localStorage.setItem('gsmart-theme', this.isDarkMode ? 'dark' : 'light');
   }
 
+  toggleSidebarPosition() {
+    this.sidebarRight = !this.sidebarRight;
+    this.applySidebarPosition();
+    localStorage.setItem('gsmart-sidebar', this.sidebarRight ? 'right' : 'left');
+  }
+
+  private applySidebarPosition() {
+    document.documentElement.setAttribute('data-sidebar', this.sidebarRight ? 'right' : 'left');
+  }
+
   private applyTheme() {
     document.documentElement.setAttribute('data-theme', this.isDarkMode ? 'dark' : 'light');
+  }
+
+  toggleMobileNav() {
+    this.mobileNavOpen = !this.mobileNavOpen;
+  }
+
+  closeMobileNav() {
+    this.mobileNavOpen = false;
   }
 
   toggleDropdown() {
