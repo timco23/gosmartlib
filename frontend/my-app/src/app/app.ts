@@ -16,6 +16,7 @@ import { Role } from '../types/types';
 export class App implements OnInit {
   currentUser: LoginResponse | null = null;
   dropdownOpen = false;
+  isDarkMode = false;
   role = Role;
 
   constructor(
@@ -24,6 +25,10 @@ export class App implements OnInit {
   ) {}
 
   ngOnInit() {
+    const savedTheme = localStorage.getItem('gsmart-theme');
+    this.isDarkMode = savedTheme === 'dark';
+    this.applyTheme();
+
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
 
@@ -66,6 +71,16 @@ export class App implements OnInit {
         this.router.navigate(['/login']);
       }
     });
+  }
+
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    this.applyTheme();
+    localStorage.setItem('gsmart-theme', this.isDarkMode ? 'dark' : 'light');
+  }
+
+  private applyTheme() {
+    document.documentElement.setAttribute('data-theme', this.isDarkMode ? 'dark' : 'light');
   }
 
   toggleDropdown() {

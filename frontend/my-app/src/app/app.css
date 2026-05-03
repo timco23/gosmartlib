@@ -2,134 +2,190 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background: var(--color-bg);
 }
 
+/* ============================================================
+   NAVBAR — altijd rode achtergrond, ongeacht light/dark mode
+   ============================================================ */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f0efe4;
-  padding: 0 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  height: 90px;
+  background: var(--color-primary);
+  border-bottom: 3px solid var(--color-primary-dark);
+  padding: 0 var(--space-8);
+  height: var(--navbar-height);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+/* --- Logo --- */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .nav-logo a {
   display: flex;
   align-items: center;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
 }
 
 .nav-logo img {
-  height: 55px;
+  height: 36px;
   width: auto;
 }
 
+/* --- Theme toggle — wit op rood --- */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-pill);
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: rotate(22deg);
+}
+
+.theme-toggle svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* --- Navigation links --- */
 .nav-links {
   display: flex;
-  gap: 8px;
+  align-items: stretch;
+  height: 100%;
+  gap: 0;
 }
 
 .nav-link {
-  padding: 18px 20px;
-  color: #000000;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
-  font-weight: 700;
-  font-size: 16px;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-  display: inline-block;
-  border-radius: 6px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-base);
+  letter-spacing: 0.01em;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -3px;
+  white-space: nowrap;
+  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .nav-link:hover {
-  color: #8c1b3f;
-  background: #eedcdc;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .nav-link.active {
-  color: #8c1b3f;
-  background: #c2e569;
-  border-bottom: 3px solid #8c1b3f;
+  color: #fff;
+  border-bottom-color: #fff;
+  background: rgba(0, 0, 0, 0.15);
 }
 
+/* --- User menu --- */
 .user-menu {
   position: relative;
 }
 
 .user-info {
-  color: #000000;
-  padding: 10px 16px;
-  cursor: pointer;
-  user-select: none;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 16px;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-base);
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .user-info:hover {
-  color: #8c1b3f;
-  background: #eedcdc;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .dropdown-arrow {
-  font-size: 12px;
-  transition: transform 0.2s ease;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform var(--transition-base);
 }
 
 .dropdown-arrow.open {
   transform: rotate(180deg);
 }
 
+/* --- Dropdown panel — volgt de page theme (niet de navbar) --- */
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + var(--space-2));
   right: 0;
-  margin-top: 8px;
-  background: #ffffff;
-  border: 1px solid #e1e8ed;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   min-width: 200px;
   overflow: hidden;
-  z-index: 1000;
+  z-index: 300;
 }
 
 .dropdown-item {
   display: block;
   width: 100%;
-  padding: 12px 16px;
-  color: #2f2f2f;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-2);
   text-decoration: none;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-  font-size: 14px;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .dropdown-item:hover {
-  color: #8c1b3f;
-  background: #eedcdc;
+  background: var(--color-surface-2);
+  color: var(--color-text-1);
 }
 
 .btn-logout {
-  color: #8c1b3f;
-  font-weight: 500;
-  border-top: 1px solid #e1e8ed;
+  color: var(--color-primary);
+  border-top: 1px solid var(--color-border);
+  font-weight: 600;
 }
 
 .btn-logout:hover {
-  color: #8c1b3f;
-  background: #eedcdc;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-bright);
 }
