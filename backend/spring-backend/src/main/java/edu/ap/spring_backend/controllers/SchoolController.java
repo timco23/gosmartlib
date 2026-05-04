@@ -67,6 +67,9 @@ public class SchoolController {
     /**
      * Returns the school linked to the authenticated user.
      * Accessible by BIBLIOTHEEKBEHEERDER and ADMIN.
+     * @param auth the authentication object containing the user's credentials and authorities
+      * @return a SchoolDTO representing the school linked to the authenticated user
+      * @throws ResponseStatusException with status 404 if the user has no school linked, or 401 if the user cannot be resolved from the authentication context
      */
     @GetMapping("/current")
     public SchoolDTO getCurrentSchool(Authentication auth) {
@@ -81,6 +84,10 @@ public class SchoolController {
      * Updates the lending settings of the authenticated user's school.
      * Name, address and campuses are not modifiable through this endpoint.
      * Accessible by BIBLIOTHEEKBEHEERDER and ADMIN.
+     * @param settings a School object containing the updated settings (only lending-related fields will be applied)
+     * @param auth the authentication object containing the user's credentials and authorities
+     * @return a SchoolDTO representing the updated school settings
+     * @throws ResponseStatusException with status 404 if the user has no school linked, or 401 if the user cannot be resolved from the authentication context
      */
     @PutMapping("/current/settings")
     public SchoolDTO updateCurrentSchoolSettings(@RequestBody School settings, Authentication auth) {
@@ -94,6 +101,9 @@ public class SchoolController {
     /**
      * Extracts the authenticated user from the Spring Security context.
      * The principal is stored as the user's numeric ID (set by JwtAuthenticationFilter).
+     * @param auth the authentication object containing the user's credentials and authorities
+     * @return the User entity corresponding to the authenticated user
+     * @throws ResponseStatusException with status 401 if the user cannot be resolved from the authentication context (e.g. invalid principal format or user not found)
      */
     private User resolveUser(Authentication auth) {
         try {

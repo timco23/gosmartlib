@@ -270,10 +270,13 @@ public class SmartschoolOAuthController {
     /**
      * Maps Smartschool role strings to local Role enum.
      * Smartschool returns "leerkracht" or "leerling".
-     * ADMIN and BIBLIOTHEEKBEHEERDER must be manually assigned (they don't come from Smartschool).*/
-    private Role mapSmartschoolRole(String basisrol) {
-        if (basisrol == null) return Role.LEERLING;
-        String r = basisrol.trim().toLowerCase();
+     * ADMIN and BIBLIOTHEEKBEHEERDER must be manually assigned (they don't come from Smartschool).
+     * @param baseRole the role string from Smartschool user info
+     * @return the corresponding Role enum value (defaulting to LEERLING if unrecognized
+     * */
+    private Role mapSmartschoolRole(String baseRole) {
+        if (baseRole == null) return Role.LEERLING;
+        String r = baseRole.trim().toLowerCase();
 
         if (r.contains("leerkracht") || r.contains("leraar") || r.contains("personeel")) {
             return Role.LEERKRACHT;

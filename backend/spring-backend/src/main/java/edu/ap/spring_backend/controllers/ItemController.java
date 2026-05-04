@@ -37,15 +37,13 @@ public class ItemController {
      * The SVG represents a simple placeholder book design and is returned
      * as image content (SVG format).
      */
-    private static final byte[] FALLBACK_COVER_SVG = (
-            "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='180' viewBox='0 0 120 180'>"
-                    + "<rect width='120' height='180' rx='10' fill='#f2f2f2'/>"
-                    + "<rect x='20' y='24' width='80' height='132' rx='8' fill='#ffffff' stroke='#d7d7d7'/>"
-                    + "<rect x='34' y='40' width='22' height='100' rx='4' fill='#9ab3dc'/>"
-                    + "<rect x='64' y='40' width='22' height='100' rx='4' fill='#7f9dce'/>"
-                    + "<line x1='60' y1='40' x2='60' y2='140' stroke='#ffffff' stroke-width='2'/>"
-                    + "</svg>"
-    ).getBytes(StandardCharsets.UTF_8);
+    private static final byte[] FALLBACK_COVER_SVG = ("<svg xmlns='http://www.w3.org/2000/svg' width='120' height='180' viewBox='0 0 120 180'>"
+            + "<rect width='120' height='180' rx='10' fill='#f2f2f2'/>"
+            + "<rect x='20' y='24' width='80' height='132' rx='8' fill='#ffffff' stroke='#d7d7d7'/>"
+            + "<rect x='34' y='40' width='22' height='100' rx='4' fill='#9ab3dc'/>"
+            + "<rect x='64' y='40' width='22' height='100' rx='4' fill='#7f9dce'/>"
+            + "<line x1='60' y1='40' x2='60' y2='140' stroke='#ffffff' stroke-width='2'/>"
+            + "</svg>").getBytes(StandardCharsets.UTF_8);
 
     /**
      * ETag for the fallback cover image.
@@ -74,6 +72,32 @@ public class ItemController {
         return ResponseEntity.ok(itemService.getItemById(id));
     }
 
+    /**
+     * Retrieves a paginated and filtered list of items based on various criteria.
+     * Supports filtering by search term, languages, page count, score, tags,
+     * genres, subgenres, didactic categories, and whether the item is didactic.
+     * Also supports sorting by title, author, score, or pages in ascending or
+     * descending order.
+     * 
+     * @param page
+     * @param size
+     * @param sortBy
+     * @param sortDirection
+     * @param schoolId
+     * @param schoolSpecificBooks
+     * @param search
+     * @param languages
+     * @param minPages
+     * @param maxPages
+     * @param minScore
+     * @param tagIds
+     * @param genreIds
+     * @param subgenreIds
+     * @param didacticCategoryIds
+     * @param didactic
+     * @param authentication
+     * @return
+     */
     @GetMapping("/filteredBooks")
     public ResponseEntity<PageResponseDTO<ItemDTO>> getAllFilteredItems(
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -127,38 +151,24 @@ public class ItemController {
         return ResponseEntity.ok(itemService.get10LatestItems(schoolId));
     }
 
-    @PostMapping("/books")
-    public ResponseEntity<ItemDTO> addItem(@RequestBody CreateItemDTO itemDTO) {
-        return ResponseEntity.ok(itemService.addItem(itemDTO));
-    }
-
-    @PostMapping("/books/import/preview")
-    public ResponseEntity<CsvPreviewDTO> previewImport(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam Long schoolId) {
-        return ResponseEntity.ok(bookCsvImportService.previewImport(file, schoolId));
-    }
-
-    @PostMapping("/books/import/confirm")
-    public ResponseEntity<CsvImportDTO> confirmImport(@RequestBody CsvConfirmDTO dto) {
-        return ResponseEntity.ok(bookCsvImportService.confirmImport(dto));
-    }
-
     /**
      * Retrieves the book cover image for a given book ID.
-     * This endpoint acts as a proxy with server-side caching and supports HTTP caching via ETag.
+     * This endpoint acts as a proxy with server-side caching and supports HTTP
+     * caching via ETag.
      * Behavior:
      * - Returns 200 OK with image bytes if the cover is new or updated.
-     * - Returns 304 Not Modified if the client already has the latest version (based on ETag).
+     * - Returns 304 Not Modified if the client already has the latest version
+     * (based on ETag).
      * - Falls back to a default SVG cover if the real cover cannot be retrieved.
      * Caching:
      * - Uses Cache-Control headers (public, max-age = 6 hours, must-revalidate).
      * - Uses ETag to reduce unnecessary data transfer.
-     * @param id           the ID of the book
-     * @param ifNoneMatch  optional ETag from the client (If-None-Match header)
-     * @return             ResponseEntity containing:
-     *                     - image bytes (PNG/JPEG/SVG) with 200 OK, or
-     *                     - no body with 304 Not Modified
+     * 
+     * @param id          the ID of the book
+     * @param ifNoneMatch optional ETag from the client (If-None-Match header)
+     * @return ResponseEntity containing:
+     *         - image bytes (PNG/JPEG/SVG) with 200 OK, or
+     *         - no body with 304 Not Modified
      */
     @GetMapping("/books/{id}/cover")
     public ResponseEntity<byte[]> getBookCover(
@@ -199,61 +209,88 @@ public class ItemController {
         }
     }
 
-    @DeleteMapping("/books/{id}")
-    public ResponseEntity<ItemDTO> deleteItem(@PathVariable Long id) {
-        return ResponseEntity.ok(itemService.deleteItem(id));
-    }
-
-    @PutMapping("/books/{id}")
-    public ResponseEntity<ItemDTO> updateItem(@RequestBody UpdateItemDTO itemDTO,
-            @PathVariable Long id) {
-        return ResponseEntity.ok(itemService.updateItem(id, itemDTO));
-    }
-
-    // Fetches a specific selection of copies by their own IDs.
-    // Used by: barcode print page (flow: newly created copies after CSV import)
+    /**
+     * Fetches a list of book copies based on their unique copy IDs.
+     * This endpoint is designed to retrieve specific copies, often after they have been created (e.g., via CSV import) and the client has their IDs.
+     * @param copyIds
+     * @return a list of SchoolItemCopyDTOs corresponding to the provided copy IDs
+     */
     @GetMapping("/books/copies")
     public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByIds(
             @RequestParam @Size(min = 1, max = 1000) List<Integer> copyIds) {
         return ResponseEntity.ok(schoolItemCopyService.getCopiesByIds(copyIds));
     }
 
-    // Fetches a single copy by its own ID.
-    // Used by: lending/return flow (barcode scan -> look up copy)
+    /**
+     * Fetches a single book copy based on its unique copy ID.
+     * @param copyId
+     * @return a SchoolItemCopyDTO corresponding to the specified copy ID
+     */
     @GetMapping("/books/copies/id/{copyId}")
     public ResponseEntity<SchoolItemCopyDTO> getCopyById(@PathVariable int copyId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopyById(copyId));
     }
 
-    // Fetches all copies of a book for a specific school.
-    // Used by: edit-book page (display copy list), barcode print page
+    /**
+     * Fetches all copies of a book (item) for a specific school.
+     * @param itemId
+     * @param schoolId
+     * @return a list of SchoolItemCopyDTOs corresponding to the specified item ID and school ID
+     */
     @GetMapping("/books/copies/{itemId}")
     public ResponseEntity<List<SchoolItemCopyDTO>> getCopiesByItemIdAndSchoolId(
             @PathVariable Long itemId, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getCopiesByItemIdAndSchoolId(itemId, schoolId));
     }
 
-    // Fetches a single copy by its barcode string value.
-    // Used by: lending/return flow (barcode scanner input)
+    /**
+     * Fetches a single book copy based on its unique barcode string.
+     * @param barcode
+     * @return a SchoolItemCopyDTO corresponding to the specified barcode
+     */
     @GetMapping("/books/copies/barcode/{barcode}")
     public ResponseEntity<SchoolItemCopyDTO> getCopyByBarcode(@PathVariable String barcode) {
         return ResponseEntity.ok(schoolItemCopyService.getCopyByBarcode(barcode));
     }
 
-    // Fetches a single copy by book title and school.
-    // Used by: lending/return flow (search by title)
+    /**
+     * Fetches a single book copy based on the book's title and the school ID.
+     * @param title
+     * @param schoolId
+     * @return a SchoolItemCopyDTO corresponding to the specified book title and school ID
+     */
     @GetMapping("/books/copies/search")
     public ResponseEntity<SchoolItemCopyDTO> getCopyByItemTitle(
             @RequestParam String title, @RequestParam Long schoolId) {
         return ResponseEntity.ok(schoolItemCopyService.getByItemTitleAndSchoolId(title, schoolId));
     }
-
-    // Returns the barcode of a copy as a PNG image.
-    // Used by: barcode print page (fetch and display individual barcode image)
+    
+    /**
+     * Returns the barcode image (in PNG format) for a specific book copy based on its unique copy ID.
+     * @param copyId
+     * @return a ResponseEntity containing the PNG image bytes of the barcode corresponding to the specified copy ID
+     */
     @GetMapping(value = "/books/copies/{copyId}/barcode", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getBarcodePng(@PathVariable int copyId) {
         SchoolItemCopyDTO copy = schoolItemCopyService.getCopyById(copyId);
         return ResponseEntity.ok(barcodeService.generateBarcodePng(copy.barcode()));
+    }
+
+    @PostMapping("/books")
+    public ResponseEntity<ItemDTO> addItem(@RequestBody CreateItemDTO itemDTO) {
+        return ResponseEntity.ok(itemService.addItem(itemDTO));
+    }
+    
+    @PostMapping("/books/import/preview")
+    public ResponseEntity<CsvPreviewDTO> previewImport(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam Long schoolId) {
+        return ResponseEntity.ok(bookCsvImportService.previewImport(file, schoolId));
+    }
+
+    @PostMapping("/books/import/confirm")
+    public ResponseEntity<CsvImportDTO> confirmImport(@RequestBody CsvConfirmDTO dto) {
+        return ResponseEntity.ok(bookCsvImportService.confirmImport(dto));
     }
 
     @PostMapping("/books/copies")
@@ -265,11 +302,6 @@ public class ItemController {
     public ResponseEntity<List<SchoolItemCopyDTO>> addCopiesBulk(
             @RequestBody List<CreateSchoolItemCopyDTO> copyDTOs) {
         return ResponseEntity.ok(schoolItemCopyService.addCopies(copyDTOs));
-    }
-
-    @DeleteMapping("/books/copies/{id}")
-    public ResponseEntity<SchoolItemCopyDTO> deleteCopy(@PathVariable int id) {
-        return ResponseEntity.ok(schoolItemCopyService.deleteCopy(id));
     }
 
     @PutMapping("/books/copies/{id}")
@@ -284,8 +316,25 @@ public class ItemController {
         return ResponseEntity.ok(schoolItemCopyService.updateCopyStatus(copyId, status));
     }
 
+    @PutMapping("/books/{id}")
+    public ResponseEntity<ItemDTO> updateItem(@RequestBody UpdateItemDTO itemDTO,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(itemService.updateItem(id, itemDTO));
+    }
+
     @PutMapping("/books/copies/{copyId}/condition")
-    public ResponseEntity<SchoolItemCopyDTO> updateCopyCondition(@PathVariable int copyId, @RequestParam String condition) {
+    public ResponseEntity<SchoolItemCopyDTO> updateCopyCondition(@PathVariable int copyId,
+            @RequestParam String condition) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopyCondition(copyId, condition));
+    }
+
+    @DeleteMapping("/books/{id}")
+    public ResponseEntity<ItemDTO> deleteItem(@PathVariable Long id) {
+        return ResponseEntity.ok(itemService.deleteItem(id));
+    }
+
+    @DeleteMapping("/books/copies/{id}")
+    public ResponseEntity<SchoolItemCopyDTO> deleteCopy(@PathVariable int id) {
+        return ResponseEntity.ok(schoolItemCopyService.deleteCopy(id));
     }
 }
