@@ -5,9 +5,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
-/**
- * DTO used to create a new review.
- */
 public record CreateReviewDTO(
         @JsonProperty("description")
         @Size(max = 800, message = "Description mag maximaal 800 karakters bevatten")

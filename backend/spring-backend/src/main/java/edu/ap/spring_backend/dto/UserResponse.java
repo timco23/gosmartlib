@@ -17,19 +17,6 @@ public class UserResponse {
     private ItemDTO[] favoriteBooks;
     private Integer itemsBorrowed;
 
-    /**
-     * Constructor for user profile response.
-     * @param id user ID
-     * @param name user's last name
-     * @param firstName user's first name
-     * @param email user's email
-     * @param role user role (ADMIN, LEERLING, LEERKRACHT or BEHEERDER)
-     * @param studentNumber student number (null for admins)
-     * @param className class name (null for admins)
-     * @param schoolName school name (null for admins)
-     * @param schoolId school ID (null for admins)
-     * @param favoriteBooks list of user's favorite books
-     */
     public UserResponse(Integer id, String name, String firstName, String email, String role,
                        String studentNumber, String className, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer items_borrowed) {
         this.id = id;
@@ -45,7 +32,6 @@ public class UserResponse {
         this.itemsBorrowed = items_borrowed;
     }
     
-    // Getters
     public Integer getId() { return id; }
     public String getName() { return name; }
     public String getFirstName() { return firstName; }
@@ -58,7 +44,6 @@ public class UserResponse {
     public ItemDTO[] getFavoriteBooks() { return favoriteBooks; }
     public Integer getItems_borrowed() { return itemsBorrowed; }
     
-    // Setters
     public void setId(Integer id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

@@ -3,9 +3,6 @@ package edu.ap.spring_backend.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * DTO for the Smartschool "fulluserinfo" response.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SmartschoolUserInfo {
     @JsonProperty("userID")
@@ -27,7 +24,7 @@ public class SmartschoolUserInfo {
     private String email;
 
     @JsonProperty("basisrol")
-    private String basisrol; // "Leerling" of "Leerkracht"
+    private String basisrol;
 
     @JsonProperty("isCoAccount")
     private Integer isCoAccount;
