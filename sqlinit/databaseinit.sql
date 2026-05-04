@@ -431,7 +431,8 @@ CREATE TABLE IF NOT EXISTS lending (
 create table if not exists class (
 	id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     class_name varchar(100) not null,
-    school_id BIGINT NOT NULL
+    school_id BIGINT NOT NULL,
+    foreign key (school_id) references school(id) on delete cascade
 );
 
 create table if not exists class_user (
