@@ -26,7 +26,7 @@ public class DidacticCategoryController {
     }
 
     @GetMapping()
-    public List<DidacticCategory> GetAll(){
+    public List<DidacticCategory> getAll(){
         return didacticCategoryService.getAll();
     }
 

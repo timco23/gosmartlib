@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import edu.ap.spring_backend.jpa.ReadingLevel;
 
 @Repository
-public interface ReadingLevelRepository extends JpaRepository<ReadingLevel, Integer> {
+public interface ReadingLevelRepository extends JpaRepository<ReadingLevel, Long> {
     
 }

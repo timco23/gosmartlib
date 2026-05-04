@@ -224,7 +224,7 @@ public class ItemService {
     private ReadingLevel getReadingLevelById(Long id) {
         if (id == null)
             return null;
-        return readingLevelRepository.findById(id.intValue()).orElse(null);
+        return readingLevelRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     private ItemDTO mapToItemDTO(Item item) {

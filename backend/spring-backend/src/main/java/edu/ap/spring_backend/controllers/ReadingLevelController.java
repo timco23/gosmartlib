@@ -19,7 +19,7 @@ public class ReadingLevelController {
     }
 
     @GetMapping()
-    public List<ReadingLevel> GetAll(){
-        return readingLevelService.GetAllReadingLevels();
+    public List<ReadingLevel> getAll(){
+        return readingLevelService.getAllReadingLevels();
     }
 }

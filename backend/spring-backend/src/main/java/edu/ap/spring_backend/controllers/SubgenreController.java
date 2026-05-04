@@ -26,8 +26,8 @@ public class SubgenreController {
     }
 
     @GetMapping()
-    public List<Subgenre> GetAllSubgenres() {
-        return subgenreService.GetAll();
+    public List<Subgenre> getAllSubgenres() {
+        return subgenreService.getAll();
     }
 
     @PostMapping()

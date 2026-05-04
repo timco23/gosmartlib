@@ -19,7 +19,7 @@ public class SubgenreService {
         this.genreService = genreService;
     }
 
-    public List<Subgenre> GetAll() {
+    public List<Subgenre> getAll() {
         return subgenreRepository.findAll();
     }
 
