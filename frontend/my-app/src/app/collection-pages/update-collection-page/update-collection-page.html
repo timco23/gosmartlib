@@ -2,9 +2,7 @@
     (addBookEvent)="addBook()"></app-select-book-popup>
 
 <div class="form-container">
-    <header>
-        <h1 class="page-title">Collectie wijzigen</h1>
-    </header>
+    <h1 class="page-title">Collectie wijzigen</h1>
     <main>
         @if(!loading) {
         <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">

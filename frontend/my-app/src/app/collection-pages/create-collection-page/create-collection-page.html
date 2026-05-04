@@ -2,9 +2,7 @@
     (addBookEvent)="addBook()"></app-select-book-popup>
 
 <div class="form-container">
-    <header>
-        <h1 class="page-title">Collectie toevoegen</h1>
-    </header>
+    <h1 class="page-title">Collectie toevoegen</h1>
     <main>
         @if(!loading) {
         <form class="book-form" [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -42,7 +40,7 @@
                     <ul class="book-grid">
                         @for(book of books; track $index) {
                         <li class="book-card">
-                            <span (click)="removeBook(book.id)" class="removeBookButton">×</span>
+                            <span (click)="removeBook(book.id)" class="removeBookButton">x</span>
                             <div class="book-cover-container" (click)="goToBookDetails(book.id)">
                                 @if(book.cover) {
                                 <img [src]="coverSrc(book)" [alt]="book.title || 'Boek cover'"
