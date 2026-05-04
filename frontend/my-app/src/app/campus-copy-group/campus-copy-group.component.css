@@ -1,87 +1,135 @@
 .campus-group-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border: 1px solid #8c1b3f;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-  background-color: #fafaf5;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  background: var(--color-surface-2);
+  transition: background var(--transition-base), border-color var(--transition-base);
 }
 
+/* --- Header --- */
 .campus-group-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: var(--space-1);
 }
 
 .campus-group-title {
-  font-weight: 600;
-  color: #8c1b3f;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-1);
+  letter-spacing: -0.01em;
 }
 
+/* --- Remove button --- */
 .remove-group-btn {
-  background: none;
-  border: none;
-  color: #8c1b3f;
+  background: transparent;
+  border: 1px solid var(--color-border-hover);
+  color: var(--color-danger);
   cursor: pointer;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-sm);
   width: auto;
   margin-top: 0;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .remove-group-btn:hover {
-  background-color: #fde8ef;
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
 }
 
+/* --- Labels --- */
 label {
-  font-weight: 600;
-  margin-top: 4px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: var(--space-2);
 }
 
+/* --- Inputs --- */
 select,
 input[type='number'],
 input[type='text'] {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #bfbfe8;
-  font-size: 14px;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-1);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  padding: 0.5rem 0.75rem;
   width: 100%;
   box-sizing: border-box;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23555555' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
 }
 
 select:focus,
 input:focus {
   outline: none;
-  border-color: #8c1b3f;
-  box-shadow: 0 0 3px rgba(140, 27, 63, 0.3);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-tint);
 }
 
+/* --- Copy rows table --- */
 .copy-rows-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 4px;
-}
-
-.copy-rows-table th,
-.copy-rows-table td {
-  padding: 6px 10px;
-  border: 1px solid #bfbfe8;
-  text-align: left;
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
 }
 
 .copy-rows-table th {
-  background-color: #f4f4f4;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
 }
 
+.copy-rows-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-2);
+  vertical-align: middle;
+}
+
+.copy-rows-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.copy-rows-table tbody tr:hover td {
+  background: var(--color-surface-1);
+}
+
+/* Compact selects inside the table */
 .copy-rows-table select,
 .copy-rows-table input[type='text'] {
-  width: 100%;
-  padding: 4px 6px;
-  border: 1px solid #bfbfe8;
-  border-radius: 4px;
-  box-sizing: border-box;
+  padding: 0.3125rem 0.5rem;
+  font-size: var(--text-xs);
+  background: var(--color-surface-2);
+  padding-right: 1.75rem;
 }

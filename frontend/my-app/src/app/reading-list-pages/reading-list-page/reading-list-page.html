@@ -1,11 +1,13 @@
 <body>
   <app-share-list-popup [(link)]="copyLink" [(shown)]="showPopup"></app-share-list-popup>
-  <header>
-    <button (click)="addList()">Klasleeslijst toevoegen</button>
-  </header>
 
   <main>
-    <h1>Huidige klasleeslijsten</h1>
+    <div class="page-header">
+      <h1>Huidige klasleeslijsten</h1>
+      <div class="header-actions">
+        <button (click)="addList()">Klasleeslijst toevoegen</button>
+      </div>
+    </div>
     @if (!loading && readingLists!.length >= 1) {
       <ul>
         @for (list of readingLists; track $index) {
