@@ -22,7 +22,6 @@ public class ReadingLevel {
     @Column(length = 1000, nullable = false)
     private String description;
 
-    // constructors
     public ReadingLevel() {
     }
 

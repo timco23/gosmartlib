@@ -5,9 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
 
-/**
- * JPA entity that represents a review on an item.
- */
 @Entity
 @Getter
 @Setter
@@ -30,7 +27,6 @@ public class Review {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isAnonymous; 
 
-    // If createdAt is still null then sets createdAt to LocalDate.now()
     @PrePersist
     public void prePersist() {
         if (this.createdAt == null) {
@@ -52,9 +48,6 @@ public class Review {
 
     public Review() {}
 
-    /**
-     * Creates a review and sets the creation date to today.
-     */
     public Review(String description, int stars, Item item, User author, boolean isAnonymous) {
         this.description = description;
         this.stars = stars;

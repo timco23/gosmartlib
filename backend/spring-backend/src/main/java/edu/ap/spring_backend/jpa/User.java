@@ -4,10 +4,6 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Entity representing a user in the library system.
- * Users can be administrators, students (leerlingen), teachers (leerkrachten) or managers (beheerders).
- */
 @Entity
 @Table(name = "user")
 public class User {
@@ -58,9 +54,6 @@ public class User {
     @Column(name = "refresh_token")
     private String refreshToken;
 
-    /**
-     * Default constructor
-     */
     public User() {}
     
     /**
@@ -77,7 +70,6 @@ public class User {
         this.role = role;
     }
     
-    // Getters
     public Integer getId() { return id; }
     public String getName() { return name; }
     public String getFirstName() { return firstName; }
@@ -92,7 +84,6 @@ public class User {
     public List<Item> getFavoriteBooks() { return favoriteBooks; }
     public Integer getItemsBorrowed() { return itemsBorrowed; }
     
-    // Setters
     public void setName(String name) { this.name = name; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setEmail(String email) { this.email = email; }

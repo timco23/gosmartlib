@@ -19,7 +19,6 @@ public class DidacticCategory {
     @Column(unique = true)
     private String name;
 
-    // constructors
     public DidacticCategory() {
     }
 
