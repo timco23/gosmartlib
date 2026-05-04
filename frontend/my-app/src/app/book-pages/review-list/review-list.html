@@ -1,12 +1,4 @@
 <div class="review-list">
-  @if (isAdminOrBeheerder && reviews.length > 0) {
-    <div class="review-list-header">
-      <button class="delete-all-btn" type="button" (click)="onDeleteAll()">
-        Alle reviews verwijderen
-      </button>
-    </div>
-  }
-
   @if (reviews.length === 0) {
     <p class="no-reviews">Nog geen reviews</p>
   }

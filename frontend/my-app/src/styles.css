@@ -85,6 +85,18 @@
   --color-blue-bg:     rgba(60, 110, 220, 0.10);
   --color-blue-border: rgba(60, 110, 220, 0.20);
 
+  --color-danger:        #b42318;
+  --color-danger-dark:   #912018;
+  --color-danger-bg:     rgba(180, 35, 24, 0.08);
+  --color-danger-border: rgba(180, 35, 24, 0.18);
+
+  --color-indigo:        #3730a3;
+  --color-indigo-active: #3730a3;
+  --color-indigo-bg:     #eef2ff;
+  --color-indigo-border: #c7d2fe;
+
+  --color-primary-rose: #d14d72;
+
   /* --- Transitions --- */
   --transition-fast: 150ms ease;
   --transition-base: 220ms ease;
@@ -123,6 +135,14 @@
   --shadow-lg:    0 8px 32px rgba(0, 0, 0, 0.65);
   --shadow-cover: 4px 8px 24px rgba(0, 0, 0, 0.75);
   --shadow-red:   0 4px 20px rgba(140, 27, 63, 0.35);
+
+  --color-danger-bg:     rgba(180, 35, 24, 0.14);
+  --color-danger-border: rgba(180, 35, 24, 0.28);
+
+  --color-indigo:        #a5b4fc;
+  --color-indigo-active: #4338ca;
+  --color-indigo-bg:     rgba(99, 102, 241, 0.15);
+  --color-indigo-border: rgba(99, 102, 241, 0.32);
 }
 
 /*

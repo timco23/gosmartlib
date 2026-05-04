@@ -1,96 +1,99 @@
-/* ── Page layout ─────────────────────────────────────────── */
-
+/* Page layout */
 .print-page-container {
   max-width: 1250px;
-  margin: 40px auto;
-  padding: 20px;
+  margin: var(--space-10) auto;
+  padding: var(--space-5);
 }
 
 h1 {
-  margin: 0 0 15px;
-  color: #8c1b3f;
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-text-1);
 }
 
 .page-card {
-  background: #f0efe4;
-  border-radius: 10px;
-  border: 1px solid #8c1b3f;
-  padding: 30px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-md);
 }
 
-/* ── Controls bar ─────────────────────────────────────────── */
-
+/* Controls bar */
 .controls {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
   flex-wrap: wrap;
 }
 
 .selection-controls {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   margin-left: auto;
 }
 
-/* ── Buttons ──────────────────────────────────────────────── */
-
+/* Buttons — base reset */
 button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 0.5625rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
   width: auto;
   margin: 0;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 button:active {
   transform: scale(0.98);
 }
 
+/* Back button — secondary outline style, visible in both modes */
 .btn-secondary {
-  background-color: black;
-  color: white;
+  background: transparent;
+  color: var(--color-text-2);
+  border: 1px solid var(--color-border-hover);
 }
-
 .btn-secondary:hover {
-  background-color: #333;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
+/* Neutral — select/deselect, history toggle */
 .btn-neutral {
-  background-color: white;
-  color: #333;
-  border: 1px solid #bfbfe8;
+  background: transparent;
+  color: var(--color-text-2);
+  border: 1px solid var(--color-border-hover);
 }
-
 .btn-neutral:hover {
-  background-color: #bfbfe8;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
+/* Primary — print */
 .btn-primary {
-  background-color: #8c1b3f;
-  color: white;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
 }
-
 .btn-primary:hover:not(:disabled) {
-  background-color: #6f1532;
+  background: var(--color-primary-bright);
+  box-shadow: var(--shadow-red);
 }
-
 .btn-primary:disabled {
-  background-color: #bfbfe8;
-  color: #888;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* ── Import history dropdown ──────────────────────────────── */
-
+/* Import history dropdown */
 .history-dropdown {
   position: relative;
   display: flex;
@@ -105,10 +108,10 @@ button:active {
   top: calc(100% + 6px);
   left: 0;
   z-index: 100;
-  background: white;
-  border: 1px solid #d6d5c9;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   min-width: 260px;
   overflow: hidden;
 }
@@ -117,59 +120,61 @@ button:active {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: var(--space-1);
   width: 100%;
-  padding: 10px 14px;
-  background: white;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-1);
   border: none;
-  border-bottom: 1px solid #f0efe4;
+  border-bottom: 1px solid var(--color-border);
   border-radius: 0;
+  font-family: var(--font-body);
   font-weight: normal;
+  font-size: var(--text-sm);
   cursor: pointer;
   text-align: left;
-  transition: background-color 0.15s ease;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-text-1);
+  transition: background var(--transition-fast);
 }
-
 .history-item:last-child {
   border-bottom: none;
 }
-
 .history-item:hover {
-  background-color: #faf9f4;
+  background: var(--color-surface-2);
 }
 
 .history-date {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-1);
 }
 
 .history-meta {
-  font-size: 0.75rem;
-  color: #888;
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
 }
 
-/* ── Copy checklist ───────────────────────────────────────── */
-
+/* Copy checklist */
 .copy-list {
   display: flex;
   flex-direction: column;
-  border: 1px solid #d6d5c9;
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  margin-bottom: 28px;
+  margin-bottom: var(--space-8);
 }
 
 .copy-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background-color: #8c1b3f;
-  color: white;
-  font-size: 0.8rem;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--text-xs);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -186,28 +191,26 @@ button:active {
 .copy-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 13px;
-  border-top: 1px solid #e8e7df;
-  border-left: 3px solid #ccc;
-  background-color: white;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border-hover);
+  background: var(--color-surface-1);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background var(--transition-fast);
 }
-
 .copy-row:hover {
-  background-color: #faf9f4;
+  background: var(--color-surface-2);
 }
-
 .copy-row.is-selected {
-  background-color: #fdf0f4;
-  border-left-color: #8c1b3f;
+  background: var(--color-primary-tint);
+  border-left-color: var(--color-primary);
 }
 
 .copy-row input[type='checkbox'] {
   width: 16px;
   height: 16px;
-  accent-color: #8c1b3f;
+  accent-color: var(--color-primary);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -218,54 +221,52 @@ button:active {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.875rem;
-  color: #333;
+  font-size: var(--text-sm);
+  color: var(--color-text-1);
 }
 
 .copy-row span.mono {
   font-family: monospace;
-  font-size: 0.85rem;
-  color: #555;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
 }
 
-/* ── Section header ───────────────────────────────────────── */
-
+/* Section header */
 .section-header {
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
-  margin-bottom: 16px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .section-title {
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 700;
-  color: #8c1b3f;
+  color: var(--color-primary);
 }
 
 .section-count {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
 }
 
-/* ── Barcode grid ─────────────────────────────────────────── */
-
+/* Barcode grid */
 .barcode-labels {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .barcode-label {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: white;
-  border: 1px solid #d6d5c9;
-  border-radius: 8px;
-  padding: 14px 16px 10px;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-4) var(--space-3);
   width: fit-content;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .barcode-label img {
@@ -273,11 +274,10 @@ button:active {
 }
 
 .barcode-book-title {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: #222;
+  color: var(--color-text-1);
   margin: 0;
-  padding: 0;
   text-align: center;
   max-width: 180px;
   overflow-wrap: break-word;
@@ -285,21 +285,19 @@ button:active {
 
 .barcode-text {
   font-family: monospace;
-  font-size: 0.85rem;
-  color: #555;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
   margin: 0;
-  padding: 0;
 }
 
-/* ── Status messages ──────────────────────────────────────── */
-
+/* Status messages */
 .status-message {
-  color: #555;
+  color: var(--color-text-3);
   font-style: italic;
+  font-size: var(--text-sm);
 }
 
-/* ── Print styles ─────────────────────────────────────────── */
-
+/* Print styles — always white/black, no theming */
 @media print {
   .no-print {
     display: none !important;
@@ -323,9 +321,15 @@ button:active {
   }
 
   .barcode-label {
+    background: #fff;
     border: 1px solid #ccc;
     border-radius: 0;
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+
+  .barcode-book-title,
+  .barcode-text {
+    color: #000;
   }
 }
