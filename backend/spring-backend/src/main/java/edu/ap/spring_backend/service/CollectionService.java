@@ -22,7 +22,6 @@ public class CollectionService {
         this.collectionRepository = collectionRepository;
     }
 
-    //Gets all collections by their school id
     public List<CollectionDTO> findBySchoolId(Long schoolId) {
         List<Collection> collections;
         if (schoolId == 0) {
@@ -34,25 +33,21 @@ public class CollectionService {
         return collections.stream().map(collection -> mapToCollectionDTO(collection)).toList();
     }
 
-    //Gets a collection by its id
     public CollectionDTO findById(Long id) {
         Collection collection = collectionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         return mapToCollectionDTO(collection);
     }
 
-    //Gets all featured collections that a school has
     public List<CollectionDTO> getFeaturedBySchoolId(Long schoolId) {
         List<Collection> collections = collectionRepository.findBySchoolIdAndFeatured(schoolId, true);
         return collections.stream().map(collection -> mapToCollectionDTO(collection)).toList();
     }
 
-    //Gets all globally featured collections
     public List<CollectionDTO> getByGloballyFeatured() {
         List<Collection> collections = collectionRepository.findByGloballyFeatured(true);
         return collections.stream().map(collection -> mapToCollectionDTO(collection)).toList();
     }
 
-    //Adds a collection to the database
     public CollectionDTO addCollection(CreateCollectionDTO collectionDTO) {
         List<Item> items = new ArrayList<>();
         collectionDTO.itemIds().forEach(itemId -> {
@@ -76,7 +71,6 @@ public class CollectionService {
         throw new RuntimeException("Cannot add collection with no items.");
     }
 
-    //Updates a collection in the database according to its id
     public CollectionDTO updateCollection(CreateCollectionDTO collectionDTO, Long id) {
         Collection collection = collectionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         List<Item> newItems = new ArrayList<>();
@@ -98,24 +92,25 @@ public class CollectionService {
         throw new RuntimeException("Cannot update collection with no items.");
     }
 
-    //Deletes a collection in the database according to its id
     public CollectionDTO deleteCollection(Long id) {
         Collection collection = collectionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         collectionRepository.delete(collection);
         return mapToCollectionDTO(collection);
     }
 
-    //Checks if a given item is in any collection by its id
     public boolean isItemInAnyCollection(Long itemId) {
         return collectionRepository.existsByItems_Id(itemId);
     }
 
-    //Checks if a given item is in any current globally featured collection by its id
     public boolean isItemInAnyGloballyFeaturedCollection(Long itemId) {
         return collectionRepository.existsByItems_IdAndGloballyFeatured(itemId, true);
     }
 
-    //Converts a Collection to a CollectionDTO
+    /**
+     * Converts a Collection entity to a CollectionDTO, including mapping its associated Items to ItemDTOs. This method is used to transform the data from the database format to the format expected by the API clients. It handles the mapping of all relevant fields and relationships, ensuring that the resulting CollectionDTO contains all necessary information for the frontend to display collections properly.
+      * @param collection the Collection entity to convert
+      * @return a CollectionDTO containing the data from the Collection entity, including mapped ItemDTOs for each associated Item
+     */
     private CollectionDTO mapToCollectionDTO(Collection collection){
         return new CollectionDTO(
                 collection.getId(),
@@ -128,7 +123,11 @@ public class CollectionService {
         );
     }
 
-    // Converts an Item to an ItemDTO
+    /**
+     * Converts an Item entity to an ItemDTO, including mapping its associated Tags, Genres, Subgenres, ReadingLevel, and DidacticCategories to their respective DTOs. This method is used as part of the mapping process when converting a Collection entity to a CollectionDTO, ensuring that all relevant data about the Items in the collection is included in the API response. It handles potential null values and ensures that the resulting ItemDTO contains all necessary information for the frontend to display item details properly.
+     * @param item
+     * @return an ItemDTO containing the data from the Item entity, including mapped TagDTOs for each associated Tag, genre and subgenre IDs, reading level ID, and didactic category IDs.
+     */
     private ItemDTO mapToItemDTO(Item item) {
         List<TagDTO> tags = item.getTags().stream()
                 .map(tag -> new TagDTO((long) tag.getId(), tag.getName()))
@@ -154,10 +153,10 @@ public class CollectionService {
                 item.getDidacticCategories() != null
                         ? item.getDidacticCategories().stream().map(d -> (long) d.getId()).toList()
                         : List.of(),
-                null, // schoolId (of juiste waarde)
-                false, // featured (of uit copy halen)
+                null,
+                false,
                 item.isDidactic(),
-                null // campusId
+                null
         );
     }
 }

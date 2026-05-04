@@ -46,7 +46,6 @@ public class SchoolService {
         existingSchool.setReviews(updatedSchool.isReviews());
         existingSchool.setReviewModeration(updatedSchool.isReviewModeration());
 
-        // Update campussen
         existingSchool.getCampuses().clear();
         for (Campus campus : updatedSchool.getCampuses()) {
             existingSchool.addCampus(new Campus(campus.getName(), existingSchool));
@@ -67,7 +66,6 @@ public class SchoolService {
         return school;
     }
 
-    //used by BIBLIOTHEEKBEHEERDER
     public School updateSchoolSettings(Long id, School updatedSchool) {
         School existingSchool = schoolRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("School not found with id " + id));

@@ -21,9 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
-/**
- * Service containing business logic for item reviews.
- */
 @Service
 public class ReviewService {
 
@@ -33,14 +30,6 @@ public class ReviewService {
     private final ProfanityFilterService profanityFilterService;
     private final ReviewReportRepository reviewReportRepository;
 
-    /**
-     * Creates a new {@link ReviewService}.
-     * @param reviewRepository repository for reviews
-     * @param itemRepository repository for items
-     * @param userRepository repository for users
-     * @param profanityFilterService service for bad words
-     * @param reviewReportRepository repository reported reviews
-     */
     public ReviewService(ReviewRepository reviewRepository, ItemRepository itemRepository,
             UserRepository userRepository, ProfanityFilterService profanityFilterService,  ReviewReportRepository reviewReportRepository) {
         this.reviewRepository = reviewRepository;
@@ -289,8 +278,6 @@ public class ReviewService {
                 ? review.getAuthor().getFirstName() + " " + review.getAuthor().getName()
                 : review.getAuthor().getName();
 
-        // The backend ALWAYS passes the real name
-        // The frontend determines what is displayed based on isAnonymous and userRole
         return new ReviewDTO(
                 review.getId(),
                 review.getDescription(),
@@ -304,11 +291,6 @@ public class ReviewService {
         );
     }
 
-    /**
-     * Checks if a string contains non-whitespace text.
-     * @param s string to check
-     * @return true if not null and not empty
-     */
     private boolean hasText(String s) {
         return s != null && !s.trim().isEmpty();
     }

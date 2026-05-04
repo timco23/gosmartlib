@@ -41,6 +41,11 @@ public class GoogleBooksProvider implements BookMetadataProvider {
     @Override
     public boolean isEnabled() { return enabled; }
 
+    /**
+     * Fetches book metadata from the Google Books API using the provided ISBN. Implements rate limiting to comply with API usage policies. Handles various error scenarios gracefully, returning an empty Optional if the fetch fails for any reason (e.g. network issues, API errors, no results found, etc.).
+     * @param isbn the ISBN of the book to fetch metadata for
+     * @return an Optional containing the BookMetadata if found, or empty if not found or an error occurred
+     */
     @Override
     public Optional<BookMetadata> fetchByIsbn(String isbn) {
         try {
@@ -64,6 +69,11 @@ public class GoogleBooksProvider implements BookMetadataProvider {
         return Optional.empty();
     }
 
+    /**
+     * Converts Google Books API volume info to our internal BookMetadata format.
+     * @param info
+     * @return BookMetadata object with fields mapped from the Google Books response. Handles missing or malformed data gracefully.
+     */
     private BookMetadata toBookMetadata(GoogleBooksResponse.VolumeInfo info) {
         String authors = null;
         if (info.authors() != null && !info.authors().isEmpty()) {
@@ -93,6 +103,4 @@ public class GoogleBooksProvider implements BookMetadataProvider {
                 coverUrl
         );
     }
-
-
 }

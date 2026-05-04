@@ -56,7 +56,7 @@ public class LendingService {
                                 : null,
                         lending.getBook().getItem().getTitle(),
                         lending.getBook().getItem().getAuthor(),
-                        getItemId(lending), // itemId
+                        getItemId(lending),
                         lending.getSchool().getId(),
                         lending.getLendingDate().toString(),
                         lending.getReturnDate().toString(),
@@ -91,7 +91,7 @@ public class LendingService {
                         : null,
                 saved.getBook().getItem().getTitle(),
                 saved.getBook().getItem().getAuthor(),
-                getItemId(saved), // itemId
+                getItemId(saved),
                 saved.getSchool().getId(),
                 saved.getLendingDate().toString(),
                 saved.getReturnDate().toString(),
@@ -120,7 +120,7 @@ public class LendingService {
                         : null,
                 saved.getBook().getItem().getTitle(),
                 saved.getBook().getItem().getAuthor(),
-                getItemId(saved), // itemId
+                getItemId(saved),
                 saved.getSchool().getId(),
                 saved.getLendingDate().toString(),
                 saved.getReturnDate().toString(),
@@ -146,7 +146,7 @@ public class LendingService {
                                 : null,
                         lending.getBook().getItem().getTitle(),
                         lending.getBook().getItem().getAuthor(),
-                        getItemId(lending), // itemId
+                        getItemId(lending),
                         lending.getSchool().getId(),
                         lending.getLendingDate().toString(),
                         lending.getReturnDate().toString(),
@@ -181,7 +181,7 @@ public class LendingService {
                         : null,
                 saved.getBook().getItem().getTitle(),
                 saved.getBook().getItem().getAuthor(),
-                getItemId(saved), // itemId
+                getItemId(saved),
                 saved.getSchool().getId(),
                 saved.getLendingDate().toString(),
                 saved.getReturnDate().toString(),
@@ -203,7 +203,7 @@ public class LendingService {
                                         : null,
                                 lending.getBook().getItem().getTitle(),
                                 lending.getBook().getItem().getAuthor(),
-                                getItemId(lending), // itemId
+                                getItemId(lending),
                                 lending.getSchool().getId(),
                                 lending.getLendingDate().toString(),
                                 lending.getReturnDate().toString(),

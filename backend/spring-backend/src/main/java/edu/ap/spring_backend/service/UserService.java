@@ -93,10 +93,10 @@ public class UserService {
                                                 ? item.getDidacticCategories().stream().map(d -> (long) d.getId())
                                                                 .toList()
                                                 : List.of(),
-                                null, // schoolId (of juiste waarde)
-                                false, // featured (of uit copy halen)
+                                null,
+                                false,
                                 item.isDidactic(),
-                                null // campusId
+                                null
                 );
         }
 

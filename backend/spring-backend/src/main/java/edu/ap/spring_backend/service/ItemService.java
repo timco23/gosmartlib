@@ -74,7 +74,11 @@ public class ItemService {
         return new PageResponseDTO<>(items.map(this::mapToItemDTO));
     }
 
-    // Stop illogical requests
+    /**
+     * Validates the ItemRequestDTO to ensure that the provided parameters are logically consistent. Specifically, it checks that if both minPages and maxPages are provided, minPages is not greater than maxPages. If this condition is violated, an IllegalArgumentException is thrown with a descriptive error message. This validation step is crucial to prevent invalid queries from being processed and to provide clear feedback to the API clients about the nature of the error in their request.
+     * @param request the ItemRequestDTO containing the parameters to validate
+     * @throws IllegalArgumentException if minPages is greater than maxPages
+     */
     private void validateRequest(ItemRequestDTO request) {
         if (request.minPages() != null && request.maxPages() != null
                 && request.minPages() > request.maxPages()) {
@@ -92,11 +96,6 @@ public class ItemService {
         };
     }
 
-    // Adds an Item to the database.
-    // If it doesn't already exist adds it, makes a SchoolItemCopy of it and links
-    // it to the school.
-    // If it does already exist, makes a SchoolItemCopy that's linked to it and the
-    // school.
     public ItemDTO addItem(CreateItemDTO itemDTO)
             throws EntityNotFoundException, EntityAlreadyExistsException {
         if (!schoolItemCopyRepository.existsByItemTitleAndSchoolId(itemDTO.title(), itemDTO.schoolId())) {
@@ -108,7 +107,6 @@ public class ItemService {
                         itemDTO.author(), itemDTO.publisher(), itemDTO.title(), tags);
                 itemRepository.save(newItem);
             } else {
-                // itemId will be 0 if none has been given
                 if (itemDTO.itemId() == 0) {
                     newItem = itemRepository.findByTitle(itemDTO.title()).orElseThrow(EntityNotFoundException::new);
                 } else {
@@ -143,7 +141,6 @@ public class ItemService {
         throw new EntityAlreadyExistsException();
     }
 
-    // Deletes an Item from the database.
     public ItemDTO deleteItem(Long id) throws EntityNotFoundException {
         Item schoolItem = itemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         itemRepository.delete(schoolItem);
@@ -155,7 +152,6 @@ public class ItemService {
         return items.stream().map(this::mapToItemDTO).toList();
     }
 
-    // Updates the details of an Item.
     public ItemDTO updateItem(Long id, UpdateItemDTO itemDTO) throws EntityNotFoundException {
     Item item = itemRepository.findById(id)
             .orElseThrow(EntityNotFoundException::new);
@@ -188,7 +184,6 @@ public class ItemService {
         return mapToItemDTO(item);
     }
 
-    // Gets an Item by its title
     public ItemDTO getItemByTitle(String title) {
         Item item = itemRepository.findByTitle(title).orElse(null);
         if (item != null) {
@@ -197,7 +192,6 @@ public class ItemService {
         return null;
     }
 
-    // Gets a List of featured Items
     public List<ItemDTO> getFeaturedItems(Long schoolId) {
         List<Item> featuredBooks = itemRepository.findAll(Specification.allOf(isFeatured(true, schoolId)));
         return featuredBooks.stream().map(this::mapToItemDTO).toList();
@@ -227,14 +221,12 @@ public class ItemService {
                 .collect(Collectors.toSet());
     }
 
-    // FIX: Long -> intValue() omdat ReadingLevel entity int id gebruikt
     private ReadingLevel getReadingLevelById(Long id) {
         if (id == null)
             return null;
         return readingLevelRepository.findById(id.intValue()).orElse(null);
     }
 
-    // Converts an Item to an ItemDTO
     private ItemDTO mapToItemDTO(Item item) {
         List<TagDTO> tags = item.getTags().stream()
                 .map(tag -> new TagDTO((long) tag.getId(), tag.getName()))
@@ -260,10 +252,10 @@ public class ItemService {
                 item.getDidacticCategories() != null
                         ? item.getDidacticCategories().stream().map(d -> (long) d.getId()).toList()
                         : List.of(),
-                null, // schoolId (of juiste waarde)
-                false, // featured (of uit copy halen)
+                null,
+                false,
                 item.isDidactic(),
-                null // campusId
+                null
         );
     }
 

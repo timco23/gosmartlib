@@ -202,6 +202,9 @@ public class BookCsvImportService {
     /**
      * Returns an existing Item matched by title, or creates and saves a new one with default values.
      * New items with an ISBN are queued for asynchronous metadata enrichment via ItemEnrichmentEvent.
+     * @param row the BookImportRow containing the title, author, ISBN and other data for the item to find or create
+     * @param toEnrich a shared list of items to enrich after the transaction commits; if a new item is created with a non-empty ISBN, it is added to this list for later enrichment
+     * @return an existing or new Item entity matching the title in the row; new items are saved with default values and queued for enrichment if they have an ISBN
      */
     private Item findOrCreateItem(BookImportRow row, List<ItemEnrichmentEvent.TargetItem> toEnrich) {
         Optional<Item> existing = itemRepository.findByTitle(row.title());
@@ -222,6 +225,10 @@ public class BookCsvImportService {
     /**
      * Creates all SchoolItemCopy instances for the given row.
      * For each condition, exactly the requested number of copies is created.
+     * @param item the Item entity that the copies will be associated with
+     * @param school the School entity that the copies will belong to
+     * @param row the BookImportRow containing the campus and condition counts for the copies to create
+     * @return a list of all created SchoolItemCopy entities
      */
     private List<SchoolItemCopy> createCopies(Item item, School school, BookImportRow row) {
         Campus campus = school.getCampuses().stream()
@@ -252,6 +259,11 @@ public class BookCsvImportService {
     /**
      * Validates a BookImportRow against the school's campuses and the already-seen title+campus keys
      * Appends any errors to the provided list
+     * @param row the BookImportRow to validate
+     * @param school the School entity to validate against (e.g. for campus names)
+     * @param seenKeys a shared set of normalized title+campus keys to detect duplicates within the file; the key for this row will be added to this set if it is valid
+     * @param errors a shared list of RowError objects to which any validation errors will be appended; the row number is included in each error for later reporting to the user
+     * @return void; errors are collected in the provided list, and the row's key is added to the seenKeys set if valid for duplicate detection
      */
     private void validateRow(BookImportRow row, School school, Set<String> seenKeys, List<RowError> errors) {
         int rowNum = row.rowNumber();
@@ -289,6 +301,9 @@ public class BookCsvImportService {
     /**
      * Returns the ISBN already stored in the db for the given title if it differs from the CSV ISBN,
      * or an empty string if there is no conflict
+     * @param title the title to check for an existing Item with a different ISBN
+     * @param isbn the ISBN from the CSV row to compare against the existing Item's ISBN
+     * @return the existing ISBN if there is a conflict, or an empty string if there is no conflict or if the title or ISBN is empty
      */
     private String detectIsbnConflict(String title, String isbn) {
         if (title.isEmpty() || isbn.isEmpty()) return "";

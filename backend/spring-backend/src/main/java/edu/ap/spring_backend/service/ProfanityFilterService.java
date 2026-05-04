@@ -76,7 +76,7 @@ public class ProfanityFilterService {
         String normalized = normalizeText(text);
         return blocklistPattern.matcher(normalized).find();
     }
-
+    
     private static String normalizeText(String text) {
         String noSpacedLetters = text.replaceAll("(?<=\\b\\S)\\s(?=\\S\\b)", "");
         String stripped = noSpacedLetters.replaceAll("[^\\p{L}\\p{N}\\s]", "");

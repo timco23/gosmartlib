@@ -27,24 +27,20 @@ public class ReadingListService {
         this.userRepository = userRepository;
     }
 
-    //Gets all reading lists
     public List<ReadingListDTO> findAll() {
         return readingListRepository.findAll().stream().map(list -> mapToReadingListDTO(list)).toList();
     }
 
-    //Gets a reading list by its id
     public ReadingListDTO findById(Long id) {
         ReadingList readingList = readingListRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         return mapToReadingListDTO(readingList);
     }
 
-    //Gets all reading lists that a user has by their id
     public List<ReadingListDTO> findByUserId(int userId) {
         List<ReadingList> list = readingListRepository.findByUserId(userId);
         return list.stream().map(readingList -> mapToReadingListDTO(readingList)).toList();
     }
 
-    //Adds a reading list to the database
     public ReadingListDTO addReadingList(CreateReadingListDTO readingListDTO) {
         List<Item> items = new ArrayList<>();
         readingListDTO.itemIds().forEach(itemId -> {
@@ -66,7 +62,6 @@ public class ReadingListService {
         throw new RuntimeException("Cannot add reading list with no items.");
     }
 
-    //Updates a reading list in the database according to its id
     public ReadingListDTO updateReadingList(CreateReadingListDTO readingListDTO, Long id) {
         ReadingList readingList = readingListRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         List<Item> newItems = new ArrayList<>();
@@ -85,19 +80,16 @@ public class ReadingListService {
         throw new RuntimeException("Cannot update reading list with no items.");
     }
 
-    //Deletes a reading list in the database according to its id
     public ReadingListDTO deleteReadingList(Long id) {
         ReadingList readingList = readingListRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         readingListRepository.delete(readingList);
         return mapToReadingListDTO(readingList);
     }
 
-    //Checks if a given item is in any reading list by its id
     public boolean isItemInAnyReadingList(Long itemId) {
         return readingListRepository.existsByItems_Id(itemId);
     }
 
-    //Converts a ReadingList to a ReadingListDTO
     private ReadingListDTO mapToReadingListDTO(ReadingList readingList){
         return new ReadingListDTO(
                 readingList.getId(),
@@ -109,7 +101,6 @@ public class ReadingListService {
         );
     }
 
-    // Converts an Item to an ItemDTO
     private ItemDTO mapToItemDTO(Item item) {
         List<TagDTO> tags = item.getTags().stream()
                 .map(tag -> new TagDTO((long) tag.getId(), tag.getName()))
@@ -135,10 +126,10 @@ public class ReadingListService {
                 item.getDidacticCategories() != null
                         ? item.getDidacticCategories().stream().map(d -> (long) d.getId()).toList()
                         : List.of(),
-                null, // schoolId (of juiste waarde)
-                false, // featured (of uit copy halen)
+                null,
+                false,
                 item.isDidactic(),
-                null // campusId
+                null
         );
     }
 }
