@@ -75,7 +75,6 @@ CREATE TABLE IF NOT EXISTS user (
     password VARCHAR(255) NULL,
     role ENUM('ADMIN', 'BIBLIOTHEEKBEHEERDER', 'LEERKRACHT', 'LEERLING') NOT NULL,
     student_number VARCHAR(50),
-    class VARCHAR(50) null,
     smartschool_username VARCHAR(255) UNIQUE, 
     school_id BIGINT, 
     refresh_token VARCHAR(512),
@@ -427,4 +426,18 @@ CREATE TABLE IF NOT EXISTS lending (
     FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE RESTRICT,
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
+);
+
+create table if not exists class (
+	id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    class_name varchar(100) not null,
+    school_id BIGINT NOT NULL
+);
+
+create table if not exists class_user (
+	class_id BIGINT,
+    user_id int,
+    primary key(class_id, user_id),
+    foreign key (class_id) references class(id) on delete cascade,
+    foreign key (user_id) references user(id) on delete cascade
 );
