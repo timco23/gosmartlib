@@ -1,7 +1,6 @@
 package edu.ap.spring_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import edu.ap.spring_backend.jpa.School;
 
 import java.util.List;
 
