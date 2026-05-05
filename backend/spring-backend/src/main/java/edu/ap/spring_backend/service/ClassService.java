@@ -23,14 +23,14 @@ public class ClassService {
         return classRepository.findBySchoolId(schoolId).stream().map(this::mapToClassDTO).toList();
     }
 
-    public ClassDTO getClassById(Long id) {
+    public ClassDTO getClassById(Long id) throws EntityNotFoundException {
         Class clazz = classRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         return mapToClassDTO(clazz);
     }
 
-    public ClassDTO getClassByNameAndSchoolId(String name, Long schoolId) {
-        Class clazz = classRepository.findByClassNameAndSchoolId(name, schoolId).orElseThrow(EntityNotFoundException::new);
-        return mapToClassDTO(clazz);
+    public Class getClassByNameAndSchoolId(String name, Long schoolId) {
+        Class clazz = classRepository.findByClassNameAndSchoolId(name, schoolId).orElse(null);
+        return clazz;
     }
 
     public ClassDTO addClass(Class clazz) {

@@ -1,10 +1,14 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dto.SmartschoolGroupDTO;
+import edu.ap.spring_backend.dto.SmartschoolGroupInfoResponseDTO;
 import edu.ap.spring_backend.dto.SmartschoolUserInfo;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.jpa.Role;
+import edu.ap.spring_backend.jpa.Class;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.security.JwtService;
+import edu.ap.spring_backend.service.ClassService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -18,9 +22,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.jpa.School;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -42,6 +45,7 @@ public class SmartschoolOAuthController {
     private final RestTemplate restTemplate = new RestTemplate();
     private final SecureRandom secureRandom = new SecureRandom();
     private final JwtService jwtService;
+    private final ClassService classService;
     
 
     @Value("${smartschool.client-id}")
@@ -73,11 +77,13 @@ public class SmartschoolOAuthController {
             UserRepository userRepository,
             @Value("${app.jwt.secret}") String jwtSecret,
             @Value("${app.jwt.expires-minutes}") long expiresMinutes,
-            SchoolRepository schoolRepository
+            SchoolRepository schoolRepository,
+            ClassService classService
     ) {
         this.userRepository = userRepository;
         this.jwtService = new JwtService(jwtSecret, expiresMinutes);
         this.schoolRepository = schoolRepository;
+        this.classService = classService;
     }
 
     private School resolveDefaultSchool() {
@@ -112,7 +118,7 @@ public class SmartschoolOAuthController {
             + "?response_type=code"
             + "&client_id=" + url(clientId)
             + "&redirect_uri=" + url(effectiveRedirectUri)
-            + "&scope=" + url("fulluserinfo")
+            + "&scope=" + url("fulluserinfo groupinfo")
             + "&state=" + url(state);
 
     response.setStatus(302);
@@ -157,7 +163,7 @@ public class SmartschoolOAuthController {
 
         @SuppressWarnings("unchecked")
         ResponseEntity<Map<String, Object>> tokenResponse =
-                restTemplate.postForEntity(tokenUrl, tokenRequest, (Class<Map<String, Object>>) (Class<?>) Map.class);
+                restTemplate.postForEntity(tokenUrl, tokenRequest, (java.lang.Class<Map<String, Object>>) (java.lang.Class<?>) Map.class);
 
         if (!tokenResponse.getStatusCode().is2xxSuccessful() || tokenResponse.getBody() == null) {
             response.sendRedirect(frontendBaseUrl + "/login?oauth=token_error");
@@ -190,7 +196,11 @@ public class SmartschoolOAuthController {
             return;
         }
 
-        // 3) find/create local user
+        // 3) fetch FULL user group info
+        String groupInfoUrl = "https://" + platform + "/Api/V1/groupinfo?access_token=" + url(accessToken);
+        SmartschoolGroupInfoResponseDTO groupInfo = restTemplate.getForObject(groupInfoUrl, SmartschoolGroupInfoResponseDTO.class);
+
+        // 4) find/create local user
         User user = userRepository.findBySmartschoolUsername(info.getUsername()).orElse(null);
         School defaultSchool = resolveDefaultSchool();
 
@@ -215,8 +225,6 @@ public class SmartschoolOAuthController {
             } else {
                 user.setEmail(info.getUsername() + "@smartschool.local");
             }
-
-            user = userRepository.save(user);
         } else {
             // Sync on every login
             user.setFirstName(info.getName());
@@ -231,15 +239,31 @@ public class SmartschoolOAuthController {
             if (user.getSchool() == null && defaultSchool != null) {
                 user.setSchool(defaultSchool);
             }
-
-            user = userRepository.save(user);
         }
-
         String jwt = jwtService.generateToken(user);
         String refreshToken = generateRefreshToken();
 
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
+
+        // 5) find/create class for user
+        if (groupInfo != null && groupInfo.groups() != null) {
+            for (SmartschoolGroupDTO group: groupInfo.groups()) {
+                Class schoolClass = classService.getClassByNameAndSchoolId(group.name(), defaultSchool.getId());
+
+                if (schoolClass == null) {
+                    List<User> currentUser = new ArrayList<User>();
+                    currentUser.add(user);
+                    schoolClass = new Class(group.name(), defaultSchool, currentUser);
+                }
+                else {
+                    if (!schoolClass.getUsers().contains(user)) {
+                        schoolClass.getUsers().add(user);
+                    }
+                }
+                classService.addClass(schoolClass);
+            }
+        }
 
         String redirectUrl = frontendBaseUrl
             + "/oauth-callback?token=" + url(jwt)

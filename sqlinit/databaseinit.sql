@@ -74,6 +74,10 @@ create table if not exists class (
     foreign key (school_id) references school(id) on delete cascade
 );
 
+-- Testclasses
+INSERT INTO class (class_name, school_id) 
+VALUES ("KlasA", 1), ("KlasB", 1);
+
 
 CREATE TABLE IF NOT EXISTS user (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -98,6 +102,7 @@ create table if not exists class_user (
     foreign key (user_id) references user(id) on delete cascade
 );
 
+
 CREATE TABLE IF NOT EXISTS review (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     description TEXT,
@@ -118,6 +123,9 @@ VALUES
 ('Test', 'Leerling', 'leerling.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERLING', 1, NULL, NULL),
 ('Test', 'Leerkracht', 'leerkracht.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERKRACHT', 1, NULL, NULL),
 ('Test', 'Bibliotheekbeheerder', 'bibliotheekbeheerder.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'BIBLIOTHEEKBEHEERDER', 1, NULL, NULL);
+
+-- Put student in classes KlasA and KlasB
+insert into class_user (class_id, user_id) values (1, 2),(2,1);
 
 -- Testbooks
 insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count,book_description) values
