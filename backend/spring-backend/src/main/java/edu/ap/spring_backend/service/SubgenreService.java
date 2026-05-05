@@ -34,7 +34,10 @@ public class SubgenreService {
     }
 
     public List<SubgenreDTO> getFromGenreIds(List<Long> genreIds) {
-        return subgenreRepository.findAllByGenreIdIn(genreIds);
+        return subgenreRepository.findAllByGenreIdIn(genreIds)
+                .stream()
+                .map(sub -> new SubgenreDTO(sub.getId(), sub.getName(), sub.getGenre().getId()))
+                .toList();
     }
 
     public Subgenre addGenre(Subgenre newSubgenre) {

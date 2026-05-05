@@ -29,7 +29,7 @@ class ReadingLevelServiceTest {
         List<ReadingLevel> levels = List.of(new ReadingLevel());
         when(readingLevelRepository.findAll()).thenReturn(levels);
 
-        List<ReadingLevel> result = service.GetAllReadingLevels();
+        List<ReadingLevel> result = service.getAllReadingLevels();
 
         assertSame(levels, result);
         verify(readingLevelRepository).findAll();
