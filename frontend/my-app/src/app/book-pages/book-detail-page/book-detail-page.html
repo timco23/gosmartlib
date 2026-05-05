@@ -11,6 +11,11 @@
             <a class="action-btn edit-button" [routerLink]="['/books', book.id, 'edit']">
               Boek wijzigen
             </a>
+
+            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Lening historiek</a>
+            <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
+              Verwijder boek
+            </button>
             <a
               class="action-btn edit-button secondary"
               [routerLink]="['/books', book.id, 'barcodes']"
@@ -18,10 +23,6 @@
             >
               Print barcodes
             </a>
-            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Lending history</a>
-            <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
-              Verwijder boek
-            </button>
             <button
               class="action-btn feature-button"
               type="button"

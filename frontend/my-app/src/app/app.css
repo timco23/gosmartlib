@@ -264,6 +264,10 @@
   align-items: flex-end;
 }
 
+:host.sidebar-right .sidebar-controls {
+  align-self: center;
+}
+
 :host.sidebar-right .dropdown-menu {
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
