@@ -56,6 +56,12 @@ public class BookMetadataService {
         if (raw == null || raw.isBlank()) return null;
         String s = raw.toLowerCase().trim();
 
+        if (s.equals("nederlands")) return "NEDERLANDS";
+        if (s.equals("engels")) return "ENGELS";
+        if (s.equals("frans")) return "FRANS";
+        if (s.equals("duits")) return "DUITS";
+        if (s.equals("andere")) return "ANDERE";
+
         if (s.equals("nl") || s.equals("nld") || s.equals("dut")
                 || s.contains("dutch") || s.contains("flemish") || s.contains("nederlands")) {
             return "NEDERLANDS";

@@ -30,8 +30,8 @@ public class User {
     @Column(name = "student_number")
     private String studentNumber;
     
-    @Column(name = "class")
-    private String className;
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users")
+    private List<SchoolClass> classes = new ArrayList<>();
 
     @Column(name = "smartschool_username", unique = true)
     private String smartschoolUsername;
@@ -77,7 +77,7 @@ public class User {
     public String getPassword() { return password; }
     public Role getRole() { return role; }
     public String getStudentNumber() { return studentNumber; }
-    public String getClassName() { return className; }
+    public List<SchoolClass> getClasses() { return classes; }
     public School getSchool() { return school; }
     public String getSmartschoolUsername() { return smartschoolUsername; }
     public String getRefreshToken() { return refreshToken; }
@@ -90,7 +90,7 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public void setRole(Role role) { this.role = role; }
     public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
-    public void setClassName(String className) { this.className = className; }
+    public void setClass(List<SchoolClass> classes) { this.classes = classes; }
     public void setSchool(School school) { this.school = school; }
     public void setSmartschoolUsername(String smartschoolUsername) { this.smartschoolUsername = smartschoolUsername; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }

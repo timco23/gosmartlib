@@ -62,10 +62,22 @@ create table if not exists item
 	book_language varchar(50) not null,
 	page_count smallint unsigned null,
 	cover varchar(200) null,
-	review_score decimal(2,1) check (review_score >= 0) not null,
+	review_score decimal(2,1) check(review_score >= 0) not null,
 	review_count int unsigned not null,
     book_description text not null
 );
+
+create table if not exists class (
+	id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    class_name varchar(100) not null,
+    school_id BIGINT NOT NULL,
+    foreign key (school_id) references school(id) on delete cascade
+);
+
+-- Testclasses
+INSERT INTO class (class_name, school_id) 
+VALUES ("KlasA", 1), ("KlasB", 1);
+
 
 CREATE TABLE IF NOT EXISTS user (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -75,13 +87,21 @@ CREATE TABLE IF NOT EXISTS user (
     password VARCHAR(255) NULL,
     role ENUM('ADMIN', 'BIBLIOTHEEKBEHEERDER', 'LEERKRACHT', 'LEERLING') NOT NULL,
     student_number VARCHAR(50),
-    class VARCHAR(50),
     smartschool_username VARCHAR(255) UNIQUE, 
     school_id BIGINT, 
     refresh_token VARCHAR(512),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
     items_borrowed INT NOT NULL DEFAULT 0
 );
+
+create table if not exists class_user (
+	class_id BIGINT,
+    user_id int,
+    primary key(class_id, user_id),
+    foreign key (class_id) references class(id) on delete cascade,
+    foreign key (user_id) references user(id) on delete cascade
+);
+
 
 CREATE TABLE IF NOT EXISTS review (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -103,6 +123,9 @@ VALUES
 ('Test', 'Leerling', 'leerling.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERLING', 1, NULL, NULL),
 ('Test', 'Leerkracht', 'leerkracht.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERKRACHT', 1, NULL, NULL),
 ('Test', 'Bibliotheekbeheerder', 'bibliotheekbeheerder.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'BIBLIOTHEEKBEHEERDER', 1, NULL, NULL);
+
+-- Put student in classes KlasA and KlasB
+insert into class_user (class_id, user_id) values (1, 2),(2,2);
 
 -- Testbooks
 insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count,book_description) values
@@ -428,3 +451,4 @@ CREATE TABLE IF NOT EXISTS lending (
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
+

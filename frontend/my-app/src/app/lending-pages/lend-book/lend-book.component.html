@@ -13,7 +13,12 @@
         <select id="user" name="user" (change)="onUserSelect($event)">
           <option value="" disabled selected>Kies een lener</option>
           @for (user of users; track user.id) {
-            <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+            @if (user.classes.length > 0) {
+              <option [value]="user.id">{{ user.name }} ({{ user.email }}) - {{getClasses(user)}}</option>
+            }
+            @else {
+              <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+            }
           }
         </select>
       </div>

@@ -1,5 +1,7 @@
 package edu.ap.spring_backend.dto;
 
+import java.util.List;
+
 /**
  * DTO for user profile information without sensitive data.
  * Includes student-specific fields if applicable.
@@ -11,21 +13,34 @@ public class UserResponse {
     private String email;
     private String role;
     private String studentNumber;
-    private String className;
+    private List<ClassDTO> classes;
     private String schoolName;
     private Long schoolId;
     private ItemDTO[] favoriteBooks;
     private Integer itemsBorrowed;
 
+    /**
+     * Constructor for user profile response.
+     * @param id user ID
+     * @param name user's last name
+     * @param firstName user's first name
+     * @param email user's email
+     * @param role user role (ADMIN, LEERLING, LEERKRACHT or BEHEERDER)
+     * @param studentNumber student number (null for admins)
+     * @param classes list of classes that the user is in (null for admins)
+     * @param schoolName school name (null for admins)
+     * @param schoolId school ID (null for admins)
+     * @param favoriteBooks list of user's favorite books
+     */
     public UserResponse(Integer id, String name, String firstName, String email, String role,
-                       String studentNumber, String className, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer items_borrowed) {
+                       String studentNumber, List<ClassDTO> classes, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer items_borrowed) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
         this.email = email;
         this.role = role;
         this.studentNumber = studentNumber;
-        this.className = className;
+        this.classes = classes;
         this.schoolName = schoolName;
         this.schoolId = schoolId;
         this.favoriteBooks = favoriteBooks;
@@ -38,7 +53,7 @@ public class UserResponse {
     public String getEmail() { return email; }
     public String getRole() { return role; }
     public String getStudentNumber() { return studentNumber; }
-    public String getClassName() { return className; }
+    public List<ClassDTO> getClasses() { return classes; }
     public String getSchoolName() { return schoolName; }
     public Long getSchoolId() { return schoolId; }
     public ItemDTO[] getFavoriteBooks() { return favoriteBooks; }
@@ -50,7 +65,7 @@ public class UserResponse {
     public void setEmail(String email) { this.email = email; }
     public void setRole(String role) { this.role = role; }
     public void setStudentNumber(String studentNumber) { this.studentNumber = studentNumber; }
-    public void setClassName(String className) { this.className = className; }
+    public void setClasses(List<ClassDTO> classes) { this.classes = classes; }
     public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
     public void setSchoolId(Long schoolId) { this.schoolId = schoolId; }
     public void setFavoriteBooks(ItemDTO[] favoriteBooks) { this.favoriteBooks = favoriteBooks; }
