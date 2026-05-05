@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "class")
-public class Class {
+public class SchoolClass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,9 +23,9 @@ public class Class {
     @JoinTable(name = "class_user",  joinColumns = @JoinColumn(name = "class_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> users = new ArrayList<>();;
 
-    public Class() {}
+    public SchoolClass() {}
 
-    public Class(String className, School school, List<User> users) {
+    public SchoolClass(String className, School school, List<User> users) {
         this.className = className;
         this.school = school;
         this.users = users;

@@ -14,7 +14,7 @@ import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.User;
-import edu.ap.spring_backend.jpa.Class;
+import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.jpa.Role;
 
 import java.util.List;
@@ -102,7 +102,7 @@ public class UserService {
                 );
         }
 
-        private ClassDTO mapToClassDTO(Class clazz) {
+        private ClassDTO mapToClassDTO(SchoolClass clazz) {
                 return new ClassDTO(clazz.getClassName(), clazz.getSchool().getId());
         }
 

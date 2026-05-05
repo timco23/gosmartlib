@@ -76,8 +76,8 @@ export class ProfileSelectionComponent implements OnInit {
           bVal = (b.email ?? '').toLowerCase();
           break;
         case 'klas':
-          aVal = (a.className ?? '').toLowerCase();
-          bVal = (b.className ?? '').toLowerCase();
+          aVal = (a.classes[0].className ?? '').toLowerCase();
+          bVal = (b.classes[0].className ?? '').toLowerCase();
           break;
         case 'rol':
           aVal = (a.role ?? '').toLowerCase();
@@ -93,5 +93,12 @@ export class ProfileSelectionComponent implements OnInit {
 
   openProfile(user: UserProfile): void {
     this.router.navigate(['/profile'], { queryParams: { email: user.email } });
+  }
+
+  getClasses(user: UserProfile): string {
+    if (user.classes.length > 0) {
+      return user.classes.map(clazz => clazz.className).join(" ")
+    }
+    return "-"
   }
 }

@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dto.ClassDTO;
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.TagDTO;
 import edu.ap.spring_backend.dto.UserResponse;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -169,9 +171,11 @@ class UserControllerTest extends BaseControllerTest {
     }
 
     private UserResponse user() {
+        List<ClassDTO> classes = new ArrayList<>();
+        classes.add(new ClassDTO("1A", 1L));
         return new UserResponse(
                 1, "Doe", "Jane", "user@example.com", "LEERLING",
-                "S123", "1A", "AP", 1L, new ItemDTO[]{item()}, 2
+                "S123", classes, "AP", 1L, new ItemDTO[]{item()}, 2
         );
     }
 

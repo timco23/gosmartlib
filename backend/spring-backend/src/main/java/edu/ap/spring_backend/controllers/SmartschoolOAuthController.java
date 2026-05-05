@@ -5,7 +5,7 @@ import edu.ap.spring_backend.dto.SmartschoolGroupInfoResponseDTO;
 import edu.ap.spring_backend.dto.SmartschoolUserInfo;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.jpa.Role;
-import edu.ap.spring_backend.jpa.Class;
+import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.security.JwtService;
 import edu.ap.spring_backend.service.ClassService;
@@ -255,12 +255,12 @@ public class SmartschoolOAuthController {
         // 5) find/create class for user
         if (groupInfo != null && groupInfo.groups() != null) {
             for (SmartschoolGroupDTO group: groupInfo.groups()) {
-                Class schoolClass = classService.getClassByNameAndSchoolId(group.name(), defaultSchool.getId());
+                SchoolClass schoolClass = classService.getClassByNameAndSchoolId(group.name(), defaultSchool.getId());
 
                 if (schoolClass == null) {
                     List<User> currentUser = new ArrayList<User>();
                     currentUser.add(user);
-                    schoolClass = new Class(group.name(), defaultSchool, currentUser);
+                    schoolClass = new SchoolClass(group.name(), defaultSchool, currentUser);
                 }
                 else {
                     if (!schoolClass.getUsers().contains(user)) {

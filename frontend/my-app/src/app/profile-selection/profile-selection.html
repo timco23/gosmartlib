@@ -42,7 +42,7 @@
             <tr (click)="openProfile(user)" class="user-row">
               <td>{{ user.firstName }} {{ user.name }}</td>
               <td>{{ user.email }}</td>
-              <td>{{ user.className ?? '-' }}</td>
+              <td>{{ getClasses(user) }}</td>
               <td>
                 <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
                   {{ user.role }}

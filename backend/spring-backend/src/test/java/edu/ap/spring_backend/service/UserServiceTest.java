@@ -72,7 +72,7 @@ class UserServiceTest {
         return s;
     }
 
-    // ── help: make an User through reflection 
+    // ── help: make a User through reflection
 
     private User buildUser(Integer id, String name, String firstName,
                            String email, Role role, School school) {
