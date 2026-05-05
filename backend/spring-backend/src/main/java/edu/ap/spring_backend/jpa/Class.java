@@ -25,8 +25,9 @@ public class Class {
 
     public Class() {}
 
-    public Class(String className, School school) {
+    public Class(String className, School school, List<User> users) {
         this.className = className;
         this.school = school;
+        this.users = users;
     }
 }

@@ -67,6 +67,14 @@ create table if not exists item
     book_description text not null
 );
 
+create table if not exists class (
+	id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    class_name varchar(100) not null,
+    school_id BIGINT NOT NULL,
+    foreign key (school_id) references school(id) on delete cascade
+);
+
+
 CREATE TABLE IF NOT EXISTS user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
@@ -80,6 +88,14 @@ CREATE TABLE IF NOT EXISTS user (
     refresh_token VARCHAR(512),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
     items_borrowed INT NOT NULL DEFAULT 0
+);
+
+create table if not exists class_user (
+	class_id BIGINT,
+    user_id int,
+    primary key(class_id, user_id),
+    foreign key (class_id) references class(id) on delete cascade,
+    foreign key (user_id) references user(id) on delete cascade
 );
 
 CREATE TABLE IF NOT EXISTS review (
@@ -428,17 +444,3 @@ CREATE TABLE IF NOT EXISTS lending (
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
 
-create table if not exists class (
-	id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    class_name varchar(100) not null,
-    school_id BIGINT NOT NULL,
-    foreign key (school_id) references school(id) on delete cascade
-);
-
-create table if not exists class_user (
-	class_id BIGINT,
-    user_id int,
-    primary key(class_id, user_id),
-    foreign key (class_id) references class(id) on delete cascade,
-    foreign key (user_id) references user(id) on delete cascade
-);
