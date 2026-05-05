@@ -120,7 +120,7 @@
         </select>
       </details>
 
-      <details class="filter-group" open>
+      <details class="filter-group">
         <summary class="filter-label">Leefwereldlabels</summary>
         <app-tag-selection-menu
           [initialTags]="selectedTags"
@@ -128,7 +128,7 @@
         />
       </details>
 
-      <details class="filter-group" open>
+      <details class="filter-group">
         <summary class="filter-label">Genres</summary>
         <app-genre-selection-menu
           [initialGenres]="selectedGenres"
@@ -136,7 +136,7 @@
         />
       </details>
 
-      <details class="filter-group" open>
+      <details class="filter-group">
         <summary class="filter-label">Subgenres</summary>
         <app-subgenre-selection-menu
           [initialSubgenres]="selectedSubgenres"
@@ -145,7 +145,7 @@
       </details>
 
       @if (canUseDidacticFilters) {
-        <details class="filter-group" open>
+        <details class="filter-group">
           <summary class="filter-label">Didactische boeken</summary>
 
           <select
