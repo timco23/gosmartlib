@@ -6,7 +6,7 @@ import org.mapstruct.Mapping;
 import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.jpa.User;
 
-@Mapper(componentModel = "spring", uses = ItemMapper.class)
+@Mapper(componentModel = "spring", uses = {ItemMapper.class, SchoolClassMapper.class})
 public interface UserMapper {
     @Mapping(target = "role", expression = "java(user.getRole().name())")
     @Mapping(target = "schoolName", expression = "java(user.getSchool() != null ? user.getSchool().getName() : null)")

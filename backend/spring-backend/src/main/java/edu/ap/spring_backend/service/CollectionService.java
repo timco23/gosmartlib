@@ -111,15 +111,15 @@ public class CollectionService {
       * @param collection the Collection entity to convert
       * @return a CollectionDTO containing the data from the Collection entity, including mapped ItemDTOs for each associated Item
      */
-    private CollectionDTO mapToCollectionDTO(Collection collection){
+    private CollectionDTO mapToCollectionDTO(Collection collection) {
         return new CollectionDTO(
                 collection.getId(),
                 collection.getTitle(),
                 collection.getDescription(),
                 collection.getFeatured(),
                 collection.getGloballyFeatured(),
-                collection.getItems().stream().map(item -> mapToItemDTO(item)).toList(),
-                collection.getSchool()
+                collection.getItems().stream().map(this::mapToItemDTO).toList(),
+                collection.getSchool() != null ? collection.getSchool().getId() : null
         );
     }
 

@@ -18,8 +18,8 @@ public record CollectionDTO(
         Boolean globallyFeatured,
         @JsonProperty("items")
         List<ItemDTO> items,
-        @JsonProperty("school")
-        School school
+        @JsonProperty("schoolId")
+        Long schoolId   
 ) {
 
 }

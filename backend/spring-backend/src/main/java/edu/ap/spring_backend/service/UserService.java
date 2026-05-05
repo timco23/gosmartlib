@@ -1,6 +1,5 @@
 package edu.ap.spring_backend.service;
 
-import edu.ap.spring_backend.dto.ClassDTO;
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.UserResponse;
 
@@ -15,7 +14,6 @@ import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.mappers.ItemMapper;
 import edu.ap.spring_backend.mappers.UserMapper;
-import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.jpa.Role;
 
 import java.util.List;
@@ -76,10 +74,6 @@ public class UserService {
         user.getFavoriteBooks().remove(item);
         userRepository.save(user);
     }
-
-        private ClassDTO mapToClassDTO(SchoolClass clazz) {
-                return new ClassDTO(clazz.getClassName(), clazz.getSchool().getId());
-        }
 
     public List<UserResponse> getUsersBySchool(Long schoolId) {
         return userRepository.findBySchoolId(schoolId).stream()
