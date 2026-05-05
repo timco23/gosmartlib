@@ -61,7 +61,7 @@ export class App implements OnInit {
         return;
       }
 
-      // IMPORTANT: oauth-callback is public
+      // oauth-callback is public
       if (!isLoggedIn && !isPublicRoute(currentUrl)) {
         this.router.navigate(['/login']);
       }
