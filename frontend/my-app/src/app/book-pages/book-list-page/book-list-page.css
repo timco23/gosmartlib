@@ -105,17 +105,6 @@
   scrollbar-color: var(--color-surface-3) transparent;
 }
 
-.filter-panel::-webkit-scrollbar {
-  width: 4px;
-}
-.filter-panel::-webkit-scrollbar-track {
-  background: transparent;
-}
-.filter-panel::-webkit-scrollbar-thumb {
-  background: var(--color-surface-3);
-  border-radius: var(--radius-pill);
-}
-
 .filter-title {
   margin: 0 0 var(--space-5);
   font-family: var(--font-body);
@@ -155,7 +144,6 @@
   box-sizing: border-box;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   appearance: none;
-  -webkit-appearance: none;
 }
 
 .filter-input::placeholder {
@@ -207,10 +195,6 @@
   cursor: pointer;
   margin-bottom: var(--space-2);
   user-select: none;
-}
-
-.filter-group > summary.filter-label::-webkit-details-marker {
-  display: none;
 }
 
 .filter-group > summary.filter-label::after {
