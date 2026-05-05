@@ -1,6 +1,6 @@
 /*
   Light mode is the default. Dark mode activates via [data-theme="dark"] on <html>.
-  Fonts: Times New Roman (headings) + Calibri/Verdana (body).
+  Fonts: Calibri/Verdana.
 */
 :root {
   /* --- Backgrounds (light) --- */
