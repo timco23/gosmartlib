@@ -7,22 +7,26 @@
     </div>
 
     <div class="nav-links">
-      @if (authService.atLeastHasRole(role.ADMIN)) {
-        <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
-      }
-      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && !authService.atLeastHasRole(role.ADMIN)) {
-        <a routerLink="/school-settings" class="nav-link" routerLinkActive="active">Schoolinstellingen</a>
-      }
+
       <a routerLink="/books" class="nav-link">Boeken</a>
       <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
       @if (authService.atLeastHasRole(role.LEERKRACHT)) {
         <a routerLink="/lists" class="nav-link">Klasleeslijsten</a>
       }
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+        <a routerLink="/collections" class="nav-link" routerLinkActive="active">Collecties</a>
+      }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
         <a routerLink="/lendings" class="nav-link" routerLinkActive="active">Uitleenbeheer</a>
       }
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
-        <a routerLink="/collections" class="nav-link" routerLinkActive="active">Collecties</a>
+        <a routerLink="/accounts" class="nav-link" routerLinkActive="active">Accountbeheer</a>
+      }
+      @if (authService.atLeastHasRole(role.ADMIN)) {
+        <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
+      }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && !authService.atLeastHasRole(role.ADMIN)) {
+        <a routerLink="/school-settings" class="nav-link" routerLinkActive="active">Schoolinstellingen</a>
       }
     </div>
 

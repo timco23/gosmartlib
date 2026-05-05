@@ -229,7 +229,13 @@ public class SmartschoolOAuthController {
             // Sync on every login
             user.setFirstName(info.getName());
             user.setName(info.getSurname());
-            user.setRole(mapSmartschoolRole(info.getBasisrol()));
+
+            // Only overwrite roles that originate from Smartschool.
+            // ADMIN and BIBLIOTHEEKBEHEERDER are manually assigned and must survive re-login.
+            Role currentRole = user.getRole();
+            if (currentRole == null || currentRole == Role.LEERLING || currentRole == Role.LEERKRACHT) {
+                user.setRole(mapSmartschoolRole(info.getBasisrol()));
+            }
 
             // Update the email only if it is not currently in use by another user
             if (hasIncomingEmail && !userRepository.existsByEmailAndIdNot(incomingEmail, user.getId())) {

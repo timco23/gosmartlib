@@ -1,0 +1,57 @@
+<div class="profile-selection-container">
+  <h2>Accounts</h2>
+
+  @if (isAdmin) {
+    <div class="admin-warning">
+      Als admin zie je alleen accounts van de school waaraan je momenteel gekoppeld bent.
+    </div>
+  }
+
+  <div class="search-bar">
+    <input
+      type="text"
+      placeholder="Zoek op e-mailadres..."
+      [(ngModel)]="emailFilter"
+      (ngModelChange)="onFilterChange()"
+    />
+  </div>
+
+  @if (loading) {
+    <div class="loading">Laden...</div>
+  }
+
+  @if (error) {
+    <div class="error-message">{{ error }}</div>
+  }
+
+  @if (!loading && !error) {
+    @if (filteredUsers.length === 0) {
+      <div class="no-results">Geen gebruikers gevonden.</div>
+    } @else {
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th (click)="sortBy('naam')" class="sortable">Naam <span class="sort-icon">{{ sortColumn === 'naam' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+            <th (click)="sortBy('email')" class="sortable">E-mail <span class="sort-icon">{{ sortColumn === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+            <th (click)="sortBy('klas')" class="sortable">Klas <span class="sort-icon">{{ sortColumn === 'klas' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+            <th (click)="sortBy('rol')" class="sortable">Rol <span class="sort-icon">{{ sortColumn === 'rol' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers; track user.email) {
+            <tr (click)="openProfile(user)" class="user-row">
+              <td>{{ user.firstName }} {{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.className ?? '-' }}</td>
+              <td>
+                <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
+                  {{ user.role }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</div>

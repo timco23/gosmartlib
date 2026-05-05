@@ -1,5 +1,5 @@
 <div class="profile-container">
-  <h2>Mijn gegevens</h2>
+  <h2>Accountgegevens</h2>
 
   @if(loading) {
     <div class="loading">Laden...</div>
@@ -56,9 +56,28 @@
 
     <div class="profile-item">
       <label>Rol:</label>
-      <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
-        {{ profile.role }}
-      </span>
+      @if (canEditRole) {
+        <div class="role-edit-container">
+          <div class="role-edit">
+            <select [(ngModel)]="selectedRole" class="role-select">
+              @for (role of availableRoles; track role) {
+                <option [value]="role">{{ role }}</option>
+              }
+            </select>
+            <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
+          </div>
+          @if (roleUpdateSuccess) {
+            <span class="role-success">{{ roleUpdateSuccess }}</span>
+          }
+          @if (roleUpdateError) {
+            <span class="role-error">{{ roleUpdateError }}</span>
+          }
+        </div>
+      } @else {
+        <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
+          {{ profile.role }}
+        </span>
+      }
     </div>
   </div>
   }

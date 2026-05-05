@@ -7,15 +7,14 @@ import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.mockito.*;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.RecordComponent;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,24 +22,15 @@ import static org.mockito.Mockito.*;
 
 class ItemServiceTest {
 
-    @Mock
-    private ItemRepository itemRepository;
-    @Mock
-    private SchoolRepository schoolRepository;
-    @Mock
-    private CampusRepository campusRepository;
-    @Mock
-    private TagRepository tagRepository;
-    @Mock
-    private SchoolItemCopyRepository schoolItemCopyRepository;
-    @Mock
-    private GenreRepository genreRepository;
-    @Mock
-    private SubgenreRepository subgenreRepository;
-    @Mock
-    private ReadingLevelRepository readingLevelRepository;
-    @Mock
-    private DidacticCategoryRepository didacticCategoryRepository;
+    @Mock private ItemRepository itemRepository;
+    @Mock private SchoolRepository schoolRepository;
+    @Mock private CampusRepository campusRepository;
+    @Mock private TagRepository tagRepository;
+    @Mock private SchoolItemCopyRepository schoolItemCopyRepository;
+    @Mock private GenreRepository genreRepository;
+    @Mock private SubgenreRepository subgenreRepository;
+    @Mock private ReadingLevelRepository readingLevelRepository;
+    @Mock private DidacticCategoryRepository didacticCategoryRepository;
 
     @InjectMocks
     private ItemService itemService;
@@ -67,317 +57,203 @@ class ItemServiceTest {
 
         testItem = new Item();
         testItem.setId(1L);
-        testItem.setTitle("Test Title");
-        testCampus.setSchool(testSchool);
-
-        testItem = new Item(
-                "Test Description",
-                10,
-                4.5,
-                "test-cover.jpg",
-                300,
-                "English",
-                2021,
-                "1234567890",
-                "Test Author",
-                "Test Publisher",
-                "Test Title",
-                new HashSet<>(Collections.singletonList(testTag)));
-        testItem.setId(1L);
-
-        lenient().when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
-        lenient().when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        lenient().when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        lenient().when(schoolItemCopyRepository.save(any(SchoolItemCopy.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        testItem.setTitle("Dune");
+        testItem.setAuthor("Frank Herbert");
+        testItem.setPublisher("Ace");
+        testItem.setIsbn("9780441568529");
+        testItem.setBookLanguage("EN");
+        testItem.setPageCount(412);
+        testItem.setTags(new HashSet<>(Set.of(testTag)));
     }
 
-    // ---------------- getSchoolItems ----------------
+    // ---------------- getFilteredItems ----------------
 
     @Test
-    void givenValidRequest_whenGetSchoolItems_thenReturnPageResponse() {
-        // Given
-        ItemRequestDTO request = new ItemRequestDTO(
-                0, 10, "title", "asc", "Test", List.of("English"),
-                100, 500, 4.0,
-                List.of(1L), // tagIds
-                null,        // genreIds
-                null,        // subgenreIds
-                null,        // didacticCategoryIds
-                null,        // didactic
-                1L,          // schoolId
-                false        // globalBooks
-        );
-        Page<Item> page = new PageImpl<>(List.of(testItem));
-        when(itemRepository.findByTitle("Test Title")).thenReturn(Optional.of(testItem));
-        when(itemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
-        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem)); 
-        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+    void givenValidRequest_whenGetFilteredItems_thenReturnPageResponse() {
+        ItemRequestDTO request = buildRecord(ItemRequestDTO.class, Map.of(
+                "page", 0,
+                "size", 10,
+                "sortBy", "author",
+                "sortDirection", "desc",
+                "schoolSpecificBooks", false
+        ));
 
-        // When
+        Page<Item> page = new PageImpl<>(List.of(testItem));
+        when(itemRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
         PageResponseDTO<ItemDTO> response = itemService.getFilteredItems(request);
 
-        // Then
         assertNotNull(response);
-        assertEquals(1, response.content().size());
-        assertEquals("Test Title", response.content().get(0).title());
-        verify(itemRepository).findAll(any(Specification.class), any(Pageable.class));
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(itemRepository).findAll(any(Specification.class), pageableCaptor.capture());
+
+        Pageable pageable = pageableCaptor.getValue();
+        assertEquals(0, pageable.getPageNumber());
+        assertEquals(10, pageable.getPageSize());
+        assertEquals(Sort.Direction.DESC, pageable.getSort().getOrderFor("author").getDirection());
     }
 
     @Test
-    void givenInvalidPages_whenGetSchoolItems_thenThrowIllegalArgumentException() {
-        // Given
-         ItemRequestDTO request = new ItemRequestDTO(
-                0, 10, "title", "asc", null, null,
-                500, 100, null,
-                null, // tagIds
-                null, // genreIds
-                null, // subgenreIds
-                null, // didacticCategoryIds
-                null, // didactic
-                1L,   // schoolId
-                false// globalBooks
-        );
-        when(itemRepository.findByTitle("Test Title")).thenReturn(Optional.of(testItem));
-        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem)); 
-        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+    void givenInvalidPages_whenGetFilteredItems_thenThrowIllegalArgumentException() {
+        ItemRequestDTO request = buildRecord(ItemRequestDTO.class, Map.of(
+                "minPages", 200,
+                "maxPages", 100,
+                "page", 0,
+                "size", 10
+        ));
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () -> itemService.getFilteredItems(request));
     }
 
-// ---------------- addItem ----------------
+    // ---------------- addItem ----------------
 
     @Test
     void givenNewItem_whenAddItem_thenCreateItemAndCopy() {
-        // Given
-        CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
-                List.of(), // genres
-                List.of(), // subgenres
-                null, // readingLevel
-                List.of(), // didacticCategories
-                false // isDidactic
-        );
+        CreateItemDTO dto = createItemDto(Map.of());
 
-        SchoolItemCopy savedCopy = new SchoolItemCopy();
-        savedCopy.setId(1);
-
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
-        when(itemRepository.existsByTitle(dto.title())).thenReturn(false);
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId("Dune", 1L)).thenReturn(false);
+        when(itemRepository.existsByTitle("Dune")).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        when(itemRepository.save(any(Item.class))).thenReturn(testItem);
-        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
 
-        // When
+        when(itemRepository.save(any(Item.class))).thenAnswer(inv -> {
+            Item i = inv.getArgument(0);
+            i.setId(10L);
+            return i;
+        });
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenAnswer(inv -> {
+            SchoolItemCopy c = inv.getArgument(0);
+            if (c.getId() == 0) c.setId(1);
+            return c;
+        });
+
         ItemDTO result = itemService.addItem(dto);
 
-        // Then
         assertNotNull(result);
-        assertEquals("Test Title", result.title());
-        verify(itemRepository).save(any(Item.class));
-        verify(schoolItemCopyRepository, times(2)).save(any(SchoolItemCopy.class));
+        assertEquals("Dune", result.title());
+
+        ArgumentCaptor<SchoolItemCopy> copyCaptor = ArgumentCaptor.forClass(SchoolItemCopy.class);
+        verify(schoolItemCopyRepository, times(2)).save(copyCaptor.capture());
+        assertTrue(copyCaptor.getAllValues().stream().anyMatch(c -> "BC000001".equals(c.getBarcode())));
     }
 
     @Test
     void givenExistingItemById_whenAddItem_thenCreateOnlyCopy() {
-        // Given
-        CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 1L, 1L, List.of(1L), "Description", true, 1L,
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
-                List.of(), List.of(), null, List.of(), false);
+        CreateItemDTO dto = createItemDto(Map.of("itemId", 5L));
 
-        SchoolItemCopy savedCopy = new SchoolItemCopy();
-        savedCopy.setId(1);
-
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
-        when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId("Dune", 1L)).thenReturn(false);
+        when(itemRepository.existsByTitle("Dune")).thenReturn(true);
+        when(itemRepository.findById(5L)).thenReturn(Optional.of(testItem));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenAnswer(inv -> {
+            SchoolItemCopy c = inv.getArgument(0);
+            if (c.getId() == 0) c.setId(1);
+            return c;
+        });
 
-        // When
-        ItemDTO result = itemService.addItem(dto);
+        itemService.addItem(dto);
 
-        // Then
-        assertNotNull(result);
         verify(itemRepository, never()).save(any(Item.class));
         verify(schoolItemCopyRepository, times(2)).save(any(SchoolItemCopy.class));
     }
 
     @Test
     void givenExistingItemByTitle_whenAddItem_thenCreateOnlyCopy() {
-        // Given
-        CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
-                List.of(), List.of(), null, List.of(), false);
-        SchoolItemCopy savedCopy = new SchoolItemCopy();
-        savedCopy.setId(1);
+        CreateItemDTO dto = createItemDto(Map.of("itemId", 0L));
 
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
-        when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
-        when(itemRepository.findByTitle(dto.title())).thenReturn(Optional.of(testItem));
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId("Dune", 1L)).thenReturn(false);
+        when(itemRepository.existsByTitle("Dune")).thenReturn(true);
+        when(itemRepository.findByTitle("Dune")).thenReturn(Optional.of(testItem));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenAnswer(inv -> {
+            SchoolItemCopy c = inv.getArgument(0);
+            if (c.getId() == 0) c.setId(1);
+            return c;
+        });
 
-        // When
-        ItemDTO result = itemService.addItem(dto);
+        itemService.addItem(dto);
 
-        // Then
-        assertNotNull(result);
         verify(itemRepository, never()).save(any(Item.class));
         verify(schoolItemCopyRepository, times(2)).save(any(SchoolItemCopy.class));
     }
 
     @Test
     void givenExistingCopy_whenAddItem_thenThrowEntityAlreadyExistsException() {
-        // Given
-        CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
-                List.of(), // genres
-                List.of(), // subgenres
-                null, // readingLevel
-                List.of(), // didacticCategories
-                false // isDidactic
-        );
+        CreateItemDTO dto = createItemDto(Map.of());
 
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(true);
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId("Dune", 1L)).thenReturn(true);
 
-        // When & Then
         assertThrows(EntityAlreadyExistsException.class, () -> itemService.addItem(dto));
     }
 
     @Test
     void givenNonExistingSchool_whenAddItem_thenThrowEntityNotFoundException() {
-        // Given
-        CreateItemDTO dto = new CreateItemDTO(
-                "Test Title", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
-                List.of(), // genres
-                List.of(), // subgenres
-                null, // readingLevel
-                List.of(), // didacticCategories
-                false // isDidactic
-        );
+        CreateItemDTO dto = createItemDto(Map.of());
 
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
-        when(itemRepository.existsByTitle(dto.title())).thenReturn(true);
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId("Dune", 1L)).thenReturn(false);
+        when(itemRepository.existsByTitle("Dune")).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(EntityNotFoundException.class, () -> itemService.addItem(dto));
     }
 
     @Test
     void givenIsDidacticTrue_whenAddItem_thenIsDidacticSaved() {
-        // Given
-        CreateItemDTO dto = new CreateItemDTO(
-                "New Didactic Book", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
-                List.of(), List.of(), null, List.of(), true // isDidactic = true, no categories
-        );
-        SchoolItemCopy savedCopy = new SchoolItemCopy();
-        savedCopy.setId(1);
+        CreateItemDTO dto = createItemDto(Map.of("isDidactic", true));
 
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
-        when(itemRepository.existsByTitle(dto.title())).thenReturn(false);
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId("Dune", 1L)).thenReturn(false);
+        when(itemRepository.existsByTitle("Dune")).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
-            Item saved = invocation.getArgument(0);
-            saved.setId(1L);
-            return saved;
+        when(itemRepository.save(any(Item.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenAnswer(inv -> {
+            SchoolItemCopy c = inv.getArgument(0);
+            if (c.getId() == 0) c.setId(1);
+            return c;
         });
-        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
 
-        // When
         ItemDTO result = itemService.addItem(dto);
 
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isDidactic());
+        assertTrue(readDidactic(result));
     }
 
     @Test
     void givenDidacticCategoriesNonEmpty_whenAddItem_thenIsDidacticForcedTrue() {
-        // Given
         DidacticCategory cat = new DidacticCategory();
         cat.setId(1L);
-        cat.setName("Test Category");
 
-        CreateItemDTO dto = new CreateItemDTO(
-                "New Didactic Book", "Publisher", "Author", "ISBN", 2021, "English", 300, "cover.jpg",
-                4.5, 10, 0L, 1L, List.of(1L), "Description", true, 1L,
-                CopyStatus.BESCHIKBAAR, ItemCondition.GOED,
-                List.of(), List.of(), null, List.of(1L), false // isDidactic = false, but categories present
-        );
-        SchoolItemCopy savedCopy = new SchoolItemCopy();
-        savedCopy.setId(1);
+        CreateItemDTO dto = createItemDto(Map.of("didacticCategories", List.of(1L)));
 
-        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId(dto.title(), dto.schoolId())).thenReturn(false);
-        when(itemRepository.existsByTitle(dto.title())).thenReturn(false);
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
         when(didacticCategoryRepository.findById(1L)).thenReturn(Optional.of(cat));
+        when(schoolItemCopyRepository.existsByItemTitleAndSchoolId("Dune", 1L)).thenReturn(false);
+        when(itemRepository.existsByTitle("Dune")).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(campusRepository.findById(1L)).thenReturn(Optional.of(testCampus));
-        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
-            Item saved = invocation.getArgument(0);
-            saved.setId(1L);
-            return saved;
+        when(itemRepository.save(any(Item.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenAnswer(inv -> {
+            SchoolItemCopy c = inv.getArgument(0);
+            if (c.getId() == 0) c.setId(1);
+            return c;
         });
-        when(schoolItemCopyRepository.save(any(SchoolItemCopy.class))).thenReturn(savedCopy);
 
-        // When
         ItemDTO result = itemService.addItem(dto);
 
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isDidactic());
+        assertTrue(readDidactic(result));
     }
 
     // ---------------- deleteItem ----------------
 
     @Test
     void givenExistingId_whenDeleteItem_thenDeleteAndReturnDTO() {
-        // Given
         when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
 
-        // When
         ItemDTO result = itemService.deleteItem(1L);
 
-        // Then
-        assertNotNull(result);
-        assertEquals(testItem.getTitle(), result.title());
+        assertEquals("Dune", result.title());
         verify(itemRepository).delete(testItem);
     }
 
     @Test
     void givenNonExistingId_whenDeleteItem_thenThrowEntityNotFoundException() {
-        // Given
         when(itemRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(EntityNotFoundException.class, () -> itemService.deleteItem(1L));
     }
 
@@ -385,118 +261,63 @@ class ItemServiceTest {
 
     @Test
     void givenItemsExist_whenGetAllItems_thenReturnList() {
-        // Given
         when(itemRepository.findAll()).thenReturn(List.of(testItem));
 
-        // When
         List<ItemDTO> result = itemService.getAllItems();
 
-        // Then
         assertEquals(1, result.size());
-        assertEquals(testItem.getTitle(), result.get(0).title());
+        assertEquals("Dune", result.get(0).title());
     }
 
-    // ---------------- updateSchoolItem ----------------
+    // ---------------- updateItem ----------------
 
     @Test
-    void givenExistingId_whenUpdateSchoolItem_thenUpdateAndReturnDTO() {
-        // Given
-        UpdateItemDTO dto = new UpdateItemDTO(
-                "Updated Title",
-                "Updated Publisher",
-                "Updated Author",
-                2022,
-                "French",
-                350,
-                "updated-cover.jpg",
-                List.of(1L),
-                "Updated Description",
-                "0987654321",
+    void givenExistingId_whenUpdateItem_thenUpdateAndReturnDTO() {
+        UpdateItemDTO dto = createUpdateItemDto(Map.of("title", "Updated"));
 
-                List.of(),
-                List.of(),
-                null,
-                List.of(),
-                false);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        when(itemRepository.save(any(Item.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         ItemDTO result = itemService.updateItem(1L, dto);
 
-        // Then
-        assertNotNull(result);
-        assertEquals("Updated Title", result.title());
-        verify(itemRepository).save(any(Item.class));
+        assertEquals("Updated", result.title());
+        verify(itemRepository).save(testItem);
     }
 
     @Test
     void givenIsDidacticTrue_whenUpdateItem_thenIsDidacticSaved() {
-        // Given
-        UpdateItemDTO dto = new UpdateItemDTO(
-                "Updated Title", "Publisher", "Author", 2022, "English", 300, "cover.jpg",
-                List.of(1L), "Description", "ISBN",
-                List.of(), List.of(), null, List.of(), true // isDidactic = true, no categories
-        );
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        UpdateItemDTO dto = createUpdateItemDto(Map.of("isDidactic", true));
 
-        // When
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
+        when(itemRepository.save(any(Item.class))).thenAnswer(inv -> inv.getArgument(0));
+
         ItemDTO result = itemService.updateItem(1L, dto);
 
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isDidactic());
+        assertTrue(readDidactic(result));
     }
 
     @Test
     void givenDidacticCategoriesNonEmpty_whenUpdateItem_thenIsDidacticForcedTrue() {
-        // Given
         DidacticCategory cat = new DidacticCategory();
         cat.setId(1L);
-        cat.setName("Test Category");
 
-        UpdateItemDTO dto = new UpdateItemDTO(
-                "Updated Title", "Publisher", "Author", 2022, "English", 300, "cover.jpg",
-                List.of(1L), "Description", "ISBN",
-                List.of(), List.of(), null, List.of(1L), false // isDidactic = false, but categories present
-        );
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
-        when(tagRepository.findById(1L)).thenReturn(Optional.of(testTag));
+        UpdateItemDTO dto = createUpdateItemDto(Map.of("didacticCategories", List.of(1L)));
+
         when(didacticCategoryRepository.findById(1L)).thenReturn(Optional.of(cat));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
+        when(itemRepository.save(any(Item.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         ItemDTO result = itemService.updateItem(1L, dto);
 
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isDidactic());
+        assertTrue(readDidactic(result));
     }
 
     @Test
-    void givenNonExistingId_whenUpdateSchoolItem_thenThrowEntityNotFoundException() {
-        // Given
-        UpdateItemDTO dto = new UpdateItemDTO(
-                "Updated Title",
-                "Updated Publisher",
-                "Updated Author",
-                2022,
-                "French",
-                350,
-                "updated-cover.jpg",
-                List.of(1L),
-                "Updated Description",
-                "0987654321",
+    void givenNonExistingId_whenUpdateItem_thenThrowEntityNotFoundException() {
+        UpdateItemDTO dto = createUpdateItemDto(Map.of());
 
-                List.of(),
-                List.of(),
-                null,
-                List.of(),
-                false
-        );
         when(itemRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(EntityNotFoundException.class, () -> itemService.updateItem(1L, dto));
     }
 
@@ -504,23 +325,17 @@ class ItemServiceTest {
 
     @Test
     void givenExistingId_whenGetItemById_thenReturnDTO() {
-        // Given
         when(itemRepository.findById(1L)).thenReturn(Optional.of(testItem));
 
-        // When
         ItemDTO result = itemService.getItemById(1L);
 
-        // Then
-        assertNotNull(result);
-        assertEquals(testItem.getTitle(), result.title());
+        assertEquals("Dune", result.title());
     }
 
     @Test
     void givenNonExistingId_whenGetItemById_thenThrowEntityNotFoundException() {
-        // Given
         when(itemRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(EntityNotFoundException.class, () -> itemService.getItemById(1L));
     }
 
@@ -528,43 +343,178 @@ class ItemServiceTest {
 
     @Test
     void givenExistingTitle_whenGetItemByTitle_thenReturnDTO() {
-        // Given
-        when(itemRepository.findByTitle("Test Title")).thenReturn(Optional.of(testItem));
+        when(itemRepository.findByTitle("Dune")).thenReturn(Optional.of(testItem));
 
-        // When
-        ItemDTO result = itemService.getItemByTitle("Test Title");
+        ItemDTO result = itemService.getItemByTitle("Dune");
 
-        // Then
         assertNotNull(result);
-        assertEquals("Test Title", result.title());
+        assertEquals("Dune", result.title());
     }
 
     @Test
     void givenNonExistingTitle_whenGetItemByTitle_thenReturnNull() {
-        // Given
-        when(itemRepository.findByTitle("Non Existing")).thenReturn(Optional.empty());
+        when(itemRepository.findByTitle("Unknown")).thenReturn(Optional.empty());
 
-        // When
-        ItemDTO result = itemService.getItemByTitle("Non Existing");
-
-        // Then
-        assertNull(result);
+        assertNull(itemService.getItemByTitle("Unknown"));
     }
 
     // ---------------- getFeaturedItems ----------------
 
     @Test
     void givenSchoolId_whenGetFeaturedItems_thenReturnList() {
-        // Given
         when(itemRepository.findAll(any(Specification.class))).thenReturn(List.of(testItem));
 
-        // When
         List<ItemDTO> result = itemService.getFeaturedItems(1L);
 
-        // Then
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(testItem.getTitle(), result.get(0).title());
+        assertEquals("Dune", result.get(0).title());
     }
 
+    // ---------------- get10LatestItems ----------------
+
+    @Test
+    void givenCopies_whenGet10LatestItems_thenReturnUniqueItems() {
+        SchoolItemCopy c1 = new SchoolItemCopy();
+        c1.setItem(testItem);
+
+        Item other = new Item();
+        other.setId(2L);
+        other.setTitle("Neuromancer");
+
+        SchoolItemCopy c2 = new SchoolItemCopy();
+        c2.setItem(testItem); // duplicate item
+
+        SchoolItemCopy c3 = new SchoolItemCopy();
+        c3.setItem(other);
+
+        when(schoolItemCopyRepository.findTop50BySchoolIdOrderByIdDesc(1L))
+                .thenReturn(List.of(c1, c2, c3));
+
+        List<ItemDTO> result = itemService.get10LatestItems(1L);
+
+        assertEquals(2, result.size());
+        assertEquals(Set.of("Dune", "Neuromancer"),
+                result.stream().map(ItemDTO::title).collect(Collectors.toSet()));
+    }
+
+    // ---------------- helpers ----------------
+
+    private CreateItemDTO createItemDto(Map<String, Object> overrides) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("title", "Dune");
+        values.put("author", "Frank Herbert");
+        values.put("publisher", "Ace");
+        values.put("isbn", "9780441568529");
+        values.put("releaseYear", 1965);
+        values.put("bookLanguage", "EN");
+        values.put("pageCount", 412);
+        values.put("cover", "cover.jpg");
+        values.put("reviewScore", 0.0);
+        values.put("reviewCount", 0);
+        values.put("description", "desc");
+        values.put("tags", List.of());
+        values.put("genres", List.of());
+        values.put("subgenres", List.of());
+        values.put("readingLevel", null);
+        values.put("didacticCategories", List.of());
+        values.put("schoolId", 1L);
+        values.put("itemId", 0L);
+        values.put("featured", false);
+        values.put("campusId", null);
+        values.put("copyStatus", CopyStatus.BESCHIKBAAR);
+        values.put("condition", ItemCondition.GOED);
+        values.put("isDidactic", false);
+        values.putAll(overrides);
+        return buildRecord(CreateItemDTO.class, values);
+    }
+
+    private UpdateItemDTO createUpdateItemDto(Map<String, Object> overrides) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("title", "Updated");
+        values.put("author", "Author");
+        values.put("publisher", "Publisher");
+        values.put("isbn", "1111111111111");
+        values.put("releaseYear", 2000);
+        values.put("bookLanguage", "EN");
+        values.put("pageCount", 100);
+        values.put("cover", "new.jpg");
+        values.put("description", "desc");
+        values.put("tags", List.of());
+        values.put("genres", List.of());
+        values.put("subgenres", List.of());
+        values.put("readingLevel", null);
+        values.put("didacticCategories", List.of());
+        values.put("isDidactic", false);
+        values.putAll(overrides);
+        return buildRecord(UpdateItemDTO.class, values);
+    }
+
+    private static boolean readDidactic(ItemDTO dto) {
+        try {
+            return (boolean) dto.getClass().getMethod("isDidactic").invoke(dto);
+        } catch (Exception ex) {
+            try {
+                return (boolean) dto.getClass().getMethod("didactic").invoke(dto);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static <T> T buildRecord(Class<T> recordClass, Map<String, Object> values) {
+        if (!recordClass.isRecord()) {
+            throw new IllegalArgumentException("Not a record: " + recordClass);
+        }
+        try {
+            RecordComponent[] components = recordClass.getRecordComponents();
+            Object[] args = new Object[components.length];
+            Class<?>[] types = new Class<?>[components.length];
+
+            for (int i = 0; i < components.length; i++) {
+                RecordComponent c = components[i];
+                types[i] = c.getType();
+                Object value = values.get(c.getName());
+                args[i] = coerceValue(types[i], value);
+            }
+
+            Constructor<T> ctor = recordClass.getDeclaredConstructor(types);
+            ctor.setAccessible(true);
+            return ctor.newInstance(args);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private static Object coerceValue(Class<?> type, Object value) {
+        if (value == null) return defaultValue(type);
+        if (type.isInstance(value)) return value;
+
+        if (type.isPrimitive()) {
+            if (type == int.class) return ((Number) value).intValue();
+            if (type == long.class) return ((Number) value).longValue();
+            if (type == double.class) return ((Number) value).doubleValue();
+            if (type == boolean.class) return (value instanceof Boolean) ? value : Boolean.parseBoolean(value.toString());
+        }
+
+        if (Number.class.isAssignableFrom(type) && value instanceof Number n) {
+            if (type == Integer.class) return n.intValue();
+            if (type == Long.class) return n.longValue();
+            if (type == Double.class) return n.doubleValue();
+        }
+
+        return value;
+    }
+
+    private static Object defaultValue(Class<?> type) {
+        if (!type.isPrimitive()) return null;
+        if (type == boolean.class) return false;
+        if (type == int.class) return 0;
+        if (type == long.class) return 0L;
+        if (type == double.class) return 0d;
+        if (type == float.class) return 0f;
+        if (type == short.class) return (short) 0;
+        if (type == byte.class) return (byte) 0;
+        if (type == char.class) return '\0';
+        return null;
+    }
 }

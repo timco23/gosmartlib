@@ -1,33 +1,39 @@
 <div class="book-detail-container">
-  <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
-
   @if (book) {
     <main class="book-detail-card">
       <header class="book-detail-header">
-        <h2>{{ book.title }}</h2>
+        <div class="header-row">
+          <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
+        </div>
 
         @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
-          <div class="book-actions">
-            <a class="edit-button" [routerLink]="['/books', book.id, 'edit']"> Boek wijzigen </a>
+          <div class="action-bar">
+            <a class="action-btn edit-button" [routerLink]="['/books', book.id, 'edit']">
+              Boek wijzigen
+            </a>
             <a
-              class="edit-button"
+              class="action-btn edit-button secondary"
               [routerLink]="['/books', book.id, 'barcodes']"
               [queryParams]="{ preselect: 'all' }"
-              >Print barcodes</a
             >
-            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Lending history</a>
-            <a class="delete-button" (click)="deleteBook(book!.id!)">Verwijder boek</a>
-            <a class="feature-button" [class.active]="isFeatured" (click)="toggleFeatured()">
-              {{ isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten' }}
+              Print barcodes
             </a>
+            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Lending history</a>
+            <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
+              Verwijder boek
+            </button>
+            <button
+              class="action-btn feature-button"
+              type="button"
+              [class.active]="isFeatured"
+              (click)="toggleFeatured()"
+            >
+              {{ isFeatured ? 'Boek niet meer uitlichten' : 'Boek uitlichten' }}
+            </button>
           </div>
         }
-        <div class="add-favorite">
-          <button (click)="addToFavorites()">
-            {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
-          </button>
-        </div>
       </header>
+
       @if (deleteError) {
         <app-pop-up
           title="Boek verwijderen mislukt"
@@ -45,73 +51,114 @@
         />
       }
 
-      <section class="book-top-grid">
+      <section class="book-hero-grid">
         <aside class="panel cover-panel">
-          <p class="panel-title">Foto boek</p>
           @if (book.id) {
             <img [src]="api.getBookCoverUrl(book.id!)" alt="Book cover" />
           } @else {
             <div class="no-cover">Geen afbeelding</div>
           }
+
+          <div class="cover-actions">
+            <button class="action-btn favorite-btn" type="button" (click)="addToFavorites()">
+              {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
+            </button>
+            @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+              <button class="action-btn report-btn" type="button">Bekijk rapportage</button>
+            }
+          </div>
         </aside>
 
-        <section class="center-col">
-          <div class="panel title-panel">{{ book.title }}</div>
-
-          <div class="meta-row">
-            <div class="panel"><span class="meta-label">Auteur(s):</span> {{ book.author }}</div>
-            <div class="panel pages-panel">
-              <span class="meta-label">Aantal pagina's:</span> {{ book.pageCount }}
-            </div>
+        <section class="hero-content">
+          <div class="title-block">
+            <span class="eyebrow">Boekdetails</span>
+            <h2 class="book-title">{{ book.title }}</h2>
+            <p class="book-author">{{ book.author }}</p>
           </div>
 
-          <div class="panel details-grid">
-            <div class="reading-level-row">
-              <span class="meta-label">Leesniveau:</span> {{ readingLevelName || '—' }}
+          <div class="chip-row">
+            <span class="chip">
+              Leesniveau: {{ readingLevelName || '—' }}
               @if (readingLevelDescription) {
-                <div class="tooltip-anchor">
+                <span class="tooltip-anchor">
                   <span class="info-icon">i</span>
-                  <div class="tooltip-box">{{ readingLevelDescription }}</div>
-                </div>
+                  <span class="tooltip-box">{{ readingLevelDescription }}</span>
+                </span>
               }
-            </div>
-            @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-              <div>
-                <span class="meta-label">Didactische categorieën:</span>
-                {{ getDidacticCategoryNames() || '—' }}
-              </div>
-            }
-            <div><span class="meta-label">Subgenres:</span> {{ getSubgenreNames() || '—' }}</div>
-            <div><span class="meta-label">Genres:</span> {{ getGenreNames() || '—' }}</div>
-            @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-              <div><span class="meta-label">Uitgelicht:</span> {{ isFeatured ? 'Ja' : 'Nee' }}</div>
-            }
-            <div>
-              <span class="meta-label">Taal:</span>
-              {{ $any(book).bookLanguage || $any(book).language || '—' }}
-            </div>
-            <div>
-              <span class="meta-label">Uitgavejaar:</span>
-              {{ $any(book).releaseYear || $any(book).release_year || '—' }}
-            </div>
-            <div><span class="meta-label">ISBN:</span> {{ $any(book).isbn || '—' }}</div>
-            <div><span class="meta-label">Uitgeverij:</span> {{ $any(book).publisher || '—' }}</div>
+            </span>
+            <span class="chip">Pagina's: {{ book.pageCount }}</span>
+            <span class="chip">
+              Taal: {{ $any(book).bookLanguage || $any(book).language || '—' }}
+            </span>
+            <span class="chip">
+              Jaar: {{ $any(book).releaseYear || $any(book).release_year || '—' }}
+            </span>
           </div>
 
-          <div class="panel">
+          <div class="panel description-panel">
             <p class="panel-title">Beschrijving</p>
             <p>{{ book.description }}</p>
           </div>
 
-          <div class="panel">
-            <p class="panel-title">Tags</p>
-            <p>{{ getTagNames() }}</p>
+          <div class="panel facts-panel">
+            <p class="panel-title">Boekinformatie</p>
+            <div class="facts-grid">
+              <div class="fact">
+                <span class="label">Genres</span>
+                <span class="value">{{ getGenreNames() || '—' }}</span>
+              </div>
+              <div class="fact">
+                <span class="label">Subgenres</span>
+                <span class="value">{{ getSubgenreNames() || '—' }}</span>
+              </div>
+              <div class="fact">
+                <span class="label">Uitgeverij</span>
+                <span class="value">{{ $any(book).publisher || '—' }}</span>
+              </div>
+              <div class="fact">
+                <span class="label">ISBN</span>
+                <span class="value">{{ $any(book).isbn || '—' }}</span>
+              </div>
+              <div class="fact">
+                <span class="label">Taal</span>
+                <span class="value">
+                  {{ $any(book).bookLanguage || $any(book).language || '—' }}
+                </span>
+              </div>
+              <div class="fact">
+                <span class="label">Uitgavejaar</span>
+                <span class="value">
+                  {{ $any(book).releaseYear || $any(book).release_year || '—' }}
+                </span>
+              </div>
+              @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+                <div class="fact">
+                  <span class="label">Didactisch</span>
+                  <span class="value">{{ getDidacticCategoryNames() || '—' }}</span>
+                </div>
+                <div class="fact">
+                  <span class="label">Uitgelicht</span>
+                  <span class="value">{{ isFeatured ? 'Ja' : 'Nee' }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="panel tag-panel">
+            <p class="panel-title">Leefwereldlabels</p>
+            <div class="tag-list">
+              @if (book?.tags?.length) {
+                @for (t of book!.tags; track t.id) {
+                  <span class="tag">{{ t.name }}</span>
+                }
+              } @else {
+                <span class="muted">—</span>
+              }
+            </div>
           </div>
         </section>
 
         <aside class="right-col">
-          <button class="feature-button report-btn" type="button">Bekijk rapportage</button>
-
           <div class="panel side-box">
             <p class="panel-title">Beschikbaarheid</p>
             <p>{{ copies.length }} exemplaren</p>
@@ -186,6 +233,7 @@
   } @else {
     <h3>Loading...</h3>
   }
+
   @if (showDeleteConfirmation()) {
     <div class="overlay">
       <app-pop-up

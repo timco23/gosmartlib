@@ -76,3 +76,51 @@ h2 {
   background: #8c1b3f;
   color: white !important;
 }
+
+.role-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.role-edit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.role-select {
+  padding: 6px 10px;
+  border: 1px solid #8c1b3f;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #2f2f2f;
+  background: #fff;
+  cursor: pointer;
+}
+
+.btn-save-role {
+  padding: 6px 16px;
+  background: #8c1b3f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-save-role:hover {
+  background: #6e1531;
+}
+
+.role-success {
+  color: #155724;
+  font-size: 14px;
+}
+
+.role-error {
+  color: #721c24;
+  font-size: 14px;
+}

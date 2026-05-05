@@ -12,15 +12,13 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Retrieves user profile by email.
-   * @param email user's email address
-   * @returns user profile data
-   */
-  getUser(email: string): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`, {
-      params: { email: email },
-    });
+  //email input is ignored
+  getUser(_email?: string): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile`);
+  }
+
+  getProfileByEmail(email: string): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile/${encodeURIComponent(email)}`);
   }
 
   getFavorites(): Observable<any[]> {
@@ -39,6 +37,10 @@ export class UserService {
     });
   }
 
+  getSchoolUsers(): Observable<UserProfile[]> {
+    return this.http.get<UserProfile[]>(`${environment.apiUrl}/user/school-users`);
+  }
+
   addBorrowedItem(userId: number): Observable<void> {
     return this.http.put<void>(`${environment.apiUrl}/user/addBorrowed`, null, {
       params: { userId: userId.toString() }
@@ -54,6 +56,12 @@ export class UserService {
   changeSchool(email: string, schoolId: number): Observable<UserProfile> {
     return this.http.put<UserProfile>(`${this.apiUrl}/school`, null, {
       params: { email, schoolId: schoolId.toString() }
+    });
+  }
+
+  updateUserRole(email: string, role: string): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.apiUrl}/role`, null, {
+      params: { email, role }
     });
   }
 }

@@ -14,22 +14,24 @@ class BookMetadataServiceTest {
 
     private static final String ISBN = "9780441568529";
 
-    // All 8 fields filled
     private static final BookMetadata COMPLETE = new BookMetadata(
-            "Dune", "Frank Herbert", "A sci-fi epic.", "en",
+            "Dune", "Frank Herbert", "A sci-fi epic.", "ENGELS",
             "Ace Books", 412, 1965, "https://covers.example.com/dune.jpg"
     );
 
-    // Missing language, pageCount, coverUrl
     private static final BookMetadata PARTIAL_A = new BookMetadata(
             "Dune", "Frank Herbert", "A sci-fi epic.", null,
             "Ace Books", null, 1965, null
     );
 
-    // Has exactly the fields PARTIAL_A is missing
     private static final BookMetadata PARTIAL_B = new BookMetadata(
-            null, null, null, "en",
+            null, null, null, "ENGELS",
             null, 412, null, "https://covers.example.com/dune.jpg"
+    );
+
+    private static final BookMetadata OTHER = new BookMetadata(
+            "Other", "Someone", "Other desc", "fr",
+            "Other Pub", 100, 2000, "https://covers.example.com/other.jpg"
     );
 
     private BookMetadataProvider provider(boolean enabled, Optional<BookMetadata> result) {
@@ -68,7 +70,7 @@ class BookMetadataServiceTest {
         assertNotNull(result.releaseYear());
         assertNotNull(result.coverUrl());
         assertEquals("Dune", result.title());
-        assertEquals("en", result.language());
+        assertEquals("ENGELS", result.language());
         assertEquals(412, result.pageCount());
         assertEquals("https://covers.example.com/dune.jpg", result.coverUrl());
     }
@@ -81,9 +83,9 @@ class BookMetadataServiceTest {
 
         BookMetadata result = service.fetchByIsbn(ISBN).orElseThrow();
 
-        assertEquals("Dune", result.title());   // kept from first
-        assertNull(result.language());          // neither provider had it
-        assertNull(result.coverUrl());          // neither provider had it
+        assertEquals("Dune", result.title());
+        assertNull(result.language());
+        assertNull(result.coverUrl());
     }
 
     @Test
@@ -97,40 +99,38 @@ class BookMetadataServiceTest {
 
     @Test
     void givenDisabledProvider_whenFetchByIsbn_thenProviderSkipped() {
-        BookMetadataProvider first  = provider(false, Optional.of(COMPLETE));
-        BookMetadataProvider second = provider(true,  Optional.of(COMPLETE));
-        BookMetadataService service = new BookMetadataService(List.of(first, second));
+        BookMetadataProvider disabled = provider(false, Optional.of(COMPLETE));
+        BookMetadataProvider enabled  = provider(true, Optional.of(PARTIAL_B));
+        BookMetadataService service = new BookMetadataService(List.of(disabled, enabled));
 
-        service.fetchByIsbn(ISBN);
+        Optional<BookMetadata> result = service.fetchByIsbn(ISBN);
 
-        verify(first,  never()).fetchByIsbn(anyString());
-        verify(second).fetchByIsbn(ISBN);
+        assertTrue(result.isPresent());
+        verify(disabled, never()).fetchByIsbn(anyString());
+        verify(enabled).fetchByIsbn(anyString());
     }
 
     @Test
     void givenFirstProviderEmpty_whenFetchByIsbn_thenSecondProviderDataReturned() {
         BookMetadataProvider first  = provider(true, Optional.empty());
-        BookMetadataProvider second = provider(true, Optional.of(PARTIAL_A));
+        BookMetadataProvider second = provider(true, Optional.of(COMPLETE));
+        BookMetadataService service = new BookMetadataService(List.of(first, second));
+
+        Optional<BookMetadata> result = service.fetchByIsbn(ISBN);
+
+        assertTrue(result.isPresent());
+        assertEquals(COMPLETE, result.get());
+    }
+
+    @Test
+    void givenFirstProviderHasValue_whenFetchByIsbn_thenFirstProviderValueNotOverwritten() {
+        BookMetadataProvider first  = provider(true, Optional.of(COMPLETE));
+        BookMetadataProvider second = provider(true, Optional.of(OTHER));
         BookMetadataService service = new BookMetadataService(List.of(first, second));
 
         BookMetadata result = service.fetchByIsbn(ISBN).orElseThrow();
 
         assertEquals("Dune", result.title());
         assertEquals("Frank Herbert", result.authors());
-    }
-
-    @Test
-    void givenFirstProviderHasValue_whenFetchByIsbn_thenFirstProviderValueNotOverwritten() {
-        BookMetadata withTitle    = new BookMetadata("Original Title", null, null, null, null, null, null, null);
-        BookMetadata differentTitle = new BookMetadata("Different Title", "Author", "Desc", "en", "Publisher", 100, 2000, "cover.jpg");
-
-        BookMetadataProvider first  = provider(true, Optional.of(withTitle));
-        BookMetadataProvider second = provider(true, Optional.of(differentTitle));
-        BookMetadataService service = new BookMetadataService(List.of(first, second));
-
-        BookMetadata result = service.fetchByIsbn(ISBN).orElseThrow();
-
-        assertEquals("Original Title", result.title()); // first provider's value kept
-        assertEquals("Author", result.authors());       // filled in from second
     }
 }

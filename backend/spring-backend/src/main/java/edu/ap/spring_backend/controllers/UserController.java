@@ -4,10 +4,11 @@ import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 /**
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
 
     /**
@@ -29,19 +29,22 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * Retrieves user profile by email.
-     * 
-     * @param email user's email address
-     * @return user profile data without password
-     * @throws RuntimeException if user not found
-     */
     @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getProfile(@RequestParam String email) {
-        logger.info("Profile request for email: {}", email);
-        UserResponse response = userService.getProfile(email);
-        logger.info("Profile retrieved for: {}", email);
+    public ResponseEntity<UserResponse> getOwnProfile(Authentication auth) {
+        UserResponse response = userService.getOwnProfile(Integer.parseInt(auth.getName()));
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<UserResponse> getProfileByEmail(@PathVariable String email) {
+        UserResponse response = userService.getProfile(email);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/school-users")
+    public ResponseEntity<List<UserResponse>> getSchoolUsers(Authentication auth) {
+        List<UserResponse> users = userService.getUsersByCurrentSchool(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/favorites")
@@ -68,6 +71,15 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PutMapping("/role")
+    public ResponseEntity<UserResponse> updateUserRole(
+            @RequestParam String email,
+            @RequestParam String role,
+            Authentication auth) {
+        UserResponse response = userService.updateUserRole(Integer.parseInt(auth.getName()), email, role);
+        return ResponseEntity.ok(response);
     }
 
     // Admin-only
