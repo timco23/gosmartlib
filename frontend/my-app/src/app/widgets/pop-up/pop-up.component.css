@@ -1,4 +1,4 @@
-/* overlay */
+/* Overlay */
 .overlay {
   position: fixed;
   top: 0;
@@ -12,74 +12,85 @@
   z-index: 99999;
 }
 
+/* Dialog card */
 .confirm-dialog {
-  background: white;
-  padding: 32px;
-  border-radius: 10px;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
   max-width: 500px;
   width: 90%;
   word-break: break-word;
   overflow-wrap: break-word;
-  width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+
+.confirm-dialog h3 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-1);
 }
 
 .confirm-dialog p {
-  margin-bottom: 24px;
-  font-size: 18px;
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-base);
+  color: var(--color-text-2);
   white-space: normal;
+  line-height: 1.6;
 }
 
-/* buttons */
-button {
-  width: 100%;
-  padding: 12px 24px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  background: black;
-  color: white;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #333;
-}
-
+/* Button row */
 .button-row {
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .button-row button {
   flex: 1;
-  margin-top: 0;
+  padding: 0.5625rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
+/* Cancel / neutral — secondary style with border so it's visible in both modes */
 .cancel-button {
-  background: black;
+  background: transparent;
+  color: var(--color-text-2);
+  border: 1px solid var(--color-border-hover);
 }
-
 .cancel-button:hover {
-  background: #333;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
+/* Destructive confirm button */
 .confirm-delete-btn {
-  background: #8c1b3f;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
 }
-
 .confirm-delete-btn:hover {
-  background: #6f1532;
+  background: var(--color-primary-bright);
+  box-shadow: var(--shadow-red);
 }
 
-/* confirm-btn (primary) */
+/* Positive confirm button */
 .confirm-btn {
-  background: #c2e569;
-  color: #2f2f2f;
+  background: var(--color-lime-bg);
+  color: var(--color-lime);
+  border: 1px solid var(--color-lime-border);
 }
-
 .confirm-btn:hover {
-  background: #afd44f;
+  background: var(--color-lime);
+  color: var(--color-inverse-bg);
+  border-color: var(--color-lime);
 }

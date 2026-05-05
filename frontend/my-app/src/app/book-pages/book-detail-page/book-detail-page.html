@@ -11,6 +11,11 @@
             <a class="action-btn edit-button" [routerLink]="['/books', book.id, 'edit']">
               Boek wijzigen
             </a>
+
+            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Uitleengeschiedenis</a>
+            <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
+              Verwijder boek
+            </button>
             <a
               class="action-btn edit-button secondary"
               [routerLink]="['/books', book.id, 'barcodes']"
@@ -18,10 +23,6 @@
             >
               Print barcodes
             </a>
-            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Uitleen-geschiedenis</a>
-            <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
-              Verwijder boek
-            </button>
             <button
               class="action-btn feature-button"
               type="button"
@@ -202,11 +203,18 @@
         <div class="reviews-content">
           <div class="reviews-header">
             <h3>Reviews</h3>
-            @if (!showReviewForm) {
-              <button class="add-review-btn" type="button" (click)="showReviewForm = true">
-                Review schrijven
-              </button>
-            }
+            <div class="reviews-header-actions">
+              @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && reviews.length > 0) {
+                <button class="delete-all-btn" type="button" (click)="onDeleteAllReviews()">
+                  Alle reviews verwijderen
+                </button>
+              }
+              @if (!showReviewForm) {
+                <button class="add-review-btn" type="button" (click)="showReviewForm = true">
+                  Review schrijven
+                </button>
+              }
+            </div>
           </div>
 
           @if (showReviewForm) {

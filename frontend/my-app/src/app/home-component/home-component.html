@@ -1,5 +1,14 @@
 <div class="container">
-  <h1>Welkom bij GO!SmartLib</h1>
+  <div class="hero">
+    <span class="hero-circle hero-circle--1" aria-hidden="true"></span>
+    <span class="hero-circle hero-circle--2" aria-hidden="true"></span>
+    <span class="hero-circle hero-circle--3" aria-hidden="true"></span>
+    <div class="hero-inner">
+      <span class="hero-eyebrow">GO!SmartLib</span>
+      <h1>Welkom bij<br>GO!SmartLib</h1>
+      <p class="hero-sub">Ontdek boeken, collecties en meer.</p>
+    </div>
+  </div>
 
   @if (globalCollections.length > 0) {
     <section class="featured-section">
@@ -32,8 +41,8 @@
       } @else if (error) {
         <div class="state-message error">{{ error }}</div>
       } @else {
-          <app-book-carousel [allGenres]="allGenres" [books]="featuredBooks" [detailedView]="true" [progressDots]="true" [scrollableThreshold]="3"></app-book-carousel>
-        }
+        <app-book-carousel [allGenres]="allGenres" [books]="featuredBooks" [detailedView]="true" [progressDots]="true" [scrollableThreshold]="3"></app-book-carousel>
+      }
     </section>
   }
 
