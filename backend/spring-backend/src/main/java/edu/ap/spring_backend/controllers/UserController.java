@@ -79,7 +79,7 @@ public class UserController {
     public ResponseEntity<String> deleteFavoriteBook(@RequestParam String email, @RequestParam Long itemId) {
         try {
             userService.deleteFavoriteBook(email, itemId);
-            return ResponseEntity.ok("Book removed from favorites");
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

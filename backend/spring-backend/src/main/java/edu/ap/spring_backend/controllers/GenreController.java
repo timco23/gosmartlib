@@ -2,6 +2,7 @@ package edu.ap.spring_backend.controllers;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,22 +26,23 @@ public class GenreController {
     }
 
     @GetMapping
-    public List<GenreWithSubgenresDTO> getAll() {
-        return genreService.getAll();
+    public ResponseEntity<List<GenreWithSubgenresDTO>> getAll() {
+        return ResponseEntity.ok(genreService.getAll());
     }
 
     @PostMapping
-    public Genre addNewGenre(@RequestBody Genre newGenre) {
-        return genreService.addGenre(newGenre);
+    public ResponseEntity<Genre> addNewGenre(@RequestBody Genre newGenre) {
+        return ResponseEntity.ok(genreService.addGenre(newGenre));
     }
 
     @PutMapping("/{id}")
-    public Genre updateGenre(@PathVariable Long id, @RequestBody Genre updatedGenre) {
-        return genreService.updateGenre(id, updatedGenre);
+    public ResponseEntity<Genre> updateGenre(@PathVariable Long id, @RequestBody Genre updatedGenre) {
+        return ResponseEntity.ok(genreService.updateGenre(id, updatedGenre));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteGenre(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         genreService.deleteGenre(id);
+        return ResponseEntity.noContent().build();
     }
 }

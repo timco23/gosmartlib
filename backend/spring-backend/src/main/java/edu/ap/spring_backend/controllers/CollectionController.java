@@ -58,6 +58,6 @@ public class CollectionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<CollectionDTO> deleteReadingList(@PathVariable Long id) {
-        return ResponseEntity.ok(collectionService.deleteCollection(id));
+        return ResponseEntity.noContent().build();
     }
 }

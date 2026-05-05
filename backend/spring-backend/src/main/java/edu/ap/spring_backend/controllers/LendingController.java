@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,42 +26,43 @@ public class LendingController {
     }
 
     @GetMapping()
-    public Object getAllLendings() {
-        return lendingService.getAll();
+    public ResponseEntity<Object> getAllLendings() {
+        return ResponseEntity.ok(lendingService.getAll());
     }
 
     @GetMapping("/user")
-    public Object getAllLendingsByUser(@RequestParam String email) {
-        return lendingService.getAllByUser(email);
+    public ResponseEntity<Object> getAllLendingsByUser(@RequestParam String email) {
+        return ResponseEntity.ok(lendingService.getAllByUser(email));
     }
 
     @GetMapping("/{id}")
-    public Object getLendingById(@PathVariable Long id) {
-        return lendingService.getById(id);
+    public ResponseEntity<Object> getLendingById(@PathVariable Long id) {
+        return ResponseEntity.ok(lendingService.getById(id));
     }
 
     @PostMapping()
-    public LendingDTO addLending(@RequestBody LendingRequestDTO newLending) {
-        return lendingService.addLending(newLending);
+    public ResponseEntity<LendingDTO> addLending(@RequestBody LendingRequestDTO newLending) {
+        return ResponseEntity.status(201).body(lendingService.addLending(newLending));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteLending(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteLending(@PathVariable Long id) {
         lendingService.deleteLending(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public LendingDTO updateLending(@PathVariable Long id, @RequestBody LendingDTO dto) {
-        return lendingService.updateLending(id, dto);
+    public ResponseEntity<LendingDTO> updateLending(@PathVariable Long id, @RequestBody LendingDTO dto) {
+        return ResponseEntity.ok(lendingService.updateLending(id, dto));
     }
 
     @PostMapping("/{id}/extend")
-    public LendingDTO extendLending(@PathVariable Long id) {
-        return lendingService.extendLending(id);
+    public ResponseEntity<LendingDTO> extendLending(@PathVariable Long id) {
+        return ResponseEntity.ok(lendingService.extendLending(id));
     }
 
     @GetMapping("/book/{bookId}")
-    public Object getLendingsByBookId(@PathVariable Long bookId) {
-        return lendingService.getLendingsByBookId(bookId);
+    public ResponseEntity<Object> getLendingsByBookId(@PathVariable Long bookId) {
+        return ResponseEntity.ok(lendingService.getLendingsByBookId(bookId));
     }
 }

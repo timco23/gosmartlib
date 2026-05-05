@@ -330,11 +330,11 @@ public class ItemController {
 
     @DeleteMapping("/books/{id}")
     public ResponseEntity<ItemDTO> deleteItem(@PathVariable Long id) {
-        return ResponseEntity.ok(itemService.deleteItem(id));
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/books/copies/{id}")
     public ResponseEntity<SchoolItemCopyDTO> deleteCopy(@PathVariable int id) {
-        return ResponseEntity.ok(schoolItemCopyService.deleteCopy(id));
+        return ResponseEntity.noContent().build();
     }
 }
