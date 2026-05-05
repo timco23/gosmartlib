@@ -28,7 +28,10 @@ public class Review {
     private LocalDate createdAt;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
-    private boolean isAnonymous; 
+    private boolean isAnonymous;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean approved;
 
     // If createdAt is still null then sets createdAt to LocalDate.now()
     @PrePersist
@@ -62,5 +65,6 @@ public class Review {
         this.author = author;
         this.isAnonymous = isAnonymous;
         this.createdAt = LocalDate.now();
+        this.approved = false;
     }
 }

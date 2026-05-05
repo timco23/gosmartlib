@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS review (
     created_at DATE NOT NULL,
     item_id BIGINT NOT NULL,
     user_id INT NOT NULL,
+    approved BOOLEAN NOT NULL,
     FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );

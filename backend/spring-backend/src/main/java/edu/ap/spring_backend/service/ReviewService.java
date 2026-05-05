@@ -192,7 +192,7 @@ public class ReviewService {
     /**
      * Allows a user to report a review.
      * Validates that the review exists, belongs to the given item, is not owned by the reporter,
-     * and has not already been reported by the same user. Updates the report count accordingly.
+     * has not been approved and has not already been reported by the same user. Updates the report count accordingly.
      * @param itemId id of the item the review belongs to
      * @param reviewId id of the review to report
      * @param dto contains the reason for reporting
@@ -215,6 +215,10 @@ public class ReviewService {
 
         if (reviewReportRepository.existsByReviewIdAndReporterId(reviewId, reporter.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Review is al gerapporteerd door deze gebruiker");
+        }
+
+        if (review.isApproved()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Review is goedgekeurd door een bibliotheekbeheerder");
         }
 
         ReviewReport rr = new ReviewReport();
