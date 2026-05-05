@@ -47,7 +47,11 @@ public class ItemService {
         this.schoolItemCopyRepository = schoolItemCopyRepository;
     }
 
-    // Gets Items in page format
+    /**
+     * Retrieves a paginated list of ItemDTOs based on the provided filtering criteria encapsulated in the ItemRequestDTO. The method first validates the request to ensure that the minimum and maximum page counts are logically consistent. It then constructs a JPA Specification by combining various filtering conditions such as search keywords, languages, page count range, review score, tags, genres, subgenres, and didactic categories. If the request specifies that only school-specific books should be included, an additional filter for the school ID is applied. The results are sorted according to the specified sort field and direction, and pagination is applied using the provided page number and size. Finally, the method returns a PageResponseDTO containing the paginated list of ItemDTOs that match the filtering criteria.
+     * @param request
+     * @return a PageResponseDTO containing a paginated list of ItemDTOs that match the filtering criteria specified in the ItemRequestDTO
+     */
     public PageResponseDTO<ItemDTO> getFilteredItems(ItemRequestDTO request) {
         validateRequest(request);
 

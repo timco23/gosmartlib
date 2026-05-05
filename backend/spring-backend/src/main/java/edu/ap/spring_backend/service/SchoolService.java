@@ -14,6 +14,27 @@ public class SchoolService {
         this.schoolRepository = schoolRepository;
     }
 
+    private School findOrThrow(Long id) {
+        return schoolRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
+    }
+
+    private void applySettings(School existing, School updated) {
+        existing.setLendingPeriodDays(updated.getLendingPeriodDays());
+        existing.setExtendPeriodDays(updated.getExtendPeriodDays());
+        existing.setMaxExtends(updated.getMaxExtends());
+        existing.setMaxLendsStudent(updated.getMaxLendsStudent());
+        existing.setMaxLendTeacher(updated.getMaxLendTeacher());
+        existing.setLenderNotificationPeriod(updated.getLenderNotificationPeriod());
+        existing.setLenderLateNotificationPeriod(updated.getLenderLateNotificationPeriod());
+        existing.setLibrarianNotificationNotReturned(updated.getLibrarianNotificationNotReturned());
+        existing.setLibrarianRequestNotification(updated.getLibrarianRequestNotification());
+        existing.setExternalVisibility(updated.isExternalVisibility());
+        existing.setExternalLending(updated.isExternalLending());
+        existing.setReviews(updated.isReviews());
+        existing.setReviewModeration(updated.isReviewModeration());
+    }
+
     public List<School> getAllSchools() {
         return schoolRepository.findAll();
     }
@@ -27,63 +48,32 @@ public class SchoolService {
     }
 
     public School updateSchool(Long id, School updatedSchool) {
-        School existingSchool = schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
+        School existingSchool = findOrThrow(id);
 
         existingSchool.setName(updatedSchool.getName());
         existingSchool.setAddress(updatedSchool.getAddress());
-        existingSchool.setLendingPeriodDays(updatedSchool.getLendingPeriodDays());
-        existingSchool.setExtendPeriodDays(updatedSchool.getExtendPeriodDays());
-        existingSchool.setMaxExtends(updatedSchool.getMaxExtends());
-        existingSchool.setMaxLendsStudent(updatedSchool.getMaxLendsStudent());
-        existingSchool.setMaxLendTeacher(updatedSchool.getMaxLendTeacher());
-        existingSchool.setLenderNotificationPeriod(updatedSchool.getLenderNotificationPeriod());
-        existingSchool.setLenderLateNotificationPeriod(updatedSchool.getLenderLateNotificationPeriod());
-        existingSchool.setLibrarianNotificationNotReturned(updatedSchool.getLibrarianNotificationNotReturned());
-        existingSchool.setLibrarianRequestNotification(updatedSchool.getLibrarianRequestNotification());
-        existingSchool.setExternalVisibility(updatedSchool.isExternalVisibility());
-        existingSchool.setExternalLending(updatedSchool.isExternalLending());
-        existingSchool.setReviews(updatedSchool.isReviews());
-        existingSchool.setReviewModeration(updatedSchool.isReviewModeration());
+        applySettings(existingSchool, updatedSchool);
 
         existingSchool.getCampuses().clear();
         for (Campus campus : updatedSchool.getCampuses()) {
             existingSchool.addCampus(new Campus(campus.getName(), existingSchool));
         }
 
-        return schoolRepository.save(existingSchool); 
+        return schoolRepository.save(existingSchool);
     }
 
     public School getSchoolByName(String name) {
-        School school = schoolRepository.findByName(name)
+        return schoolRepository.findByName(name)
                 .orElseThrow(() -> new RuntimeException("School not found with name " + name));
-        return school;
     }
 
     public School getSchoolById(Long id) {
-        School school =  schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
-        return school;
+        return findOrThrow(id);
     }
 
     public School updateSchoolSettings(Long id, School updatedSchool) {
-        School existingSchool = schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
-
-        existingSchool.setLendingPeriodDays(updatedSchool.getLendingPeriodDays());
-        existingSchool.setExtendPeriodDays(updatedSchool.getExtendPeriodDays());
-        existingSchool.setMaxExtends(updatedSchool.getMaxExtends());
-        existingSchool.setMaxLendsStudent(updatedSchool.getMaxLendsStudent());
-        existingSchool.setMaxLendTeacher(updatedSchool.getMaxLendTeacher());
-        existingSchool.setLenderNotificationPeriod(updatedSchool.getLenderNotificationPeriod());
-        existingSchool.setLenderLateNotificationPeriod(updatedSchool.getLenderLateNotificationPeriod());
-        existingSchool.setLibrarianNotificationNotReturned(updatedSchool.getLibrarianNotificationNotReturned());
-        existingSchool.setLibrarianRequestNotification(updatedSchool.getLibrarianRequestNotification());
-        existingSchool.setExternalVisibility(updatedSchool.isExternalVisibility());
-        existingSchool.setExternalLending(updatedSchool.isExternalLending());
-        existingSchool.setReviews(updatedSchool.isReviews());
-        existingSchool.setReviewModeration(updatedSchool.isReviewModeration());
-
+        School existingSchool = findOrThrow(id);
+        applySettings(existingSchool, updatedSchool);
         return schoolRepository.save(existingSchool);
     }
 }
