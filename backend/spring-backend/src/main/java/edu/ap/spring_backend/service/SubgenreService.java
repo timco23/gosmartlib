@@ -33,7 +33,7 @@ public class SubgenreService {
         return subgenreRepository.save(subgenre);
     }
 
-    public List<Subgenre> getFromGenreIds(List<Long> genreIds) {
+    public List<SubgenreDTO> getFromGenreIds(List<Long> genreIds) {
         return subgenreRepository.findAllByGenreIdIn(genreIds);
     }
 

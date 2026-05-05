@@ -36,7 +36,7 @@ public class SubgenreController {
     }
 
     @GetMapping("/genre")
-    public List<Subgenre> getSubgenresByGenres(@RequestParam List<Long> genreIds) {
+    public List<SubgenreDTO> getSubgenresByGenres(@RequestParam List<Long> genreIds) {
         return subgenreService.getFromGenreIds(genreIds);
     }
 

@@ -101,13 +101,11 @@ public class LendingService {
 
     public List<LendingDTO> getAllByUser(String email) {
         return lendingRepository.findByBorrowerEmail(email).stream()
-                .map(this::toDTO)
                 .toList();
     }
 
     public List<LendingDTO> getLendingsByBookId(Long bookId) {
         return lendingRepository.findByBook_Item_Id(bookId).stream()
-                .map(this::toDTO)
                 .toList();
     }
 

@@ -23,14 +23,14 @@ public class CollectionService {
     }
 
     public List<CollectionDTO> findBySchoolId(Long schoolId) {
-        List<Collection> collections;
+        List<CollectionDTO> collections;
         if (schoolId == 0) {
             collections = collectionRepository.findBySchoolId(null);
         }
         else {
             collections = collectionRepository.findBySchoolId(schoolId);
         }
-        return collections.stream().map(collection -> mapToCollectionDTO(collection)).toList();
+        return collections;
     }
 
     public CollectionDTO findById(Long id) {
@@ -39,13 +39,13 @@ public class CollectionService {
     }
 
     public List<CollectionDTO> getFeaturedBySchoolId(Long schoolId) {
-        List<Collection> collections = collectionRepository.findBySchoolIdAndFeatured(schoolId, true);
-        return collections.stream().map(collection -> mapToCollectionDTO(collection)).toList();
+        List<CollectionDTO> collections = collectionRepository.findBySchoolIdAndFeatured(schoolId, true);
+        return collections;
     }
 
     public List<CollectionDTO> getByGloballyFeatured() {
-        List<Collection> collections = collectionRepository.findByGloballyFeatured(true);
-        return collections.stream().map(collection -> mapToCollectionDTO(collection)).toList();
+        List<CollectionDTO> collections = collectionRepository.findByGloballyFeatured(true);
+        return collections;
     }
 
     public CollectionDTO addCollection(CreateCollectionDTO collectionDTO) {

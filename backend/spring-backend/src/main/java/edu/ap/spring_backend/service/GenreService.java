@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import edu.ap.spring_backend.dao.GenreRepository;
 import edu.ap.spring_backend.dao.SubgenreRepository;
 import edu.ap.spring_backend.dto.GenreWithSubgenresDTO;
-import edu.ap.spring_backend.dto.SubgenreDTO;
 import edu.ap.spring_backend.jpa.Genre;
 
 @Service
@@ -27,7 +26,6 @@ public class GenreService {
                         genre.getName(),
                         subgenreRepository.findAllByGenreId(genre.getId())
                                 .stream()
-                                .map(s -> new SubgenreDTO(s.getId(), s.getName(), s.getGenre().getId()))
                                 .toList()))
                 .toList();
     }
