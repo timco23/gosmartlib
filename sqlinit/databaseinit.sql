@@ -125,7 +125,7 @@ VALUES
 ('Test', 'Bibliotheekbeheerder', 'bibliotheekbeheerder.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'BIBLIOTHEEKBEHEERDER', 1, NULL, NULL);
 
 -- Put student in classes KlasA and KlasB
-insert into class_user (class_id, user_id) values (1, 2),(2,1);
+insert into class_user (class_id, user_id) values (1, 2),(2,2);
 
 -- Testbooks
 insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count,book_description) values

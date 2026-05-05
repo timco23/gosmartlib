@@ -11,7 +11,7 @@ export interface UserProfile {
   email: string;
   role: string;
   studentNumber?: string;
-  className?: string;
+  classes: Class[];
   schoolName?: string;
   schoolId?: number;
   items_borrowed: number;
@@ -375,3 +375,8 @@ export interface ConfirmDialogAction {
 export type LendingStatus = 'OVERDUE' | 'DUE_SOON' | 'OK' | 'RETURNED';
 
 export type LendingFilter = 'ALL' | LendingStatus;
+
+export interface Class {
+  className: string;
+  schoolId: number
+}

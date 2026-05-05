@@ -23,12 +23,17 @@
       <span>{{ profile.name }}</span>
     </div>
 
-    @if(profile.className) {
     <div class="profile-item">
       <label>Klas:</label>
-      <span>{{ profile.className }}</span>
+      @if (profile.classes.length > 0) {
+        @for (class of profile.classes; track $index) {
+          <span>{{ class.className }}</span>
+        }
+      }
+      @else {
+        <span>Geen</span>
+      }
     </div>
-    }
 
     @if(profile.schoolName) {
     <div class="profile-item">

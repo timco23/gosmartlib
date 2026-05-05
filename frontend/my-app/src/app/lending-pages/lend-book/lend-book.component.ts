@@ -402,4 +402,8 @@ export class LendBookComponent {
       this.showMaxLendings = false;
     }
   }
+
+  getClasses(user: UserProfile): string {
+    return user.classes.map(clazz => clazz.className).join(" ")
+  }
 }
