@@ -37,12 +37,12 @@ public class UserService {
 
     private User findUserById(Integer id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     public UserResponse getOwnProfile(Integer userId) {
@@ -62,7 +62,7 @@ public class UserService {
     public void addFavoriteBook(String email, Long itemId) {
         User user = findUserByEmail(email);
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(EntityNotFoundException::new);
         user.getFavoriteBooks().add(item);
         userRepository.save(user);
     }
@@ -70,7 +70,7 @@ public class UserService {
     public void deleteFavoriteBook(String email, Long itemId) {
         User user = findUserByEmail(email);
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(EntityNotFoundException::new);
         user.getFavoriteBooks().remove(item);
         userRepository.save(user);
     }

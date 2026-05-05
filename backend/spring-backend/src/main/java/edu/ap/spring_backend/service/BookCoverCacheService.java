@@ -4,6 +4,7 @@ import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dto.BookCoverResponse;
 import edu.ap.spring_backend.dto.CachedCover;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
+import edu.ap.spring_backend.exception.NoCoverAvailableException;
 import edu.ap.spring_backend.jpa.Item;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -69,7 +70,7 @@ public class BookCoverCacheService {
         List<String> candidateUrls = buildCandidateUrls(item);
 
         if (candidateUrls.isEmpty()) {
-            throw new EntityNotFoundException();
+            throw new NoCoverAvailableException(itemId);
         }
 
         long now = System.currentTimeMillis();

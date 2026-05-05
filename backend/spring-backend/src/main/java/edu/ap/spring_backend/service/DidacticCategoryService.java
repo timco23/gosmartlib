@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import edu.ap.spring_backend.dao.DidacticCategoryRepository;
 import edu.ap.spring_backend.dto.DidacticCategoryDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.DidacticCategory;
 
 @Service
@@ -28,7 +29,7 @@ public class DidacticCategoryService {
 
     public DidacticCategory updateDidacticCategory(Long id, DidacticCategoryDTO dto) {
         DidacticCategory existing = didacticCategoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("DidacticCategory not found"));
+                .orElseThrow(EntityNotFoundException::new);
         existing.setName(dto.name());
         didacticCategoryRepository.save(existing);
         return existing;
@@ -36,7 +37,7 @@ public class DidacticCategoryService {
 
     public void deleteDidacticCategory(Long id) {
         DidacticCategory existing = didacticCategoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("DidacticCategory not found"));
+                .orElseThrow(EntityNotFoundException::new);
         didacticCategoryRepository.delete(existing);
     }
 }

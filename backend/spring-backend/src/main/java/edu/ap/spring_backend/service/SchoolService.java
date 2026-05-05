@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dao.SchoolRepository;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.Campus;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class SchoolService {
 
     private School findOrThrow(Long id) {
         return schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     private void applySettings(School existing, School updated) {
@@ -64,7 +65,7 @@ public class SchoolService {
 
     public School getSchoolByName(String name) {
         return schoolRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("School not found with name " + name));
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     public School getSchoolById(Long id) {

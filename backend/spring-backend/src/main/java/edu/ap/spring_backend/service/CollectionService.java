@@ -2,6 +2,7 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dao.*;
 import edu.ap.spring_backend.dto.*;
+import edu.ap.spring_backend.exception.EmptyCollectionException;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Collection;
 import edu.ap.spring_backend.jpa.Item;
@@ -68,7 +69,7 @@ public class CollectionService {
             return mapToCollectionDTO(collection);
         }
 
-        throw new RuntimeException("Cannot add collection with no items.");
+        throw new EmptyCollectionException();
     }
 
     public CollectionDTO updateCollection(CreateCollectionDTO collectionDTO, Long id) {
@@ -89,7 +90,7 @@ public class CollectionService {
             return mapToCollectionDTO(collection);
         }
 
-        throw new RuntimeException("Cannot update collection with no items.");
+        throw new EmptyCollectionException();
     }
 
     public CollectionDTO deleteCollection(Long id) {

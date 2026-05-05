@@ -29,7 +29,8 @@ public class SchoolItemCopyService {
     private final CampusRepository campusRepository;
     private final LendingRepository lendingRepository;
 
-    public SchoolItemCopyService(SchoolItemCopyRepository schoolItemCopyRepository,  ItemRepository itemRepository,  SchoolRepository schoolRepository, CampusRepository campusRepository,  LendingRepository lendingRepository) {
+    public SchoolItemCopyService(SchoolItemCopyRepository schoolItemCopyRepository, ItemRepository itemRepository,
+            SchoolRepository schoolRepository, CampusRepository campusRepository, LendingRepository lendingRepository) {
         this.schoolItemCopyRepository = schoolItemCopyRepository;
         this.itemRepository = itemRepository;
         this.schoolRepository = schoolRepository;
@@ -74,14 +75,13 @@ public class SchoolItemCopyService {
                 .toList();
     }
 
-     public SchoolItemCopyDTO deleteCopy(int id) {
-        SchoolItemCopyDTO copy = getCopyById(id); 
+    public SchoolItemCopyDTO deleteCopy(int id) {
+        SchoolItemCopyDTO copy = getCopyById(id);
 
         if (lendingRepository.existsByBook_Id(id)) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Exemplaar kan niet verwijderd worden: er bestaat uitleengeschiedenis."
-            );
+                    "Exemplaar kan niet verwijderd worden: er bestaat uitleengeschiedenis.");
         }
 
         try {
@@ -90,14 +90,13 @@ public class SchoolItemCopyService {
         } catch (DataIntegrityViolationException ex) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Exemplaar kan niet verwijderd worden door gekoppelde gegevens."
-            );
+                    "Exemplaar kan niet verwijderd worden door gekoppelde gegevens.");
         }
     }
 
     public SchoolItemCopyDTO updateCopy(int id, CreateSchoolItemCopyDTO copyDTO) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+                .orElseThrow(EntityNotFoundException::new);
         if (copyDTO.campusId() != null) {
             Campus campus = campusRepository.findById(copyDTO.campusId()).orElse(null);
             copy.setCampus(campus);
@@ -107,7 +106,8 @@ public class SchoolItemCopyService {
         schoolItemCopyRepository.save(copy);
         if (copy.isFeatured() != copyDTO.featured()) {
             copy.setFeatured(copyDTO.featured());
-            List<SchoolItemCopy> schoolItemCopies = schoolItemCopyRepository.findByItemIdAndSchoolId(copyDTO.itemId(), copyDTO.schoolId());
+            List<SchoolItemCopy> schoolItemCopies = schoolItemCopyRepository.findByItemIdAndSchoolId(copyDTO.itemId(),
+                    copyDTO.schoolId());
             schoolItemCopies.forEach(schoolItemCopy -> {
                 schoolItemCopy.setFeatured(copyDTO.featured());
                 schoolItemCopyRepository.save(schoolItemCopy);
@@ -117,11 +117,9 @@ public class SchoolItemCopyService {
     }
 
     public SchoolItemCopyDTO getByItemTitleAndSchoolId(String title, Long schoolId) {
-        SchoolItemCopy copy = schoolItemCopyRepository.findByItemTitleAndSchoolId(title, schoolId).orElse(null);
-        if (copy != null) {
-            return mapToDTO(copy);
-        }
-        return null;
+        return schoolItemCopyRepository.findByItemTitleAndSchoolId(title, schoolId)
+                .map(this::mapToDTO)
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     public SchoolItemCopyDTO mapToDTO(SchoolItemCopy copy) {
@@ -134,35 +132,32 @@ public class SchoolItemCopyService {
                 copy.getCopy_status(),
                 copy.isFeatured(),
                 copy.getSchool().getId(),
-                copy.getCampus()
-        );
+                copy.getCampus());
     }
 
     public SchoolItemCopyDTO getCopyByBarcode(String barcode) {
-        SchoolItemCopy copy = schoolItemCopyRepository.findByBarcode(barcode).orElse(null);
-        if (copy != null) {
-            return mapToDTO(copy);
-        }
-        return null;
+        return schoolItemCopyRepository.findByBarcode(barcode)
+                .map(this::mapToDTO)
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     public SchoolItemCopyDTO getCopyById(int copyId) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+                .orElseThrow(EntityNotFoundException::new);
         return mapToDTO(copy);
     }
 
-    public SchoolItemCopyDTO updateCopyStatus(int copyId, String status) throws EntityNotFoundException {
+    public SchoolItemCopyDTO updateCopyStatus(int copyId, String status) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+                .orElseThrow(EntityNotFoundException::new);
         copy.setCopy_status(CopyStatus.valueOf(status));
         schoolItemCopyRepository.save(copy);
         return mapToDTO(copy);
     }
 
-    public SchoolItemCopyDTO updateCopyCondition(int copyId, String condition) throws EntityNotFoundException {
+    public SchoolItemCopyDTO updateCopyCondition(int copyId, String condition) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("Exemplaar niet gevonden"));
+                .orElseThrow(EntityNotFoundException::new);
         copy.setCondition(ItemCondition.valueOf(condition));
         schoolItemCopyRepository.save(copy);
         return mapToDTO(copy);

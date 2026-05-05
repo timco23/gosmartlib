@@ -29,13 +29,28 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Void> handleNotFound(EntityNotFoundException e) {
-        return ResponseEntity.notFound().build();
-    }
-
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<String> handleAlreadyExists(EntityAlreadyExistsException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(EntityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EmptyCollectionException.class)
+    public ResponseEntity<String> handleEmptyCollection(EmptyCollectionException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(NoCoverAvailableException.class)
+    public ResponseEntity<String> handleNoCover(NoCoverAvailableException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(EmptyReadingListException.class)
+    public ResponseEntity<String> handleEmptyReadingList(EmptyReadingListException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }

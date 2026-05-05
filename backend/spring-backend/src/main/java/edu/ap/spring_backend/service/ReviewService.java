@@ -246,9 +246,8 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Geen rechten om alle reviews te verwijderen");
         }
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item niet gevonden"));
-
+        Item item = itemRepository.findById(itemId).orElseThrow(EntityNotFoundException::new);
+        
         reviewRepository.deleteByItem_Id(itemId);
         updateItemReviewStats(item);
     }

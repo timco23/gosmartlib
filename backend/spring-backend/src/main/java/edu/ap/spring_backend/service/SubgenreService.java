@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import edu.ap.spring_backend.dao.SubgenreRepository;
 import edu.ap.spring_backend.dto.SubgenreDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Subgenre;
 
 @Service
@@ -25,7 +26,7 @@ public class SubgenreService {
 
     public Subgenre create(SubgenreDTO newSubgenre) {
         if (subgenreRepository.existsByNameIgnoreCase(newSubgenre.name())) {
-            throw new IllegalArgumentException("Tag bestaat reeds");
+            throw new IllegalArgumentException("Subgenre bestaat reeds");
         }
         Subgenre subgenre = new Subgenre();
         subgenre.setName(newSubgenre.name());
@@ -45,7 +46,7 @@ public class SubgenreService {
     }
 
     public Subgenre updateSubgenre(Long id, Subgenre updatedsubgenre) {
-        Subgenre subgenre = subgenreRepository.findById(id).orElseThrow();
+        Subgenre subgenre = subgenreRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         subgenre.setName(updatedsubgenre.getName());
         return subgenreRepository.save(subgenre);
     }

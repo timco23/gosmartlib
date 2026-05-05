@@ -7,6 +7,7 @@ import edu.ap.spring_backend.dto.CreateReadingListDTO;
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.ReadingListDTO;
 import edu.ap.spring_backend.dto.TagDTO;
+import edu.ap.spring_backend.exception.EmptyReadingListException;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.ReadingList;
@@ -59,7 +60,7 @@ public class ReadingListService {
             return mapToReadingListDTO(readingList);
         }
 
-        throw new RuntimeException("Cannot add reading list with no items.");
+        throw new EmptyReadingListException();
     }
 
     public ReadingListDTO updateReadingList(CreateReadingListDTO readingListDTO, Long id) {
@@ -77,7 +78,7 @@ public class ReadingListService {
             return mapToReadingListDTO(readingList);
         }
 
-        throw new RuntimeException("Cannot update reading list with no items.");
+        throw new EmptyReadingListException();
     }
 
     public ReadingListDTO deleteReadingList(Long id) {

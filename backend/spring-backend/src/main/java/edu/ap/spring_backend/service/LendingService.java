@@ -8,6 +8,7 @@ import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.jpa.User;
 
@@ -55,9 +56,9 @@ public class LendingService {
 
     public LendingDTO addLending(LendingRequestDTO request) {
         Lending lending = new Lending();
-        lending.setBorrower(userRepository.findById(request.borrowerId()).orElseThrow());
-        lending.setBook(copyRepository.findByBarcode(request.copyBarcode()).orElseThrow());
-        lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow());
+        lending.setBorrower(userRepository.findById(request.borrowerId()).orElseThrow(EntityNotFoundException::new));
+        lending.setBook(copyRepository.findByBarcode(request.copyBarcode()).orElseThrow(EntityNotFoundException::new));
+        lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow(EntityNotFoundException::new));
         lending.setLendingDate(request.lendingDate());
         lending.setReturnDate(request.returnDate());
         lending.setReturned(false);
@@ -68,7 +69,7 @@ public class LendingService {
     }
 
     public LendingDTO updateLending(Long id, LendingDTO dto) {
-        Lending lending = lendingRepository.findById(id).orElseThrow();
+        Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         lending.setReturned(dto.returned());
         lending.setDateReturned(
                 dto.dateReturned() != null
@@ -85,11 +86,11 @@ public class LendingService {
     public LendingDTO getById(Long id) {
         return lendingRepository.findById(id)
                 .map(this::toDTO)
-                .orElseThrow();
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     public LendingDTO extendLending(Long id) {
-        Lending lending = lendingRepository.findById(id).orElseThrow();
+        Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         if (Boolean.TRUE.equals(lending.getExtended())) {
             throw new IllegalStateException("Lending has already been extended");
         }

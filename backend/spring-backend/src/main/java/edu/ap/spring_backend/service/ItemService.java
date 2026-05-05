@@ -189,11 +189,9 @@ public class ItemService {
     }
 
     public ItemDTO getItemByTitle(String title) {
-        Item item = itemRepository.findByTitle(title).orElse(null);
-        if (item != null) {
-            return mapToItemDTO(item);
-        }
-        return null;
+        return itemRepository.findByTitle(title)
+                .map(this::mapToItemDTO)
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     public List<ItemDTO> getFeaturedItems(Long schoolId) {
