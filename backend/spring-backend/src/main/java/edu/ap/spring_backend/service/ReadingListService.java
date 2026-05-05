@@ -37,7 +37,7 @@ public class ReadingListService {
     }
 
     public List<ReadingListDTO> findByUserId(int userId) {
-        List<ReadingListDTO> list = readingListRepository.findByUserId(userId);
+        List<ReadingListDTO> list = readingListRepository.findByUserId(userId).stream().map(readingList -> mapToReadingListDTO(readingList)).toList();
         return list;
     }
 
