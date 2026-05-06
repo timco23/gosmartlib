@@ -22,6 +22,7 @@ export class CollectionListPage {
   school: School | null = null;
   role = Role;
   showDeleteConfirm: boolean = false;
+  collectionToDeleteId: number | null = null;
 
   collectionService = inject(CollectionService);
   userService = inject(UserService);
@@ -60,18 +61,23 @@ export class CollectionListPage {
     });
   }
 
-  deleteCollection(value: string, id: number) {
-    if(value === 'confirm') {
-    this.collectionService.deleteCollection(id).subscribe({
-      next: () => this.getCollections()
-    });
+  deleteCollection(value: string) {
+    console.log('deleteCollection called with:', value, 'id:', this.collectionToDeleteId);
+    if (value === 'confirm' && this.collectionToDeleteId != null) {
+      this.collectionService.deleteCollection(this.collectionToDeleteId).subscribe({
+        next: () => {
+          console.log('deleted successfully');
+          this.getCollections();
+        },
+        error: (err) => console.log('delete error:', err)
+      });
     }
-    this.showDeleteConfirm = false;
+    this.collectionToDeleteId = null;
     this.cdr.detectChanges();
   }
 
-  showConfirmDelete() {
-    this.showDeleteConfirm = true;
+  showConfirmDelete(id: number) {
+    this.collectionToDeleteId = id;
     this.cdr.detectChanges();
   }
 

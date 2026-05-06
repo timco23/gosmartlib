@@ -58,6 +58,7 @@ public class CollectionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<CollectionDTO> deleteReadingList(@PathVariable Long id) {
+        collectionService.deleteCollection(id);
         return ResponseEntity.noContent().build();
     }
 }

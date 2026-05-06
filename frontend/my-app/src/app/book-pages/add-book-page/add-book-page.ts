@@ -183,12 +183,6 @@ export class AddBookPage implements OnInit {
     this.incompleteForm = false;
     this.copyError = false;
 
-    console.log('school:', this.school);
-    console.log('form valid:', this.form.valid);
-    console.log('form errors:', this.form.errors);
-    console.log('form value:', this.form.value);
-    console.log('campusGroups:', this.campusGroups);
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.incompleteForm = true;
