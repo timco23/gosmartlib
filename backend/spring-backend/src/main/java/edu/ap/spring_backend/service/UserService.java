@@ -186,7 +186,7 @@ public class UserService {
                 return buildUserResponse(user);
         }
 
-        private UserResponse buildUserResponse(User user) {
+        public UserResponse buildUserResponse(User user) {
                 return new UserResponse(
                                 user.getId(),
                                 user.getName(),

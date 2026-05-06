@@ -3,6 +3,8 @@ package edu.ap.spring_backend.controllers;
 import edu.ap.spring_backend.dto.CreateReviewDTO;
 import edu.ap.spring_backend.dto.CreateReviewReportDTO;
 import edu.ap.spring_backend.dto.ReviewDTO;
+import edu.ap.spring_backend.dto.ReviewReportDTO;
+import edu.ap.spring_backend.dto.PageResponseDTO;
 import edu.ap.spring_backend.service.ReviewService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,10 +23,10 @@ import java.util.List;
 
 /**
  * REST controller for managing reviews on library items (books).
- * Base path: {/books/{itemId}/reviews}
+ * Base path: {/reviews}
  */
 @RestController
-@RequestMapping("/books/{itemId}/reviews")
+@RequestMapping("/reviews")
 public class ReviewController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,7 +41,7 @@ public class ReviewController {
      * @param itemId the item ID
      * @return list of reviews
      */
-    @GetMapping
+    @GetMapping("/books/{itemId}")
     public ResponseEntity<List<ReviewDTO>> getReviews(@PathVariable Long itemId) {
         return ResponseEntity.ok(reviewService.getReviews(itemId));
     }
@@ -51,7 +53,7 @@ public class ReviewController {
      * @param authentication current authenticated user
      * @return created review
      */
-     @PostMapping
+     @PostMapping("/books/{itemId}")
     public ResponseEntity<ReviewDTO> createReview(
             @PathVariable Long itemId,
             @Valid @RequestBody CreateReviewDTO dto,
@@ -70,7 +72,7 @@ public class ReviewController {
      * @param authentication current authenticated user
      * @return no content response
      */
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/{reviewId}/books/{itemId}")
     public ResponseEntity<Void> deleteReview(
             @PathVariable Long itemId,
             @PathVariable Long reviewId,
@@ -88,7 +90,7 @@ public class ReviewController {
      * @param authentication current authenticated user
      * @return no content response
      */
-     @DeleteMapping
+     @DeleteMapping("/books/{itemId}")
     public ResponseEntity<Void> deleteAllReviews(
             @PathVariable Long itemId,
             Authentication authentication,
@@ -106,7 +108,7 @@ public class ReviewController {
      * @param authentication current authenticated user
      * @param dto the dto for creating a review report
      */
-    @PostMapping("/{reviewId}/reports")
+    @PostMapping("/{reviewId}/books/{itemId}/reports")
     public ResponseEntity<Void> reportReview(
             @PathVariable Long itemId,
             @PathVariable Long reviewId,
@@ -209,5 +211,52 @@ public class ReviewController {
             if (v != null && !v.isBlank()) return v;
         }
         return null;
+    }
+
+    /**
+     * Retrieves filtered and paged reviews for a school.
+     *
+     * @param schoolId     id of the school
+     * @param itemId       optional item filter
+     * @param userId       optional user filter
+     * @param reportStatus optional report status filter (ALL, REPORTED, NOT_REPORTED)
+     * @param page         page number (default 0)
+     * @param newestFirst  if true, newest reviews first (within same reportCount); else oldest first
+     * @return paged list of reviews
+     */
+    @GetMapping("/schools/{schoolId}")
+    public ResponseEntity<PageResponseDTO<ReviewDTO>> getFilteredReviewsBySchoolId(
+            @PathVariable Long schoolId,
+            @RequestParam(required = false) Long itemId,
+            @RequestParam(required = false) Integer userId,
+            @RequestParam(defaultValue = "ALL") String reportStatus,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "true") boolean newestFirst
+    ) {
+        return ResponseEntity.ok(reviewService.getFilteredReviewsBySchoolId(
+                schoolId, itemId, userId, reportStatus, page, newestFirst));
+    }
+
+    /**
+     * Retrieves all reports for a specific review.
+     *
+     * @param reviewId id of the review
+     * @return list of review reports
+     */
+    @GetMapping("/{reviewId}/reports")
+    public ResponseEntity<List<ReviewReportDTO>> getReviewReportsByReviewId(@PathVariable Long reviewId) {
+        return ResponseEntity.ok(reviewService.getReviewReportsByReviewId(reviewId));
+    }
+
+    /**
+     * Approves a review, resetting its report count.
+     *
+     * @param reviewId id of the review
+     * @return no content
+     */
+    @PutMapping("/{reviewId}/approve")
+    public ResponseEntity<Void> approveReview(@PathVariable Long reviewId) {
+        reviewService.approveReview(reviewId);
+        return ResponseEntity.noContent().build();
     }
 }

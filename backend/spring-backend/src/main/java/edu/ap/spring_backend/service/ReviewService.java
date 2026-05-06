@@ -12,6 +12,15 @@ import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.Review;
 import edu.ap.spring_backend.jpa.ReviewReport;
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.dto.ReviewReportDTO;
+import edu.ap.spring_backend.dto.UserResponse;
+import edu.ap.spring_backend.dto.PageResponseDTO;
+import edu.ap.spring_backend.specification.ReviewSpecifications;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * Service containing business logic for item reviews.
@@ -32,6 +42,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ProfanityFilterService profanityFilterService;
     private final ReviewReportRepository reviewReportRepository;
+    private final UserService userService;
 
     /**
      * Creates a new {@link ReviewService}.
@@ -40,14 +51,16 @@ public class ReviewService {
      * @param userRepository repository for users
      * @param profanityFilterService service for bad words
      * @param reviewReportRepository repository reported reviews
+     * @param userService service for users
      */
     public ReviewService(ReviewRepository reviewRepository, ItemRepository itemRepository,
-            UserRepository userRepository, ProfanityFilterService profanityFilterService,  ReviewReportRepository reviewReportRepository) {
+            UserRepository userRepository, ProfanityFilterService profanityFilterService,  ReviewReportRepository reviewReportRepository, UserService userService) {
         this.reviewRepository = reviewRepository;
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.profanityFilterService = profanityFilterService;
         this.reviewReportRepository = reviewReportRepository;
+        this.userService = userService;
     }
 
     /**
@@ -304,7 +317,8 @@ public class ReviewService {
                 review.getAuthor().getEmail(),
                 review.getAuthor().getSmartschoolUsername(),
                 review.isAnonymous(),
-                review.getReportCount()
+                review.getReportCount(),
+                review.isApproved()
         );
     }
 
@@ -315,5 +329,79 @@ public class ReviewService {
      */
     private boolean hasText(String s) {
         return s != null && !s.trim().isEmpty();
+    }
+
+    /**
+     * Returns a paged and filtered list of reviews for a specific school.
+     * Reviews are sorted by reportCount DESC, and then by createdAt (DESC by default).
+     *
+     * @param schoolId     id of the school
+     * @param itemId       optional item filter
+     * @param userId       optional user filter
+     * @param reportStatus optional report status filter (ALL, REPORTED, NOT_REPORTED)
+     * @param page         page number
+     * @param newestFirst  if true, newest reviews first (within same reportCount); else oldest first
+     * @return page of review DTOs
+     */
+    public PageResponseDTO<ReviewDTO> getFilteredReviewsBySchoolId(
+            Long schoolId, Long itemId, Integer userId, String reportStatus, int page, boolean newestFirst) {
+
+        Specification<Review> spec = Specification.allOf(
+                ReviewSpecifications.withAuthorSchoolId(schoolId),
+                ReviewSpecifications.withItemId(itemId),
+                ReviewSpecifications.withAuthorId(userId),
+                ReviewSpecifications.withReportStatus(reportStatus)
+        );
+
+        Sort sort = Sort.by(Sort.Order.desc("reportCount"));
+        sort = sort.and(newestFirst ? Sort.by(Sort.Order.desc("createdAt")) : Sort.by(Sort.Order.asc("createdAt")));
+
+        Pageable pageable = PageRequest.of(page, 10, sort);
+        Page<Review> reviewPage = reviewRepository.findAll(spec, pageable);
+
+        return new PageResponseDTO<>(reviewPage.map(this::mapToDTO));
+    }
+
+    /**
+     * Returns all reports for a specific review.
+     * @param reviewId id of the review
+     * @return list of review report DTOs
+     */
+    public List<ReviewReportDTO> getReviewReportsByReviewId(Long reviewId) {
+        return reviewReportRepository.findByReviewId(reviewId).stream()
+                .map(this::mapReportToDTO)
+                .toList();
+    }
+
+    /**
+     * Maps a {@link ReviewReport} entity to a {@link ReviewReportDTO}.
+     * @param report report entity
+     * @return mapped report DTO
+     */
+    private ReviewReportDTO mapReportToDTO(ReviewReport report) {
+        return new ReviewReportDTO(
+                report.getId(),
+                report.getReason(),
+                report.isAutoGenerated(),
+                report.getCreatedAt(),
+                mapToDTO(report.getReview()),
+                report.getReporter() != null ? userService.buildUserResponse(report.getReporter()) : null
+        );
+    }
+
+    /**
+     * Approves a review, resetting its report count and deleting associated reports.
+     * @param reviewId id of the review to approve
+     */
+    @Transactional
+    public void approveReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review niet gevonden"));
+
+        review.setApproved(true);
+        review.setReportCount(0);
+        reviewRepository.save(review);
+
+        reviewReportRepository.deleteByReviewId(reviewId);
     }
 }
