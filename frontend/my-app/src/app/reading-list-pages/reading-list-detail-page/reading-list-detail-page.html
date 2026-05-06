@@ -1,57 +1,75 @@
 <body>
   @if (!loading) {
-  <header>
-    <h1 class="list-title">{{ readingList!.title }}</h1>
-    <p class="list-creator">
-      Gemaakt door {{ readingList!.userFirstName }} {{ readingList!.userLastName }}
-    </p>
-  </header>
-  <main>
-    @if (readingList!.items.length > 0) {
-    <div class="carousel-outer" [class.is-carousel]="readingList!.items.length >= 6">
-      @if (readingList!.items.length >= 6) {
-      <button class="carousel-arrow prev" (click)="prevCard()">&lt;</button>
-      }
-      <div class="carousel-viewport">
-        <div class="carousel-track" [style.transform]="trackTransform" [class.no-transition]="!isAnimating">
-          @for (book of extendedItems; track $index) {
-          <div class="carousel-card" [class.active]="isCardActive($index)" (click)="goToBookDetails(book.id)">
-            <div class="card-content">
-              <div class="card-cover">
-                @if (book.id) {
-                <img [src]="coverSrc(book)" [alt]="book.title || 'Boek cover'" class="cover-img" loading="lazy" />
-                }
-              </div>
-              <div class="card-footer">
-                <p class="book-title">{{ book.title }}</p>
-                <p class="book-author">{{ book.author }}</p>
-              </div>
+    <header>
+      <a class="back-link" [routerLink]="['/lists']">← Terug naar klasleeslijsten</a>
+      <h1 class="list-title">{{ readingList!.title }}</h1>
+      <p class="list-creator">
+        Gemaakt door {{ readingList!.userFirstName }} {{ readingList!.userLastName }}
+      </p>
+    </header>
+    <main>
+      @if (readingList!.items.length > 0) {
+        <div class="carousel-outer" [class.is-carousel]="readingList!.items.length >= 6">
+          @if (readingList!.items.length >= 6) {
+            <button class="carousel-arrow prev" (click)="prevCard()">&lt;</button>
+          }
+          <div class="carousel-viewport">
+            <div
+              class="carousel-track"
+              [style.transform]="trackTransform"
+              [class.no-transition]="!isAnimating"
+            >
+              @for (book of extendedItems; track $index) {
+                <div
+                  class="carousel-card"
+                  [class.active]="isCardActive($index)"
+                  (click)="goToBookDetails(book.id)"
+                >
+                  <div class="card-content">
+                    <div class="card-cover">
+                      @if (book.id) {
+                        <img
+                          [src]="coverSrc(book)"
+                          [alt]="book.title || 'Boek cover'"
+                          class="cover-img"
+                          loading="lazy"
+                        />
+                      }
+                    </div>
+                    <div class="card-footer">
+                      <p class="book-title">{{ book.title }}</p>
+                      <p class="book-author">{{ book.author }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
           </div>
+          @if (readingList!.items.length >= 6) {
+            <button class="carousel-arrow next" (click)="nextCard()">&gt;</button>
           }
         </div>
-      </div>
-      @if (readingList!.items.length >= 6) {
-      <button class="carousel-arrow next" (click)="nextCard()">&gt;</button>
-      }
-    </div>
 
-    @if (readingList!.items.length >= 6) {
-    <div class="carousel-dots">
-      @for (item of readingList!.items; track $index) {
-      <button class="dot" [class.active]="normalizedScrollIndex === $index" (click)="goToSlide($index)"></button>
+        @if (readingList!.items.length >= 6) {
+          <div class="carousel-dots">
+            @for (item of readingList!.items; track $index) {
+              <button
+                class="dot"
+                [class.active]="normalizedScrollIndex === $index"
+                (click)="goToSlide($index)"
+              ></button>
+            }
+          </div>
+        }
+      } @else {
+        <p class="empty-list">Deze leeslijst bevat nog geen boeken.</p>
       }
-    </div>
-    }
-    } @else {
-    <p class="empty-list">Deze leeslijst bevat nog geen boeken.</p>
-    }
-  </main>
-  <h2 class="list-description-header">Beschrijving:</h2>
-  <p class="list-description">{{ readingList!.description }}</p>
+    </main>
+    <h2 class="list-description-header">Beschrijving:</h2>
+    <p class="list-description">{{ readingList!.description }}</p>
   } @else if (loadingError) {
-  <p class="error">Er was een probleem met het ophalen van de klasleeslijst.</p>
+    <p class="error">Er was een probleem met het ophalen van de klasleeslijst.</p>
   } @else {
-  <p>Klasleeslijst laden...</p>
+    <p>Klasleeslijst laden...</p>
   }
 </body>

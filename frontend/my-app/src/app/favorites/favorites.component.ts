@@ -10,16 +10,19 @@ import { SubgenreService } from '../services/subgenre.service';
 import { TagService } from '../services/tag.service';
 import { DidacticCategoryService } from '../services/didactic-category.service';
 import { StarDisplayComponent } from '../widgets/star-display/star-display.component';
+import { PopUpComponent } from '../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-favorites',
-  imports: [DecimalPipe, StarDisplayComponent],
+  imports: [DecimalPipe, StarDisplayComponent, PopUpComponent],
   standalone: true,
   templateUrl: './favorites.component.html',
   styleUrl: './favorites.component.css',
 })
 export class FavoritesComponent {
   currentUser: LoginResponse | null = null;
+  showRemoveFavoritePopup: boolean = false;
+  pendingRemoveFavoriteId: number | null = null;
 
   api = inject(UserService);
   bookApi = inject(BookService);
@@ -123,6 +126,20 @@ export class FavoritesComponent {
 
   checkDetails(id: number) {
     this.router.navigate(['/books', id]);
+  }
+
+  requestRemoveFavorite(book: Book): void {
+    if (!book?.id) return;
+    this.pendingRemoveFavoriteId = book.id;
+    this.showRemoveFavoritePopup = true;
+  }
+
+  onRemoveFavoriteAction(value: string): void {
+    if (value === 'confirm' && this.pendingRemoveFavoriteId) {
+      this.deleteFavorite(this.pendingRemoveFavoriteId);
+    }
+    this.showRemoveFavoritePopup = false;
+    this.pendingRemoveFavoriteId = null;
   }
 
   deleteFavorite(bookId: number): void {

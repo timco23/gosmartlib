@@ -10,8 +10,8 @@
   <div class="search-bar">
     <input
       type="text"
-      placeholder="Zoek op e-mailadres..."
-      [(ngModel)]="emailFilter"
+      placeholder="Zoek op naam..."
+      [(ngModel)]="nameFilter"
       (ngModelChange)="onFilterChange()"
     />
   </div>
@@ -31,10 +31,30 @@
       <table class="users-table">
         <thead>
           <tr>
-            <th (click)="sortBy('naam')" class="sortable">Naam <span class="sort-icon">{{ sortColumn === 'naam' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
-            <th (click)="sortBy('email')" class="sortable">E-mail <span class="sort-icon">{{ sortColumn === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
-            <th (click)="sortBy('klas')" class="sortable">Klas <span class="sort-icon">{{ sortColumn === 'klas' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
-            <th (click)="sortBy('rol')" class="sortable">Rol <span class="sort-icon">{{ sortColumn === 'rol' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+            <th (click)="sortBy('naam')" class="sortable">
+              Naam
+              <span class="sort-icon">{{
+                sortColumn === 'naam' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
+            <th (click)="sortBy('email')" class="sortable">
+              E-mail
+              <span class="sort-icon">{{
+                sortColumn === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
+            <th (click)="sortBy('klas')" class="sortable">
+              Klas
+              <span class="sort-icon">{{
+                sortColumn === 'klas' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
+            <th (click)="sortBy('rol')" class="sortable">
+              Rol
+              <span class="sort-icon">{{
+                sortColumn === 'rol' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>

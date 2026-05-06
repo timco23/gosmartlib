@@ -16,14 +16,19 @@ import { AuthService } from '../services/auth.service';
 export class ProfileSelectionComponent implements OnInit {
   users: UserProfile[] = [];
   filteredUsers: UserProfile[] = [];
-  emailFilter: string = '';
+  nameFilter: string = '';
   loading: boolean = true;
   error: string = '';
   isAdmin: boolean = false;
   sortColumn: string = 'email';
   sortDirection: 'asc' | 'desc' = 'asc';
 
-  constructor(private userService: UserService, private router: Router, private authService: AuthService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
     this.isAdmin = this.authService.atLeastHasRole(Role.ADMIN);
@@ -58,9 +63,12 @@ export class ProfileSelectionComponent implements OnInit {
   }
 
   private applyFilterAndSort(): void {
-    const filter = this.emailFilter.toLowerCase().trim();
+    const filter = this.nameFilter.toLowerCase().trim();
     let result = filter
-      ? this.users.filter(u => u.email?.toLowerCase().includes(filter))
+      ? this.users.filter((u) => {
+          const fullName = `${u.firstName ?? ''} ${u.name ?? ''}`.trim().toLowerCase();
+          return fullName.includes(filter);
+        })
       : [...this.users];
 
     result.sort((a, b) => {
@@ -68,8 +76,8 @@ export class ProfileSelectionComponent implements OnInit {
       let bVal = '';
       switch (this.sortColumn) {
         case 'naam':
-          aVal = `${a.name} ${a.firstName}`.toLowerCase();
-          bVal = `${b.name} ${b.firstName}`.toLowerCase();
+          aVal = `${a.firstName ?? ''} ${a.name ?? ''}`.toLowerCase();
+          bVal = `${b.firstName ?? ''} ${b.name ?? ''}`.toLowerCase();
           break;
         case 'email':
           aVal = (a.email ?? '').toLowerCase();
@@ -97,8 +105,8 @@ export class ProfileSelectionComponent implements OnInit {
 
   getClasses(user: UserProfile): string {
     if (user.classes.length > 0) {
-      return user.classes.map(clazz => clazz.className).join(" ")
+      return user.classes.map((clazz) => clazz.className).join(' ');
     }
-    return "-"
+    return '-';
   }
 }

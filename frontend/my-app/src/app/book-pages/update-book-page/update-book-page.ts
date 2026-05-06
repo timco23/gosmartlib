@@ -31,7 +31,7 @@ import { DidacticCategoryService } from '../../services/didactic-category.servic
 import { SchoolService } from '../../services/school.service';
 import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
-import { NgClass } from "../../../../node_modules/@angular/common/types/_common_module-chunk";
+import { NgClass } from '../../../../node_modules/@angular/common/types/_common_module-chunk';
 import { DidacticCategorySelectionMenuComponent } from '../../widgets/selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { GenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { ReadingLevelSelectionMenuComponent } from '../../widgets/selection-menu-pages/reading-level/reading-level.component';
@@ -49,8 +49,8 @@ import { TagSelectionMenu } from '../../widgets/selection-menu-pages/tag-selecti
     ReadingLevelSelectionMenuComponent,
     DidacticCategorySelectionMenuComponent,
     CampusCopyGroupComponent,
-    PopUpComponent
-],
+    PopUpComponent,
+  ],
   templateUrl: './update-book-page.html',
   styleUrl: './update-book-page.css',
 })
@@ -315,6 +315,10 @@ export class UpdateBookPage implements OnInit {
   }
 
   backToList() {
+    if (this.book?.id) {
+      this.router.navigate(['/books', this.book.id]);
+      return;
+    }
     this.router.navigate(['/books']);
   }
 
@@ -443,9 +447,9 @@ export class UpdateBookPage implements OnInit {
   }
 
   showDeleteConfirmation(copyId: any) {
-    this.api.getCopyById(copyId).subscribe(copy => {
-      if(copy.copy_status === 'UITGELEEND'){
-         this.DeleteConfirmation = true;
+    this.api.getCopyById(copyId).subscribe((copy) => {
+      if (copy.copy_status === 'UITGELEEND') {
+        this.DeleteConfirmation = true;
       } else {
         this.deleteCopy('confirm', copyId);
       }
@@ -456,15 +460,14 @@ export class UpdateBookPage implements OnInit {
     if (value === 'confirm') {
       this.deleteError = null;
 
-      this.api.getCopyById(copyId).subscribe(copy => {
-
+      this.api.getCopyById(copyId).subscribe((copy) => {
         this.api.deleteCopy(copyId!).subscribe({
           next: () => {
             this.loadCopies();
-            console.log("deleted copy with id: " + copyId);
+            console.log('deleted copy with id: ' + copyId);
           },
           error: (err) => {
-            console.log("error deleting copy with id: " + copyId, err);
+            console.log('error deleting copy with id: ' + copyId, err);
             this.deleteError = err.error || 'Er is een fout opgetreden bij het verwijderen.';
             this.cdr.detectChanges();
           },

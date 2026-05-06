@@ -73,23 +73,27 @@ public class CollectionService {
 
     public CollectionDTO updateCollection(CreateCollectionDTO collectionDTO, Long id) {
         Collection collection = collectionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+
         List<Item> newItems = new ArrayList<>();
-        collectionDTO.itemIds().forEach(itemId -> {
+        for (Long itemId : collectionDTO.itemIds()) {
             Item item = itemRepository.findById(itemId).orElseThrow(EntityNotFoundException::new);
             newItems.add(item);
-        });
-        if(!newItems.isEmpty()) {
-            collection.setTitle(collectionDTO.title());
-            collection.setDescription(collectionDTO.description());
-            collection.setItems(newItems);
-            collection.setFeatured(collectionDTO.featured());
-            collection.setGloballyFeatured(collectionDTO.globallyFeatured());
-
-            collectionRepository.save(collection);
-            return mapToCollectionDTO(collection);
         }
 
-        throw new EmptyCollectionException();
+        if (newItems.isEmpty()) {
+            throw new EmptyCollectionException();
+        }
+
+        collection.setTitle(collectionDTO.title());
+        collection.setDescription(collectionDTO.description());
+        collection.setFeatured(collectionDTO.featured());
+        collection.setGloballyFeatured(collectionDTO.globallyFeatured());
+
+        collection.getItems().clear();
+        collection.getItems().addAll(newItems);
+
+        collectionRepository.save(collection);
+        return mapToCollectionDTO(collection);
     }
 
     public CollectionDTO deleteCollection(Long id) {

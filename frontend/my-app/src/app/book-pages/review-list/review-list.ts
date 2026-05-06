@@ -5,10 +5,11 @@ import { Review } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { ReviewReportComponent } from '../../review-report-component/review-report-component';
 import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-review-list',
-  imports: [CommonModule, FormsModule, ReviewReportComponent, StarDisplayComponent],
+  imports: [CommonModule, FormsModule, ReviewReportComponent, StarDisplayComponent, PopUpComponent],
   templateUrl: './review-list.html',
   styleUrl: './review-list.css',
 })
@@ -124,5 +125,13 @@ export class ReviewList {
   submitReportFromComponent(event: { reviewId: number; reason?: string }): void {
     this.reportReview.emit(event);
     this.cancelReportForm();
+  }
+
+  onConfirmPopupAction(value: string): void {
+    if (value === 'confirm') {
+      this.confirmAction();
+    } else {
+      this.cancelConfirm();
+    }
   }
 }

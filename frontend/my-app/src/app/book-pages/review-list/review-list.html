@@ -1,4 +1,10 @@
 <div class="review-list">
+  @if (isAdminOrBeheerder && reviews.length > 0) {
+    <button class="delete-all-btn" type="button" (click)="onDeleteAll()">
+      Alle reviews verwijderen
+    </button>
+  }
+
   @if (reviews.length === 0) {
     <p class="no-reviews">Nog geen reviews</p>
   }
@@ -58,14 +64,13 @@
   }
 
   @if (confirmMessage) {
-    <div class="confirm-overlay">
-      <div class="confirm-dialog">
-        <p>{{ confirmMessage }}</p>
-        <div class="confirm-actions">
-          <button class="confirm-btn" type="button" (click)="confirmAction()">Verwijderen</button>
-          <button class="cancel-btn" type="button" (click)="cancelConfirm()">Annuleren</button>
-        </div>
-      </div>
-    </div>
+    <app-pop-up
+      [message]="confirmMessage"
+      [actions]="[
+        { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+        { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+      ]"
+      (actionClicked)="onConfirmPopupAction($event)"
+    />
   }
 </div>

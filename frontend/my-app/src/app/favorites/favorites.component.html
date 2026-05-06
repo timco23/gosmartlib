@@ -34,12 +34,22 @@
           </div>
 
           <div class="book-actions">
-            <button class="delete-button" (click)="deleteFavorite(book.id!)">Verwijderen</button>
+            <button class="delete-button" (click)="requestRemoveFavorite(book)">Verwijderen</button>
             <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
           </div>
         </li>
       }
     </ul>
+    @if (showRemoveFavoritePopup) {
+      <app-pop-up
+        [message]="'Weet u zeker dat u dit boek uit uw favorieten wilt verwijderen?'"
+        [actions]="[
+          { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+          { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+        ]"
+        (actionClicked)="onRemoveFavoriteAction($event)"
+      />
+    }
 
     <div class="pagination">
       <button class="page-button" (click)="previousPage()" [disabled]="currentPage === 0">

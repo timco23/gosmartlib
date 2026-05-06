@@ -12,7 +12,9 @@
               Boek wijzigen
             </a>
 
-            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Uitleengeschiedenis</a>
+            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]"
+              >Uitleengeschiedenis</a
+            >
             <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
               Verwijder boek
             </button>
@@ -204,11 +206,6 @@
           <div class="reviews-header">
             <h3>Reviews</h3>
             <div class="reviews-header-actions">
-              @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && reviews.length > 0) {
-                <button class="delete-all-btn" type="button" (click)="onDeleteAllReviews()">
-                  Alle reviews verwijderen
-                </button>
-              }
               @if (!showReviewForm) {
                 <button class="add-review-btn" type="button" (click)="showReviewForm = true">
                   Review schrijven

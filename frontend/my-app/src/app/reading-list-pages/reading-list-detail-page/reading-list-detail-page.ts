@@ -4,11 +4,12 @@ import { ReadingList, Book } from '../../../types/types';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BookService } from '../../services/book-service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-reading-list-detail-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './reading-list-detail-page.html',
   styleUrl: './reading-list-detail-page.css',
 })

@@ -84,10 +84,10 @@ public class ProfanityFilterService {
         return deduped.toLowerCase(Locale.ROOT);
     }
 
-    private static Pattern buildBlocklistPattern(String raw) {
+   private static Pattern buildBlocklistPattern(String raw) {
         if (raw == null || raw.isBlank()) return null;
 
-        var words = Arrays.stream(raw.split("[,;\\s]+"))
+        var words = Arrays.stream(raw.split("[,;\\n]+"))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .map(Pattern::quote)
@@ -95,9 +95,7 @@ public class ProfanityFilterService {
 
         if (words.isEmpty()) return null;
 
-        String regex = "(?:^|(?<=\\s)|(?<=[^\\p{L}\\p{N}]))("
-                + String.join("|", words)
-                + ")(?:$|(?=\\s)|(?=[^\\p{L}\\p{N}]))";
-        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        String regex = "(?<![\\p{L}\\p{N}])(" + String.join("|", words) + ")(?![\\p{L}\\p{N}])";
+        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS);
     }
 }
