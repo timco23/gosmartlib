@@ -24,14 +24,13 @@ public class CollectionService {
     }
 
     public List<CollectionDTO> findBySchoolId(Long schoolId) {
-        List<CollectionDTO> collections;
+        List<Collection> collections;
         if (schoolId == 0) {
             collections = collectionRepository.findBySchoolId(null);
-        }
-        else {
+        } else {
             collections = collectionRepository.findBySchoolId(schoolId);
         }
-        return collections;
+        return collections.stream().map(this::mapToCollectionDTO).toList();
     }
 
     public CollectionDTO findById(Long id) {
@@ -40,13 +39,13 @@ public class CollectionService {
     }
 
     public List<CollectionDTO> getFeaturedBySchoolId(Long schoolId) {
-        List<CollectionDTO> collections = collectionRepository.findBySchoolIdAndFeatured(schoolId, true);
-        return collections;
+        return collectionRepository.findBySchoolIdAndFeatured(schoolId, true)
+                .stream().map(this::mapToCollectionDTO).toList();
     }
-
+    
     public List<CollectionDTO> getByGloballyFeatured() {
-        List<CollectionDTO> collections = collectionRepository.findByGloballyFeatured(true);
-        return collections;
+        return collectionRepository.findByGloballyFeatured(true)
+                .stream().map(this::mapToCollectionDTO).toList();
     }
 
     public CollectionDTO addCollection(CreateCollectionDTO collectionDTO) {

@@ -56,17 +56,21 @@ public class LendingService {
 
     public LendingDTO addLending(LendingRequestDTO request) {
         Lending lending = new Lending();
-        lending.setBorrower(userRepository.findById(request.borrowerId()).orElseThrow(EntityNotFoundException::new));
-        lending.setBook(copyRepository.findByBarcode(request.copyBarcode()).orElseThrow(EntityNotFoundException::new));
-        lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow(EntityNotFoundException::new));
+
+        lending.setBorrower(userRepository.findById(request.borrowerId()).orElseThrow());
+        lending.setBook(copyRepository.findByBarcode(request.copyBarcode()).orElseThrow());
+        lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow());
         lending.setLendingDate(request.lendingDate());
         lending.setReturnDate(request.returnDate());
         lending.setReturned(false);
         lending.setDateReturned(null);
         lending.setExtended(false);
 
-        return toDTO(lendingRepository.save(lending));
+        Lending saved = lendingRepository.save(lending);
+
+        return toDTO(saved);
     }
+
 
     public LendingDTO updateLending(Long id, LendingDTO dto) {
         Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);

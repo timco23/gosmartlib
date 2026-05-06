@@ -126,8 +126,8 @@ public class SchoolItemCopyService {
         return new SchoolItemCopyDTO(
                 copy.getId(),
                 copy.getItem().getId(),
-                copy.getItem().getTitle(),
                 copy.getBarcode(),
+                copy.getItem().getTitle(),
                 copy.getCondition(),
                 copy.getCopy_status(),
                 copy.isFeatured(),

@@ -339,6 +339,9 @@ export class LendBookComponent {
         .split('T')[0],
     }));
 
+    console.log('copies:', copies);
+    console.log('requests:', requests);
+
     const submits = requests.map((request, i) =>
       this.lendingService
         .createLending(request)
@@ -356,7 +359,7 @@ export class LendBookComponent {
       .then(() => this.router.navigate(['/lendings']))
       .catch((err) => {
         console.error('Error creating lendings:', err);
-        alert('Lening aanmaken mislukt, probeer later opnieuw.');
+        alert(err.message + this.barcode || 'Er is een fout opgetreden bij het aanmaken van de leningen.');
       });
   }
 
