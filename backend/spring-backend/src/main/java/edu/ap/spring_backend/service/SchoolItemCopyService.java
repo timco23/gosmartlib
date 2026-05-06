@@ -127,12 +127,12 @@ public class SchoolItemCopyService {
                 copy.getId(),
                 copy.getItem().getId(),
                 copy.getBarcode(),
-                copy.getItem().getTitle(),
                 copy.getCondition(),
                 copy.getCopy_status(),
                 copy.isFeatured(),
                 copy.getSchool().getId(),
-                copy.getCampus());
+                copy.getCampus()
+        );
     }
 
     public SchoolItemCopyDTO getCopyByBarcode(String barcode) {

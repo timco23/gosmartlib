@@ -78,10 +78,11 @@ public class SmartschoolOAuthController {
             @Value("${app.jwt.secret}") String jwtSecret,
             @Value("${app.jwt.expires-minutes}") long expiresMinutes,
             SchoolRepository schoolRepository,
-            ClassService classService
+            ClassService classService,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
-        this.jwtService = new JwtService(jwtSecret, expiresMinutes);
+        this.jwtService = jwtService;
         this.schoolRepository = schoolRepository;
         this.classService = classService;
     }
