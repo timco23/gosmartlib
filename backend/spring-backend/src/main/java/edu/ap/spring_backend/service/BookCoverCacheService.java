@@ -122,7 +122,7 @@ public class BookCoverCacheService {
         }
 
         if (previous != null && candidateUrls.contains(previous.url())) {
-            return previous; // stale fallback
+            return previous;
         }
 
         throw new IllegalStateException("Could not load cover image", last);

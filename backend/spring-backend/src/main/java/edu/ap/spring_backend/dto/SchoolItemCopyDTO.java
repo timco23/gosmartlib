@@ -8,20 +8,25 @@ import edu.ap.spring_backend.jpa.ItemCondition;
 public record SchoolItemCopyDTO(
         @JsonProperty("id")
         int id,
+
         @JsonProperty("itemId")
         Long itemId,
+
         @JsonProperty("barcode")
         String barcode,
-        @JsonProperty("title")
-        String title,
+
         @JsonProperty("condition")
         ItemCondition condition,
+
         @JsonProperty("copy_status")
         CopyStatus copy_status,
+
         @JsonProperty("featured")
         boolean featured,
+
         @JsonProperty("schoolId")
         Long schoolId,
+
         @JsonProperty("campus")
         Campus campus
 ) { }

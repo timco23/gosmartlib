@@ -281,7 +281,7 @@
                 <button type="button" class="secondary-btn" (click)="backToList()">
                   Annuleren
                 </button>
-                <button type="submit" class="primary-btn">Toevoegen</button>
+                <button type="button" class="primary-btn" (click)="onSubmit()">Toevoegen</button>
               </div>
               @if (copyAlreadyExists) {
                 <p id="warning">Er bestaat al een exemplaar van dit boek voor deze school.</p>

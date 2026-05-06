@@ -183,6 +183,12 @@ export class AddBookPage implements OnInit {
     this.incompleteForm = false;
     this.copyError = false;
 
+    console.log('school:', this.school);
+    console.log('form valid:', this.form.valid);
+    console.log('form errors:', this.form.errors);
+    console.log('form value:', this.form.value);
+    console.log('campusGroups:', this.campusGroups);
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.incompleteForm = true;
@@ -231,31 +237,40 @@ export class AddBookPage implements OnInit {
         if (data != null) {
           this.copyAlreadyExists = true;
           this.cdr.detectChanges();
+        } else {
+          this.createBook(newBook, allRows);
         }
+      },
+      error: (err) => {
+        if (err.status === 404) {
+          // Boek bestaat nog niet → aanmaken
+          this.createBook(newBook, allRows);
+        } else {
+          this.error = true;
+          this.errorMessage = err.message;
+          this.cdr.detectChanges();
+        }
+      }
+    });
+  }
 
-        if (!this.copyAlreadyExists) {
-          this.copyAlreadyExists = false;
-          this.api.addBook(newBook).subscribe({
-            next: (createdBook) => {
-              if (allRows.length > 1) {
-                const extraCopies: CreateSchoolItemCopyPayload[] = allRows.slice(1).map((row) => ({
-                  itemId: createdBook.id,
-                  condition: row.condition,
-                  copy_status: row.copy_status,
-                  featured: false,
-                  schoolId: this.school!.id!,
-                  campusId: row.campusId,
-                }));
-                this.api.addCopies(extraCopies).subscribe({
-                  next: () => {
-                    this.router.navigate(['/books', createdBook.id]);
-                  },
-                });
-              } else {
-                this.router.navigate(['/books', createdBook.id]);
-              }
-            },
+  private createBook(newBook: CreateBookPayload, allRows: any[]): void {
+    this.api.addBook(newBook).subscribe({
+      next: (createdBook) => {
+        if (allRows.length > 1) {
+          const extraCopies: CreateSchoolItemCopyPayload[] = allRows.slice(1).map((row) => ({
+            itemId: createdBook.id,
+            condition: row.condition,
+            copy_status: row.copy_status,
+            featured: false,
+            schoolId: this.school!.id!,
+            campusId: row.campusId,
+          }));
+          this.api.addCopies(extraCopies).subscribe({
+            next: () => this.router.navigate(['/books', createdBook.id]),
           });
+        } else {
+          this.router.navigate(['/books', createdBook.id]);
         }
       },
     });
