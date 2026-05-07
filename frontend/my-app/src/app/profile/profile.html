@@ -1,86 +1,87 @@
+<div class="back-link-wrapper">
+  <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+</div>
+
 <div class="profile-container">
   <h2>Accountgegevens</h2>
 
-  <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
-
-  @if(loading) {
+  @if (loading) {
     <div class="loading">Laden...</div>
   }
 
-  @if(error) {
+  @if (error) {
     <div class="error-message">{{ error }}</div>
   }
 
-  @if(profile && !loading) {
-  <div class="profile-content">
-    @if (profile.firstName) {
-    <div class="profile-item">
-      <label>Voornaam:</label>
-      <span>{{ profile.firstName }}</span>
-    </div>
-    }
-
-    <div class="profile-item">
-      <label>Naam:</label>
-      <span>{{ profile.name }}</span>
-    </div>
-
-    <div class="profile-item">
-      <label>Klas:</label>
-      @if (profile.classes.length > 0) {
-        @for (class of profile.classes; track $index) {
-          <span>{{ class.className }}</span>
-        }
-      }
-      @else {
-        <span>Geen</span>
-      }
-    </div>
-
-    @if(profile.schoolName) {
-    <div class="profile-item">
-      <label>School:</label>
-      <span>{{ profile.schoolName }}</span>
-    </div>
-    }
-
-    @if(profile.studentNumber) {
-    <div class="profile-item">
-      <label>Studentnummer:</label>
-      <span>{{ profile.studentNumber }}</span>
-    </div>
-    }
-
-    <div class="profile-item">
-      <label>Email:</label>
-      <span>{{ profile.email }}</span>
-    </div>
-
-    <div class="profile-item">
-      <label>Rol:</label>
-      @if (canEditRole) {
-        <div class="role-edit-container">
-          <div class="role-edit">
-            <select [(ngModel)]="selectedRole" class="role-select">
-              @for (role of availableRoles; track role) {
-                <option [value]="role">{{ role }}</option>
-              }
-            </select>
-            <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
-          </div>
-          @if (roleUpdateSuccess) {
-            <span class="role-success">{{ roleUpdateSuccess }}</span>
-          }
-          @if (roleUpdateError) {
-            <span class="role-error">{{ roleUpdateError }}</span>
-          }
+  @if (profile && !loading) {
+    <div class="profile-content">
+      @if (profile.firstName) {
+        <div class="profile-item">
+          <label>Voornaam:</label>
+          <span>{{ profile.firstName }}</span>
         </div>
-      } @else {
-        <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
-          {{ profile.role }}
-        </span>
       }
+
+      <div class="profile-item">
+        <label>Naam:</label>
+        <span>{{ profile.name }}</span>
+      </div>
+
+      <div class="profile-item">
+        <label>Klas:</label>
+        @if (profile.classes.length > 0) {
+          @for (class of profile.classes; track $index) {
+            <span>{{ class.className }}</span>
+          }
+        } @else {
+          <span>Geen</span>
+        }
+      </div>
+
+      @if (profile.schoolName) {
+        <div class="profile-item">
+          <label>School:</label>
+          <span>{{ profile.schoolName }}</span>
+        </div>
+      }
+
+      @if (profile.studentNumber) {
+        <div class="profile-item">
+          <label>Studentnummer:</label>
+          <span>{{ profile.studentNumber }}</span>
+        </div>
+      }
+
+      <div class="profile-item">
+        <label>Email:</label>
+        <span>{{ profile.email }}</span>
+      </div>
+
+      <div class="profile-item">
+        <label>Rol:</label>
+        @if (canEditRole) {
+          <div class="role-edit-container">
+            <div class="role-edit">
+              <select [(ngModel)]="selectedRole" class="role-select">
+                @for (role of availableRoles; track role) {
+                  <option [value]="role">{{ role }}</option>
+                }
+              </select>
+              <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
+            </div>
+            @if (roleUpdateSuccess) {
+              <span class="role-success">{{ roleUpdateSuccess }}</span>
+            }
+            @if (roleUpdateError) {
+              <span class="role-error">{{ roleUpdateError }}</span>
+            }
+          </div>
+        } @else {
+          <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
+            {{ profile.role }}
+          </span>
+        }
+      </div>
     </div>
-  </div>
   }
 </div>

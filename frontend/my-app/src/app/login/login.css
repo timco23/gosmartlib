@@ -23,7 +23,7 @@
 .login-card {
   position: relative;
   z-index: 1;
-  background: #f0efe4;
+  background: #fbfbfb;
   padding: 2rem;
   border-radius: 10px;
   border: #8c1b3f 1px solid;
@@ -67,7 +67,7 @@ input:focus {
   width: 80%;
   margin: 0 auto;
   height: 40px;
-  background: #FF520E;
+  background: #ff520e;
   color: white;
   border: none;
   border-radius: 6px;
