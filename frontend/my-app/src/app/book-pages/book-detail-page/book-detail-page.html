@@ -80,15 +80,18 @@
           </div>
 
           <div class="chip-row">
-            <span class="chip">
-              Leesniveau: {{ readingLevelName || '—' }}
-              @if (readingLevelDescription && authService.atLeastHasRole(role.LEERKRACHT)) {
-                <span class="tooltip-anchor">
-                  <span class="info-icon">i</span>
-                  <span class="tooltip-box">{{ readingLevelDescription }}</span>
-                </span>
-              }
-            </span>
+            @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+              <span class="chip">
+                Leesniveau: {{ readingLevelName || '—' }}
+                @if (readingLevelDescription) {
+                  <span class="tooltip-anchor">
+                    <span class="info-icon">i</span>
+                    <span class="tooltip-box">{{ readingLevelDescription }}</span>
+                  </span>
+                }
+              </span>
+            }
+
             <span class="chip">Pagina's: {{ book.pageCount }}</span>
             <span class="chip">
               Taal: {{ $any(book).bookLanguage || $any(book).language || '—' }}
