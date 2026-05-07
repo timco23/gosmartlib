@@ -391,3 +391,16 @@
     top: 22px;
   }
 }
+
+@media print {
+  .mobile-nav-toggle,
+  .mobile-backdrop,
+  .navbar {
+    display: none !important;
+  }
+
+  .page-content {
+    padding-top: 0;
+    min-height: auto;
+  }
+}
