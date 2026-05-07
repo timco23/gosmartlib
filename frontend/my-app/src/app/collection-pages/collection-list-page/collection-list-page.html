@@ -68,17 +68,6 @@
                       <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                   </button>
-
-                  @if (showDeleteConfirm) {
-                    <app-pop-up
-                      [message]="'Bent u zeker dat u deze collectie wil verwijderen?'"
-                      [actions]="[
-                        { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-                        { label: 'Verwijderen', type: 'danger', value: 'confirm' },
-                      ]"
-                      (actionClicked)="deleteCollection($event, collection.id)"
-                    />
-                  }
                 </div>
               </div>
             </div>
@@ -100,4 +89,14 @@
       <p>Collecties laden...</p>
     }
   </main>
+  @if (showDeleteConfirm && pendingDeleteCollectionId !== null) {
+    <app-pop-up
+      [message]="'Bent u zeker dat u deze collectie wil verwijderen?'"
+      [actions]="[
+        { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+        { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+      ]"
+      (actionClicked)="deleteCollection($event, pendingDeleteCollectionId!)"
+    />
+  }
 </body>

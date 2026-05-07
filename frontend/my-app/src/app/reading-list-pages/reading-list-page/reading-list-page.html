@@ -73,16 +73,6 @@
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
                 </button>
-                @if (showDeleteConfirm && pendingDeleteListId === list.id) {
-                  <app-pop-up
-                    [message]="'Bent u zeker dat u deze lijst wil verwijderen?'"
-                    [actions]="[
-                      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-                      { label: 'Verwijderen', type: 'danger', value: 'confirm' },
-                    ]"
-                    (actionClicked)="deleteList($event, list.id)"
-                  />
-                }
                 <button class="detail-btn" (click)="devGoToDetails(list.id)">Details</button>
               </div>
             </div>
@@ -104,4 +94,14 @@
       <p>Klasleeslijsten laden...</p>
     }
   </main>
+  @if (showDeleteConfirm && pendingDeleteListId !== null) {
+      <app-pop-up
+        [message]="'Bent u zeker dat u deze lijst wil verwijderen?'"
+        [actions]="[
+          { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+          { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+        ]"
+        (actionClicked)="deleteList($event, pendingDeleteListId!)"
+      />
+    }
 </body>
