@@ -66,6 +66,12 @@
   line-height: 1.6;
 }
 
+.reviews-header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
 .delete-all-btn {
   background: transparent;
   color: var(--color-danger);
@@ -82,9 +88,37 @@
     background var(--transition-fast),
     border-color var(--transition-fast);
 }
+
 .delete-all-btn:hover {
   background: var(--color-danger-bg);
   border-color: var(--color-danger);
+}
+
+.delete-btn {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-border);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.delete-btn:hover {
+  background: var(--color-danger);
+  color: #fff;
+  border-color: var(--color-danger);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Card right: stars + actions */

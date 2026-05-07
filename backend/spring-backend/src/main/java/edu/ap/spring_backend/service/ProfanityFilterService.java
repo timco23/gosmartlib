@@ -87,11 +87,11 @@ public class ProfanityFilterService {
    private static Pattern buildBlocklistPattern(String raw) {
         if (raw == null || raw.isBlank()) return null;
 
-        var words = Arrays.stream(raw.split("[,;\\n]+"))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .map(Pattern::quote)
-                .collect(Collectors.toList());
+        var words = Arrays.stream(raw.split("[,;]+")) 
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .map(Pattern::quote)
+            .collect(Collectors.toList());
 
         if (words.isEmpty()) return null;
 

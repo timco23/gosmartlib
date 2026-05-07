@@ -80,15 +80,17 @@
           </div>
 
           <div class="chip-row">
-            <span class="chip">
-              Leesniveau: {{ readingLevelName || '—' }}
-              @if (readingLevelDescription) {
-                <span class="tooltip-anchor">
-                  <span class="info-icon">i</span>
-                  <span class="tooltip-box">{{ readingLevelDescription }}</span>
-                </span>
-              }
-            </span>
+            @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+              <span class="chip">
+                Leesniveau: {{ readingLevelName || '—' }}
+                @if (readingLevelDescription) {
+                  <span class="tooltip-anchor">
+                    <span class="info-icon">i</span>
+                    <span class="tooltip-box">{{ readingLevelDescription }}</span>
+                  </span>
+                }
+              </span>
+            }
             <span class="chip">Pagina's: {{ book.pageCount }}</span>
             <span class="chip">
               Taal: {{ $any(book).bookLanguage || $any(book).language || '—' }}
@@ -206,6 +208,11 @@
           <div class="reviews-header">
             <h3>Reviews</h3>
             <div class="reviews-header-actions">
+              @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && reviews.length > 0) {
+                <button class="delete-all-btn" type="button" (click)="reviewList.onDeleteAll()">
+                  Alle reviews verwijderen
+                </button>
+              }
               @if (!showReviewForm) {
                 <button class="add-review-btn" type="button" (click)="showReviewForm = true">
                   Review schrijven
@@ -224,6 +231,7 @@
           }
 
           <app-review-list
+            #reviewList
             [reviews]="reviews"
             [userRole]="userRoleForReviews"
             [currentUserName]="currentUserNameForReviews"
