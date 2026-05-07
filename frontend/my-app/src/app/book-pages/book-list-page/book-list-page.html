@@ -1,5 +1,8 @@
 <body class="books-container">
-  <app-reading-list-slide-out-pop-up [(readingListQueue)]="booksToBeAddedToReadingList" [(showPopUp)]="showReadingListPopUp"></app-reading-list-slide-out-pop-up>
+  <app-reading-list-slide-out-pop-up
+    [(readingListQueue)]="booksToBeAddedToReadingList"
+    [(showPopUp)]="showReadingListPopUp"
+  ></app-reading-list-slide-out-pop-up>
   <header class="books-header">
     <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
 
@@ -56,8 +59,6 @@
           </div>
         </div>
       }
-
-      <!-- ...existing code... -->
 
       <details class="filter-group" open>
         <summary class="filter-label">Taal</summary>
@@ -217,7 +218,9 @@
 
     <main class="books-card">
       @if (visibleBooks.length > 0) {
-        <h3>Huidige boeken</h3>
+        <h3>
+          Huidige boeken <span class="book-count">({{ totalElements }})</span>
+        </h3>
 
         <ul class="book-list library-grid">
           @for (book of visibleBooks; track book.id) {
@@ -230,7 +233,7 @@
                     class="cover-img"
                     loading="lazy"
                   />
-                } 
+                }
               </div>
 
               <div class="book-info">
@@ -245,7 +248,7 @@
                 }
               </div>
 
-              <div class="book-bottom has-reading-list" >
+              <div class="book-bottom has-reading-list">
                 <div class="book-score">
                   <app-star-display [score]="book.reviewScore" />
                   @if (book.reviewScore > 0) {
@@ -254,7 +257,9 @@
                 </div>
                 <div class="book-actions">
                   @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-                    <button class="list-button" (click)="addBookToReadingList(book)">Aan leeslijst toevoegen</button>
+                    <button class="list-button" (click)="addBookToReadingList(book)">
+                      Aan leeslijst toevoegen
+                    </button>
                   }
                   <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
                 </div>

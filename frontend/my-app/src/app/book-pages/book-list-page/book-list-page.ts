@@ -63,6 +63,7 @@ export class BookListPage implements OnInit {
   currentPage = 0;
   pageSize = 15;
   totalPages = 0;
+  totalElements = 0;
 
   books: Book[] = [];
   sortBy = 'title';
@@ -199,6 +200,7 @@ export class BookListPage implements OnInit {
         next: (data: Page<Book>) => {
           this.books = data.content ?? [];
           this.totalPages = data.totalPages ?? 0;
+          this.totalElements = data.totalElements ?? 0; 
           this.cdr.detectChanges();
         },
       });
@@ -405,8 +407,7 @@ export class BookListPage implements OnInit {
   addBookToReadingList(book: Book) {
     if (!this.booksToBeAddedToReadingList.includes(book)) {
       this.booksToBeAddedToReadingList.push(book);
-    }
-    else {
+    } else {
       this.showReadingListPopUp = true;
     }
   }
