@@ -206,6 +206,11 @@
           <div class="reviews-header">
             <h3>Reviews</h3>
             <div class="reviews-header-actions">
+              @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && reviews.length > 0) {
+                <button class="delete-all-btn" type="button" (click)="reviewList.onDeleteAll()">
+                  Alle reviews verwijderen
+                </button>
+              }
               @if (!showReviewForm) {
                 <button class="add-review-btn" type="button" (click)="showReviewForm = true">
                   Review schrijven
@@ -224,6 +229,7 @@
           }
 
           <app-review-list
+            #reviewList
             [reviews]="reviews"
             [userRole]="userRoleForReviews"
             [currentUserName]="currentUserNameForReviews"

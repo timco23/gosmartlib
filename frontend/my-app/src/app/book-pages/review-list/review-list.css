@@ -66,6 +66,12 @@
   line-height: 1.6;
 }
 
+.reviews-header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
 .delete-all-btn {
   background: transparent;
   color: var(--color-danger);
@@ -83,6 +89,7 @@
     border-color var(--transition-fast);
   margin-bottom: 1.5rem;
 }
+
 .delete-all-btn:hover {
   background: var(--color-danger-bg);
   border-color: var(--color-danger);
