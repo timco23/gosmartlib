@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { Role, UserProfile } from '../../types/types';
 import { UserService } from '../services/user.service';
@@ -9,7 +9,7 @@ import { UserService } from '../services/user.service';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -53,15 +53,13 @@ export class Profile implements OnInit {
     const currentUser = this.authService.currentUserValue;
     if (currentUser?.email === this.profile.email) return false;
     if (!this.authService.atLeastHasRole(Role.BIBLIOTHEEKBEHEERDER)) return false;
-    if (!this.authService.atLeastHasRole(Role.ADMIN) && this.profile.role === 'ADMIN') return false;
+    if (this.profile.role === 'ADMIN') return false;
+    if (this.profile.role === 'LEERLING') return false;
     return true;
   }
 
   get availableRoles(): string[] {
-    if (this.authService.atLeastHasRole(Role.ADMIN)) {
-      return ['LEERLING', 'LEERKRACHT', 'BIBLIOTHEEKBEHEERDER', 'ADMIN'];
-    }
-    return ['LEERLING', 'LEERKRACHT', 'BIBLIOTHEEKBEHEERDER'];
+    return ['LEERKRACHT', 'BIBLIOTHEEKBEHEERDER'];
   }
 
   updateRole(): void {
