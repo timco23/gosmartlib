@@ -19,6 +19,10 @@ import org.springframework.util.DigestUtils;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import java.time.Duration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StreamUtils;
+import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.List;
 
@@ -34,23 +38,25 @@ public class ItemController {
     /**
      * Default fallback book cover used when no cover image is available
      * or an error occurs while fetching the real cover.
-     * The SVG represents a simple placeholder book design and is returned
-     * as image content (SVG format).
      */
-    private static final byte[] FALLBACK_COVER_SVG = ("<svg xmlns='http://www.w3.org/2000/svg' width='120' height='180' viewBox='0 0 120 180'>"
-            + "<rect width='120' height='180' rx='10' fill='#f2f2f2'/>"
-            + "<rect x='20' y='24' width='80' height='132' rx='8' fill='#ffffff' stroke='#d7d7d7'/>"
-            + "<rect x='34' y='40' width='22' height='100' rx='4' fill='#9ab3dc'/>"
-            + "<rect x='64' y='40' width='22' height='100' rx='4' fill='#7f9dce'/>"
-            + "<line x1='60' y1='40' x2='60' y2='140' stroke='#ffffff' stroke-width='2'/>"
-            + "</svg>").getBytes(StandardCharsets.UTF_8);
+    private static final byte[] FALLBACK_COVER;
 
     /**
      * ETag for the fallback cover image.
-     * This is generated using an MD5 hash of the SVG content and is used
+     * This is generated using an MD5 hash of the cover content and is used
      * for HTTP caching (If-None-Match / 304 Not Modified).
      */
-    private static final String FALLBACK_COVER_ETAG = "\"" + DigestUtils.md5DigestAsHex(FALLBACK_COVER_SVG) + "\"";
+    private static final String FALLBACK_COVER_ETAG;
+
+    //Fetch placeholder cover when this class gets loaded
+    static {
+        try (InputStream is = new ClassPathResource("placeholderCover/cover.jpg").getInputStream()) {
+            FALLBACK_COVER = StreamUtils.copyToByteArray(is);
+            FALLBACK_COVER_ETAG = "\"" + DigestUtils.md5DigestAsHex(FALLBACK_COVER) + "\"";
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load fallback book cover", e);
+        }
+    }
 
     public ItemController(ItemService itemService, SchoolItemCopyService schoolItemCopyService,
             BookCsvImportService bookCsvImportService, BarcodeService barcodeService,
@@ -159,7 +165,7 @@ public class ItemController {
      * - Returns 200 OK with image bytes if the cover is new or updated.
      * - Returns 304 Not Modified if the client already has the latest version
      * (based on ETag).
-     * - Falls back to a default SVG cover if the real cover cannot be retrieved.
+     * - Falls back to a default JPEG cover if the real cover cannot be retrieved.
      * Caching:
      * - Uses Cache-Control headers (public, max-age = 6 hours, must-revalidate).
      * - Uses ETag to reduce unnecessary data transfer.
@@ -204,8 +210,8 @@ public class ItemController {
             return ResponseEntity.ok()
                     .cacheControl(cacheControl)
                     .eTag(FALLBACK_COVER_ETAG)
-                    .contentType(MediaType.valueOf("image/svg+xml"))
-                    .body(FALLBACK_COVER_SVG);
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(FALLBACK_COVER);
         }
     }
 
@@ -330,11 +336,13 @@ public class ItemController {
 
     @DeleteMapping("/books/{id}")
     public ResponseEntity<ItemDTO> deleteItem(@PathVariable Long id) {
+        itemService.deleteItem(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/books/copies/{id}")
     public ResponseEntity<SchoolItemCopyDTO> deleteCopy(@PathVariable int id) {
+        schoolItemCopyService.deleteCopy(id);
         return ResponseEntity.noContent().build();
     }
 }

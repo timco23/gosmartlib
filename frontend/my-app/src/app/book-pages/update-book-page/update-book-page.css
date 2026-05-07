@@ -466,6 +466,7 @@ button:hover {
 .save-button:hover {
   background: var(--color-primary-dark);
   border-color: transparent;
+  color: #fff;
   box-shadow: var(--shadow-red);
 }
 
@@ -515,7 +516,13 @@ button:hover {
 
 .DeleteButton:hover {
   background: var(--color-danger-dark);
+  color: #fff;
   border-color: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+app-pop-up {
+  cursor:default
 }
 
 /* --- Responsive --- */

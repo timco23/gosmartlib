@@ -1,12 +1,18 @@
+@if (DeleteConfirmation) {
+<app-pop-up
+  [message]="'U gaat een exemplaar verwijderen dat momenteel uitgeleend is. Weet u zeker dat u dit exemplaar wilt verwijderen?'"
+  [actions]="[ { label: 'Annuleren', type: 'cancel', value: 'cancel' },{ label: 'Verwijderen', type: 'danger', value: 'confirm' }]" 
+  (actionClicked)="deleteCopy($event)" />
+}
 <div class="form-container">
   <h1>Boek wijzigen</h1>
   @if (error) {
-    <div class="error-box">
-      <p id="warning">
-        Er was een probleem met het ophalen van de boekgegevens. Error: {{ errorMessage }}
-      </p>
-      <button class="secondary-btn" (click)="loadBook()">Opnieuw proberen</button>
-    </div>
+  <div class="error-box">
+    <p id="warning">
+      Er was een probleem met het ophalen van de boekgegevens. Error: {{ errorMessage }}
+    </p>
+    <button class="secondary-btn" (click)="loadBook()">Opnieuw proberen</button>
+  </div>
   }
 
   <main class="update-card">
@@ -43,45 +49,28 @@
             <input id="cover" type="text" [(ngModel)]="previewUrl" formControlName="cover" />
 
             <label>Tags</label>
-            <app-tag-selection-menu
-              [initialTags]="selectedTags"
-              (tagsChanged)="onTagsChanged($event)"
-            />
+            <app-tag-selection-menu [initialTags]="selectedTags" (tagsChanged)="onTagsChanged($event)" />
 
             <label>Genres</label>
-            <app-genre-selection-menu
-              [initialGenres]="selectedGenres"
-              (genresChanged)="onGenresChanged($event)"
-            />
+            <app-genre-selection-menu [initialGenres]="selectedGenres" (genresChanged)="onGenresChanged($event)" />
 
             <label>Subgenres</label>
-            <app-subgenre-selection-menu
-              [initialSubgenres]="selectedSubgenres"
-              [genreIds]="selectedGenres"
-              (subgenresChanged)="onSubgenresChanged($event)"
-            />
+            <app-subgenre-selection-menu [initialSubgenres]="selectedSubgenres" [genreIds]="selectedGenres"
+              (subgenresChanged)="onSubgenresChanged($event)" />
 
             <label>Leesniveau</label>
-            <app-reading-level
-              [initialReadingLevel]="selectedReadingLevel"
-              (selectedReadingLevel)="onReadingLevelChanged($event)"
-            />
+            <app-reading-level [initialReadingLevel]="selectedReadingLevel"
+              (selectedReadingLevel)="onReadingLevelChanged($event)" />
 
             <label>
-              <input
-                type="checkbox"
-                formControlName="isDidactic"
-                (change)="onIsDidacticChanged()"
-              />
+              <input type="checkbox" formControlName="isDidactic" (change)="onIsDidacticChanged()" />
               Didactisch boek
             </label>
 
             @if (isDidactic) {
-              <label>Didactische categorieën</label>
-              <app-didactic-category-selection-menu
-                [initialCategories]="selectedDidacticCategories"
-                (categoriesChanged)="onDidacticCategoriesChanged($event)"
-              />
+            <label>Didactische categorieën</label>
+            <app-didactic-category-selection-menu [initialCategories]="selectedDidacticCategories"
+              (categoriesChanged)="onDidacticCategoriesChanged($event)" />
             }
 
             <div class="form-buttons">
@@ -90,7 +79,7 @@
             </div>
 
             @if (incompleteForm) {
-              <p id="warning">Vul alle velden juist in.</p>
+            <p id="warning">Vul alle velden juist in.</p>
             }
           </div>
         </form>
@@ -99,9 +88,9 @@
       <div class="cover-preview">
         <p class="preview-title">Preview van coverafbeelding</p>
         @if (previewUrl == '') {
-          <div class="no-cover">Geen afbeelding</div>
+        <div class="no-cover">Geen afbeelding</div>
         } @else {
-          <img [src]="previewUrl" />
+        <img [src]="previewUrl" />
         }
       </div>
 
@@ -109,153 +98,121 @@
         <h3>Exemplaren ({{ copies.length }})</h3>
 
         @if (deleteError) {
-                            <app-pop-up [message]="'Er is een fout opgetreden bij het verwijderen van het exemplaar. Probeer het opnieuw.'"
-                            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
-                            (actionClicked)="deleteError = null"/>
-                          }
+        <app-pop-up [message]="'Er is een fout opgetreden bij het verwijderen van het exemplaar. Probeer het opnieuw.'"
+          [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]" (actionClicked)="deleteError = null" />
+        }
 
         @if (editingCopyId) {
-          <div class="edit-copy-card">
-            <h4>Exemplaar wijzigen</h4>
-            <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
-              <div class="form-row">
-                <label for="edit-condition">Conditie</label>
-                <select
-                  id="edit-condition"
-                  [(ngModel)]="editedCopy.condition"
-                  name="editCondition"
-                  required
-                >
-                  <option value="NIEUW">Nieuw</option>
-                  <option value="GOED">Goed</option>
-                  <option value="GEBRUIKT">Gebruikt</option>
-                  <option value="BESCHADIGD">Beschadigd</option>
-                </select>
-              </div>
+        <div class="edit-copy-card">
+          <h4>Exemplaar wijzigen</h4>
+          <form #editForm="ngForm" (ngSubmit)="editForm.valid && saveEdit()">
+            <div class="form-row">
+              <label for="edit-condition">Conditie</label>
+              <select id="edit-condition" [(ngModel)]="editedCopy.condition" name="editCondition" required>
+                <option value="NIEUW">Nieuw</option>
+                <option value="GOED">Goed</option>
+                <option value="GEBRUIKT">Gebruikt</option>
+                <option value="BESCHADIGD">Beschadigd</option>
+              </select>
+            </div>
 
-              <div class="form-row">
-                <label for="edit-status">Status</label>
-                <select
-                  id="edit-status"
-                  [(ngModel)]="editedCopy.copy_status"
-                  name="editStatus"
-                  required
-                >
-                  <option value="BESCHIKBAAR">Beschikbaar</option>
-                  <option value="UITGELEEND">Uitgeleend</option>
-                  <option value="ONTBREKEND">Ontbrekend</option>
-                </select>
-              </div>
+            <div class="form-row">
+              <label for="edit-status">Status</label>
+              <select id="edit-status" [(ngModel)]="editedCopy.copy_status" name="editStatus" required>
+                <option value="BESCHIKBAAR">Beschikbaar</option>
+                <option value="UITGELEEND">Uitgeleend</option>
+                <option value="ONTBREKEND">Ontbrekend</option>
+              </select>
+            </div>
 
-              <button type="submit" class="save-button" [disabled]="editForm.invalid">
-                Opslaan
-              </button>
-              <button type="button" (click)="cancelEdit()">Annuleren</button>
-            </form>
-          </div>
+            <button type="submit" class="save-button" [disabled]="editForm.invalid">
+              Opslaan
+            </button>
+            <button type="button" (click)="cancelEdit()">Annuleren</button>
+          </form>
+        </div>
         }
 
         @if (!editingCopyId) {
-          @for (group of getGroupedCopies(); track group.campusId) {
-            <div
-              class="existing-campus-group"
-              [class.drag-over]="dropTargetCampusId === group.campusId"
-              [class.empty-group]="group.copies.length === 0"
-              (dragover)="onDragOver($event, group.campusId)"
-              (dragleave)="onDragLeave($event, group.campusId)"
-              (drop)="onDragDrop($event, group.campusId)"
-            >
-              <div class="existing-campus-group-header">
-                <span class="campus-group-title">{{ group.campusName }}</span>
-                <span class="campus-group-count"
-                  >{{ group.copies.length }}
-                  {{ group.copies.length === 1 ? 'exemplaar' : 'exemplaren' }}</span
-                >
-              </div>
-              @if (group.copies.length > 0) {
-                <table class="copies-table">
-                  <thead>
-                    <tr>
-                      <th class="drag-col"></th>
-                      <th>Conditie</th>
-                      <th>Status</th>
-                      <th>Barcode</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (copy of group.copies; track copy.id) {
-                      <tr
-                        draggable="true"
-                        [class.dragging]="draggedCopyId === copy.id"
-                        (dragstart)="onDragStart($event, copy.id)"
-                        (dragend)="onDragEnd()"
-                      >
-                        <td class="drag-handle" title="Sleep naar andere campus">
-                          <span class="drag-icon">&#x2807;</span>
-                        </td>
-                        <td>{{ copy.condition }}</td>
-                        <td>{{ copy.copy_status }}</td>
-                        <td>{{ copy.barcode }}</td>
-                        <td class="copy-actions">
-                          <button
-                            type="button"
-                            (click)="
+        @for (group of getGroupedCopies(); track group.campusId) {
+        <div class="existing-campus-group" [class.drag-over]="dropTargetCampusId === group.campusId"
+          [class.empty-group]="group.copies.length === 0" (dragover)="onDragOver($event, group.campusId)"
+          (dragleave)="onDragLeave($event, group.campusId)" (drop)="onDragDrop($event, group.campusId)">
+          <div class="existing-campus-group-header">
+            <span class="campus-group-title">{{ group.campusName }}</span>
+            <span class="campus-group-count">{{ group.copies.length }}
+              {{ group.copies.length === 1 ? 'exemplaar' : 'exemplaren' }}</span>
+          </div>
+          @if (group.copies.length > 0) {
+          <table class="copies-table">
+            <thead>
+              <tr>
+                <th class="drag-col"></th>
+                <th>Conditie</th>
+                <th>Status</th>
+                <th>Barcode</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (copy of group.copies; track copy.id) {
+              <tr draggable="true" [class.dragging]="draggedCopyId === copy.id"
+                (dragstart)="onDragStart($event, copy.id)" (dragend)="onDragEnd()">
+                <td class="drag-handle" title="Sleep naar andere campus">
+                  <span class="drag-icon">&#x2807;</span>
+                </td>
+                <td>{{ copy.condition }}</td>
+                <td>{{ copy.copy_status }}</td>
+                <td>{{ copy.barcode }}</td>
+                <td class="copy-actions">
+                  <button type="button" (click)="
                               router.navigate(['/books', book!.id, 'barcodes'], {
                                 queryParams: { preselect: copy.id },
                               })
-                            "
-                          >
-                            Barcode
-                          </button>
-                          <button type="button" class="EditButton" (click)="startEdit(copy)">
-                            Wijzigen
-                          </button>
-                          <button type="button" class="DeleteButton" (click)="showDeleteConfirmation(copy.id)">
-                            Verwijderen
-                          </button>
-                          @if (copy.copy_status === 'UITGELEEND' && DeleteConfirmation) {
-                            <app-pop-up [message]="'U gaat een exemplaar verwijderen dat momenteel uitgeleend is. Weet u zeker dat u dit exemplaar wilt verwijderen?'"
-                              [actions]="[
-                              { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-                              { label: 'Verwijderen', type: 'danger', value: 'confirm' }
-                            ]" (actionClicked)="deleteCopy($event, copy.id)" />
-                          }
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              } @else {
-                <p class="empty-group-hint">Geen exemplaren toegewezen</p>
+                            ">
+                    Barcode
+                  </button>
+                  <button type="button" class="EditButton" (click)="startEdit(copy)">
+                    Wijzigen
+                  </button>
+                  <button type="button" class="DeleteButton" (click)="showDeleteConfirmation(copy.id)">
+                    Verwijderen
+                  </button>
+                </td>
+              </tr>
               }
-            </div>
+            </tbody>
+          </table>
+          } @else {
+          <p class="empty-group-hint">Geen exemplaren toegewezen</p>
           }
+        </div>
+        }
         }
 
         @if (!addingCopy && !editingCopyId) {
-          <button (click)="showAddCopyForm()">Exemplaren toevoegen</button>
+        <button (click)="showAddCopyForm()">Exemplaren toevoegen</button>
         }
 
         @if (addingCopy && !editingCopyId) {
-          <section class="add-copy">
-            <h4>Exemplaren toevoegen ({{ getTotalCopyCount() }})</h4>
+        <section class="add-copy">
+          <h4>Exemplaren toevoegen ({{ getTotalCopyCount() }})</h4>
 
-            <div class="copy-form">
-              @for (group of campusGroups; track $index) {
-                <app-campus-copy-group [group]="group" [campuses]="school?.campuses ?? []" />
-              }
+          <div class="copy-form">
+            @for (group of campusGroups; track $index) {
+            <app-campus-copy-group [group]="group" [campuses]="school?.campuses ?? []" />
+            }
 
-              @if (copyError) {
-                <p class="warning">Voer een conditie en status in voor alle exemplaren.</p>
-              }
+            @if (copyError) {
+            <p class="warning">Voer een conditie en status in voor alle exemplaren.</p>
+            }
 
-              <button type="button" class="add-button" (click)="addCopies()">
-                Toevoegen ({{ getTotalCopyCount() }})
-              </button>
-              <button type="button" (click)="cancelAddCopy()">Annuleren</button>
-            </div>
-          </section>
+            <button type="button" class="add-button" (click)="addCopies()">
+              Toevoegen ({{ getTotalCopyCount() }})
+            </button>
+            <button type="button" (click)="cancelAddCopy()">Annuleren</button>
+          </div>
+        </section>
         }
       </section>
     </div>

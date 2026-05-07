@@ -359,13 +359,11 @@ export class BookDetailPage implements OnInit {
       next: (isFeatured) => {
         if (isFeatured) {
           this.showUnableToDelete.set(true);
-          this.cdr.detectChanges();
         } else {
           this.readingListService.checkIfItemIsInReadingList(id).subscribe({
             next: (isInList) => {
               if (isInList) {
                 this.showDeleteConfirmation.set(true);
-                this.cdr.detectChanges();
               } else {
                 this.checkIfInCollection();
               }
@@ -390,7 +388,6 @@ export class BookDetailPage implements OnInit {
         if (isInCollection) {
           this.showDeleteConfirmationForCollections.set(true);
           this.showDeleteConfirmation.set(false);
-          this.cdr.detectChanges();
         } else {
           this.confirmDelete();
         }
@@ -428,6 +425,7 @@ export class BookDetailPage implements OnInit {
 
   closeNotification() {
     this.bookHasCopyError = false;
+    this.deleteError = false;
     this.cdr.detectChanges();
   }
 
@@ -457,5 +455,23 @@ export class BookDetailPage implements OnInit {
   onReviewCancelled(): void {
     this.reviewServerError = '';
     this.showReviewForm = false;
+  }
+
+  handleReadingListPopUp(action: string) {
+    if (action == "cancel") {
+      this.cancelDelete();
+    }
+    else {
+      this.checkIfInCollection();
+    }
+  }
+
+  handleCollectionPopUp(action: string) {
+    if (action == "cancel") {
+      this.cancelDelete();
+    }
+    else {
+      this.confirmDelete();
+    }
   }
 }

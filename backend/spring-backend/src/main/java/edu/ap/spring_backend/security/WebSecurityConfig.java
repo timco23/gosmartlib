@@ -92,8 +92,12 @@ public class WebSecurityConfig {
                 .requestMatchers("/favorites/**", "/profile/**", "/reviews/**")
                 .hasAnyAuthority(ALL_USERS)
 
+                //Reading list access for all users
+                .requestMatchers(HttpMethod.GET, "/lists/{id}")
+                .hasAnyAuthority(ALL_USERS)
+
                 // TEACHER
-                .requestMatchers("/reading-lists/**", "/lists/**")
+                .requestMatchers("/lists/**")
                 .hasAnyAuthority(TEACHER_PLUS)
 
                 // BIBLIOTHEEKBEHEERDER

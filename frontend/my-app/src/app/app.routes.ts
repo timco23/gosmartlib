@@ -53,7 +53,7 @@ export const routes: Routes = [
   // LEERKRACHT +
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
-  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
 
   // BIBLIOTHEEKBEHEERDER +

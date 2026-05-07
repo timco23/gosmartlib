@@ -82,7 +82,7 @@
           <div class="chip-row">
             <span class="chip">
               Leesniveau: {{ readingLevelName || '—' }}
-              @if (readingLevelDescription) {
+              @if (readingLevelDescription && authService.atLeastHasRole(role.LEERKRACHT)) {
                 <span class="tooltip-anchor">
                   <span class="info-icon">i</span>
                   <span class="tooltip-box">{{ readingLevelDescription }}</span>
@@ -249,7 +249,7 @@
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
           { label: 'Verwijderen', type: 'danger', value: 'confirm' },
         ]"
-        (actionClicked)="cancelDelete()"
+        (actionClicked)="handleReadingListPopUp($event)"
       />
     </div>
   }
@@ -264,7 +264,7 @@
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
           { label: 'Verwijderen', type: 'danger', value: 'confirm' },
         ]"
-        (actionClicked)="cancelDelete()"
+        (actionClicked)="handleCollectionPopUp($event)"
       />
     </div>
   }
@@ -275,7 +275,7 @@
         title="Boek verwijderen mislukt"
         message="Kan boek niet verwijderen omdat deze momenteel door de admin uitgelicht wordt in een collectie."
         [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
-        (actionClicked)="closeNotification()"
+        (actionClicked)="cancelDelete()"
       />
     </div>
   }

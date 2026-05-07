@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -42,6 +43,8 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "review", cascade = CascadeType.ALL,  orphanRemoval = true)
+    private List<ReviewReport> reports;
 
     @Column(nullable = false)
     private int reportCount = 0;

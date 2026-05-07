@@ -98,6 +98,7 @@ export class UpdateBookPage implements OnInit {
   copies: SchoolItemCopy[] = [];
   school: School | null = null;
   isFeatured: boolean = false;
+  copyToBeDeleted: number | null = null;
 
   // Add copy state
   addingCopy: boolean = false;
@@ -447,32 +448,32 @@ export class UpdateBookPage implements OnInit {
   }
 
   showDeleteConfirmation(copyId: any) {
-    this.api.getCopyById(copyId).subscribe((copy) => {
-      if (copy.copy_status === 'UITGELEEND') {
-        this.DeleteConfirmation = true;
-      } else {
-        this.deleteCopy('confirm', copyId);
-      }
-    });
+    const copy = this.copies.find(c => c.id === copyId);
+    if (!copy) return;
+
+    this.copyToBeDeleted = copyId;
+    if (copy.copy_status === 'UITGELEEND') {
+      this.DeleteConfirmation = true;
+      this.cdr.detectChanges();
+    } else {
+      this.deleteCopy('confirm');
+    }
   }
 
-  deleteCopy(value: string, copyId: any) {
+  deleteCopy(value: string) {
     if (value === 'confirm') {
       this.deleteError = null;
-
-      this.api.getCopyById(copyId).subscribe((copy) => {
-        this.api.deleteCopy(copyId!).subscribe({
+        this.api.deleteCopy(this.copyToBeDeleted!).subscribe({
           next: () => {
             this.loadCopies();
-            console.log('deleted copy with id: ' + copyId);
+            console.log('deleted copy with id: ' + this.copyToBeDeleted);
           },
           error: (err) => {
-            console.log('error deleting copy with id: ' + copyId, err);
+            console.log('error deleting copy with id: ' + this.copyToBeDeleted, err);
             this.deleteError = err.error || 'Er is een fout opgetreden bij het verwijderen.';
             this.cdr.detectChanges();
           },
         });
-      });
     }
     this.DeleteConfirmation = false;
   }

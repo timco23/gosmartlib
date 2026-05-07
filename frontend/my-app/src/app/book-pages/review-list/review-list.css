@@ -81,8 +81,31 @@
   transition:
     background var(--transition-fast),
     border-color var(--transition-fast);
+  margin-bottom: 1.5rem;
 }
 .delete-all-btn:hover {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
+}
+
+.delete-btn {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-border);
+  padding: 0.375rem 0.875rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.delete-btn:hover {
   background: var(--color-danger-bg);
   border-color: var(--color-danger);
 }

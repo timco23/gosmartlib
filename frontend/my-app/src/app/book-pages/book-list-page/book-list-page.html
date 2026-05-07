@@ -245,7 +245,7 @@
                 }
               </div>
 
-              <div class="book-bottom" [class.has-reading-list]="authService.atLeastHasRole(role.LEERKRACHT)">
+              <div class="book-bottom has-reading-list" >
                 <div class="book-score">
                   <app-star-display [score]="book.reviewScore" />
                   @if (book.reviewScore > 0) {

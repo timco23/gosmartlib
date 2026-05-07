@@ -204,7 +204,6 @@ public class BookCoverCacheService {
         if (isbn != null) {
             urls.add("https://covers.openlibrary.org/b/isbn/" + isbn + "-L.jpg?default=false");
             urls.add("https://covers.openlibrary.org/b/isbn/" + isbn + "-M.jpg?default=false");
-            urls.add("https://books.google.com/books/content?vid=ISBN" + isbn + "&printsec=frontcover&img=1&zoom=1&source=gbs_api");
         }
 
         return new ArrayList<>(urls);

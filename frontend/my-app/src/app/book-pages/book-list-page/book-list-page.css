@@ -500,7 +500,7 @@
 }
 
 .book-bottom.has-reading-list .book-actions {
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .score-value {

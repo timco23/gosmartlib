@@ -1,7 +1,9 @@
 <body>
   @if (!loading) {
     <header>
-      <a class="back-link" [routerLink]="['/lists']">← Terug naar klasleeslijsten</a>
+      @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+        <a class="back-link" [routerLink]="['/lists']">← Terug naar klasleeslijsten</a>
+      }
       <h1 class="list-title">{{ readingList!.title }}</h1>
       <p class="list-creator">
         Gemaakt door {{ readingList!.userFirstName }} {{ readingList!.userLastName }}

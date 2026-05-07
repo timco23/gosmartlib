@@ -14,6 +14,7 @@ main {
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   transition: background var(--transition-base), border-color var(--transition-base);
+  width: 95%
 }
 
 .books-card h3 {
