@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProfanityFilterService {
+
+    private static final String[] MODERATION_CATEGORIES = {
+        "sexual", "hate_and_discrimination", "violent_crimes", "harassment", "selfharm"
+    };
 
     private final String moderationApiKey;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -32,14 +36,26 @@ public class ProfanityFilterService {
     }
 
     public boolean containsProfanity(String input) {
-        if (input == null) return false;
-        String text = input.trim();
-        if (text.isEmpty()) return false;
+        String text = normalizeInput(input);
+        if (text == null) return false;
 
         if (isBlockedByLocalList(text)) return true;
-        if (text.length() < MIN_INPUT_LENGTH) return false;
-        if (moderationApiKey == null || moderationApiKey.isBlank()) return false;
+        if (shouldSkipRemoteModeration(text)) return false;
 
+        return checkRemoteModeration(text);
+    }
+
+    private String normalizeInput(String input) {
+        if (input == null) return null;
+        String text = input.trim();
+        return text.isEmpty() ? null : text;
+    }
+
+    private boolean shouldSkipRemoteModeration(String text) {
+        return text.length() < MIN_INPUT_LENGTH || moderationApiKey == null || moderationApiKey.isBlank();
+    }
+
+    private boolean checkRemoteModeration(String text) {
         try {
             String payload = mapper.writeValueAsString(
                 java.util.Map.of("input", text, "model", "mistral-moderation-latest")
@@ -53,21 +69,35 @@ public class ProfanityFilterService {
                     .build();
 
             HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
-            if (res.statusCode() < 200 || res.statusCode() >= 300) return false;
+            if (!isSuccess(res)) return false;
 
-            JsonNode root = mapper.readTree(res.body());
-            JsonNode results = root.path("results");
-            if (results.isArray() && !results.isEmpty()) {
-                JsonNode scores = results.get(0).path("category_scores");
-                double threshold = 0.5;
-                for (String cat : new String[]{"sexual", "hate_and_discrimination", "violent_crimes", "harassment", "selfharm"}) {
-                    if (scores.path(cat).asDouble(0.0) >= threshold) return true;
-                }
-            }
+            return hasHighScore(res.body());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return false;
-        } catch (Exception e) {
+        } catch (IOException e) {
             return false;
         }
+    }
+
+     private boolean isSuccess(HttpResponse<?> res) {
+        return res.statusCode() >= 200 && res.statusCode() < 300;
+    }
+
+    private boolean hasHighScore(String body) throws IOException {
+        JsonNode root = mapper.readTree(body);
+        JsonNode results = root.path("results");
+        if (!results.isArray() || results.isEmpty()) return false;
+
+        JsonNode scores = results.get(0).path("category_scores");
+        return exceedsThreshold(scores, 0.5);
+    }
+
+    private boolean exceedsThreshold(JsonNode scores, double threshold) {
+        for (String cat : MODERATION_CATEGORIES) {
+            if (scores.path(cat).asDouble(0.0) >= threshold) return true;
+        }
+        return false;
     }
 
     private boolean isBlockedByLocalList(String text) {

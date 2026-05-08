@@ -7,8 +7,9 @@ import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.exception.NoCoverAvailableException;
 import edu.ap.spring_backend.jpa.Item;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
-
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -167,7 +168,7 @@ public class BookCoverCacheService {
                 throw new IllegalStateException("Cover URL did not return image. content-type=" + contentType);
             }
 
-            String etag = "\"" + DigestUtils.md5DigestAsHex(body) + "\"";
+           String etag = strongEtag(body);
 
             return new CachedCover(
                     coverUrl,
@@ -176,8 +177,20 @@ public class BookCoverCacheService {
                     etag,
                     System.currentTimeMillis() + TTL_MS
             );
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Could not fetch cover from URL: " + coverUrl, e);
         } catch (Exception e) {
             throw new IllegalStateException("Could not fetch cover from URL: " + coverUrl, e);
+        }
+    }
+
+       private static String strongEtag(byte[] bytes) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return "\"" + HexFormat.of().formatHex(digest.digest(bytes)) + "\"";
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
         }
     }
 

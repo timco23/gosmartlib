@@ -98,8 +98,7 @@ class UserControllerTest extends BaseControllerTest {
         mockMvc.perform(delete("/user/favorites")
                         .param("email", "user@example.com")
                         .param("itemId", "1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Book removed")));
+                .andExpect(status().isNoContent());
     }
 
     @Test

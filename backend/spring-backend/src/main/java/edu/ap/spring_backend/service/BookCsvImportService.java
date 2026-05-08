@@ -52,7 +52,7 @@ public class BookCsvImportService {
 
     private static final int EXPECTED_COLUMN_COUNT = 8;
     private static final int MAX_ROW_COUNT = 1000;
-    private static final long MAX_FILE_SIZE_BYTES = 1024 * 1024; // 1 MB
+    private static final long MAX_FILE_SIZE_BYTES = 1024L * 1024; // 1 MB
 
     private static final String DEFAULT_LANGUAGE = "NEDERLANDS";
     private static final String DEFAULT_PUBLISHER = "Onbekend";

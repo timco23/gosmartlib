@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import edu.ap.spring_backend.dto.GenreDTO;
 import edu.ap.spring_backend.dto.GenreWithSubgenresDTO;
 import edu.ap.spring_backend.jpa.Genre;
 import edu.ap.spring_backend.service.GenreService;
@@ -31,13 +31,19 @@ public class GenreController {
     }
 
     @PostMapping
-    public ResponseEntity<Genre> addNewGenre(@RequestBody Genre newGenre) {
-        return ResponseEntity.ok(genreService.addGenre(newGenre));
+    public ResponseEntity<GenreDTO> addNewGenre(@RequestBody GenreDTO newGenre) {
+        Genre entity = new Genre();
+        entity.setName(newGenre.name());
+        Genre saved = genreService.addGenre(entity);
+        return ResponseEntity.ok(GenreDTO.from(saved));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Genre> updateGenre(@PathVariable Long id, @RequestBody Genre updatedGenre) {
-        return ResponseEntity.ok(genreService.updateGenre(id, updatedGenre));
+    public ResponseEntity<GenreDTO> updateGenre(@PathVariable Long id, @RequestBody GenreDTO updatedGenre) {
+        Genre entity = new Genre();
+        entity.setName(updatedGenre.name());
+        Genre saved = genreService.updateGenre(id, entity);
+        return ResponseEntity.ok(GenreDTO.from(saved));
     }
 
     @DeleteMapping("/{id}")

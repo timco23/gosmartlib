@@ -17,9 +17,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    private static final String[] ALL_USERS = {"LEERLING", "LEERKRACHT", "BIBLIOTHEEKBEHEERDER", "ADMIN"};
-    private static final String[] TEACHER_PLUS = {"LEERKRACHT", "BIBLIOTHEEKBEHEERDER", "ADMIN"};
-    private static final String[] LIBRARIAN_PLUS = {"BIBLIOTHEEKBEHEERDER", "ADMIN"};
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_LIBRARIAN = "BIBLIOTHEEKBEHEERDER";
+    private static final String ROLE_TEACHER = "LEERKRACHT";
+    private static final String ROLE_STUDENT = "LEERLING";
+
+    private static final String[] ALL_USERS = {ROLE_STUDENT, ROLE_TEACHER, ROLE_LIBRARIAN, ROLE_ADMIN};
+    private static final String[] TEACHER_PLUS = {ROLE_TEACHER, ROLE_LIBRARIAN, ROLE_ADMIN};
+    private static final String[] LIBRARIAN_PLUS = {ROLE_LIBRARIAN, ROLE_ADMIN};
+
+    private static final String PATH_BOOKS_ALL = "/books/**";
+    private static final String PATH_ITEMS_ALL = "/items/**";
+    private static final String PATH_TAGS_ALL = "/tags/**";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -31,7 +40,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
+            .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -56,8 +65,8 @@ public class WebSecurityConfig {
                 ).hasAnyAuthority(ALL_USERS)
 
                 .requestMatchers(HttpMethod.GET,
-                    "/books/**",
-                    "/items/**",
+                    PATH_BOOKS_ALL,
+                    PATH_ITEMS_ALL,
                     "/favorites/**",
                     "/profile/**",
                     "/reviews/**",
@@ -65,7 +74,7 @@ public class WebSecurityConfig {
                     "/subgenres/**",
                     "/reading-levels/**",
                     "/didactic-categories/**",
-                    "/tags/**",
+                    PATH_TAGS_ALL,
                     "/schools/search",
                     "/schools/search/**",
                     "/lendingHistory**",  
@@ -105,18 +114,18 @@ public class WebSecurityConfig {
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.GET, "/schools/current", "/schools/users", "/user/school-users", "/user/profile/*")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.POST, "/books/**", "/items/**", "/tags/**")
+                .requestMatchers(HttpMethod.POST, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL)
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.PUT, "/books/**", "/items/**", "/tags/**", "/schools/current/settings", "/user/role")
+                .requestMatchers(HttpMethod.PUT, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL, "/schools/current/settings", "/user/role")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.PATCH, "/books/**", "/items/**", "/tags/**")
+                .requestMatchers(HttpMethod.PATCH, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL)
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.DELETE, "/books/**", "/items/**", "/tags/**")
+                .requestMatchers(HttpMethod.DELETE, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL)
                 .hasAnyAuthority(LIBRARIAN_PLUS)
 
                 // ADMIN
-                .requestMatchers("/schools/**", "/users/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/user/school").hasAuthority("ADMIN")
+                .requestMatchers("/schools/**", "/users/**").hasAuthority(ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PUT, "/user/school").hasAuthority(ROLE_ADMIN)
 
                 .anyRequest().authenticated()
             )

@@ -39,46 +39,57 @@ public class ReviewService {
         this.reviewReportRepository = reviewReportRepository;
     }
 
-    /**
-     * Resolves a user based on different identifier formats.
-     * @param identifier email, username or ID
-     * @return resolved User
-     * @throws ResponseStatusException if user is not found
-     */
     private User resolveUser(String identifier) {
+        validateIdentifier(identifier);
+
+        Set<String> candidates = buildCandidates(identifier);
+
+        User byEmailOrSs = findByEmailOrSmartschool(candidates);
+        if (byEmailOrSs != null) return byEmailOrSs;
+
+        User byId = findByIdCandidate(candidates);
+        if (byId != null) return byId;
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
+    }
+
+    private void validateIdentifier(String identifier) {
         if (identifier == null || identifier.isBlank()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
         }
+    }
 
+    private Set<String> buildCandidates(String identifier) {
         Set<String> candidates = new LinkedHashSet<>();
         String raw = identifier.trim();
-        candidates.add(raw);
-        candidates.add(raw.toLowerCase(Locale.ROOT));
 
-        if (raw.contains("|")) {
-            String part = raw.substring(raw.lastIndexOf('|') + 1).trim();
-            if (!part.isBlank()) {
-                candidates.add(part);
-                candidates.add(part.toLowerCase(Locale.ROOT));
-            }
-        }
+        addCandidate(candidates, raw);
+        addPartAfterLast(candidates, raw, '|');
+        addPartAfterLast(candidates, raw, '\\');
+        addLocalPart(candidates, raw);
 
-        if (raw.contains("\\")) {
-            String part = raw.substring(raw.lastIndexOf('\\') + 1).trim();
-            if (!part.isBlank()) {
-                candidates.add(part);
-                candidates.add(part.toLowerCase(Locale.ROOT));
-            }
-        }
+        return candidates;
+    }
 
-        if (raw.contains("@")) {
-            String localPart = raw.substring(0, raw.indexOf('@')).trim();
-            if (!localPart.isBlank()) {
-                candidates.add(localPart);
-                candidates.add(localPart.toLowerCase(Locale.ROOT));
-            }
-        }
+    private void addCandidate(Set<String> candidates, String value) {
+        if (value == null || value.isBlank()) return;
+        candidates.add(value);
+        candidates.add(value.toLowerCase(Locale.ROOT));
+    }
 
+    private void addPartAfterLast(Set<String> candidates, String raw, char separator) {
+        int idx = raw.lastIndexOf(separator);
+        if (idx < 0) return;
+        addCandidate(candidates, raw.substring(idx + 1).trim());
+    }
+
+    private void addLocalPart(Set<String> candidates, String raw) {
+        int at = raw.indexOf('@');
+        if (at < 0) return;
+        addCandidate(candidates, raw.substring(0, at).trim());
+    }
+
+    private User findByEmailOrSmartschool(Set<String> candidates) {
         for (String c : candidates) {
             var byEmail = userRepository.findByEmailIgnoreCase(c);
             if (byEmail.isPresent()) return byEmail.get();
@@ -86,15 +97,17 @@ public class ReviewService {
             var bySs = userRepository.findBySmartschoolUsernameIgnoreCase(c);
             if (bySs.isPresent()) return bySs.get();
         }
+        return null;
+    }
 
+    private User findByIdCandidate(Set<String> candidates) {
         for (String c : candidates) {
             if (c.matches("\\d+")) {
                 var byId = userRepository.findById(Integer.parseInt(c));
                 if (byId.isPresent()) return byId.get();
             }
         }
-
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
+        return null;
     }
 
     /**

@@ -76,7 +76,7 @@ class GenreControllerTest extends BaseControllerTest {
     @Test
     void deleteGenre_shouldReturnOk() throws Exception {
         mockMvc.perform(delete("/genres/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Mockito.verify(genreService).deleteGenre(1L);
     }

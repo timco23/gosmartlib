@@ -43,8 +43,9 @@ public class SubgenreController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Subgenre> updateSubgenre(@PathVariable Long id, @RequestBody Subgenre updatedSubgenre) {
-        return ResponseEntity.ok(subgenreService.updateSubgenre(id, updatedSubgenre));
+    public ResponseEntity<SubgenreDTO> updateSubgenre(@PathVariable Long id, @RequestBody SubgenreDTO updatedSubgenre) {
+        Subgenre updated = subgenreService.updateSubgenre(id, updatedSubgenre.toEntity());
+        return ResponseEntity.ok(SubgenreDTO.from(updated));
     }
 
     @DeleteMapping("/{id}")

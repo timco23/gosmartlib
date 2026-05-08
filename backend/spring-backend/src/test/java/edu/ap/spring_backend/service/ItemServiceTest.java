@@ -10,12 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.RecordComponent;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -339,8 +337,6 @@ class ItemServiceTest {
         assertThrows(EntityNotFoundException.class, () -> itemService.getItemById(1L));
     }
 
-    // ---------------- getItemByTitle ----------------
-
     @Test
     void givenExistingTitle_whenGetItemByTitle_thenReturnDTO() {
         when(itemRepository.findByTitle("Dune")).thenReturn(Optional.of(testItem));
@@ -355,10 +351,8 @@ class ItemServiceTest {
     void givenNonExistingTitle_whenGetItemByTitle_thenReturnNull() {
         when(itemRepository.findByTitle("Unknown")).thenReturn(Optional.empty());
 
-        assertNull(itemService.getItemByTitle("Unknown"));
+        assertThrows(EntityNotFoundException.class, () -> itemService.getItemByTitle("Unknown"));
     }
-
-    // ---------------- getFeaturedItems ----------------
 
     @Test
     void givenSchoolId_whenGetFeaturedItems_thenReturnList() {
@@ -369,8 +363,6 @@ class ItemServiceTest {
         assertEquals(1, result.size());
         assertEquals("Dune", result.get(0).title());
     }
-
-    // ---------------- get10LatestItems ----------------
 
     @Test
     void givenCopies_whenGet10LatestItems_thenReturnUniqueItems() {
@@ -396,8 +388,6 @@ class ItemServiceTest {
         assertEquals(Set.of("Dune", "Neuromancer"),
                 result.stream().map(ItemDTO::title).collect(Collectors.toSet()));
     }
-
-    // ---------------- helpers ----------------
 
     private CreateItemDTO createItemDto(Map<String, Object> overrides) {
         Map<String, Object> values = new HashMap<>();

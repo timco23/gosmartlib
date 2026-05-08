@@ -27,4 +27,22 @@ class ProfanityFilterServiceTest {
         assertFalse(service.containsProfanity("   "));
         assertFalse(service.containsProfanity("ok"));
     }
+
+    @Test
+    void containsProfanity_blocklistedWord_returnsTrue() {
+        ProfanityFilterService service = new ProfanityFilterService("", "badword,foo");
+        assertTrue(service.containsProfanity("This contains badword"));
+    }
+
+    @Test
+    void containsProfanity_shortInput_returnsFalse() {
+        ProfanityFilterService service = new ProfanityFilterService("", "badword");
+        assertFalse(service.containsProfanity("hi"));
+    }
+
+    @Test
+    void containsProfanity_null_returnsFalse() {
+        ProfanityFilterService service = new ProfanityFilterService("", "badword");
+        assertFalse(service.containsProfanity(null));
+    }
 }

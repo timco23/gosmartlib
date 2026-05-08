@@ -3,9 +3,7 @@ package edu.ap.spring_backend.exception;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-
 import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class GlobalExceptionHandlerTest {
@@ -46,7 +44,7 @@ class GlobalExceptionHandlerTest {
     void handleNotFound_returns404() {
         var response = handler.handleNotFound(new EntityNotFoundException());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
+        assertEquals("Entity not found", response.getBody());
     }
 
     @Test

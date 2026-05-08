@@ -1,12 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  effect,
-  OnInit,
-  inject,
-  Renderer2,
-  signal,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, Renderer2, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import {
@@ -34,12 +26,21 @@ import { ReviewList } from '../review-list/review-list';
 import { ReviewForm } from '../review-form/review-form';
 import { ReadingListService } from '../../services/readingList-service';
 import { CollectionService } from '../../services/collection-service';
-import { PopUpComponent } from "../../widgets/pop-up/pop-up.component";
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
+import { RelatedBooks } from '../../related-books/related-books';
 
 @Component({
   selector: 'app-book-detail-page',
-  imports: [RouterLink, CommonModule, ReviewForm, ReviewList, PopUpComponent, StarDisplayComponent],
+  imports: [
+    RouterLink,
+    CommonModule,
+    ReviewForm,
+    ReviewList,
+    PopUpComponent,
+    StarDisplayComponent,
+    RelatedBooks,
+  ],
   templateUrl: './book-detail-page.html',
   styleUrl: './book-detail-page.css',
 })
@@ -458,19 +459,17 @@ export class BookDetailPage implements OnInit {
   }
 
   handleReadingListPopUp(action: string) {
-    if (action == "cancel") {
+    if (action == 'cancel') {
       this.cancelDelete();
-    }
-    else {
+    } else {
       this.checkIfInCollection();
     }
   }
 
   handleCollectionPopUp(action: string) {
-    if (action == "cancel") {
+    if (action == 'cancel') {
       this.cancelDelete();
-    }
-    else {
+    } else {
       this.confirmDelete();
     }
   }
