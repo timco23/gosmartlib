@@ -67,7 +67,9 @@ public class ItemService {
         .and(withDidactic(request.didactic()))
         .and(withDidacticCategories(Boolean.TRUE.equals(request.didactic()) ? request.didacticCategoryIds() : null));
 
-        if(request.schoolSpecificBooks()) {
+        if (request.campusId() != null) {
+            spec = spec.and(withCampusId(request.campusId()));
+        } else if (request.schoolSpecificBooks()) {
             spec = spec.and(withSchoolId(request.schoolId()));
         }
         Sort sort = createSort(request.sortBy(), request.sortDirection());

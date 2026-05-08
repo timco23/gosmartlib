@@ -122,6 +122,7 @@ public class ItemController {
             @RequestParam(required = false) List<Long> subgenreIds,
             @RequestParam(required = false) List<Long> didacticCategoryIds,
             @RequestParam(required = false) Boolean didactic,
+            @RequestParam(required = false) Long campusId,
             Authentication authentication) {
 
         boolean isStudent = authentication != null && authentication.getAuthorities().stream()
@@ -137,7 +138,7 @@ public class ItemController {
 
         ItemRequestDTO request = new ItemRequestDTO(
                 page, size, sortBy, sortDirection, search, languages, minPages, maxPages, minScore,
-                tagIds, genreIds, subgenreIds, didacticCategoryIds, didactic, schoolId, schoolSpecificBooks);
+                tagIds, genreIds, subgenreIds, didacticCategoryIds, didactic, schoolId, schoolSpecificBooks, campusId);
 
         return ResponseEntity.ok(itemService.getFilteredItems(request));
     }

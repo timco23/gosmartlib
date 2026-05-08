@@ -134,4 +134,13 @@ public static Specification<Item> withMinScore(Double minScore) {
             return cb.equal(copies.get("school").get("id"), schoolId);
         };
     }
+
+    public static Specification<Item> withCampusId(Long campusId) {
+        return (root, query, cb) -> {
+            if (campusId == null) return null;
+            Join<Item, SchoolItemCopy> copies = root.join("copies");
+            query.distinct(true);
+            return cb.equal(copies.get("campus").get("id"), campusId);
+        };
+    }
 }
