@@ -14,8 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 import edu.ap.spring_backend.jpa.Role;
 import edu.ap.spring_backend.service.BookCoverCacheService;
-import java.nio.charset.StandardCharsets;
-import org.springframework.util.DigestUtils;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import java.time.Duration;
@@ -52,9 +53,18 @@ public class ItemController {
     static {
         try (InputStream is = new ClassPathResource("placeholderCover/cover.jpg").getInputStream()) {
             FALLBACK_COVER = StreamUtils.copyToByteArray(is);
-            FALLBACK_COVER_ETAG = "\"" + DigestUtils.md5DigestAsHex(FALLBACK_COVER) + "\"";
+            FALLBACK_COVER_ETAG = strongEtag(FALLBACK_COVER);
         } catch (IOException e) {
             throw new RuntimeException("Could not load fallback book cover", e);
+        }
+    }
+
+    private static String strongEtag(byte[] bytes) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return "\"" + HexFormat.of().formatHex(digest.digest(bytes)) + "\"";
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
         }
     }
 
@@ -199,15 +209,16 @@ public class ItemController {
                     .contentType(MediaType.parseMediaType(cover.contentType()))
                     .body(cover.bytes());
 
-        } catch (Exception ex) {
+       } catch (Exception ex) {
             if (ifNoneMatch != null && ifNoneMatch.contains(FALLBACK_COVER_ETAG)) {
-                return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                return ResponseEntity.status(HttpStatus.OK)
                         .cacheControl(cacheControl)
                         .eTag(FALLBACK_COVER_ETAG)
-                        .build();
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(FALLBACK_COVER);
             }
 
-            return ResponseEntity.ok()
+            return ResponseEntity.status(HttpStatus.OK)
                     .cacheControl(cacheControl)
                     .eTag(FALLBACK_COVER_ETAG)
                     .contentType(MediaType.IMAGE_JPEG)

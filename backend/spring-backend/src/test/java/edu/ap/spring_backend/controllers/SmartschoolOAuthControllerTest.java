@@ -16,18 +16,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
-
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
 import java.lang.reflect.Field;
 import java.util.Map;
+import edu.ap.spring_backend.service.ClassService;
 import java.util.Optional;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.mockito.ArgumentCaptor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 
-@WebMvcTest(SmartschoolOAuthController.class)
+@WebMvcTest(
+        controllers = SmartschoolOAuthController.class,
+        excludeAutoConfiguration = {
+                SecurityAutoConfiguration.class,
+                SecurityFilterAutoConfiguration.class,
+                OAuth2ClientAutoConfiguration.class,
+                OAuth2ClientWebSecurityAutoConfiguration.class,
+                OAuth2ResourceServerAutoConfiguration.class,
+                Saml2RelyingPartyAutoConfiguration.class
+        }
+)
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = {
         "smartschool.client-id=test-client-id",
@@ -47,6 +65,9 @@ class SmartschoolOAuthControllerTest extends BaseControllerTest {
     @MockBean
     private SchoolRepository schoolRepository;
 
+    @MockBean
+    private ClassService classService;
+
     @Autowired
     private SmartschoolOAuthController controller;
 
@@ -58,6 +79,8 @@ class SmartschoolOAuthControllerTest extends BaseControllerTest {
         Field field = SmartschoolOAuthController.class.getDeclaredField("restTemplate");
         field.setAccessible(true);
         field.set(controller, mockRestTemplate);
+
+        Mockito.lenient().when(jwtService.generateToken(any())).thenReturn("fake-jwt");
     }
 
     private User buildUser(Integer id, String email, Role role) throws Exception {
@@ -69,8 +92,6 @@ class SmartschoolOAuthControllerTest extends BaseControllerTest {
         idField.set(user, id);
         return user;
     }
-
-    // /oauth/smartschool/login
 
     @Test
     void login_shouldRedirectToSmartschool() throws Exception {
@@ -204,5 +225,96 @@ class SmartschoolOAuthControllerTest extends BaseControllerTest {
                         .cookie(new jakarta.servlet.http.Cookie("oauth_state", "matchingstate")))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", containsString("/oauth-callback?token=")));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void callback_newUser_emailInUse_shouldUseFallbackEmail() throws Exception {
+        when(mockRestTemplate.postForEntity(anyString(), any(), any(Class.class)))
+                .thenReturn(new ResponseEntity<>(Map.of("access_token", "fake-token"), HttpStatus.OK));
+
+        SmartschoolUserInfo info = new SmartschoolUserInfo();
+        info.setUsername("jan.peeters");
+        info.setName("Jan");
+        info.setSurname("Peeters");
+        info.setEmail("jan.peeters@school.be");
+        info.setBasisrol("leerling");
+        when(mockRestTemplate.getForObject(anyString(), eq(SmartschoolUserInfo.class))).thenReturn(info);
+
+        when(userRepository.findBySmartschoolUsername("jan.peeters")).thenReturn(Optional.empty());
+        when(userRepository.existsByEmail("jan.peeters@school.be")).thenReturn(true);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(get("/oauth/smartschool/callback")
+                        .param("code", "validcode")
+                        .param("state", "matchingstate")
+                        .cookie(new jakarta.servlet.http.Cookie("oauth_state", "matchingstate")))
+                .andExpect(status().is3xxRedirection());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals("jan.peeters@smartschool.local", captor.getValue().getEmail());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void callback_existingUser_adminRole_shouldNotBeOverwritten() throws Exception {
+        when(mockRestTemplate.postForEntity(anyString(), any(), any(Class.class)))
+                .thenReturn(new ResponseEntity<>(Map.of("access_token", "fake-token"), HttpStatus.OK));
+
+        SmartschoolUserInfo info = new SmartschoolUserInfo();
+        info.setUsername("admin.user");
+        info.setName("Admin");
+        info.setSurname("User");
+        info.setEmail("admin@school.be");
+        info.setBasisrol("leerling");
+        when(mockRestTemplate.getForObject(anyString(), eq(SmartschoolUserInfo.class))).thenReturn(info);
+
+        User existing = buildUser(10, "admin@school.be", Role.ADMIN);
+        existing.setSmartschoolUsername("admin.user");
+        when(userRepository.findBySmartschoolUsername("admin.user")).thenReturn(Optional.of(existing));
+        when(userRepository.existsByEmailAndIdNot("admin@school.be", 10)).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(get("/oauth/smartschool/callback")
+                        .param("code", "validcode")
+                        .param("state", "matchingstate")
+                        .cookie(new jakarta.servlet.http.Cookie("oauth_state", "matchingstate")))
+                .andExpect(status().is3xxRedirection());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals(Role.ADMIN, captor.getValue().getRole());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void callback_existingUser_emailInUse_shouldNotUpdateEmail() throws Exception {
+        when(mockRestTemplate.postForEntity(anyString(), any(), any(Class.class)))
+                .thenReturn(new ResponseEntity<>(Map.of("access_token", "fake-token"), HttpStatus.OK));
+
+        SmartschoolUserInfo info = new SmartschoolUserInfo();
+        info.setUsername("existing.user");
+        info.setName("Existing");
+        info.setSurname("User");
+        info.setEmail("new@school.be");
+        info.setBasisrol("leerkracht");
+        when(mockRestTemplate.getForObject(anyString(), eq(SmartschoolUserInfo.class))).thenReturn(info);
+
+        User existing = buildUser(11, "old@school.be", Role.LEERKRACHT);
+        existing.setSmartschoolUsername("existing.user");
+        when(userRepository.findBySmartschoolUsername("existing.user")).thenReturn(Optional.of(existing));
+        when(userRepository.existsByEmailAndIdNot("new@school.be", 11)).thenReturn(true);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        mockMvc.perform(get("/oauth/smartschool/callback")
+                        .param("code", "validcode")
+                        .param("state", "matchingstate")
+                        .cookie(new jakarta.servlet.http.Cookie("oauth_state", "matchingstate")))
+                .andExpect(status().is3xxRedirection());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals("old@school.be", captor.getValue().getEmail());
     }
 }

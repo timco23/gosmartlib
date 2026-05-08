@@ -6,10 +6,9 @@ import edu.ap.spring_backend.jpa.DidacticCategory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -88,10 +87,10 @@ class DidacticCategoryServiceTest {
 
         DidacticCategoryDTO dto = new DidacticCategoryDTO(99L, "Onbekend");
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> service.updateDidacticCategory(99L, dto));
 
-        assertEquals("DidacticCategory not found", ex.getMessage());
+        assertEquals("Entity not found", ex.getMessage());
         verify(repository, never()).save(any());
     }
 
@@ -109,10 +108,10 @@ class DidacticCategoryServiceTest {
     void deleteDidacticCategory_notFound_shouldThrow() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
                 () -> service.deleteDidacticCategory(99L));
 
-        assertEquals("DidacticCategory not found", ex.getMessage());
+        assertEquals("Entity not found", ex.getMessage());
         verify(repository, never()).delete(any());
     }
 }

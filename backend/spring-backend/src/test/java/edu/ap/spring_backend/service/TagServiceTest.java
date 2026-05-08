@@ -6,10 +6,10 @@ import edu.ap.spring_backend.jpa.Tag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class TagServiceTest {
@@ -47,7 +47,7 @@ class TagServiceTest {
     void update_whenNotFound_throws() {
         when(tagRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> service.update(1L, new TagDTO(null, "Fantasy")));
+        assertThrows(EntityNotFoundException.class, () -> service.update(1L, new TagDTO(null, "Fantasy")));
     }
 
     @Test
@@ -78,7 +78,7 @@ class TagServiceTest {
     void delete_whenNotFound_throws() {
         when(tagRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> service.delete(1L));
+        assertThrows(EntityNotFoundException.class, () -> service.delete(1L));
     }
 
     @Test

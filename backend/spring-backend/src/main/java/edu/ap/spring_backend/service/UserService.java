@@ -2,9 +2,7 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.UserResponse;
-
 import org.springframework.stereotype.Service;
-
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
@@ -105,39 +103,59 @@ public class UserService {
     public UserResponse updateUserRole(Integer requesterUserId, String targetUserEmail, String newRoleStr) {
         User requester = findUserById(requesterUserId);
         Role requesterRole = requester.getRole();
-        if (requesterRole != Role.BIBLIOTHEEKBEHEERDER && requesterRole != Role.ADMIN) {
-            throw new SecurityException("Insufficient permissions");
-        }
-        Role newRole;
-        try {
-            newRole = Role.valueOf(newRoleStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid role: " + newRoleStr);
-        }
+
+        ensureRequesterCanChangeRole(requesterRole);
+
+        Role newRole = parseRole(newRoleStr);
+
         User target = userRepository.findByEmail(targetUserEmail)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (requester.getId().equals(target.getId())) {
-            throw new SecurityException("Cannot change your own role");
-        }
+        ensureNotSelf(requester, target);
 
         if (requesterRole == Role.BIBLIOTHEEKBEHEERDER) {
-            if (target.getRole() == Role.ADMIN) {
-                throw new SecurityException("Bibliotheekbeheerder cannot change the role of an admin");
-            }
-            if (newRole == Role.ADMIN) {
-                throw new SecurityException("Bibliotheekbeheerder cannot assign ADMIN role");
-            }
-            Long requesterSchoolId = requester.getSchool() != null ? requester.getSchool().getId() : null;
-            Long targetSchoolId = target.getSchool() != null ? target.getSchool().getId() : null;
-            if (requesterSchoolId == null || !requesterSchoolId.equals(targetSchoolId)) {
-                throw new SecurityException("Can only update users from the same school");
-            }
+            enforceLibrarianConstraints(requester, target, newRole);
         }
 
         target.setRole(newRole);
         userRepository.save(target);
         return userMapper.toUserResponse(target);
+    }
+
+    private void ensureRequesterCanChangeRole(Role requesterRole) {
+        if (requesterRole != Role.BIBLIOTHEEKBEHEERDER && requesterRole != Role.ADMIN) {
+            throw new SecurityException("Insufficient permissions");
+        }
+    }
+
+    private Role parseRole(String newRoleStr) {
+        try {
+            return Role.valueOf(newRoleStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid role: " + newRoleStr);
+        }
+    }
+
+    private void ensureNotSelf(User requester, User target) {
+        if (requester.getId().equals(target.getId())) {
+            throw new SecurityException("Cannot change your own role");
+        }
+    }
+
+     private void enforceLibrarianConstraints(User requester, User target, Role newRole) {
+        if (target.getRole() == Role.ADMIN) {
+            throw new SecurityException("Bibliotheekbeheerder cannot change the role of an admin");
+        }
+        if (newRole == Role.ADMIN) {
+            throw new SecurityException("Bibliotheekbeheerder cannot assign ADMIN role");
+        }
+
+        Long requesterSchoolId = requester.getSchool() != null ? requester.getSchool().getId() : null;
+        Long targetSchoolId = target.getSchool() != null ? target.getSchool().getId() : null;
+
+        if (requesterSchoolId == null || !requesterSchoolId.equals(targetSchoolId)) {
+            throw new SecurityException("Can only update users from the same school");
+        }
     }
 
     public UserResponse changeUserSchool(String email, Long schoolId) {

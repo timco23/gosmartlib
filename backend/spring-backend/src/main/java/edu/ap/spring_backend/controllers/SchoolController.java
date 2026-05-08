@@ -3,7 +3,6 @@ package edu.ap.spring_backend.controllers;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.SchoolDTO;
 import edu.ap.spring_backend.dto.UserResponse;
-import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.service.SchoolService;
 import edu.ap.spring_backend.service.UserService;
@@ -30,24 +29,27 @@ public class SchoolController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping
-    public ResponseEntity<List<School>> getAllSchools() {
-        return ResponseEntity.ok(schoolService.getAllSchools());
+     @GetMapping
+    public ResponseEntity<List<SchoolDTO>> getAllSchools() {
+        return ResponseEntity.ok(
+                schoolService.getAllSchools().stream().map(SchoolDTO::from).toList()
+        );
     }
 
     @GetMapping("/search")
-    public ResponseEntity<School> getSchoolByName(@RequestParam String name) {
-        return ResponseEntity.ok(schoolService.getSchoolByName(name));
+    public ResponseEntity<SchoolDTO> getSchoolByName(@RequestParam String name) {
+        return ResponseEntity.ok(SchoolDTO.from(schoolService.getSchoolByName(name)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<School> getSchoolById(@PathVariable Long id) {
-        return ResponseEntity.ok(schoolService.getSchoolById(id));
+    public ResponseEntity<SchoolDTO> getSchoolById(@PathVariable Long id) {
+        return ResponseEntity.ok(SchoolDTO.from(schoolService.getSchoolById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<School> createSchool(@RequestBody School school) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(schoolService.createSchool(school));
+    public ResponseEntity<SchoolDTO> createSchool(@RequestBody SchoolDTO school) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(SchoolDTO.from(schoolService.createSchool(school.toEntity())));
     }
 
     @DeleteMapping("/{id}")
@@ -56,9 +58,9 @@ public class SchoolController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<School> updateSchool(@PathVariable Long id, @RequestBody School school) {
-        return ResponseEntity.ok(schoolService.updateSchool(id, school));
+     @PutMapping("/{id}")
+    public ResponseEntity<SchoolDTO> updateSchool(@PathVariable Long id, @RequestBody SchoolDTO school) {
+        return ResponseEntity.ok(SchoolDTO.from(schoolService.updateSchool(id, school.toEntity())));
     }
 
     @GetMapping("/users")
@@ -91,13 +93,15 @@ public class SchoolController {
      * @return a SchoolDTO representing the updated school settings
      * @throws ResponseStatusException with status 404 if the user has no school linked, or 401 if the user cannot be resolved from the authentication context
      */
-    @PutMapping("/current/settings")
-    public ResponseEntity<SchoolDTO> updateCurrentSchoolSettings(@RequestBody School settings, Authentication auth) {
+     @PutMapping("/current/settings")
+    public ResponseEntity<SchoolDTO> updateCurrentSchoolSettings(@RequestBody SchoolDTO settings, Authentication auth) {
         User user = resolveUser(auth);
         if (user.getSchool() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No school linked to this user");
         }
-        return ResponseEntity.ok(SchoolDTO.from(schoolService.updateSchoolSettings(user.getSchool().getId(), settings)));
+        return ResponseEntity.ok(SchoolDTO.from(
+                schoolService.updateSchoolSettings(user.getSchool().getId(), settings.toEntity())
+        ));
     }
 
     /**

@@ -17,11 +17,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
-
+import org.springframework.http.MediaType;
 import java.lang.reflect.Method;
 import java.util.List;
-
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -131,8 +129,7 @@ class ItemControllerTest extends BaseControllerTest {
 
         mockMvc.perform(get("/books/1/cover"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("image/svg+xml"))
-                .andExpect(content().string(containsString("<svg")));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.IMAGE_JPEG));
     }
 
     private ItemDTO item() {

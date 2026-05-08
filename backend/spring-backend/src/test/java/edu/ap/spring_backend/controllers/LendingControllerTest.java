@@ -97,14 +97,14 @@ class LendingControllerTest extends BaseControllerTest  {
         mockMvc.perform(post("/lendings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.bookTitle").value("Dune"));
     }
 
     @Test
     void deleteLending_shouldReturnOk() throws Exception {
         mockMvc.perform(delete("/lendings/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Mockito.verify(lendingService).deleteLending(1L);
     }
