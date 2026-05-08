@@ -41,6 +41,7 @@ export class BookService {
     subgenreIds?: number[],
     didacticCategoryIds?: number[],
     didactic?: boolean,
+    campusId?: number,
   ): Observable<Page<Book>> {
     let params = new HttpParams()
       .set('page', page)
@@ -71,6 +72,9 @@ export class BookService {
 
     if (didactic !== undefined) {
       params = params.set('didactic', didactic);
+    }
+    if (campusId !== undefined) {
+      params = params.set('campusId', campusId);
     }
 
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });

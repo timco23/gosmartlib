@@ -60,6 +60,22 @@
         </div>
       }
 
+      @if (getSchoolSpecificBooks && campuses.length > 1) {
+        <details class="filter-group" open>
+          <summary class="filter-label">Campus</summary>
+          <select
+            class="filter-select"
+            [ngModel]="selectedCampusId ?? ''"
+            (ngModelChange)="onCampusChanged($event)"
+          >
+            <option value="">Alle campussen</option>
+            @for (campus of campuses; track campus.id) {
+              <option [value]="campus.id">{{ campus.name }}</option>
+            }
+          </select>
+        </details>
+      }
+
       <details class="filter-group" open>
         <summary class="filter-label">Taal</summary>
         <div class="toggle-group">

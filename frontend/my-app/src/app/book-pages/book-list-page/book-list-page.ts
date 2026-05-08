@@ -14,6 +14,7 @@ import { ReadingLevelService } from '../../services/reading-level.service';
 import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
 import {
   Book,
+  Campus,
   DidacticCategory,
   Genre,
   Page,
@@ -85,6 +86,8 @@ export class BookListPage implements OnInit {
 
   school: School | null = null;
   getSchoolSpecificBooks = true;
+  campuses: Campus[] = [];
+  selectedCampusId?: number;
 
   allTags: Tag[] = [];
   allGenres: Genre[] = [];
@@ -131,6 +134,7 @@ export class BookListPage implements OnInit {
             this.schoolService.getByName(data.schoolName).subscribe({
               next: (schoolData) => {
                 this.school = schoolData;
+                this.campuses = schoolData.campuses ?? [];
 
                 this.tagService.getTags().subscribe((tags) => {
                   this.allTags = tags;
@@ -176,6 +180,7 @@ export class BookListPage implements OnInit {
     const effectiveDidactic = this.canUseDidacticFilters ? this.didactic : false;
     const didacticCategoryIds =
       effectiveDidactic === true ? this.selectedCategories.map((c) => c.id) : [];
+    const campusId = this.selectedCampusId;
 
     this.api
       .getBooksPaginated(
@@ -195,6 +200,7 @@ export class BookListPage implements OnInit {
         subgenreIds,
         didacticCategoryIds,
         effectiveDidactic,
+        campusId,
       )
       .subscribe({
         next: (data: Page<Book>) => {
@@ -280,6 +286,12 @@ export class BookListPage implements OnInit {
     this.currentPage = 0;
     this.loadBooks();
   }
+  
+  onCampusChanged(campusId: string): void {
+    this.selectedCampusId = campusId ? Number(campusId) : undefined;
+    this.currentPage = 0;
+    this.loadBooks();
+  }
 
   onResetFilters(): void {
     this.search = '';
@@ -292,6 +304,7 @@ export class BookListPage implements OnInit {
     this.selectedSubgenres = [];
     this.selectedCategories = [];
     this.selectedReadingLevel = '';
+    this.selectedCampusId = undefined;
     this.didactic = this.canUseDidacticFilters ? undefined : false;
     this.currentPage = 0;
     this.loadBooks();
@@ -316,6 +329,9 @@ export class BookListPage implements OnInit {
   }
 
   toggleSchoolSpecificBooks(): void {
+    if (!this.getSchoolSpecificBooks) {
+      this.selectedCampusId = undefined;
+    }
     this.currentPage = 0;
     this.loadBooks();
   }
