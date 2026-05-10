@@ -301,6 +301,23 @@ export class BookDetailPage implements OnInit {
       },
     });
   }
+  
+  get copiesByCampus(): { campusName: string; available: number; borrowed: number; other: number; total: number }[] {
+    const groups = new Map<string, SchoolItemCopy[]>();
+    for (const copy of this.copies) {
+      const key = copy.campus?.name ?? 'Geen locatie';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(copy);
+    }
+    
+    return Array.from(groups.entries()).map(([campusName, group]) => ({
+      campusName,
+      available: group.filter((c) => c.copy_status === 'BESCHIKBAAR').length,
+      borrowed: group.filter((c) => c.copy_status === 'UITGELEEND').length,
+      other: group.filter((c) => c.copy_status !== 'BESCHIKBAAR' && c.copy_status !== 'UITGELEEND').length,
+      total: group.length,
+    }));
+  }
 
   getTagName(id: number): string {
     return this.allTags.find((t) => t.id === id)?.name ?? '';

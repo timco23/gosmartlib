@@ -163,19 +163,24 @@
         </section>
 
         <aside class="right-col">
-          <div class="panel side-box">
-            <p class="panel-title">Beschikbaarheid</p>
-            <p>{{ copies.length }} exemplaren</p>
-          </div>
-
-          <div class="panel side-box">
-            <p class="panel-title">Locatie(s)</p>
-            @if (school?.campuses?.length) {
-              @for (c of school!.campuses; track c.id) {
-                <div>{{ c.name }}</div>
+          <div class="panel side-box campus-availability-panel">
+            <p class="panel-title">Exemplaren per campus</p>
+            @if (copiesByCampus.length) {
+              @for (entry of copiesByCampus; track entry.campusName) {
+                <div class="campus-entry">
+                  <p class="campus-name">{{ entry.campusName }}</p>
+                  <div class="avail-grid">
+                    <span class="avail-badge avail-badge--available">{{ entry.available }} beschikbaar</span>
+                    <span class="avail-badge avail-badge--borrowed">{{ entry.borrowed }} uitgeleend</span>
+                    @if (entry.other > 0) {
+                      <span class="avail-badge avail-badge--other">{{ entry.other }} overig</span>
+                    }
+                    <span class="avail-total">{{ entry.total }} totaal</span>
+                  </div>
+                </div>
               }
             } @else {
-              <div>Geen locaties</div>
+              <p class="muted">Geen exemplaren gevonden.</p>
             }
           </div>
         </aside>
