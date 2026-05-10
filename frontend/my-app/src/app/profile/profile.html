@@ -83,5 +83,16 @@
         }
       </div>
     </div>
+
+    @if (!isViewingOther) {
+      <a class="btn-lendings" [routerLink]="['/lendingHistory']">
+        Mijn uitleenhistoriek bekijken
+      </a>
+    }
+    @if (isViewingOther && profile) {
+      <a class="btn-lendings" [routerLink]="['/lendingHistory']" [queryParams]="{ userId: profile.id }">
+        Uitleenhistoriek van {{ profile.firstName || profile.name }} bekijken
+      </a>
+    }
   }
 </div>

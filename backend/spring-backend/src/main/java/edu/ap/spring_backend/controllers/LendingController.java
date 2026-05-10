@@ -35,6 +35,11 @@ public class LendingController {
         return ResponseEntity.ok(lendingService.getAllByUser(email));
     }
 
+    @GetMapping("/userId")
+    public ResponseEntity<Object> getAllLendingsByUserId(@RequestParam Long userId) {
+        return ResponseEntity.ok(lendingService.getAllByUserId(userId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Object> getLendingById(@PathVariable Long id) {
         return ResponseEntity.ok(lendingService.getById(id));

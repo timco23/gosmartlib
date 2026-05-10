@@ -110,6 +110,12 @@ public class LendingService {
                 .toList();
     }
 
+    public List<LendingDTO> getAllByUserId(Long userId) {
+        return lendingRepository.findByBorrower_Id(userId).stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
     public List<LendingDTO> getLendingsByBookId(Long bookId) {
         return lendingRepository.findByBook_Item_Id(bookId).stream()
                 .map(this::toDTO)

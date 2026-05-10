@@ -36,9 +36,9 @@ export class LendingService {
     return this.http.post<Lending>(`${this.apiUrl}/${id}/extend`, {});
   }
 
-  getLendingsByUserId(email: string): Observable<Lending[]> {
-    return this.http.get<Lending[]>(`${this.apiUrl}/user`, {
-      params: { email },
+  getLendingsByUserId(id: number): Observable<Lending[]> {
+    return this.http.get<Lending[]>(`${this.apiUrl}/userId`, {
+      params: { userId: id },
     });
   }
 

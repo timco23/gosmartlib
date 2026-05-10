@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LendingService } from '../services/lending.service';
 import { Lending, LoginResponse } from '../../types/types';
 import { AuthService } from '../services/auth.service';
@@ -20,6 +20,8 @@ export class LendingHistoryComponent {
   bookApi: BookService = inject(BookService);
   failedCoverIds = new Set<number>();
 
+  @Input() userId?: number;
+
   currentPage = 0;
   pageSize = 10;
 
@@ -32,22 +34,33 @@ export class LendingHistoryComponent {
     return this.lendings.slice(start, start + this.pageSize);
   }
 
-  constructor(private authService: AuthService) {}
-
+  constructor(private authService: AuthService, private route: ActivatedRoute) {}
+  
   ngOnInit(): void {
-    this.authService.currentUser$
-      .pipe(
-        filter((user) => !!user?.email),
-        switchMap((user) => {
-          this.currentUser = user;
-          return this.api.getLendingsByUserId(this.currentUser!.email);
-        }),
-      )
-      .subscribe((data: Lending[]) => {
-        this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
-        this.currentPage = 0;
-        this.cdr.detectChanges();
-      });
+    this.route.queryParams.subscribe(params => {
+      const userId = params['userId'];
+      if (userId) {
+        this.api.getLendingsByUserId(Number(userId)).subscribe((data: Lending[]) => {
+          this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
+          this.currentPage = 0;
+          this.cdr.detectChanges();
+        });
+      } else {
+        this.authService.currentUser$
+          .pipe(
+            filter((user) => !!user?.email),
+            switchMap((user) => {
+              this.currentUser = user;
+              return this.api.getLendingsByUser(this.currentUser!.email);
+            }),
+          )
+          .subscribe((data: Lending[]) => {
+            this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
+            this.currentPage = 0;
+            this.cdr.detectChanges();
+          });
+      }
+    });
   }
 
   nextPage(): void {
