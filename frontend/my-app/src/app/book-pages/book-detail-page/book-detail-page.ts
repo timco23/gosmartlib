@@ -431,7 +431,12 @@ export class BookDetailPage implements OnInit {
   }
 
   backToList() {
-    this.router.navigate(['/books'], { replaceUrl: true });
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/books';
+    this.router.navigate([returnUrl], { replaceUrl: true });
+  }
+
+  get returnUrl(): string {
+    return this.route.snapshot.queryParamMap.get('returnUrl') ?? '/books';
   }
 
   toggleFeatured() {

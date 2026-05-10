@@ -29,6 +29,7 @@ import { LendingHistoryComponent } from './lending-history/lending-history.compo
 import { DashboardComponent } from './dashboard-component/dashboard-component';
 import { BookLendingHistoryComponent } from './book-lending-history/book-lending-history.component';
 import { ProfileSelectionComponent } from './profile-selection/profile-selection';
+import { DidacticBooksPage } from './didactic-books-page/didactic-books-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -55,6 +56,7 @@ export const routes: Routes = [
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'didactic-books', component: DidacticBooksPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
 
   // BIBLIOTHEEKBEHEERDER +
   { path: 'books/add', component: AddBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },

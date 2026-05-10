@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { forkJoin, Observable } from 'rxjs';
 import {
@@ -66,6 +66,7 @@ import { TagSelectionMenu } from '../../widgets/selection-menu-pages/tag-selecti
 export class AddBookPage implements OnInit {
   api = inject(BookService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   authService = inject(AuthService);
   userService = inject(UserService);
   schoolService = inject(SchoolService);
@@ -94,6 +95,9 @@ export class AddBookPage implements OnInit {
   incompleteForm: boolean = false;
   nothingFound: boolean = false;
   missingFields: string[] = [];
+
+  // Return URL after submit or cancel
+  returnUrl = '/books';
 
   // Selected values
   selectedTags: Tag[] = [];
@@ -146,6 +150,16 @@ export class AddBookPage implements OnInit {
 
   ngOnInit(): void {
     this.globalBookList = this.api.getBooks();
+    this.route.queryParamMap.subscribe((params) => {
+      this.returnUrl = params.get('returnUrl') ?? '/books';
+
+      if (params.get('didactic') === 'true') {
+        this.isDidactic = true;
+        this.form.patchValue({ isDidactic: true });
+        this.cdr.detectChanges();
+      }
+    });
+
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser?.email) {
       this.userError = true;
@@ -237,14 +251,13 @@ export class AddBookPage implements OnInit {
       },
       error: (err) => {
         if (err.status === 404) {
-          // Boek bestaat nog niet → aanmaken
           this.createBook(newBook, allRows);
         } else {
           this.error = true;
           this.errorMessage = err.message;
           this.cdr.detectChanges();
         }
-      }
+      },
     });
   }
 
@@ -261,10 +274,15 @@ export class AddBookPage implements OnInit {
             campusId: row.campusId,
           }));
           this.api.addCopies(extraCopies).subscribe({
-            next: () => this.router.navigate(['/books', createdBook.id]),
+            next: () =>
+              this.router.navigate(['/books', createdBook.id], {
+                queryParams: { returnUrl: this.returnUrl },
+              }),
           });
         } else {
-          this.router.navigate(['/books', createdBook.id]);
+          this.router.navigate(['/books', createdBook.id], {
+            queryParams: { returnUrl: this.returnUrl },
+          });
         }
       },
     });
@@ -420,7 +438,7 @@ export class AddBookPage implements OnInit {
   }
 
   backToList() {
-    this.router.navigate(['/books']);
+    this.router.navigate([this.returnUrl]);
   }
 
   resetForm(): void {
@@ -458,7 +476,6 @@ export class AddBookPage implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // Copy
   addCampusGroup() {
     this.campusGroups.push({
       campusId: 0,
@@ -540,7 +557,12 @@ export class AddBookPage implements OnInit {
     if (!this.school?.id) return;
 
     const totalCopies = rows.reduce(
-      (sum, row) => sum + row.conditionNieuw + row.conditionGoed + row.conditionGebruikt + row.conditionBeschadigd,
+      (sum, row) =>
+        sum +
+        row.conditionNieuw +
+        row.conditionGoed +
+        row.conditionGebruikt +
+        row.conditionBeschadigd,
       0,
     );
     this.importLoading = true;
@@ -553,7 +575,9 @@ export class AddBookPage implements OnInit {
         this.importLoading = false;
         this.importLoadingMessage = '';
         if (result.errors.length > 0) {
-          const generalErrors = result.errors.filter((e) => e.rowNumber === 0).map((e) => e.message);
+          const generalErrors = result.errors
+            .filter((e) => e.rowNumber === 0)
+            .map((e) => e.message);
           if (generalErrors.length > 0) {
             this.previewErrors = generalErrors;
           } else {
@@ -602,6 +626,7 @@ export class AddBookPage implements OnInit {
   openBookPopup(): void {
     this.isBookPopupOpen = true;
   }
+
   closeBookPopup(): void {
     this.isBookPopupOpen = false;
   }

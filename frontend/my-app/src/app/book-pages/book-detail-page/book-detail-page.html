@@ -3,7 +3,7 @@
     <main class="book-detail-card">
       <header class="book-detail-header">
         <div class="header-row">
-          <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
+          <a class="back-link" [routerLink]="[returnUrl]">← Terug naar lijst</a>
         </div>
 
         @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {

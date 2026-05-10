@@ -62,7 +62,7 @@ export class BookListPage implements OnInit {
   role = Role;
 
   currentPage = 0;
-  pageSize = 15;
+  pageSize = 16;
   totalPages = 0;
   totalElements = 0;
 
@@ -206,7 +206,7 @@ export class BookListPage implements OnInit {
         next: (data: Page<Book>) => {
           this.books = data.content ?? [];
           this.totalPages = data.totalPages ?? 0;
-          this.totalElements = data.totalElements ?? 0; 
+          this.totalElements = data.totalElements ?? 0;
           this.cdr.detectChanges();
         },
       });
@@ -286,7 +286,7 @@ export class BookListPage implements OnInit {
     this.currentPage = 0;
     this.loadBooks();
   }
-  
+
   onCampusChanged(campusId: string): void {
     this.selectedCampusId = campusId ? Number(campusId) : undefined;
     this.currentPage = 0;

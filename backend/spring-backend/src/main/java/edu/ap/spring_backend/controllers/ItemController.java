@@ -117,7 +117,7 @@ public class ItemController {
     @GetMapping("/filteredBooks")
     public ResponseEntity<PageResponseDTO<ItemDTO>> getAllFilteredItems(
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "15") @Min(1) @Max(15) int size,
+            @RequestParam(defaultValue = "16") @Min(1) @Max(16) int size,
             @RequestParam(defaultValue = "title") @Pattern(regexp = "title|author|score|pages") String sortBy,
             @RequestParam(defaultValue = "ASC") @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE) String sortDirection,
             @RequestParam Long schoolId,
