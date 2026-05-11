@@ -5,10 +5,11 @@ import { Lending, LoginResponse } from '../../types/types';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
 import { filter, switchMap } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-lending-history',
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './lending-history.component.html',
   styleUrl: './lending-history.component.css',
 })
@@ -20,7 +21,7 @@ export class LendingHistoryComponent {
   bookApi: BookService = inject(BookService);
   failedCoverIds = new Set<number>();
 
-  @Input() userId?: number;
+  searchQuery: string = '';
 
   currentPage = 0;
   pageSize = 10;
@@ -61,6 +62,16 @@ export class LendingHistoryComponent {
           });
       }
     });
+  }
+
+  get filteredLendings(): Lending[] {
+    const q = this.searchQuery.toLowerCase().trim();
+    if (!q) return this.visibleLendings;
+    return this.visibleLendings.filter(l =>
+      l.bookTitle?.toLowerCase().includes(q) ||
+      l.bookAuthor?.toLowerCase().includes(q) ||
+      l.borrowerName?.toLowerCase().includes(q)
+    );
   }
 
   nextPage(): void {
