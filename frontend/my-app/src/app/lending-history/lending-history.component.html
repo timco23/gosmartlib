@@ -3,7 +3,13 @@
     <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
   </header>
   <div class="lendings-card">
-    <h3>Mijn uitleenhistoriek</h3>
+    @if(isShowingOtherUser){
+      <h3>Uitleenhistoriek van {{ userName }}</h3>
+    }
+    @else{
+      <h3>Mijn uitleenhistoriek</h3>
+    }
+
     <div class="search-bar">
         <input type="text" placeholder="Zoek op titel of auteur..." [(ngModel)]="searchQuery" />
     </div>

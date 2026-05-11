@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
 import { filter, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-lending-history',
@@ -19,7 +20,12 @@ export class LendingHistoryComponent {
   currentUser: LoginResponse | null = null;
   cdr = inject(ChangeDetectorRef);
   bookApi: BookService = inject(BookService);
+  userService: UserService = inject(UserService);
   failedCoverIds = new Set<number>();
+  isShowingOtherUser: Boolean = false;
+  otherUser: string = "";
+  userEmail: string = "";
+  userName: string = "";
 
   searchQuery: string = '';
 
@@ -40,10 +46,21 @@ export class LendingHistoryComponent {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const userId = params['userId'];
-      if (userId) {
+      const userEmail = params['userEmail']
+      if (userId != null) {
+        this.isShowingOtherUser = true;
+        this.userEmail = userEmail
         this.api.getLendingsByUserId(Number(userId)).subscribe((data: Lending[]) => {
           this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
           this.currentPage = 0;
+
+            this.userService.getProfileByEmail(this.userEmail).subscribe({
+              next: (user) => {
+                this.userName = user.name;
+                this.cdr.detectChanges();
+              }
+            });
+
           this.cdr.detectChanges();
         });
       } else {

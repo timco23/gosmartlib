@@ -1,10 +1,13 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Role, UserProfile } from '../../types/types';
+import { Lending, LoginResponse, Role, UserProfile } from '../../types/types';
 import { UserService } from '../services/user.service';
+import { LendingService } from '../services/lending.service';
+import { filter, switchMap } from 'rxjs';
+import { BookService } from '../services/book-service';
 
 @Component({
   selector: 'app-profile',
@@ -14,15 +17,26 @@ import { UserService } from '../services/user.service';
   styleUrl: './profile.css',
 })
 export class Profile implements OnInit {
+  lendingService: LendingService = inject(LendingService);
+  lendings: Lending[] = [];
+  bookApi: BookService = inject(BookService);
+  failedCoverIds = new Set<number>();
+
   profile: UserProfile | null = null;
   loading: boolean = true;
   error: string = '';
+  currentUser: LoginResponse | null = null;
 
   isViewingOther: boolean = false;
   selectedRole: string = '';
   roleUpdateSuccess: string = '';
   roleUpdateError: string = '';
+  searchQuery: string = '';
+    
+  currentPage = 0;
+  pageSize = 10;
 
+  
   constructor(
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
@@ -30,6 +44,15 @@ export class Profile implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
   ) {}
+  
+  get totalPages(): number {
+    return Math.ceil(this.lendings.length / this.pageSize);
+  }
+
+  get visibleLendings(): Lending[] {
+    const start = this.currentPage * this.pageSize;
+    return this.lendings.slice(start, start + this.pageSize);
+  }
 
   ngOnInit(): void {
     this.authService.fetchCurrentUser().subscribe({
@@ -86,6 +109,7 @@ export class Profile implements OnInit {
       next: (data) => {
         this.profile = data;
         this.loading = false;
+        this.loadLendings(data.email); 
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -102,6 +126,7 @@ export class Profile implements OnInit {
         this.profile = data;
         this.selectedRole = data.role;
         this.loading = false;
+        this.loadLendings(data.email); 
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -114,5 +139,39 @@ export class Profile implements OnInit {
         }
       },
     });
+  }
+
+  loadLendings(email: string): void {
+    this.lendingService.getLendingsByUser(email).subscribe({
+      next: (data) => {
+        this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load lendings', err),
+    });
+  }
+
+  get filteredLendings(): Lending[] {
+    const q = this.searchQuery.toLowerCase().trim();
+    if (!q) return this.visibleLendings;
+    return this.visibleLendings.filter(l =>
+      l.bookTitle?.toLowerCase().includes(q) ||
+      l.bookAuthor?.toLowerCase().includes(q) ||
+      l.borrowerName?.toLowerCase().includes(q)
+    );
+  }
+
+  coverSrcFromLending(lending: Lending): string | null {
+    const id = Number(lending.itemId);
+    if (!Number.isFinite(id) || id <= 0 || this.failedCoverIds.has(id)) return null;
+    return this.bookApi.getBookCoverUrl(id);
+  }
+
+  onCoverError(_event: Event, lending: Lending): void {
+    const id = Number(lending.itemId);
+    if (Number.isFinite(id) && id > 0) {
+      this.failedCoverIds.add(id);
+      this.cdr.detectChanges();
+    }
   }
 }

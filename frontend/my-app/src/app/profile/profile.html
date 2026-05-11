@@ -1,98 +1,133 @@
 <div class="back-link-wrapper">
-  <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
+  <a class="back-link" [routerLink]="['/accounts']">← Terug naar de lijst</a>
 </div>
 
 <div class="profile-container">
   <h2>Accountgegevens</h2>
 
   @if (loading) {
-    <div class="loading">Laden...</div>
+  <div class="loading">Laden...</div>
   }
 
   @if (error) {
-    <div class="error-message">{{ error }}</div>
+  <div class="error-message">{{ error }}</div>
   }
 
   @if (profile && !loading) {
-    <div class="profile-content">
-      @if (profile.firstName) {
-        <div class="profile-item">
-          <label>Voornaam:</label>
-          <span>{{ profile.firstName }}</span>
-        </div>
-      }
+  <div class="profile-content">
+    @if (profile.firstName) {
+    <div class="profile-item">
+      <label>Voornaam:</label>
+      <span>{{ profile.firstName }}</span>
+    </div>
+    }
 
-      <div class="profile-item">
-        <label>Naam:</label>
-        <span>{{ profile.name }}</span>
-      </div>
-
-      <div class="profile-item">
-        <label>Klas:</label>
-        @if (profile.classes.length > 0) {
-          @for (class of profile.classes; track $index) {
-            <span>{{ class.className }}</span>
-          }
-        } @else {
-          <span>Geen</span>
-        }
-      </div>
-
-      @if (profile.schoolName) {
-        <div class="profile-item">
-          <label>School:</label>
-          <span>{{ profile.schoolName }}</span>
-        </div>
-      }
-
-      @if (profile.studentNumber) {
-        <div class="profile-item">
-          <label>Studentnummer:</label>
-          <span>{{ profile.studentNumber }}</span>
-        </div>
-      }
-
-      <div class="profile-item">
-        <label>Email:</label>
-        <span>{{ profile.email }}</span>
-      </div>
-
-      <div class="profile-item">
-        <label>Rol:</label>
-        @if (canEditRole) {
-          <div class="role-edit-container">
-            <div class="role-edit">
-              <select [(ngModel)]="selectedRole" class="role-select">
-                @for (role of availableRoles; track role) {
-                  <option [value]="role">{{ role }}</option>
-                }
-              </select>
-              <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
-            </div>
-            @if (roleUpdateSuccess) {
-              <span class="role-success">{{ roleUpdateSuccess }}</span>
-            }
-            @if (roleUpdateError) {
-              <span class="role-error">{{ roleUpdateError }}</span>
-            }
-          </div>
-        } @else {
-          <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
-            {{ profile.role }}
-          </span>
-        }
-      </div>
+    <div class="profile-item">
+      <label>Naam:</label>
+      <span>{{ profile.name }}</span>
     </div>
 
-    @if (!isViewingOther) {
-      <a class="btn-lendings" [routerLink]="['/lendingHistory']">
-        Mijn uitleenhistoriek bekijken
-      </a>
+    <div class="profile-item">
+      <label>Klas:</label>
+      @if (profile.classes.length > 0) {
+      @for (class of profile.classes; track $index) {
+      <span>{{ class.className }}</span>
+      }
+      } @else {
+      <span>Geen</span>
+      }
+    </div>
+
+    @if (profile.schoolName) {
+    <div class="profile-item">
+      <label>School:</label>
+      <span>{{ profile.schoolName }}</span>
+    </div>
     }
-    @if (isViewingOther && profile) {
-      <a class="btn-lendings" [routerLink]="['/lendingHistory']" [queryParams]="{ userId: profile.id }">
-        Uitleenhistoriek van {{ profile.firstName || profile.name }} bekijken
-      </a>
+
+    @if (profile.studentNumber) {
+    <div class="profile-item">
+      <label>Studentnummer:</label>
+      <span>{{ profile.studentNumber }}</span>
+    </div>
     }
+
+    <div class="profile-item">
+      <label>Email:</label>
+      <span>{{ profile.email }}</span>
+    </div>
+
+    <div class="profile-item">
+      <label>Rol:</label>
+      @if (canEditRole) {
+      <div class="role-edit-container">
+        <div class="role-edit">
+          <select [(ngModel)]="selectedRole" class="role-select">
+            @for (role of availableRoles; track role) {
+            <option [value]="role">{{ role }}</option>
+            }
+          </select>
+          <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
+        </div>
+        @if (roleUpdateSuccess) {
+        <span class="role-success">{{ roleUpdateSuccess }}</span>
+        }
+        @if (roleUpdateError) {
+        <span class="role-error">{{ roleUpdateError }}</span>
+        }
+      </div>
+      } @else {
+      <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
+        {{ profile.role }}
+      </span>
+      }
+    </div>
+  </div>
   }
 </div>
+
+<h3>Recente leningen</h3>
+
+@for (lending of filteredLendings.slice(0, 3); track lending.id) {
+<li class="lending-item">
+  @let cover = coverSrcFromLending(lending);
+  @if (cover) {
+  <img class="cover-img" [src]="cover" [alt]="lending.bookTitle || 'Boek cover'" loading="lazy"
+    (error)="onCoverError($event, lending)" />
+  } @else {
+  <div class="cover-placeholder">📖</div>
+  }
+  <div class="lending-field">
+    <span class="label">Titel</span>
+    <span class="value">{{ lending.bookTitle }}</span>
+  </div>
+  <div class="lending-field">
+    <span class="label">Auteur</span>
+    <span class="value">{{ lending.bookAuthor }}</span>
+  </div>
+  <div class="lending-field">
+    <span class="label">Uitgeleend op</span>
+    <span class="value">{{ lending.lendingDate }}</span>
+  </div>
+  @if (lending.dateReturned) {
+  <div class="lending-field">
+    <span class="label">Teruggebracht op</span>
+    <span class="value">{{ lending.dateReturned }}</span>
+  </div>
+  } @else {
+  <div class="lending-field">
+    <span class="value">Nog niet teruggebracht</span>
+  </div>
+  }
+</li> }
+
+@if (!isViewingOther) {
+<a class="btn-lendings" [routerLink]="['/lendingHistory']">
+  Meer bekijken
+</a>
+}
+@if (isViewingOther && profile) {
+<a class="btn-lendings" [routerLink]="['/lendingHistory']" [queryParams]="{ userId: profile.id, userEmail: profile?.email}">
+  Meer bekijken
+</a>
+}
