@@ -1,11 +1,18 @@
 package edu.ap.spring_backend.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
+import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
@@ -113,6 +120,22 @@ public class LendingService {
     public List<LendingDTO> getLendingsByBookId(Long bookId) {
         return lendingRepository.findByBook_Item_Id(bookId).stream()
                 .map(this::toDTO)
+                .toList();
+    }
+
+    public List<CampusAvailabilityDTO> getEarliestAvailabilityPerCampusByBookId(Long bookId) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.of("nl", "BE"));
+        Map<String, LocalDate> earliest = new HashMap<>();
+
+        for (Lending lending : lendingRepository.findByBook_Item_IdAndReturnedFalse(bookId)) {
+            String campus = lending.getBook().getCampus().getName();
+            LocalDate date = lending.getReturnDate();
+            if (!earliest.containsKey(campus) || date.isBefore(earliest.get(campus))) {
+                earliest.put(campus, date);
+            }
+        }
+        return earliest.entrySet().stream()
+                .map(e -> new CampusAvailabilityDTO(e.getKey(), e.getValue().format(formatter)))
                 .toList();
     }
 

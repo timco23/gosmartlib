@@ -4,8 +4,10 @@ import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
+import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
+import edu.ap.spring_backend.jpa.Campus;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.jpa.School;
@@ -187,6 +189,87 @@ class LendingServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(9L, result.get(0).itemId());
+    }
+
+    @Test
+    void getEarliestAvailability_singleLending_returnsNlBeDateFormat() {
+        Campus campus = new Campus();
+        campus.setName("Campus Ellermanstraat");
+        copy.setCampus(campus);
+        lending.setReturnDate(LocalDate.of(2024, 1, 10));
+
+        when(lendingRepository.findByBook_Item_IdAndReturnedFalse(9L)).thenReturn(List.of(lending));
+
+        List<CampusAvailabilityDTO> result = service.getEarliestAvailabilityPerCampusByBookId(9L);
+
+        assertEquals(1, result.size());
+        assertEquals("Campus Ellermanstraat", result.get(0).campusName());
+        assertEquals("10 januari 2024", result.get(0).availableFrom());
+    }
+
+    @Test
+    void getEarliestAvailability_multipleLendingsSameCampus_returnsEarliest() {
+        Campus campus = new Campus();
+        campus.setName("Campus A");
+        copy.setCampus(campus);
+        lending.setReturnDate(LocalDate.of(2024, 3, 15));
+
+        SchoolItemCopy copy2 = new SchoolItemCopy();
+        copy2.setBarcode("BC002");
+        copy2.setItem(item);
+        copy2.setCampus(campus);
+
+        Lending lending2 = new Lending();
+        lending2.setId(11L);
+        lending2.setBook(copy2);
+        lending2.setReturnDate(LocalDate.of(2024, 2, 5));
+        lending2.setReturned(false);
+
+        when(lendingRepository.findByBook_Item_IdAndReturnedFalse(9L)).thenReturn(List.of(lending, lending2));
+
+        List<CampusAvailabilityDTO> result = service.getEarliestAvailabilityPerCampusByBookId(9L);
+
+        assertEquals(1, result.size());
+        assertEquals("Campus A", result.get(0).campusName());
+        assertEquals("5 februari 2024", result.get(0).availableFrom());
+    }
+
+    @Test
+    void getEarliestAvailability_multipleCampuses_returnsOneEntryPerCampus() {
+        Campus campusA = new Campus();
+        campusA.setName("Campus A");
+        Campus campusB = new Campus();
+        campusB.setName("Campus B");
+        copy.setCampus(campusA);
+        lending.setReturnDate(LocalDate.of(2024, 1, 10));
+
+        SchoolItemCopy copy2 = new SchoolItemCopy();
+        copy2.setBarcode("BC002");
+        copy2.setItem(item);
+        copy2.setCampus(campusB);
+
+        Lending lending2 = new Lending();
+        lending2.setId(11L);
+        lending2.setBook(copy2);
+        lending2.setReturnDate(LocalDate.of(2024, 2, 20));
+        lending2.setReturned(false);
+
+        when(lendingRepository.findByBook_Item_IdAndReturnedFalse(9L)).thenReturn(List.of(lending, lending2));
+
+        List<CampusAvailabilityDTO> result = service.getEarliestAvailabilityPerCampusByBookId(9L);
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(d -> d.campusName().equals("Campus A") && d.availableFrom().equals("10 januari 2024")));
+        assertTrue(result.stream().anyMatch(d -> d.campusName().equals("Campus B") && d.availableFrom().equals("20 februari 2024")));
+    }
+
+    @Test
+    void getEarliestAvailability_noActiveLendings_returnsEmpty() {
+        when(lendingRepository.findByBook_Item_IdAndReturnedFalse(9L)).thenReturn(List.of());
+
+        List<CampusAvailabilityDTO> result = service.getEarliestAvailabilityPerCampusByBookId(9L);
+
+        assertTrue(result.isEmpty());
     }
 
     private static <T> T buildRecord(Class<T> recordClass, Map<String, Object> values) {
