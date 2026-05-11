@@ -1,6 +1,9 @@
-<main class="books-card">
-  @if (books.length > 0) {
-    <h3>Mijn verlanglijst</h3>
+<div class="wishlist-wrapper">
+  <div class="page-header">
+    <h1>Mijn verlanglijst</h1>
+  </div>
+  <main class="books-card">
+    @if (books.length > 0) {
 
     <ul class="book-list library-grid">
       @for (book of books; track book.id) {

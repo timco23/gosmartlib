@@ -1,8 +1,10 @@
-<main class="books-card">
-  @if (books.length > 0) {
-    <h3>Huidige favoriete boeken</h3>
-
-    <ul class="book-list library-grid">
+<div class="favorites-wrapper">
+  <div class="page-header">
+    <h1>Mijn favoriete boeken</h1>
+  </div>
+  <main class="books-card">
+    @if (books.length > 0) {
+      <ul class="book-list library-grid">
       @for (book of books; track book.id) {
         <li class="book-item">
           <div class="book-cover">

@@ -3,9 +3,30 @@
   Follows the GOSmartLib design system.
 */
 
-main {
+
+.wishlist-wrapper {
   max-width: 90rem;
   margin: var(--space-8) auto;
+  width: 95%;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+h1 {
+  font-family: var(--font-body);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-text-1);
+  margin: 0;
+}
+
+main {
+  max-width: 90rem;
 }
 
 .books-card {
