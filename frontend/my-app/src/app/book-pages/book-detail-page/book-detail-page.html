@@ -167,15 +167,24 @@
             <p class="panel-title">Exemplaren per campus</p>
             @if (copiesByCampus.length) {
               @for (entry of copiesByCampus; track entry.campusName) {
-                <div class="campus-entry">
-                  <p class="campus-name">{{ entry.campusName }}</p>
+                <div
+                  class="campus-entry"
+                  [class.campus-entry--available]="entry.available > 0"
+                  [class.campus-entry--full]="entry.available === 0 && entry.borrowed > 0"
+                >
+                  <div class="campus-header">
+                    <span class="campus-name">{{ entry.campusName }}</span>
+                    <span class="campus-total">{{ entry.total }} exemplaren</span>
+                  </div>
                   <div class="avail-grid">
                     <span class="avail-badge avail-badge--available">{{ entry.available }} beschikbaar</span>
                     <span class="avail-badge avail-badge--borrowed">{{ entry.borrowed }} uitgeleend</span>
-                    @if (entry.other > 0) {
+                    @if (entry.other > 0 && authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
                       <span class="avail-badge avail-badge--other">{{ entry.other }} overig</span>
                     }
-                    <span class="avail-total">{{ entry.total }} totaal</span>
+                    @if (entry.available === 0 && entry.borrowed > 0 && entry.earliestReturnDate) {
+                      <span class="avail-badge avail-badge--return-date">Ontleend tot: {{ entry.earliestReturnDate }}</span>
+                    }
                   </div>
                 </div>
               }

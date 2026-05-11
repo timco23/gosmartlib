@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import {
   Book,
+  CampusAvailability,
   Role,
   LoginResponse,
   SchoolItemCopy,
@@ -57,6 +58,7 @@ export class BookDetailPage implements OnInit {
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   renderer = inject(Renderer2);
   copies: SchoolItemCopy[] = [];
+  campusAvailabilities: CampusAvailability[] = [];
   role = Role;
   school: School | null = null;
   isFeatured: boolean = false;
@@ -296,26 +298,37 @@ export class BookDetailPage implements OnInit {
             this.copies = copies;
             if (copies.length > 0 && copies[0].featured) this.isFeatured = true;
             this.cdr.detectChanges();
+
+            const hasUnavailableCampus = this.copiesByCampus.some((e) => e.available === 0 && e.borrowed > 0);
+            if (hasUnavailableCampus) {
+              this.api.getEarliestAvailabilityPerCampus(data.id).subscribe({
+                next: (dates) => {
+                  this.campusAvailabilities = dates;
+                  this.cdr.detectChanges();
+                },
+              });
+            }
           },
         });
       },
     });
   }
   
-  get copiesByCampus(): { campusName: string; available: number; borrowed: number; other: number; total: number }[] {
+  get copiesByCampus(): { campusName: string; available: number; borrowed: number; other: number; total: number; earliestReturnDate: string | null }[] {
     const groups = new Map<string, SchoolItemCopy[]>();
     for (const copy of this.copies) {
       const key = copy.campus?.name ?? 'Geen locatie';
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(copy);
     }
-    
+
     return Array.from(groups.entries()).map(([campusName, group]) => ({
       campusName,
       available: group.filter((c) => c.copy_status === 'BESCHIKBAAR').length,
       borrowed: group.filter((c) => c.copy_status === 'UITGELEEND').length,
       other: group.filter((c) => c.copy_status !== 'BESCHIKBAAR' && c.copy_status !== 'UITGELEEND').length,
-      total: group.length,
+      total: group.filter((c) => c.copy_status === 'BESCHIKBAAR' || c.copy_status === 'UITGELEEND').length,
+      earliestReturnDate: this.campusAvailabilities.find((d) => d.campusName === campusName)?.availableFrom ?? null,
     }));
   }
 
