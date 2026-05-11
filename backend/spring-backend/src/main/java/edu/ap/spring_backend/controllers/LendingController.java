@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
 import edu.ap.spring_backend.service.LendingService;
@@ -69,5 +71,10 @@ public class LendingController {
     @GetMapping("/book/{bookId}")
     public ResponseEntity<Object> getLendingsByBookId(@PathVariable Long bookId) {
         return ResponseEntity.ok(lendingService.getLendingsByBookId(bookId));
+    }
+
+    @GetMapping("/book/{bookId}/earliest-availability")
+    public ResponseEntity<List<CampusAvailabilityDTO>> getEarliestAvailabilityPerCampus(@PathVariable Long bookId) {
+        return ResponseEntity.ok(lendingService.getEarliestAvailabilityPerCampusByBookId(bookId));
     }
 }

@@ -180,6 +180,11 @@ export interface CreateSchoolItemCopyPayload {
   campusId: number;
 }
 
+export interface CampusAvailability {
+  campusName: string;
+  availableFrom: string;
+}
+
 export interface NewCopyRow {
   condition: string;
   copy_status: string;

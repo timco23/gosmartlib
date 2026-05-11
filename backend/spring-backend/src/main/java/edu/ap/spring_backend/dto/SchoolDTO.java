@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.dto;
 
+import edu.ap.spring_backend.jpa.Campus;
 import edu.ap.spring_backend.jpa.School;
 import org.springframework.beans.BeanUtils;
 
@@ -55,6 +56,15 @@ public record SchoolDTO(
     public School toEntity() {
         School school = new School();
         BeanUtils.copyProperties(this, school);
+        school.getCampuses().clear();
+        if (campuses != null) {
+            for (CampusDTO campusDTO : campuses) {
+                Campus campus = new Campus();
+                campus.setName(campusDTO.name());
+                if (campusDTO.id() != null) campus.setId(campusDTO.id());
+                school.addCampus(campus);
+            }
+        }
         return school;
     }
 }

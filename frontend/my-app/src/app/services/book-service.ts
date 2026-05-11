@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import {
   Book,
+  CampusAvailability,
   CreateBookPayload,
   CsvImportDTO,
   CsvPreviewDTO,
@@ -195,6 +196,10 @@ export class BookService {
 
   getByBarcode(barcode: string): Observable<SchoolItemCopy> {
     return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/barcode/${barcode}`);
+  }
+
+  getEarliestAvailabilityPerCampus(bookId: number): Observable<CampusAvailability[]> {
+    return this.http.get<CampusAvailability[]>(`${this.apiBaseUrl}/lendings/book/${bookId}/earliest-availability`);
   }
 
   getCopiesByBookId(bookId: number, schoolId: number): Observable<SchoolItemCopy[]> {
