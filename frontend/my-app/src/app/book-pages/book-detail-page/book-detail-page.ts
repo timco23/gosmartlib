@@ -332,6 +332,7 @@ export class BookDetailPage implements OnInit {
     }));
   }
 
+
   getTagName(id: number): string {
     return this.allTags.find((t) => t.id === id)?.name ?? '';
   }

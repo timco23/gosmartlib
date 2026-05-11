@@ -172,18 +172,23 @@
                   [class.campus-entry--available]="entry.available > 0"
                   [class.campus-entry--full]="entry.available === 0 && entry.borrowed > 0"
                 >
+                  @let count = authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) ? entry.total + entry.other : entry.total;
                   <div class="campus-header">
                     <span class="campus-name">{{ entry.campusName }}</span>
-                    <span class="campus-total">{{ entry.total }} exemplaren</span>
+                    <span class="campus-total">{{ count === 1 ? '1 exemplaar' : count + ' exemplaren' }}</span>
                   </div>
                   <div class="avail-grid">
-                    <span class="avail-badge avail-badge--available">{{ entry.available }} beschikbaar</span>
-                    <span class="avail-badge avail-badge--borrowed">{{ entry.borrowed }} uitgeleend</span>
+                    @if (entry.available > 0) {
+                      <span class="avail-badge avail-badge--available">{{ entry.available }} beschikbaar</span>
+                    }
+                    @if (entry.borrowed > 0) {
+                      <span class="avail-badge avail-badge--borrowed">{{ entry.borrowed }} uitgeleend</span>
+                    }
                     @if (entry.other > 0 && authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
-                      <span class="avail-badge avail-badge--other">{{ entry.other }} overig</span>
+                      <span class="avail-badge avail-badge--other">{{ entry.other }} ontbrekend</span>
                     }
                     @if (entry.available === 0 && entry.borrowed > 0 && entry.earliestReturnDate) {
-                      <span class="avail-badge avail-badge--return-date">Ontleend tot: {{ entry.earliestReturnDate }}</span>
+                      <span class="avail-badge avail-badge--return-date">Beschikbaar vanaf: {{ entry.earliestReturnDate }}</span>
                     }
                   </div>
                 </div>
