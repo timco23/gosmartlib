@@ -5,7 +5,7 @@
   <div class="lendings-card">
     <h3>Mijn uitleenhistoriek</h3>
     <div class="search-bar">
-        <input type="text" placeholder="Zoek op titel, auteur of lener..." [(ngModel)]="searchQuery" />
+        <input type="text" placeholder="Zoek op titel of auteur..." [(ngModel)]="searchQuery" />
     </div>
     <ul class="lending-list">
       @for (lending of filteredLendings; track lending.id) {
