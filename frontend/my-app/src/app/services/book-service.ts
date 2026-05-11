@@ -179,6 +179,13 @@ export class BookService {
     });
   }
 
+  addToWishlist(bookId: number, email: string): Observable<any> {
+    return this.http.post(`${this.apiBaseUrl}/user/wishlist`, null, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text',
+    });
+  }
+
   removeFromWishlist(bookId: number, email: string): Observable<any> {
     return this.http.delete(`${this.apiBaseUrl}/user/wishlist`, {
       params: { itemId: bookId, email: email },

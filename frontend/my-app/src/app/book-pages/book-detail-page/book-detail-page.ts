@@ -84,6 +84,9 @@ export class BookDetailPage implements OnInit {
 
   isFavorite: boolean = false;
   favorites: any[] = [];
+  
+  isInWishlist: boolean = false;
+  wishListBooks: any[] = [];
 
   ratingLevels: number[] = [5, 4, 3, 2, 1];
 
@@ -126,6 +129,7 @@ export class BookDetailPage implements OnInit {
           next: (favorites) => {
             this.favorites = favorites;
             this.checkIfFavorite();
+            this.checkIfInWishlist();
             console.log(favorites);
             this.cdr.detectChanges();
           },
@@ -259,6 +263,12 @@ export class BookDetailPage implements OnInit {
     }
   }
 
+  checkIfInWishlist() {
+    if (this.book && this.favorites) {
+      this.isInWishlist = this.wishListBooks.some((fav: any) => fav.id === this.book?.id);
+    }
+  }
+
   addToFavorites() {
     if (!this.book || !this.currentUser?.email) return;
 
@@ -281,12 +291,35 @@ export class BookDetailPage implements OnInit {
     }
   }
 
+  addToWishlist() {
+    if (!this.book || !this.currentUser?.email) return;
+
+    if (!this.isInWishlist) {
+      this.api.addToWishlist(this.book.id, this.currentUser.email).subscribe({
+        next: () => {
+          this.isInWishlist = true;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij toevoegen:', err),
+      });
+    } else {
+      this.api.removeFromWishlist(this.book.id, this.currentUser.email).subscribe({
+        next: () => {
+          this.isInWishlist = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij verwijderen:', err),
+      });
+    }
+  }
+
   getBook(id: string) {
     this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
         this.loadReviews();
         this.checkIfFavorite();
+        this.checkIfInWishlist();
         this.cdr.detectChanges();
 
         if (!this.school?.id) return;

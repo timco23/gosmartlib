@@ -66,6 +66,9 @@
             <button class="action-btn favorite-btn" type="button" (click)="addToFavorites()">
               {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
             </button>
+            <button class="action-btn wishlist-btn" type="button" (click)="addToWishlist()">
+              {{ isInWishlist ? 'Verwijderen uit verlanglijst' : 'Toevoegen aan verlanglijst' }}
+            </button>
             @if (authService.atLeastHasRole(role.LEERKRACHT)) {
               <button class="action-btn report-btn" type="button">Bekijk rapportage</button>
             }
