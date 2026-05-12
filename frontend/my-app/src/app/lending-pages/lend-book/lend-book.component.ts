@@ -224,22 +224,26 @@ export class LendBookComponent {
           next: (book) => {
             this.currentBook = book ?? null;
             this.cdr.detectChanges();
-          
-            if (this.showMultipleBooks && this.currentBook && this.currentSchoolCopy) {
+
+            const isMultiUser = this.currentUser?.role !== 'LEERLING' && this.currentUser !== null;
+
+            if (isMultiUser && this.currentBook && this.currentSchoolCopy) {
               const alreadyAdded = this.selectedBooks.some(
                 (s) => s.copy.barcode === this.currentSchoolCopy!.barcode
               );
               if (alreadyAdded) {
                 this.showAlreadyAdded = true;
                 this.barcode = '';
+                this.currentBook = null;
+                this.currentSchoolCopy = null;
                 this.cdr.detectChanges();
                 setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 0);
                 return;
               }
-              if (!alreadyAdded) {
-                this.selectedBooks.push({ book: this.currentBook, copy: this.currentSchoolCopy });
-                this.selectedBooks.sort((a, b) => a.book.title.localeCompare(b.book.title));
-              }
+
+              this.selectedBooks.push({ book: this.currentBook, copy: this.currentSchoolCopy });
+              this.selectedBooks.sort((a, b) => a.book.title.localeCompare(b.book.title));
+              this.showMultipleBooks = true;
               this.currentBook = null;
               this.currentSchoolCopy = null;
               this.barcode = '';
