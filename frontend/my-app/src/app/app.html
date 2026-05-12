@@ -105,6 +105,7 @@
     <div class="nav-links">
       <a routerLink="/books" class="nav-link">Boeken</a>
       <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
+      <a routerLink="/wishlist" class="nav-link">Verlanglijst</a>
       @if (authService.atLeastHasRole(role.LEERKRACHT)) {
         <a routerLink="/lists" class="nav-link">Klasleeslijsten</a>
       }

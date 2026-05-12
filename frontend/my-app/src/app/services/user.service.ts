@@ -31,6 +31,16 @@ export class UserService {
     });
   }
 
+  getWishlistedBooks(): Observable<any[]> {
+    const stored = localStorage.getItem('currentUser');
+    if(!stored)return new Observable(o => { o.next([]); o.complete(); })
+
+      const user = JSON.parse(stored);
+      return this.http.get<any[]>(`${environment.apiUrl}/user/wishlist`, {
+      params: { email: user.email }
+    });
+  }
+
   getFromSchool(schoolId: number): Observable<UserProfile[]> {
     return this.http.get<UserProfile[]>(`${environment.apiUrl}/schools/users`, {
       params: { schoolId: schoolId.toString() }

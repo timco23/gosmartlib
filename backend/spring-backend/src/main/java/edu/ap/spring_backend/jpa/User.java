@@ -44,6 +44,10 @@ public class User {
     @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> favoriteBooks = new ArrayList<>();
     
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_wishlisted_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private List<Item> wishlistedBooks = new ArrayList<>();
+
     @Column(name = "items_borrowed")
     private Integer itemsBorrowed = 0;
 
@@ -82,6 +86,7 @@ public class User {
     public String getSmartschoolUsername() { return smartschoolUsername; }
     public String getRefreshToken() { return refreshToken; }
     public List<Item> getFavoriteBooks() { return favoriteBooks; }
+    public List<Item> getWishlistedBooks() { return wishlistedBooks; }
     public Integer getItemsBorrowed() { return itemsBorrowed; }
     
     public void setName(String name) { this.name = name; }
@@ -95,5 +100,6 @@ public class User {
     public void setSmartschoolUsername(String smartschoolUsername) { this.smartschoolUsername = smartschoolUsername; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
+    public void setWishlistedBooks(List<Item> wishlistedBooks) { this.wishlistedBooks = wishlistedBooks; }
     public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
 }

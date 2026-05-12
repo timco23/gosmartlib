@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import {
   Book,
+  CampusAvailability,
   Role,
   LoginResponse,
   SchoolItemCopy,
@@ -57,6 +58,7 @@ export class BookDetailPage implements OnInit {
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   renderer = inject(Renderer2);
   copies: SchoolItemCopy[] = [];
+  campusAvailabilities: CampusAvailability[] = [];
   role = Role;
   school: School | null = null;
   isFeatured: boolean = false;
@@ -84,6 +86,9 @@ export class BookDetailPage implements OnInit {
 
   isFavorite: boolean = false;
   favorites: any[] = [];
+  
+  isInWishlist: boolean = false;
+  wishListBooks: any[] = [];
 
   ratingLevels: number[] = [5, 4, 3, 2, 1];
 
@@ -126,6 +131,7 @@ export class BookDetailPage implements OnInit {
           next: (favorites) => {
             this.favorites = favorites;
             this.checkIfFavorite();
+            this.checkIfInWishlist();
             console.log(favorites);
             this.cdr.detectChanges();
           },
@@ -259,6 +265,12 @@ export class BookDetailPage implements OnInit {
     }
   }
 
+  checkIfInWishlist() {
+    if (this.book && this.favorites) {
+      this.isInWishlist = this.wishListBooks.some((fav: any) => fav.id === this.book?.id);
+    }
+  }
+
   addToFavorites() {
     if (!this.book || !this.currentUser?.email) return;
 
@@ -281,12 +293,35 @@ export class BookDetailPage implements OnInit {
     }
   }
 
+  addToWishlist() {
+    if (!this.book || !this.currentUser?.email) return;
+
+    if (!this.isInWishlist) {
+      this.api.addToWishlist(this.book.id, this.currentUser.email).subscribe({
+        next: () => {
+          this.isInWishlist = true;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij toevoegen:', err),
+      });
+    } else {
+      this.api.removeFromWishlist(this.book.id, this.currentUser.email).subscribe({
+        next: () => {
+          this.isInWishlist = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij verwijderen:', err),
+      });
+    }
+  }
+
   getBook(id: string) {
     this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
         this.loadReviews();
         this.checkIfFavorite();
+        this.checkIfInWishlist();
         this.cdr.detectChanges();
 
         if (!this.school?.id) return;
@@ -296,11 +331,40 @@ export class BookDetailPage implements OnInit {
             this.copies = copies.filter((c) => c.copy_status !== 'KWIJT');
             if (this.copies.length > 0 && this.copies[0].featured) this.isFeatured = true;
             this.cdr.detectChanges();
+
+            const hasUnavailableCampus = this.copiesByCampus.some((e) => e.available === 0 && e.borrowed > 0);
+            if (hasUnavailableCampus) {
+              this.api.getEarliestAvailabilityPerCampus(data.id).subscribe({
+                next: (dates) => {
+                  this.campusAvailabilities = dates;
+                  this.cdr.detectChanges();
+                },
+              });
+            }
           },
         });
       },
     });
   }
+  
+  get copiesByCampus(): { campusName: string; available: number; borrowed: number; other: number; total: number; earliestReturnDate: string | null }[] {
+    const groups = new Map<string, SchoolItemCopy[]>();
+    for (const copy of this.copies) {
+      const key = copy.campus?.name ?? 'Geen locatie';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(copy);
+    }
+
+    return Array.from(groups.entries()).map(([campusName, group]) => ({
+      campusName,
+      available: group.filter((c) => c.copy_status === 'BESCHIKBAAR').length,
+      borrowed: group.filter((c) => c.copy_status === 'UITGELEEND').length,
+      other: group.filter((c) => c.copy_status !== 'BESCHIKBAAR' && c.copy_status !== 'UITGELEEND').length,
+      total: group.filter((c) => c.copy_status === 'BESCHIKBAAR' || c.copy_status === 'UITGELEEND').length,
+      earliestReturnDate: this.campusAvailabilities.find((d) => d.campusName === campusName)?.availableFrom ?? null,
+    }));
+  }
+
 
   getTagName(id: number): string {
     return this.allTags.find((t) => t.id === id)?.name ?? '';

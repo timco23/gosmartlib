@@ -12,4 +12,6 @@ public interface LendingRepository extends ListCrudRepository<Lending, Long> {
     boolean existsByBook_Id(int copyId);
     List<Lending> findByBorrowerEmail(String email);
     List<Lending> findByBook_Item_Id(Long itemId);
+    List<Lending> findByBorrower_Id(Long userId);
+    List<Lending> findByBook_Item_IdAndReturnedFalse(Long itemId);
 }

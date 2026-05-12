@@ -1,14 +1,16 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LendingService } from '../services/lending.service';
 import { Lending, LoginResponse } from '../../types/types';
 import { AuthService } from '../services/auth.service';
 import { BookService } from '../services/book-service';
 import { filter, switchMap } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-lending-history',
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './lending-history.component.html',
   styleUrl: './lending-history.component.css',
 })
@@ -18,7 +20,14 @@ export class LendingHistoryComponent {
   currentUser: LoginResponse | null = null;
   cdr = inject(ChangeDetectorRef);
   bookApi: BookService = inject(BookService);
+  userService: UserService = inject(UserService);
   failedCoverIds = new Set<number>();
+  isShowingOtherUser: Boolean = false;
+  otherUser: string = "";
+  userEmail: string = "";
+  userName: string = "";
+
+  searchQuery: string = '';
 
   currentPage = 0;
   pageSize = 10;
@@ -32,22 +41,54 @@ export class LendingHistoryComponent {
     return this.lendings.slice(start, start + this.pageSize);
   }
 
-  constructor(private authService: AuthService) {}
-
+  constructor(private authService: AuthService, private route: ActivatedRoute) {}
+  
   ngOnInit(): void {
-    this.authService.currentUser$
-      .pipe(
-        filter((user) => !!user?.email),
-        switchMap((user) => {
-          this.currentUser = user;
-          return this.api.getLendingsByUserId(this.currentUser!.email);
-        }),
-      )
-      .subscribe((data: Lending[]) => {
-        this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
-        this.currentPage = 0;
-        this.cdr.detectChanges();
-      });
+    this.route.queryParams.subscribe(params => {
+      const userId = params['userId'];
+      const userEmail = params['userEmail']
+      if (userId != null) {
+        this.isShowingOtherUser = true;
+        this.userEmail = userEmail
+        this.api.getLendingsByUserId(Number(userId)).subscribe((data: Lending[]) => {
+          this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
+          this.currentPage = 0;
+
+            this.userService.getProfileByEmail(this.userEmail).subscribe({
+              next: (user) => {
+                this.userName = user.name;
+                this.cdr.detectChanges();
+              }
+            });
+
+          this.cdr.detectChanges();
+        });
+      } else {
+        this.authService.currentUser$
+          .pipe(
+            filter((user) => !!user?.email),
+            switchMap((user) => {
+              this.currentUser = user;
+              return this.api.getLendingsByUser(this.currentUser!.email);
+            }),
+          )
+          .subscribe((data: Lending[]) => {
+            this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
+            this.currentPage = 0;
+            this.cdr.detectChanges();
+          });
+      }
+    });
+  }
+
+  get filteredLendings(): Lending[] {
+    const q = this.searchQuery.toLowerCase().trim();
+    if (!q) return this.visibleLendings;
+    return this.visibleLendings.filter(l =>
+      l.bookTitle?.toLowerCase().includes(q) ||
+      l.bookAuthor?.toLowerCase().includes(q) ||
+      l.borrowerName?.toLowerCase().includes(q)
+    );
   }
 
   nextPage(): void {

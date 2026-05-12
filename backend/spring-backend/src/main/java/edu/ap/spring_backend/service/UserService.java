@@ -73,6 +73,28 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public ItemDTO[] getWishlistedBooks(String email){
+        return findUserByEmail(email).getWishlistedBooks().stream()
+                .map(itemMapper::toItemDTO)
+                .toArray(ItemDTO[]::new);
+    }
+
+    public void addWishlistedBook(String email, Long itemId) {
+        User user = findUserByEmail(email);
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(EntityNotFoundException::new);
+        user.getWishlistedBooks().add(item);
+        userRepository.save(user);
+    }
+
+    public void deleteWishlistedBook(String email, Long itemId) {
+        User user = findUserByEmail(email);
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(EntityNotFoundException::new);
+        user.getWishlistedBooks().remove(item);
+        userRepository.save(user);
+    }
+
     public List<UserResponse> getUsersBySchool(Long schoolId) {
         return userRepository.findBySchoolId(schoolId).stream()
                 .map(userMapper::toUserResponse)

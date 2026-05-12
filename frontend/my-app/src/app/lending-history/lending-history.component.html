@@ -3,9 +3,18 @@
     <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
   </header>
   <div class="lendings-card">
-    <h3>Mijn uitleenhistoriek</h3>
+    @if(isShowingOtherUser){
+      <h3>Uitleenhistoriek van {{ userName }}</h3>
+    }
+    @else{
+      <h3>Mijn uitleenhistoriek</h3>
+    }
+
+    <div class="search-bar">
+        <input type="text" placeholder="Zoek op titel of auteur..." [(ngModel)]="searchQuery" />
+    </div>
     <ul class="lending-list">
-      @for (lending of visibleLendings; track lending.id) {
+      @for (lending of filteredLendings; track lending.id) {
       <li class="lending-item">
         @let cover = coverSrcFromLending(lending);
         @if (cover) {

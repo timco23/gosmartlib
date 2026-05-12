@@ -66,6 +66,9 @@
             <button class="action-btn favorite-btn" type="button" (click)="addToFavorites()">
               {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
             </button>
+            <button class="action-btn wishlist-btn" type="button" (click)="addToWishlist()">
+              {{ isInWishlist ? 'Verwijderen uit verlanglijst' : 'Toevoegen aan verlanglijst' }}
+            </button>
             @if (authService.atLeastHasRole(role.LEERKRACHT)) {
               <button class="action-btn report-btn" type="button">Bekijk rapportage</button>
             }
@@ -163,19 +166,38 @@
         </section>
 
         <aside class="right-col">
-          <div class="panel side-box">
-            <p class="panel-title">Beschikbaarheid</p>
-            <p>{{ copies.length }} exemplaren</p>
-          </div>
-
-          <div class="panel side-box">
-            <p class="panel-title">Locatie(s)</p>
-            @if (school?.campuses?.length) {
-              @for (c of school!.campuses; track c.id) {
-                <div>{{ c.name }}</div>
+          <div class="panel side-box campus-availability-panel">
+            <p class="panel-title">Exemplaren per campus</p>
+            @if (copiesByCampus.length) {
+              @for (entry of copiesByCampus; track entry.campusName) {
+                <div
+                  class="campus-entry"
+                  [class.campus-entry--available]="entry.available > 0"
+                  [class.campus-entry--full]="entry.available === 0 && entry.borrowed > 0"
+                >
+                  @let count = authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) ? entry.total + entry.other : entry.total;
+                  <div class="campus-header">
+                    <span class="campus-name">{{ entry.campusName }}</span>
+                    <span class="campus-total">{{ count === 1 ? '1 exemplaar' : count + ' exemplaren' }}</span>
+                  </div>
+                  <div class="avail-grid">
+                    @if (entry.available > 0) {
+                      <span class="avail-badge avail-badge--available">{{ entry.available }} beschikbaar</span>
+                    }
+                    @if (entry.borrowed > 0) {
+                      <span class="avail-badge avail-badge--borrowed">{{ entry.borrowed }} uitgeleend</span>
+                    }
+                    @if (entry.other > 0 && authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+                      <span class="avail-badge avail-badge--other">{{ entry.other }} ontbrekend</span>
+                    }
+                    @if (entry.available === 0 && entry.borrowed > 0 && entry.earliestReturnDate) {
+                      <span class="avail-badge avail-badge--return-date">Beschikbaar vanaf: {{ entry.earliestReturnDate }}</span>
+                    }
+                  </div>
+                </div>
               }
             } @else {
-              <div>Geen locaties</div>
+              <p class="muted">Geen exemplaren gevonden.</p>
             }
           </div>
         </aside>

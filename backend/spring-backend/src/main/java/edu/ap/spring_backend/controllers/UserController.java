@@ -85,6 +85,44 @@ public class UserController {
         }
     }
 
+    @GetMapping("/wishlist")
+    public ResponseEntity<ItemDTO[]> getWishlistedBooks(@RequestParam String email) {
+        ItemDTO[] favoriteBooks = userService.getWishlistedBooks(email);
+        return ResponseEntity.ok(favoriteBooks);
+    }
+
+    /**
+     * Adds a book to the user's wishlist based on the provided email and item ID.
+     * @param email
+     * @param itemId
+     * @return a ResponseEntity with a success message if the book was added, or an error message if the operation failed (e.g. user or item not found, item already in favorites, etc.)
+     */
+    @PostMapping("/wishlist")
+    public ResponseEntity<String> addWishlistedBook(@RequestParam String email, @RequestParam Long itemId) {
+        try {
+            userService.addWishlistedBook(email, itemId);
+            return ResponseEntity.ok("Book added to wishlist");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Removes a book from the user's wishlist based on the provided email and item ID.
+     * @param email
+     * @param itemId
+     * @return a ResponseEntity with a success message if the book was removed, or an error message if the operation failed (e.g. user or item not found, item not in favorites, etc.)
+     */
+    @DeleteMapping("/wishlist")
+    public ResponseEntity<String> deleteWishlistedBook(@RequestParam String email, @RequestParam Long itemId) {
+        try {
+            userService.deleteWishlistedBook(email, itemId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
     /**
      * Updates the role of a user based on their email. Only accessible by ADMIN users.
      * @param email
