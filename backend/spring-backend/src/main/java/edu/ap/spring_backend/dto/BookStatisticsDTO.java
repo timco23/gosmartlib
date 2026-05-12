@@ -11,7 +11,8 @@ public record BookStatisticsDTO(
     int globalUnavailableDays,
     List<MonthlyLendingDTO> lendingsByMonth,
     List<CampusStatisticsDTO> campusStats,
-    List<RecentLendingDTO> recentLendings
+    List<RecentLendingDTO> recentLendings,
+    SchoolRankingDTO schoolRanking
 ) {
     public record MonthlyLendingDTO(String month, int count) {}
 
@@ -34,5 +35,14 @@ public record BookStatisticsDTO(
         String dateReturned,
         boolean returned,
         boolean extended
+    ) {}
+
+    public record SchoolRankingDTO(
+        int rankAbsolute,
+        int rankPerCopy,
+        Integer rankReadingLevel,       // null when book has no reading level
+        int totalBooks,
+        Integer totalBooksReadingLevel, // null when book has no reading level
+        double lendingsPerCopy
     ) {}
 }

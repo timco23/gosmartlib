@@ -3,8 +3,10 @@ package edu.ap.spring_backend.service;
 import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
+import edu.ap.spring_backend.dto.ItemCountDTO;
 import edu.ap.spring_backend.jpa.CopyStatus;
 import edu.ap.spring_backend.jpa.Lending;
+import edu.ap.spring_backend.jpa.ReadingLevel;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.jpa.User;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,7 +61,8 @@ public class StatisticsService {
                 calcUnavailableDays(lendings, copies.size()),
                 calcMonthlyTrend(lendings, 6),
                 campusStats,
-                recentLendings);
+                recentLendings,
+                calcSchoolRanking(bookId, schoolId, copies));
     }
 
     // helpers
@@ -173,6 +177,79 @@ public class StatisticsService {
             prevDate = date;
         }
         return unavailableDays;
+    }
+
+    /**
+     * Computes three independent rankings for the given book within its school library.
+     * Absolute: ranked by total lending count across all books.
+     * Per copy: ranked by lendingsPerCopy
+     * Reading level: ranked by absolute lendings within books that share
+     *       the same reading level. null when the book has no reading level assigned.
+     *
+     * @param copies preloaded copies for this book, used to extract its reading level
+     */
+    private BookStatisticsDTO.SchoolRankingDTO calcSchoolRanking(Long bookId, Long schoolId,
+                                                                  List<SchoolItemCopy> copies) {
+        Long readingLevelId = copies.stream()
+                .map(c -> c.getItem().getReadingLevel())
+                .filter(Objects::nonNull)
+                .map(ReadingLevel::getId)
+                .findFirst().orElse(null);
+
+        Map<Long, Long> lendingsByItem = lendingRepository.countLendingsByItemForSchool(schoolId)
+                .stream().collect(Collectors.toMap(ItemCountDTO::itemId, ItemCountDTO::count));
+        Map<Long, Long> copiesByItem = copyRepository.countCopiesByItemForSchool(schoolId)
+                .stream().collect(Collectors.toMap(ItemCountDTO::itemId, ItemCountDTO::count));
+
+        int totalBooks = copiesByItem.size();
+        Set<Long> allItemIds = copiesByItem.keySet();
+
+        // ranking 1: absolute lendings
+        List<Long> byAbsolute = allItemIds.stream()
+                .sorted(Comparator.comparingLong((Long id) -> lendingsByItem.getOrDefault(id, 0L)).reversed())
+                .toList();
+        int rankAbsolute = positionOf(bookId, byAbsolute, totalBooks);
+
+        // ranking 2: per copy
+        List<Long> byIntensity = allItemIds.stream()
+                .sorted(Comparator.comparingDouble((Long id) -> lendingIntensityPerCopy(id, lendingsByItem, copiesByItem)).reversed())
+                .toList();
+        int rankPerCopy = positionOf(bookId, byIntensity, totalBooks);
+
+        long currentCopies = copiesByItem.getOrDefault(bookId, 1L);
+        long currentLendings = lendingsByItem.getOrDefault(bookId, 0L);
+        double lendingsPerCopy = Math.round((double) currentLendings / currentCopies * 10.0) / 10.0;
+
+        // ranking 3: absolute lendings within same reading level
+        Integer rankReadingLevel = null;
+        Integer totalBooksReadingLevel = null;
+        if (readingLevelId != null) {
+            List<Long> levelIds = new ArrayList<>(
+                    copyRepository.findItemIdsBySchoolAndReadingLevel(schoolId, readingLevelId));
+            Map<Long, Long> levelLendings = lendingRepository
+                    .countLendingsByItemForSchoolAndReadingLevel(schoolId, readingLevelId)
+                    .stream().collect(Collectors.toMap(ItemCountDTO::itemId, ItemCountDTO::count));
+
+            totalBooksReadingLevel = levelIds.size();
+            levelIds.sort((a, b) -> Long.compare(
+                    levelLendings.getOrDefault(b, 0L),
+                    levelLendings.getOrDefault(a, 0L)));
+            rankReadingLevel = positionOf(bookId, levelIds, totalBooksReadingLevel);
+        }
+
+        return new BookStatisticsDTO.SchoolRankingDTO(
+                rankAbsolute, rankPerCopy, rankReadingLevel,
+                totalBooks, totalBooksReadingLevel, lendingsPerCopy);
+    }
+
+    private static int positionOf(Long id, List<Long> rankedIds, int total) {
+        int idx = rankedIds.indexOf(id);
+        return idx >= 0 ? idx + 1 : total;
+    }
+
+    // Lendings per copy for a single item; defaults to 0 lendings and 1 copy when absent.
+    private static double lendingIntensityPerCopy(Long itemId, Map<Long, Long> lendingCounts, Map<Long, Long> copyCounts) {
+        return (double) lendingCounts.getOrDefault(itemId, 0L) / copyCounts.getOrDefault(itemId, 1L);
     }
 
     /**
