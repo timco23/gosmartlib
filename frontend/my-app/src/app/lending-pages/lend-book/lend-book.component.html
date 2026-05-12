@@ -28,19 +28,6 @@
     />
 
       @if(currentUser?.role === 'LEERLING' || currentUser === null){}
-      @else{
-        <div class="form-group">
-          <label for="show-multiple-books">
-            <input
-              type="checkbox"
-              id="show-multiple-books"
-              name="showMultipleBooks"
-              [(ngModel)]="showMultipleBooks"
-            />
-            Meerdere boeken uitlenen
-          </label>
-        </div>
-      }
     
     <div class="form-group">
       <label>boek</label>
@@ -79,9 +66,53 @@
       [getTitle]="bookTitle"
       [getMeta]="bookMeta"
       [disableFallback]="true"
+      [canAddInBulk]="canAddInBulk"
+      (booksConfirmed)="onBooksConfirmed($event)"
       (close)="closeBookPopup()"
       (bookSelected)="onBookSelected($event)"
     ></app-book-selector-popup-component>
+
+    @if (showCopyPicker && pendingBooks.length > 0) {
+      <div class="copy-picker-overlay" (click)="cancelPendingBooks()">
+        <div class="copy-picker-card" (click)="$event.stopPropagation()">
+          <div class="copy-picker-header">
+            <h3>Kies exemplaren per boek</h3>
+            <button type="button" class="icon-btn" (click)="cancelPendingBooks()">✕</button>
+          </div>
+        
+          @for (entry of pendingBooks; track entry.book.id) {
+            <div class="copy-picker-book">
+              <p class="copy-picker-title">{{ bookTitle(entry.book) }}</p>
+              <p class="copy-picker-meta">{{ bookMeta(entry.book) }}</p>
+              <div class="copies-list">
+                @for (copy of entry.copies; track copy.barcode) {
+                  <label class="copy-option">
+                    <input
+                      type="checkbox"
+                      [checked]="isPendingCopySelected(entry, copy)"
+                      (change)="togglePendingCopy(entry, copy)"
+                    />
+                    {{ copy.barcode }} — {{ copy.condition }}
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        
+          <div class="copy-picker-footer">
+            <span>{{ totalPendingSelected }} exemplaren geselecteerd</span>
+            <button
+              type="button"
+              class="confirm-btn"
+              [disabled]="noPendingCopiesSelected"
+              (click)="confirmPendingBooks()"
+            >
+              Bevestigen
+            </button>
+          </div>
+        </div>
+      </div>
+    }
 
     @if (currentBook != null) {
       <div class="book-preview">
@@ -118,7 +149,8 @@
             @if (showMultipleBooks || selectedCopies.length === 0 || isCopySelected(copy)) {
               <label class="copy-option">
                 <input
-                  type="checkbox"
+                  [type]="showMultipleBooks ? 'checkbox' : 'radio'"
+                  name="copy-select"
                   [value]="copy.barcode"
                   [checked]="isCopySelected(copy)"
                   (change)="onCopyToggle(copy, $event)"
@@ -130,7 +162,7 @@
         </div>
       </div>
     }
-
+    
     @if (showMultipleBooks && currentBook && selectedCopies.length > 0) {
       <button type="button" class="add-book-btn" (click)="addBookToSelection()">
         + Voeg {{ selectedCopies.length > 1 ? selectedCopies.length + ' exemplaren' : 'exemplaar' }} toe aan lijst
