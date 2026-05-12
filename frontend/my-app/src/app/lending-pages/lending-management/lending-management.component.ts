@@ -5,6 +5,9 @@ import { RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { SchoolService } from '../../services/school.service';
 
 @Component({
   selector: 'app-lending-management',
@@ -13,6 +16,10 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './lending-management.component.css',
 })
 export class LendingManagementComponent {
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private schoolService = inject(SchoolService);
+
   lendingService: LendingService;
   public lendings: Lending[] = [];
   cdr = inject(ChangeDetectorRef);
@@ -46,12 +53,26 @@ export class LendingManagementComponent {
     this.lendingService = lendingservice;
   }
 
-  public ngOnInit(): void {
-    this.lendingService.getLendings().subscribe((data: Lending[]) => {
-      this.lendings = data
-        .filter((l) => !l.returned)
-        .sort((a, b) => new Date(a.returnDate).getTime() - new Date(b.returnDate).getTime());
-      this.cdr.detectChanges();
+    public ngOnInit(): void {
+    this.authService.currentUser$.subscribe((user) => {
+      if (!user?.email) return;
+      this.userService.getUser(user.email).subscribe({
+        next: (data) => {
+          if (!data.schoolName) return;
+          this.schoolService.getByName(data.schoolName).subscribe({
+            next: (school) => {
+              this.lendingService.getLendingsBySchool(school.id!).subscribe({
+                next: (data: Lending[]) => {
+                  this.lendings = data
+                    .filter((l) => !l.returned)
+                    .sort((a, b) => new Date(a.returnDate).getTime() - new Date(b.returnDate).getTime());
+                  this.cdr.detectChanges();
+                }
+              });
+            }
+          });
+        }
+      });
     });
   }
 

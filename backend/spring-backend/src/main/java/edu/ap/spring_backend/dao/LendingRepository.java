@@ -13,5 +13,6 @@ public interface LendingRepository extends ListCrudRepository<Lending, Long> {
     List<Lending> findByBorrowerEmail(String email);
     List<Lending> findByBook_Item_Id(Long itemId);
     List<Lending> findByBorrower_Id(Long userId);
+    List<Lending> findBySchool_Id(Long schoolId);
     List<Lending> findByBook_Item_IdAndReturnedFalse(Long itemId);
 }

@@ -99,6 +99,12 @@ public class LendingService {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
+    public List<LendingDTO> getBySchool(Long id) {
+        return lendingRepository.findBySchool_Id(id).stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
     public LendingDTO extendLending(Long id) {
         Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         if (Boolean.TRUE.equals(lending.getExtended())) {
