@@ -339,6 +339,15 @@ export interface RecentLendingDTO {
   extended: boolean;
 }
 
+export interface SchoolRankingDTO {
+  rankAbsolute: number;
+  rankPerCopy: number;
+  rankReadingLevel: number | null;
+  totalBooks: number;
+  totalBooksReadingLevel: number | null;
+  lendingsPerCopy: number;
+}
+
 export interface BookStatisticsDTO {
   totalLendings: number;
   activeLendings: number;
@@ -349,6 +358,7 @@ export interface BookStatisticsDTO {
   lendingsByMonth: MonthlyLendingDTO[];
   campusStats: CampusStatisticsDTO[];
   recentLendings: RecentLendingDTO[];
+  schoolRanking: SchoolRankingDTO;
 }
 
 export enum Role {

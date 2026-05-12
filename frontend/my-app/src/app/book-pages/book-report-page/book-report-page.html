@@ -27,7 +27,7 @@
       </div>
       <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
         <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
-        <span class="stat-label">Te laat teruggegeven</span>
+        <span class="stat-label">Te laat teruggebracht</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ stats.extensionPercent }}%</span>
@@ -43,6 +43,69 @@
           <span class="stat-label">Exemplaren</span>
         </div>
       }
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">Populariteit & Rangschikking</h2>
+      <p class="panel-sub">Positie binnen de schoolbibliotheek op drie criteria</p>
+
+      <div class="ranking-cards">
+
+        <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankAbsolute, stats.schoolRanking.totalBooks)">
+          <span class="ranking-card-label">Totale uitleningen</span>
+          <div class="ranking-card-main">
+            <span class="ranking-pos">#{{ stats.schoolRanking.rankAbsolute }}</span>
+            <span class="ranking-of">/ {{ stats.schoolRanking.totalBooks }}</span>
+          </div>
+          <div class="ranking-bar-track">
+            <div class="ranking-bar-fill" [style.width.%]="rankingBarAbsolute"></div>
+          </div>
+          <span class="ranking-score">Beter dan {{ betterThanPercent(stats.schoolRanking.rankAbsolute, stats.schoolRanking.totalBooks) }}% van de boeken</span>
+        </div>
+
+        <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankPerCopy, stats.schoolRanking.totalBooks)">
+          <span class="ranking-card-label">Per exemplaar</span>
+          <div class="ranking-card-main">
+            <span class="ranking-pos">#{{ stats.schoolRanking.rankPerCopy }}</span>
+            <span class="ranking-of">/ {{ stats.schoolRanking.totalBooks }}</span>
+          </div>
+          <div class="ranking-bar-track">
+            <div class="ranking-bar-fill" [style.width.%]="rankingBarPerCopy"></div>
+          </div>
+          <span class="ranking-score">{{ stats.schoolRanking.lendingsPerCopy }}× · beter dan {{ betterThanPercent(stats.schoolRanking.rankPerCopy, stats.schoolRanking.totalBooks) }}%</span>
+        </div>
+
+        @if (stats.schoolRanking.rankReadingLevel !== null && stats.schoolRanking.totalBooksReadingLevel !== null) {
+          <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankReadingLevel, stats.schoolRanking.totalBooksReadingLevel)">
+            <span class="ranking-card-label">
+              Binnen leesniveau
+              @if (rankingReadingLevelName) {
+                <span class="ranking-level-chip">{{ rankingReadingLevelName }}</span>
+              }
+            </span>
+            <div class="ranking-card-main">
+              <span class="ranking-pos">#{{ stats.schoolRanking.rankReadingLevel }}</span>
+              <span class="ranking-of">/ {{ stats.schoolRanking.totalBooksReadingLevel }}</span>
+            </div>
+            <div class="ranking-bar-track">
+              <div class="ranking-bar-fill" [style.width.%]="rankingBarReadingLevel"></div>
+            </div>
+            <span class="ranking-score">Beter dan {{ betterThanPercent(stats.schoolRanking.rankReadingLevel, stats.schoolRanking.totalBooksReadingLevel) }}% binnen dit niveau</span>
+          </div>
+        }
+
+        <div class="ranking-card ranking-card--placeholder">
+          <span class="ranking-card-label">Populariteit per leerjaar</span>
+          <div class="ranking-card-main">
+            <span class="ranking-pos ranking-pos--placeholder">—</span>
+          </div>
+          <div class="ranking-bar-track">
+            <div class="ranking-bar-fill" style="width: 0%"></div>
+          </div>
+          <span class="ranking-score">Binnenkort beschikbaar</span>
+        </div>
+
+      </div>
     </section>
 
     <section class="panel">
@@ -122,30 +185,6 @@
         </p>
       </section>
     }
-
-    <section class="panel panel--future">
-      <div class="future-header">
-        <h2 class="panel-title">Populariteit & Rangschikking</h2>
-        <span class="future-chip">Binnenkort</span>
-      </div>
-      <div class="future-grid">
-        <div>
-          <h3 class="future-sub">Rangschikking</h3>
-          <ul class="future-list">
-            <li>Positie binnen schoolbibliotheek (op uitleen-intensiteit)</li>
-            <li>Positie binnen boekgenre</li>
-            <li>Vergelijking met gelijkwaardige boeken (leesniveau, genre)</li>
-          </ul>
-        </div>
-        <div>
-          <h3 class="future-sub">Populariteit per leerjaar</h3>
-          <ul class="future-list">
-            <li>Uitleningen per leerjaar (bv. 4e jaar: 18×, 5e jaar: 7×)</li>
-            <li>Trend over schooljaren</li>
-          </ul>
-        </div>
-      </div>
-    </section>
 
     <section class="panel">
       <h2 class="panel-title">Recente uitleningen</h2>

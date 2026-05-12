@@ -247,6 +247,116 @@
   margin: 0;
 }
 
+/* ── Ranking ───────────────────────────────────────────────── */
+
+.ranking-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.ranking-card {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ranking-card-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-3);
+}
+
+.ranking-card-main {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.ranking-pos {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.ranking-of {
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+
+.ranking-bar-track {
+  height: 6px;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.ranking-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-pill);
+  transition: width 0.6s ease;
+  min-width: 3px;
+}
+
+.ranking-score {
+  font-size: var(--text-xs);
+  color: var(--color-text-2);
+  font-weight: 500;
+}
+
+.ranking-card--good {
+  border-color: var(--color-success-border);
+  background: var(--color-success-bg);
+}
+
+.ranking-card--good .ranking-pos {
+  color: var(--color-success-dark);
+}
+
+.ranking-card--good .ranking-bar-fill {
+  background: var(--color-success-dark);
+}
+
+.ranking-card--placeholder {
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.ranking-pos--placeholder {
+  color: var(--color-text-3);
+  font-size: var(--text-2xl);
+}
+
+.ranking-level-chip {
+  display: inline-block;
+  margin-left: var(--space-1);
+  padding: 0.1rem var(--space-2);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-text-2);
+  vertical-align: middle;
+}
+
+.ranking-future {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
 /* ── Toekomstige inzichten ─────────────────────────────────── */
 
 .future-grid {
