@@ -3,6 +3,55 @@
   padding: var(--space-8) var(--space-6);
 }
 
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.profile-header-info h2 {
+  margin: 0;
+  text-align: left;
+  font-size: var(--text-2xl);
+}
+
+.profile-email {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+}
+
+.empty-lendings {
+  color: var(--color-text-3);
+  font-size: var(--text-sm);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
 .profile-container {
   max-width: 800px;
   margin: var(--space-8) auto;

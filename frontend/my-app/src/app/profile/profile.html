@@ -1,133 +1,135 @@
-<div class="back-link-wrapper">
-  <a class="back-link" [routerLink]="['/accounts']">← Terug naar de lijst</a>
-</div>
-
 <div class="profile-container">
-  <h2>Accountgegevens</h2>
-
   @if (loading) {
-  <div class="loading">Laden...</div>
+    <div class="loading">Laden...</div>
   }
 
   @if (error) {
-  <div class="error-message">{{ error }}</div>
+    <div class="error-message">{{ error }}</div>
   }
 
   @if (profile && !loading) {
-  <div class="profile-content">
-    @if (profile.firstName) {
-    <div class="profile-item">
-      <label>Voornaam:</label>
-      <span>{{ profile.firstName }}</span>
-    </div>
-    }
-
-    <div class="profile-item">
-      <label>Naam:</label>
-      <span>{{ profile.name }}</span>
-    </div>
-
-    <div class="profile-item">
-      <label>Klas:</label>
-      @if (profile.classes.length > 0) {
-      @for (class of profile.classes; track $index) {
-      <span>{{ class.className }}</span>
-      }
-      } @else {
-      <span>Geen</span>
-      }
-    </div>
-
-    @if (profile.schoolName) {
-    <div class="profile-item">
-      <label>School:</label>
-      <span>{{ profile.schoolName }}</span>
-    </div>
-    }
-
-    @if (profile.studentNumber) {
-    <div class="profile-item">
-      <label>Studentnummer:</label>
-      <span>{{ profile.studentNumber }}</span>
-    </div>
-    }
-
-    <div class="profile-item">
-      <label>Email:</label>
-      <span>{{ profile.email }}</span>
-    </div>
-
-    <div class="profile-item">
-      <label>Rol:</label>
-      @if (canEditRole) {
-      <div class="role-edit-container">
-        <div class="role-edit">
-          <select [(ngModel)]="selectedRole" class="role-select">
-            @for (role of availableRoles; track role) {
-            <option [value]="role">{{ role }}</option>
-            }
-          </select>
-          <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
-        </div>
-        @if (roleUpdateSuccess) {
-        <span class="role-success">{{ roleUpdateSuccess }}</span>
-        }
-        @if (roleUpdateError) {
-        <span class="role-error">{{ roleUpdateError }}</span>
+    <div class="profile-header">
+      <div class="profile-avatar">
+        {{ (profile.firstName?.[0] ?? '') + (profile.name?.[0] ?? '') }}
+      </div>
+      <div class="profile-header-info">
+        <h2>{{ profile.firstName }} {{ profile.name }}</h2>
+        <span class="profile-email">{{ profile.email }}</span>
+        @if (canSeeRole) {
+          <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">{{
+            profile.role
+          }}</span>
         }
       </div>
-      } @else {
-      <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">
-        {{ profile.role }}
-      </span>
+    </div>
+
+    <div class="profile-content">
+      @if (profile.schoolName) {
+        <div class="profile-item">
+          <label>School</label>
+          <span>{{ profile.schoolName }}</span>
+        </div>
+      }
+
+      @if (profile.classes.length > 0) {
+        <div class="profile-item">
+          <label>Klas</label>
+          <span>{{ classNames }}</span>
+        </div>
+      }
+
+      @if (profile.studentNumber) {
+        <div class="profile-item">
+          <label>Studentnummer</label>
+          <span>{{ profile.studentNumber }}</span>
+        </div>
+      }
+
+      <div class="profile-item">
+        <label>Boeken geleend</label>
+        <span>{{ profile.items_borrowed ?? 0 }}</span>
+      </div>
+
+      @if (canSeeRole && canEditRole) {
+        <div class="profile-item">
+          <label>Rol aanpassen</label>
+          <div class="role-edit-container">
+            <div class="role-edit">
+              <select [(ngModel)]="selectedRole" class="role-select">
+                @for (role of availableRoles; track role) {
+                  <option [value]="role">{{ role }}</option>
+                }
+              </select>
+              <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
+            </div>
+            @if (roleUpdateSuccess) {
+              <span class="role-success">{{ roleUpdateSuccess }}</span>
+            }
+            @if (roleUpdateError) {
+              <span class="role-error">{{ roleUpdateError }}</span>
+            }
+          </div>
+        </div>
       }
     </div>
-  </div>
+
+    <div class="lendings-card">
+      <h3>Recente leningen</h3>
+      @if (filteredLendings.length === 0) {
+        <p class="empty-lendings">Geen leningen gevonden.</p>
+      }
+      <ul class="lending-list">
+        @for (lending of filteredLendings.slice(0, 3); track lending.id) {
+          <li class="lending-item">
+            @let cover = coverSrcFromLending(lending);
+            @if (cover) {
+              <img
+                class="cover-img"
+                [src]="cover"
+                [alt]="lending.bookTitle || 'Boek cover'"
+                loading="lazy"
+                (error)="onCoverError($event, lending)"
+              />
+            } @else {
+              <div class="cover-placeholder">📖</div>
+            }
+            <div class="lending-field">
+              <span class="label">Titel</span>
+              <span class="value">{{ lending.bookTitle }}</span>
+            </div>
+            <div class="lending-field">
+              <span class="label">Auteur</span>
+              <span class="value">{{ lending.bookAuthor }}</span>
+            </div>
+            <div class="lending-field">
+              <span class="label">Uitgeleend op</span>
+              <span class="value">{{ lending.lendingDate }}</span>
+            </div>
+            @if (lending.dateReturned) {
+              <div class="lending-field">
+                <span class="label">Teruggebracht op</span>
+                <span class="value">{{ lending.dateReturned }}</span>
+              </div>
+            } @else {
+              <div class="lending-field">
+                <span class="label">Status</span>
+                <span class="value">Nog niet teruggebracht</span>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+      @if (!isViewingOther) {
+        <a class="btn-lendings" [routerLink]="['/lendingHistory']">Meer bekijken</a>
+      }
+      @if (isViewingOther && profile) {
+        <a
+          class="btn-lendings"
+          [routerLink]="['/lendingHistory']"
+          [queryParams]="{ userId: profile.id, userEmail: profile.email }"
+          >Meer bekijken</a
+        >
+      }
+    </div>
   }
 </div>
-
-<h3>Recente leningen</h3>
-
-@for (lending of filteredLendings.slice(0, 3); track lending.id) {
-<li class="lending-item">
-  @let cover = coverSrcFromLending(lending);
-  @if (cover) {
-  <img class="cover-img" [src]="cover" [alt]="lending.bookTitle || 'Boek cover'" loading="lazy"
-    (error)="onCoverError($event, lending)" />
-  } @else {
-  <div class="cover-placeholder">📖</div>
-  }
-  <div class="lending-field">
-    <span class="label">Titel</span>
-    <span class="value">{{ lending.bookTitle }}</span>
-  </div>
-  <div class="lending-field">
-    <span class="label">Auteur</span>
-    <span class="value">{{ lending.bookAuthor }}</span>
-  </div>
-  <div class="lending-field">
-    <span class="label">Uitgeleend op</span>
-    <span class="value">{{ lending.lendingDate }}</span>
-  </div>
-  @if (lending.dateReturned) {
-  <div class="lending-field">
-    <span class="label">Teruggebracht op</span>
-    <span class="value">{{ lending.dateReturned }}</span>
-  </div>
-  } @else {
-  <div class="lending-field">
-    <span class="value">Nog niet teruggebracht</span>
-  </div>
-  }
-</li> }
-
-@if (!isViewingOther) {
-<a class="btn-lendings" [routerLink]="['/lendingHistory']">
-  Meer bekijken
-</a>
-}
-@if (isViewingOther && profile) {
-<a class="btn-lendings" [routerLink]="['/lendingHistory']" [queryParams]="{ userId: profile.id, userEmail: profile?.email}">
-  Meer bekijken
-</a>
-}

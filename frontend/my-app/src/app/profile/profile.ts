@@ -6,7 +6,6 @@ import { AuthService } from '../services/auth.service';
 import { Lending, LoginResponse, Role, UserProfile } from '../../types/types';
 import { UserService } from '../services/user.service';
 import { LendingService } from '../services/lending.service';
-import { filter, switchMap } from 'rxjs';
 import { BookService } from '../services/book-service';
 
 @Component({
@@ -32,11 +31,10 @@ export class Profile implements OnInit {
   roleUpdateSuccess: string = '';
   roleUpdateError: string = '';
   searchQuery: string = '';
-    
+
   currentPage = 0;
   pageSize = 10;
 
-  
   constructor(
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
@@ -44,7 +42,7 @@ export class Profile implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
   ) {}
-  
+
   get totalPages(): number {
     return Math.ceil(this.lendings.length / this.pageSize);
   }
@@ -56,10 +54,10 @@ export class Profile implements OnInit {
 
   ngOnInit(): void {
     this.authService.fetchCurrentUser().subscribe({
-      next: () => this.cdr.detectChanges()
+      next: () => this.cdr.detectChanges(),
     });
 
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       const email = params['email'];
       if (email) {
         this.isViewingOther = true;
@@ -109,7 +107,7 @@ export class Profile implements OnInit {
       next: (data) => {
         this.profile = data;
         this.loading = false;
-        this.loadLendings(data.email); 
+        this.loadLendings(data.email);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -126,7 +124,7 @@ export class Profile implements OnInit {
         this.profile = data;
         this.selectedRole = data.role;
         this.loading = false;
-        this.loadLendings(data.email); 
+        this.loadLendings(data.email);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -154,10 +152,11 @@ export class Profile implements OnInit {
   get filteredLendings(): Lending[] {
     const q = this.searchQuery.toLowerCase().trim();
     if (!q) return this.visibleLendings;
-    return this.visibleLendings.filter(l =>
-      l.bookTitle?.toLowerCase().includes(q) ||
-      l.bookAuthor?.toLowerCase().includes(q) ||
-      l.borrowerName?.toLowerCase().includes(q)
+    return this.visibleLendings.filter(
+      (l) =>
+        l.bookTitle?.toLowerCase().includes(q) ||
+        l.bookAuthor?.toLowerCase().includes(q) ||
+        l.borrowerName?.toLowerCase().includes(q),
     );
   }
 
@@ -173,5 +172,14 @@ export class Profile implements OnInit {
       this.failedCoverIds.add(id);
       this.cdr.detectChanges();
     }
+  }
+
+  get canSeeRole(): boolean {
+    const role = (this.authService.currentUserValue as any)?.role?.toUpperCase();
+    return role === 'ADMIN' || role === 'BIBLIOTHEEKBEHEERDER' || role === 'BEHEERDER';
+  }
+
+  get classNames(): string {
+    return this.profile?.classes.map((c) => c.className).join(', ') ?? '';
   }
 }
