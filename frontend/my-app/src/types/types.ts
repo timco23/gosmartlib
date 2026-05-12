@@ -313,6 +313,44 @@ export interface LendingRequest {
   returnDate: string;
 }
 
+export interface MonthlyLendingDTO {
+  month: string;
+  count: number;
+}
+
+export interface CampusStatisticsDTO {
+  name: string;
+  totalCopies: number;
+  availableCopies: number;
+  lendingCount: number;
+  activeLendings: number;
+  avgDuration: number;
+  lendingsPerCopy: number;
+  unavailableDays: number;
+}
+
+export interface RecentLendingDTO {
+  id: number;
+  borrowerName: string;
+  lendingDate: string;
+  returnDate: string;
+  dateReturned: string | null;
+  returned: boolean;
+  extended: boolean;
+}
+
+export interface BookStatisticsDTO {
+  totalLendings: number;
+  activeLendings: number;
+  avgDurationDays: number;
+  lateReturnPercent: number;
+  extensionPercent: number;
+  globalUnavailableDays: number;
+  lendingsByMonth: MonthlyLendingDTO[];
+  campusStats: CampusStatisticsDTO[];
+  recentLendings: RecentLendingDTO[];
+}
+
 export enum Role {
   LEERLING,
   LEERKRACHT,

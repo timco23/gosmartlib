@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Lending, LendingRequest } from '../../types/types';
+import { BookStatisticsDTO, Lending, LendingRequest } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
@@ -50,5 +50,11 @@ export class LendingService {
 
   getLendingsByBookId(bookId: number): Observable<Lending[]> {
     return this.http.get<Lending[]>(`${this.apiUrl}/book/${bookId}`);
+  }
+
+  getBookStatistics(bookId: number, schoolId: number): Observable<BookStatisticsDTO> {
+    return this.http.get<BookStatisticsDTO>(`${this.apiUrl}/book/${bookId}/statistics`, {
+      params: { schoolId },
+    });
   }
 }

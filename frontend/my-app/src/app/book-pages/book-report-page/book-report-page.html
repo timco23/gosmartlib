@@ -1,5 +1,5 @@
 <div class="report-container">
-  @if (book) {
+  @if (book && stats) {
     <header class="report-header">
       <a class="back-link" [routerLink]="['/books', bookId]">← Terug naar boek</a>
       <div class="book-hero">
@@ -15,32 +15,32 @@
     <!-- Globale statistieken -->
     <section class="stats-grid">
       <div class="stat-card">
-        <span class="stat-value">{{ totalLendings }}</span>
+        <span class="stat-value">{{ stats.totalLendings }}</span>
         <span class="stat-label">Totaal uitgeleend</span>
       </div>
       <div class="stat-card stat-card--green">
-        <span class="stat-value">{{ activeLendings }}</span>
+        <span class="stat-value">{{ stats.activeLendings }}</span>
         <span class="stat-label">Momenteel uitgeleend</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value">{{ avgDurationDays }}<small>d</small></span>
+        <span class="stat-value">{{ stats.avgDurationDays }}<small>d</small></span>
         <span class="stat-label">Gem. uitleenduur</span>
       </div>
-      <div class="stat-card" [class.stat-card--red]="lateReturnPercent > 20">
-        <span class="stat-value">{{ lateReturnPercent }}%</span>
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
+        <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
         <span class="stat-label">Te laat teruggegeven</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value">{{ extensionPercent }}%</span>
+        <span class="stat-value">{{ stats.extensionPercent }}%</span>
         <span class="stat-label">Verlengingsgraad</span>
       </div>
-      @if (copies.length) {
-        <div class="stat-card" [class.stat-card--red]="globalUnavailableDays > 14">
-          <span class="stat-value">{{ globalUnavailableDays }}<small>d</small></span>
+      @if (stats.campusStats.length) {
+        <div class="stat-card" [class.stat-card--red]="stats.globalUnavailableDays > 14">
+          <span class="stat-value">{{ stats.globalUnavailableDays }}<small>d</small></span>
           <span class="stat-label">Volledig uitgeleend</span>
         </div>
         <div class="stat-card">
-          <span class="stat-value">{{ copies.length }}</span>
+          <span class="stat-value">{{ totalCopies }}</span>
           <span class="stat-label">Exemplaren</span>
         </div>
       }
@@ -49,9 +49,9 @@
     <!-- Trend -->
     <section class="panel">
       <h2 class="panel-title">Uitleningen per maand (laatste 6)</h2>
-      @if (lendingsByMonth.length) {
+      @if (stats.lendingsByMonth.length) {
         <div class="bar-chart">
-          @for (entry of lendingsByMonth; track entry.month) {
+          @for (entry of stats.lendingsByMonth; track entry.month) {
             <div class="bar-col">
               <span class="bar-count">{{ entry.count }}</span>
               <div class="bar-track">
@@ -67,7 +67,7 @@
     </section>
 
     <!-- Campus vergelijking -->
-    @if (copies.length) {
+    @if (stats.campusStats.length) {
       <section class="panel">
         <h2 class="panel-title">Campusvergelijking</h2>
         <p class="panel-sub">Uitleengedrag per campus</p>
@@ -88,7 +88,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (s of campusStats; track s.name) {
+              @for (s of stats.campusStats; track s.name) {
                 @let badge = campusBadge(s);
                 <tr [class.row-dim]="badge === 'onbenut'">
                   <td class="campus-name-cell">{{ s.name }}</td>
@@ -154,7 +154,7 @@
     <!-- Recente uitleningen -->
     <section class="panel">
       <h2 class="panel-title">Recente uitleningen</h2>
-      @if (!recentLendings.length) {
+      @if (!stats.recentLendings.length) {
         <p class="muted">Geen uitleningen gevonden voor dit boek.</p>
       } @else {
         <table class="data-table lending-table">
@@ -169,7 +169,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (l of recentLendings; track l.id) {
+            @for (l of stats.recentLendings; track l.id) {
               <tr>
                 <td>{{ l.borrowerName }}</td>
                 <td>{{ formatDate(l.lendingDate) }}</td>
