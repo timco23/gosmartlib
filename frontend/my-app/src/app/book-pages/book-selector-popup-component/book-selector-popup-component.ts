@@ -41,6 +41,7 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
     [b.author ?? b.authorName, b.isbn].filter(Boolean).join(' • ');
 
   @Output() bookSelected = new EventEmitter<BookSelectorItem>();
+  @Output() close = new EventEmitter<void>();
 
   searchTerm = '';
   filteredBooks: BookSelectorItem[] = [];
@@ -48,6 +49,7 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   private fallbackBooks: BookSelectorItem[] = [];
   private readonly pageSize = 200;
   private readonly maxPages = 50;
+
 
   //Locks scrolling for body of the entire page, not just this component.
   constructor() {
@@ -66,6 +68,7 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen'] && this.isOpen()) {
+      console.log("open");
       this.searchTerm = '';
     }
     if (changes['isOpen'] || changes['books']) {
@@ -154,5 +157,6 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
 
   closePopup() {
     this.isOpen.set(false);
+    this.close.emit();
   }
 }

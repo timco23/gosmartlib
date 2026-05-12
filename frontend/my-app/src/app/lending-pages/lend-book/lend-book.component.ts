@@ -67,6 +67,7 @@ export class LendBookComponent {
   }
   closeBookPopup(): void {
     this.isBookPopupOpen = false;
+    console.log("close")
   }
 
   onBookSelected(payload: any): void {
