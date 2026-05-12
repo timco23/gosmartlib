@@ -2,7 +2,6 @@ package edu.ap.spring_backend.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -98,6 +97,12 @@ public class LendingService {
         return lendingRepository.findById(id)
                 .map(this::toDTO)
                 .orElseThrow(EntityNotFoundException::new);
+    }
+
+    public List<LendingDTO> getBySchool(Long id) {
+        return lendingRepository.findBySchool_Id(id).stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     public LendingDTO extendLending(Long id) {

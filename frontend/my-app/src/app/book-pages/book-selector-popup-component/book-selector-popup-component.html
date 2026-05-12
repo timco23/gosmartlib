@@ -2,34 +2,43 @@
   <div class="card" (click)="$event.stopPropagation()">
     <div class="header">
       <h3>Kies een boek</h3>
+      @if(canAddInBulk){
+        <label class="bulk-label">
+          <input type="checkbox" [(ngModel)]="showMultipleBooks" />
+          Meerdere boeken
+        </label>
+      }
       <button type="button" class="icon-btn" (click)="closePopup()">✕</button>
     </div>
-
     <input
       type="text"
       placeholder="Zoek op titel, auteur of ISBN..."
       [(ngModel)]="searchTerm"
       (ngModelChange)="applyFilter()"
     />
-
-     <small class="hint">Max 10 resultaten</small>
-
+    <small class="hint">Max 10 resultaten</small>
     <ul *ngIf="filteredBooks.length; else noResults">
       <li *ngFor="let book of filteredBooks; trackBy: trackByBook">
         <button
           type="button"
           class="result-btn"
-          [class.selected]="isSelected(book)"
-          (click)="bookSelected.emit(book)"
+          [class.selected]="isSelected(book) || isInSelection(book)"
+          (click)="selectBook(book)"
         >
           <span>{{ getTitle(book) }}</span>
           <small *ngIf="getMeta(book)">{{ getMeta(book) }}</small>
         </button>
       </li>
     </ul>
-
     <ng-template #noResults>
       <p>Geen resultaten.</p>
     </ng-template>
+
+    @if(showMultipleBooks && selectedBooks.length > 0){
+      <div class="selection-footer">
+        <span>{{ selectedBooks.length }} boek{{ selectedBooks.length > 1 ? 'en' : '' }} geselecteerd</span>
+        <button type="button" class="confirm-btn" (click)="confirmSelection()">Bevestigen</button>
+      </div>
+    }
   </div>
 </div>

@@ -1,0 +1,26 @@
+@if (isOpen()) {
+  <div class="overlay" (click)="closePopup()">
+    <div class="content" (click)="$event.stopPropagation()">
+      <div class="popup-title">Kies een lening</div>
+      <button type="button" class="close-btn" (click)="closePopup()">✕</button>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Zoek op titel, lener of barcode..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilter()"
+      />
+      <ul class="result-list">
+        @for (lending of filteredLendings; track trackByLending($index, lending)) {
+          <li class="result-item" [class.selected]="isSelected(lending)" (click)="selectLending(lending)">
+            <span>{{ lending.bookTitle }}</span>
+            <small>{{ lending.borrowerName }} — {{ lending.copyBarcode }}</small>
+          </li>
+        }
+        @if (filteredLendings.length === 0) {
+          <li class="empty-state">Geen leningen gevonden</li>
+        }
+      </ul>
+    </div>
+  </div>
+}

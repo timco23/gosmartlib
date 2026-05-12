@@ -47,6 +47,11 @@ public class LendingController {
         return ResponseEntity.ok(lendingService.getById(id));
     }
 
+    @GetMapping("/school/{id}")
+    public ResponseEntity<Object> getLendingBySchool(@PathVariable Long id) {
+        return ResponseEntity.ok(lendingService.getBySchool(id));
+    }
+
     @PostMapping()
     public ResponseEntity<LendingDTO> addLending(@RequestBody LendingRequestDTO newLending) {
         return ResponseEntity.status(201).body(lendingService.addLending(newLending));

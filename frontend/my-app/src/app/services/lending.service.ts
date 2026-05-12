@@ -51,4 +51,8 @@ export class LendingService {
   getLendingsByBookId(bookId: number): Observable<Lending[]> {
     return this.http.get<Lending[]>(`${this.apiUrl}/book/${bookId}`);
   }
+
+  getLendingsBySchool(schoolId: number): Observable<Lending[]> {
+    return this.http.get<Lending[]>(`${this.apiUrl}/school/${schoolId}`);
+  }
 }

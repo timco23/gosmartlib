@@ -12,14 +12,14 @@
 .card {
   width: min(720px, 92vw);
   max-height: 82vh;
-  overflow: auto;
+  overflow: hidden;
   background: var(--color-surface-1);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   box-shadow: var(--shadow-lg);
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-surface-3) transparent;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header row: title + close */
@@ -94,6 +94,10 @@ ul {
   list-style: none;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
 }
 
 /* Individual result */
@@ -142,4 +146,76 @@ p {
   color: var(--color-text-3);
   text-align: center;
   padding: var(--space-6) 0;
+}
+
+/* Scope search input - not checkboxes */
+input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin: var(--space-2) 0 var(--space-4);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text-1);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+input[type="text"]::placeholder { color: var(--color-text-3); }
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-tint);
+}
+
+/* Bulk checkbox label */
+.bulk-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-text-2);
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: var(--space-3);
+}
+
+.bulk-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  margin: 0;
+}
+
+.selection-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  margin-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+  flex-shrink: 0;
+}
+
+.confirm-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.confirm-btn:hover {
+  background: var(--color-primary-bright);
 }
