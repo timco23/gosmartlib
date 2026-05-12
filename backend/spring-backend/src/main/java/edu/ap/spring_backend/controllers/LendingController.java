@@ -22,7 +22,7 @@ import edu.ap.spring_backend.service.LendingService;
 @RequestMapping("/lendings")
 public class LendingController {
 
-    private LendingService lendingService;
+    private final LendingService lendingService;
 
     public LendingController(LendingService lendingService) {
         this.lendingService = lendingService;
@@ -69,11 +69,6 @@ public class LendingController {
         return ResponseEntity.ok(lendingService.extendLending(id));
     }
 
-    @GetMapping("/book/{bookId}/statistics")
-    public ResponseEntity<BookStatisticsDTO> getBookStatistics(
-            @PathVariable Long bookId, @RequestParam Long schoolId) {
-        return ResponseEntity.ok(lendingService.getBookStatistics(bookId, schoolId));
-    }
 
     @GetMapping("/book/{bookId}")
     public ResponseEntity<Object> getLendingsByBookId(@PathVariable Long bookId) {

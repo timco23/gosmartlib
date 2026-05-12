@@ -49,7 +49,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/auth/login", "/auth/refresh", "/oauth/**", "/error").permitAll()
                 .requestMatchers("/auth/me").authenticated()
 
-                // Cover/image endpoints 
+                // Cover/image endpoints
                 .requestMatchers(HttpMethod.GET,
                     "/books/*/cover",
                     "/api/books/*/cover"
@@ -108,6 +108,7 @@ public class WebSecurityConfig {
                 // TEACHER
                 .requestMatchers("/lists/**")
                 .hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/statistics", "/statistics/**").hasAnyAuthority(TEACHER_PLUS)
 
                 // BIBLIOTHEEKBEHEERDER
                 .requestMatchers("/lendings", "/lendings/**", "/collections", "/collections/**")

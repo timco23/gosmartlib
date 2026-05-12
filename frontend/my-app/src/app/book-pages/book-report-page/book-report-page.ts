@@ -3,8 +3,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Book, BookStatisticsDTO, CampusStatisticsDTO, RecentLendingDTO } from '../../../types/types';
 import { BookService } from '../../services/book-service';
-import { LendingService } from '../../services/lending.service';
 import { UserService } from '../../services/user.service';
+import { StatisticsService } from '../../services/statistics.service';
 
 @Component({
   selector: 'app-book-report-page',
@@ -15,7 +15,7 @@ import { UserService } from '../../services/user.service';
 export class BookReportPage implements OnInit {
   route = inject(ActivatedRoute);
   bookApi = inject(BookService);
-  lendingApi = inject(LendingService);
+  statisticsApi = inject(StatisticsService);
   userApi = inject(UserService);
   cdr = inject(ChangeDetectorRef);
 
@@ -34,7 +34,7 @@ export class BookReportPage implements OnInit {
 
     this.userApi.getUser().subscribe((user) => {
       if (user.schoolId) {
-        this.lendingApi.getBookStatistics(this.bookId, user.schoolId).subscribe((stats) => {
+        this.statisticsApi.getBookStatistics(this.bookId, user.schoolId).subscribe((stats) => {
           this.stats = stats;
           this.loading = false;
           this.cdr.detectChanges();

@@ -12,7 +12,6 @@
       </div>
     </header>
 
-    <!-- Globale statistieken -->
     <section class="stats-grid">
       <div class="stat-card">
         <span class="stat-value">{{ stats.totalLendings }}</span>
@@ -46,7 +45,6 @@
       }
     </section>
 
-    <!-- Trend -->
     <section class="panel">
       <h2 class="panel-title">Uitleningen per maand (laatste 6)</h2>
       @if (stats.lendingsByMonth.length) {
@@ -66,7 +64,6 @@
       }
     </section>
 
-    <!-- Campus vergelijking -->
     @if (stats.campusStats.length) {
       <section class="panel">
         <h2 class="panel-title">Campusvergelijking</h2>
@@ -126,7 +123,6 @@
       </section>
     }
 
-    <!-- Toekomstige inzichten -->
     <section class="panel panel--future">
       <div class="future-header">
         <h2 class="panel-title">Populariteit & Rangschikking</h2>
@@ -151,7 +147,6 @@
       </div>
     </section>
 
-    <!-- Recente uitleningen -->
     <section class="panel">
       <h2 class="panel-title">Recente uitleningen</h2>
       @if (!stats.recentLendings.length) {
