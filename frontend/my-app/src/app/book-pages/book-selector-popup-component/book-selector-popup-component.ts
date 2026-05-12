@@ -33,6 +33,7 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   @Input() books: BookSelectorItem[] = [];
   @Input() limit = 10;
   @Input() selectedId: string | number | null = null;
+  @Input() disableFallback = false;
 
   @Input() getId: (book: BookSelectorItem) => string | number = (b) => b.id ?? b.bookId ?? '';
   @Input() getTitle: (book: BookSelectorItem) => string = (b) =>
@@ -97,6 +98,7 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   trackByBook = (_: number, book: BookSelectorItem): string | number => this.getId(book);
 
   private async loadFallbackBooks(): Promise<void> {
+    if (this.disableFallback) return;
     try {
       const unique = new Map<string, BookSelectorItem>();
 

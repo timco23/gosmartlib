@@ -78,6 +78,7 @@
       [getId]="bookId"
       [getTitle]="bookTitle"
       [getMeta]="bookMeta"
+      [disableFallback]="true"
       (close)="closeBookPopup()"
       (bookSelected)="onBookSelected($event)"
     ></app-book-selector-popup-component>
