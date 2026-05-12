@@ -1,30 +1,24 @@
 @if (isOpen()) {
-  <div class="popup-overlay" (click)="closePopup()">
-    <div class="popup-panel" (click)="$event.stopPropagation()">
-      <div class="popup-header">
-        <h3>Kies een lener</h3>
-        <button type="button" class="close-btn" (click)="closePopup()">✕</button>
-      </div>
+  <div class="overlay" (click)="closePopup()">
+    <div class="content" (click)="$event.stopPropagation()">
+      <div class="popup-title">Kies een lener</div>
+      <button type="button" class="close-btn" (click)="closePopup()">✕</button>
       <input
         type="text"
-        class="popup-search"
+        class="search-input"
         placeholder="Zoek op naam, e-mail of klas..."
         [(ngModel)]="searchTerm"
         (ngModelChange)="applyFilter()"
       />
-      <ul class="popup-list">
+      <ul class="result-list">
         @for (user of filteredUsers; track trackByUser($index, user)) {
-          <li
-            class="popup-item"
-            [class.selected]="isSelected(user)"
-            (click)="selectUser(user)"
-          >
-            <span class="popup-title">{{ user.name }}</span>
-            <span class="popup-meta">{{ user.email }}@if(getClasses(user)) { — {{ getClasses(user) }} }</span>
+          <li class="result-item" [class.selected]="isSelected(user)" (click)="selectUser(user)">
+            <span>{{ user.name }}</span>
+            <small>{{ user.email }}@if (getClasses(user)) { — {{ getClasses(user) }} }</small>
           </li>
         }
         @if (filteredUsers.length === 0) {
-          <li class="popup-empty">Geen leners gevonden</li>
+          <li class="empty-state">Geen leners gevonden</li>
         }
       </ul>
     </div>

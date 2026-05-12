@@ -9,19 +9,23 @@
   <div class="lending-card">
     <form (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="user">Uitlenen aan</label>
-        <select id="user" name="user" (change)="onUserSelect($event)">
-          <option value="" disabled selected>Kies een lener</option>
-          @for (user of users; track user.id) {
-            @if (user.classes.length > 0) {
-              <option [value]="user.id">{{ user.name }} ({{ user.email }}) - {{getClasses(user)}}</option>
-            }
-            @else {
-              <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
-            }
-          }
-        </select>
+        <label>Uitlenen aan</label>
+        <button type="button" class="choose-book-btn" (click)="openUserPopup()">
+          {{ currentUser ? currentUser.name : 'Kies een lener' }}
+        </button>
+        @if (currentUser) {
+          <small>{{ currentUser.email }}@if(getClasses(currentUser)) { — {{ getClasses(currentUser) }} }</small>
+          <button type="button" class="clear-book-btn" (click)="currentUser = null">Wissen</button>
+        }
       </div>
+    
+    <app-user-selector-popup
+      [(isOpen)]="isUserPopupOpen"
+      [users]="users"
+      [selectedId]="currentUser?.id ?? null"
+      (userSelected)="onUserSelected($event)"
+      (close)="closeUserPopup()"
+    />
 
       @if(currentUser?.role === 'LEERLING' || currentUser === null){}
       @else{
@@ -79,7 +83,8 @@
     ></app-book-selector-popup-component>
 
     @if (currentBook != null) {
-        <div class="book-preview">
+      <div class="book-preview">
+        <div class="book-preview-cover">
           @let cover = bookApi.getBookCoverSrc(currentBook);
           @if (cover) {
             <img
@@ -91,14 +96,18 @@
           } @else {
             <div class="cover-placeholder">📖</div>
           }
-
-          <h3>Boek details</h3>
-          <p><strong>Titel:</strong> {{ currentBook.title }}</p>
-          <p><strong>Auteur:</strong> {{ currentBook.author }}</p>
-          <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>
-          <p><strong>Conditie:</strong> {{ currentSchoolCopy?.condition }}</p>
         </div>
-      }
+        <div class="book-preview-info">
+          <p class="book-preview-label">Boek details</p>
+          <p class="book-preview-title">{{ currentBook.title }}</p>
+          <p class="book-preview-meta">{{ currentBook.author }}</p>
+          <p class="book-preview-meta">{{ currentBook.isbn }}</p>
+          @if (currentSchoolCopy?.condition) {
+            <span class="book-preview-badge">{{ currentSchoolCopy?.condition }}</span>
+          }
+        </div>
+      </div>
+    }
       
     @if (currentCopies.length > 0) {
       <div class="form-group">

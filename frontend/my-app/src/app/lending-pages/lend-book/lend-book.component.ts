@@ -9,10 +9,11 @@ import { UserService } from '../../services/user.service';
 import { LendingService } from '../../services/lending.service';
 import { BookSelectorPopupComponent } from '../../book-pages/book-selector-popup-component/book-selector-popup-component';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
+import { UserSelectorPopupComponent } from '../../user-selector-popup/user-selector-popup.component';
 
 @Component({
   selector: 'app-lend-book',
-  imports: [RouterLink, FormsModule, BookSelectorPopupComponent, PopUpComponent],
+  imports: [RouterLink, FormsModule, BookSelectorPopupComponent, PopUpComponent, UserSelectorPopupComponent],
   templateUrl: './lend-book.component.html',
   styleUrl: './lend-book.component.css',
 })
@@ -62,12 +63,22 @@ export class LendBookComponent {
   readonly bookTitle = (b: any) => b?.title ?? b?.bookTitle ?? 'Onbekend boek';
   readonly bookMeta = (b: any) => [b?.author ?? b?.authorName, b?.isbn].filter(Boolean).join(' • ');
 
+  isUserPopupOpen = false;
+
+  openUserPopup(): void { this.isUserPopupOpen = true; }
+  closeUserPopup(): void { this.isUserPopupOpen = false; }
+
+  onUserSelected(user: UserProfile): void {
+    this.currentUser = user;
+    this.isUserPopupOpen = false;
+    this.cdr.detectChanges();
+  }
+
   openBookPopup(): void {
     this.isBookPopupOpen = true;
   }
   closeBookPopup(): void {
     this.isBookPopupOpen = false;
-    console.log("close")
   }
 
   onBookSelected(payload: any): void {
@@ -339,9 +350,6 @@ export class LendBookComponent {
         .toISOString()
         .split('T')[0],
     }));
-
-    console.log('copies:', copies);
-    console.log('requests:', requests);
 
     const submits = requests.map((request, i) =>
       this.lendingService

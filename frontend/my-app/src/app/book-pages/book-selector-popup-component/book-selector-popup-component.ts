@@ -68,7 +68,6 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen'] && this.isOpen()) {
-      console.log("open");
       this.searchTerm = '';
     }
     if (changes['isOpen'] || changes['books']) {
