@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,124 +20,23 @@ public class StatisticsService {
     private final SchoolItemCopyRepository copyRepository;
 
     public StatisticsService(LendingRepository repository,
-                          SchoolItemCopyRepository copyRepository) {
+                             SchoolItemCopyRepository copyRepository) {
         this.lendingRepository = repository;
         this.copyRepository = copyRepository;
-    }
-
-    private String getBorrowerName(Lending lending) {
-        if (lending.getBorrower() == null)
-            return null;
-
-        User user = lending.getBorrower();
-
-        return user.getFirstName() != null
-                ? user.getFirstName() + " " + user.getName()
-                : user.getName();
     }
 
     public BookStatisticsDTO getBookStatistics(Long bookId, Long schoolId) {
         List<Lending> lendings = lendingRepository.findByBook_Item_IdAndSchool_Id(bookId, schoolId);
         List<SchoolItemCopy> copies = copyRepository.findByItemIdAndSchoolId(bookId, schoolId);
-        LocalDate today = LocalDate.now();
 
         int totalLendings = lendings.size();
-        long activeCount = lendings.stream().filter(l -> !Boolean.TRUE.equals(l.getReturned())).count();
-        int activeLendings = (int) activeCount;
+        int activeLendings = (int) lendings.stream()
+                .filter(l -> !l.isReturned())
+                .count();
+        int extensionPercent = totalLendings == 0 ? 0 : (int) Math.round(
+                100.0 * lendings.stream().filter(Lending::isExtended).count() / totalLendings);
 
-        List<Lending> returnedWithDates = lendings.stream()
-                .filter(l -> Boolean.TRUE.equals(l.getReturned()) && l.getDateReturned() != null)
-                .toList();
-        int avgDurationDays = returnedWithDates.isEmpty() ? 0 : (int) Math.round(
-                returnedWithDates.stream()
-                        .mapToLong(l -> ChronoUnit.DAYS.between(l.getLendingDate(), l.getDateReturned()))
-                        .average().orElse(0));
-
-        long lateCount = lendings.stream().filter(l -> {
-            if (l.getDateReturned() != null) return l.getDateReturned().isAfter(l.getReturnDate());
-            return !Boolean.TRUE.equals(l.getReturned()) && today.isAfter(l.getReturnDate());
-        }).count();
-        int lateReturnPercent = totalLendings == 0 ? 0 : (int) Math.round(100.0 * lateCount / totalLendings);
-
-        long extendedCount = lendings.stream().filter(l -> Boolean.TRUE.equals(l.getExtended())).count();
-        int extensionPercent = totalLendings == 0 ? 0 : (int) Math.round(100.0 * extendedCount / totalLendings);
-
-        int globalUnavailableDays = 0;
-        int totalCopies = copies.size();
-        if (totalCopies > 0 && !lendings.isEmpty()) {
-            LocalDate d = lendings.stream().map(Lending::getLendingDate).min(LocalDate::compareTo).orElse(today);
-            while (!d.isAfter(today)) {
-                final LocalDate date = d;
-                long active = lendings.stream().filter(l -> {
-                    LocalDate s = l.getLendingDate();
-                    LocalDate e = l.getDateReturned() != null ? l.getDateReturned()
-                            : Boolean.TRUE.equals(l.getReturned()) ? l.getReturnDate() : today;
-                    return !date.isBefore(s) && !date.isAfter(e);
-                }).count();
-                if (active >= totalCopies) globalUnavailableDays++;
-                d = d.plusDays(1);
-            }
-        }
-
-        Map<String, Long> monthMap = lendings.stream().collect(Collectors.groupingBy(
-                l -> l.getLendingDate().getYear() + "-" + String.format("%02d", l.getLendingDate().getMonthValue()),
-                Collectors.counting()));
-        List<BookStatisticsDTO.MonthlyLendingDTO> lendingsByMonth = monthMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> new BookStatisticsDTO.MonthlyLendingDTO(e.getKey(), e.getValue().intValue()))
-                .collect(Collectors.toList());
-        if (lendingsByMonth.size() > 6) {
-            lendingsByMonth = lendingsByMonth.subList(lendingsByMonth.size() - 6, lendingsByMonth.size());
-        }
-
-        Map<String, List<SchoolItemCopy>> campusMap = copies.stream()
-                .collect(Collectors.groupingBy(c -> c.getCampus() != null ? c.getCampus().getName() : "Geen locatie"));
-        List<BookStatisticsDTO.CampusStatisticsDTO> campusStats = campusMap.entrySet().stream()
-                .map(entry -> {
-                    List<SchoolItemCopy> campusCopies = entry.getValue();
-                    Set<String> barcodes = campusCopies.stream().map(SchoolItemCopy::getBarcode)
-                            .collect(Collectors.toSet());
-                    List<Lending> campusLendings = lendings.stream()
-                            .filter(l -> barcodes.contains(l.getBook().getBarcode())).toList();
-
-                    int campusTotal = campusLendings.size();
-                    int campusActive = (int) campusLendings.stream()
-                            .filter(l -> !Boolean.TRUE.equals(l.getReturned())).count();
-                    List<Lending> campusReturned = campusLendings.stream()
-                            .filter(l -> Boolean.TRUE.equals(l.getReturned()) && l.getDateReturned() != null).toList();
-                    int campusAvgDuration = campusReturned.isEmpty() ? 0 : (int) Math.round(
-                            campusReturned.stream()
-                                    .mapToLong(l -> ChronoUnit.DAYS.between(l.getLendingDate(), l.getDateReturned()))
-                                    .average().orElse(0));
-                    double lendingsPerCopy = campusCopies.isEmpty() ? 0
-                            : Math.round((double) campusTotal / campusCopies.size() * 10.0) / 10.0;
-                    int campusAvailableCopies = (int) campusCopies.stream()
-                            .filter(c -> c.getCopy_status() == CopyStatus.BESCHIKBAAR).count();
-
-                    int campusUnavailableDays = 0;
-                    if (!campusLendings.isEmpty()) {
-                        LocalDate campusStart = campusLendings.stream().map(Lending::getLendingDate)
-                                .min(LocalDate::compareTo).orElse(today);
-                        LocalDate d = campusStart;
-                        while (!d.isAfter(today)) {
-                            final LocalDate date = d;
-                            long active = campusLendings.stream().filter(l -> {
-                                LocalDate s = l.getLendingDate();
-                                LocalDate e = l.getDateReturned() != null ? l.getDateReturned()
-                                        : Boolean.TRUE.equals(l.getReturned()) ? l.getReturnDate() : today;
-                                return !date.isBefore(s) && !date.isAfter(e);
-                            }).count();
-                            if (active >= campusCopies.size()) campusUnavailableDays++;
-                            d = d.plusDays(1);
-                        }
-                    }
-
-                    return new BookStatisticsDTO.CampusStatisticsDTO(entry.getKey(), campusCopies.size(),
-                            campusAvailableCopies, campusTotal, campusActive, campusAvgDuration,
-                            lendingsPerCopy, campusUnavailableDays);
-                })
-                .sorted(Comparator.comparingInt(BookStatisticsDTO.CampusStatisticsDTO::lendingCount).reversed())
-                .toList();
+        List<BookStatisticsDTO.CampusStatisticsDTO> campusStats = buildCampusStats(lendings, copies);
 
         List<BookStatisticsDTO.RecentLendingDTO> recentLendings = lendings.stream()
                 .sorted(Comparator.comparing(Lending::getLendingDate).reversed())
@@ -149,11 +45,151 @@ public class StatisticsService {
                         l.getId(), getBorrowerName(l),
                         l.getLendingDate().toString(), l.getReturnDate().toString(),
                         l.getDateReturned() != null ? l.getDateReturned().toString() : null,
-                        Boolean.TRUE.equals(l.getReturned()),
-                        Boolean.TRUE.equals(l.getExtended())))
+                        l.isReturned(),
+                        l.isExtended()))
                 .toList();
 
-        return new BookStatisticsDTO(totalLendings, activeLendings, avgDurationDays, lateReturnPercent,
-                extensionPercent, globalUnavailableDays, lendingsByMonth, campusStats, recentLendings);
+        return new BookStatisticsDTO(
+                totalLendings,
+                activeLendings,
+                calcAvgDuration(lendings),
+                calcLatePercent(lendings),
+                extensionPercent,
+                calcUnavailableDays(lendings, copies.size()),
+                calcMonthlyTrend(lendings, 6),
+                campusStats,
+                recentLendings);
+    }
+
+    // helpers
+    private List<BookStatisticsDTO.CampusStatisticsDTO> buildCampusStats(
+            List<Lending> lendings, List<SchoolItemCopy> copies) {
+
+        Map<String, List<SchoolItemCopy>> campusMap = copies.stream()
+                .collect(Collectors.groupingBy(
+                        c -> c.getCampus() != null ? c.getCampus().getName() : "Geen locatie"));
+
+        return campusMap.entrySet().stream()
+                .map(entry -> {
+                    List<SchoolItemCopy> campusCopies = entry.getValue();
+                    Set<String> barcodes = campusCopies.stream()
+                            .map(SchoolItemCopy::getBarcode)
+                            .collect(Collectors.toSet());
+                    List<Lending> campusLendings = lendings.stream()
+                            .filter(l -> barcodes.contains(l.getBook().getBarcode()))
+                            .toList();
+
+                    int campusTotal = campusLendings.size();
+                    int campusActive = (int) campusLendings.stream()
+                            .filter(l -> !l.isReturned()).count();
+                    double lendingsPerCopy = campusCopies.isEmpty() ? 0
+                            : Math.round((double) campusTotal / campusCopies.size() * 10.0) / 10.0;
+                    int campusAvailableCopies = (int) campusCopies.stream()
+                            .filter(c -> c.getCopy_status() == CopyStatus.BESCHIKBAAR).count();
+
+                    return new BookStatisticsDTO.CampusStatisticsDTO(
+                            entry.getKey(),
+                            campusCopies.size(),
+                            campusAvailableCopies,
+                            campusTotal,
+                            campusActive,
+                            calcAvgDuration(campusLendings),
+                            lendingsPerCopy,
+                            calcUnavailableDays(campusLendings, campusCopies.size()));
+                })
+                .sorted(Comparator.comparingInt(BookStatisticsDTO.CampusStatisticsDTO::lendingCount).reversed())
+                .toList();
+    }
+
+    private String getBorrowerName(Lending lending) {
+        if (lending.getBorrower() == null) return null;
+        User user = lending.getBorrower();
+        return user.getFirstName() != null
+                ? user.getFirstName() + " " + user.getName()
+                : user.getName();
+    }
+
+    /**
+     * Average lending duration in days over completed lendings with a known return date.
+     * Incomplete or date-less lendings are excluded.
+     */
+    private int calcAvgDuration(List<Lending> lendings) {
+        List<Lending> completed = lendings.stream()
+                .filter(l -> l.isReturned() && l.getDateReturned() != null)
+                .toList();
+        if (completed.isEmpty()) return 0;
+        return (int) Math.round(
+                completed.stream()
+                        .mapToLong(l -> ChronoUnit.DAYS.between(l.getLendingDate(), l.getDateReturned()))
+                        .average().orElse(0));
+    }
+
+    /**
+     * Percentage of lendings that were or still are overdue.
+     * A lending is overdue when dateReturned > returnDate, or when it is still active past returnDate.
+     */
+    private int calcLatePercent(List<Lending> lendings) {
+        if (lendings.isEmpty()) return 0;
+        long lateCount = lendings.stream()
+                .filter(l -> {
+                    if (l.getDateReturned() != null) return l.getDateReturned().isAfter(l.getReturnDate());
+                    return !l.isReturned() && LocalDate.now().isAfter(l.getReturnDate());
+                }).count();
+        return (int) Math.round(100.0 * lateCount / lendings.size());
+    }
+
+    /**
+     * Counts the days on which all copies of an item were simultaneously occupied
+     * using the sweep-line algorithm.
+     *
+     * @param lendings    the lendings to analyse (already filtered to a single book + optional campus)
+     * @param totalCopies number of physical copies available
+     * @return the total number of days all copies were occupied at the same time
+     */
+    private int calcUnavailableDays(List<Lending> lendings, int totalCopies) {
+        if (totalCopies == 0 || lendings.isEmpty()) return 0;
+        LocalDate today = LocalDate.now();
+        TreeMap<LocalDate, Integer> delta = new TreeMap<>();
+        for (Lending l : lendings) {
+            LocalDate start = l.getLendingDate();
+            LocalDate end = l.getDateReturned() != null ? l.getDateReturned()
+                    : l.isReturned() ? l.getReturnDate() : today;
+
+            delta.merge(start, +1, Integer::sum);
+            delta.merge(end.plusDays(1), -1, Integer::sum);
+        }
+
+        int unavailableDays = 0;
+        int activeCount = 0;
+        LocalDate prevDate = null;
+
+        for (Map.Entry<LocalDate, Integer> entry : delta.entrySet()) {
+            LocalDate date = entry.getKey();
+
+            if (prevDate != null && activeCount >= totalCopies) {
+                unavailableDays += (int) ChronoUnit.DAYS.between(prevDate, date);
+            }
+            activeCount += entry.getValue();
+            prevDate = date;
+        }
+        return unavailableDays;
+    }
+
+    /**
+     * Lendings counted per month (key format: {@code "YYYY-MM"}), sorted chronologically
+     * and trimmed to the {@code months} most recent entries.
+     */
+    private List<BookStatisticsDTO.MonthlyLendingDTO> calcMonthlyTrend(List<Lending> lendings, int months) {
+        Map<String, Long> monthMap = lendings.stream().collect(Collectors.groupingBy(
+                l -> l.getLendingDate().getYear() + "-" + String.format("%02d", l.getLendingDate().getMonthValue()),
+                Collectors.counting()));
+        List<BookStatisticsDTO.MonthlyLendingDTO> result = monthMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> new BookStatisticsDTO.MonthlyLendingDTO(e.getKey(), e.getValue().intValue()))
+                .collect(Collectors.toList());
+        if (result.size() > months) {
+            result = result.subList(result.size() - months, result.size());
+        }
+        return result;
     }
 }

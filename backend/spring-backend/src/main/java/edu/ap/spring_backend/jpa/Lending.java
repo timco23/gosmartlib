@@ -47,6 +47,9 @@ public class Lending {
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
     
+    public boolean isReturned() { return Boolean.TRUE.equals(returned); }
+    public boolean isExtended() { return Boolean.TRUE.equals(extended); }
+
     public Lending() {
     }
     
