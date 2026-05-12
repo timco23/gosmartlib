@@ -63,6 +63,18 @@ class ReviewServiceTest {
         return review;
     }
 
+    private Review approvedReviewFor(Item item, User author, int stars) {
+        Review review = new Review();
+        review.setId(10L);
+        review.setItem(item);
+        review.setAuthor(author);
+        review.setStars(stars);
+        review.setDescription("Review");
+        review.setReportCount(0);
+        review.setApproved(true);
+        return review;
+    }
+
     @Test
     void givenProfanity_whenCreateReview_thenBadRequest() {
         CreateReviewDTO dto = new CreateReviewDTO("bad words", 3, false);
@@ -161,6 +173,23 @@ class ReviewServiceTest {
                 () -> service.reportReview(1L, 10L, new CreateReviewReportDTO("spam"), "user@example.com"));
 
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+        verify(reviewReportRepository, never()).save(any());
+    }
+
+    @Test
+    void givenApprovedReview_whenReportReview_thenForbidden() {
+        User reporter = mockUser(1, "user@example.com", "user", Role.LEERLING);
+        User author = mockUser(2, "author@example.com", "author", Role.LEERLING);
+        Review review = approvedReviewFor(item, author, 4);
+
+        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(reporter));
+        when(reviewRepository.findById(10L)).thenReturn(Optional.of(review));
+        when(reviewReportRepository.existsByReviewIdAndReporterId(10L, 1)).thenReturn(false);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.reportReview(1L, 10L, new CreateReviewReportDTO("spam"), "user@example.com"));
+
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
         verify(reviewReportRepository, never()).save(any());
     }
 
