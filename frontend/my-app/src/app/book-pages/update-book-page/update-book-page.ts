@@ -31,7 +31,6 @@ import { DidacticCategoryService } from '../../services/didactic-category.servic
 import { SchoolService } from '../../services/school.service';
 import { CampusCopyGroupComponent } from '../../campus-copy-group/campus-copy-group.component';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
-import { NgClass } from '../../../../node_modules/@angular/common/types/_common_module-chunk';
 import { DidacticCategorySelectionMenuComponent } from '../../widgets/selection-menu-pages/didactic-category-selection-menu/didactic-category-selection-menu.component';
 import { GenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/genre-selection-menu/genre-selection-menu.component';
 import { ReadingLevelSelectionMenuComponent } from '../../widgets/selection-menu-pages/reading-level/reading-level.component';
@@ -71,6 +70,10 @@ export class UpdateBookPage implements OnInit {
   // Delete confirmation state
   DeleteConfirmation: boolean = false;
 
+  // Lost / found confirmation state
+  LostConfirmation: boolean = false;
+  FoundConfirmation: boolean = false;
+
   // Book form state
   form: FormGroup;
   book: Book | null = null;
@@ -99,6 +102,8 @@ export class UpdateBookPage implements OnInit {
   school: School | null = null;
   isFeatured: boolean = false;
   copyToBeDeleted: number | null = null;
+  copyToBeMarkedLost: number | null = null;
+  copyToBeMarkedFound: number | null = null;
 
   // Add copy state
   addingCopy: boolean = false;
@@ -335,20 +340,21 @@ export class UpdateBookPage implements OnInit {
     });
   }
 
+  isCopyLost(copy: SchoolItemCopy): boolean {
+    return copy.copy_status === 'KWIJT';
+  }
+
   getGroupedCopies(): { campusId: number; campusName: string; copies: SchoolItemCopy[] }[] {
     const groups: { campusId: number; campusName: string; copies: SchoolItemCopy[] }[] = [];
 
-    // Always include "Geen campus" as a drop target
     groups.push({ campusId: 0, campusName: 'Geen campus', copies: [] });
 
-    // Always include all school campuses as drop targets
     if (this.school?.campuses) {
       for (const campus of this.school.campuses) {
         groups.push({ campusId: campus.id!, campusName: campus.name, copies: [] });
       }
     }
 
-    // Distribute copies into their groups
     for (const copy of this.copies) {
       const campusId = copy.campus ? copy.campus.id : 0;
       const group = groups.find((g) => g.campusId === campusId);
@@ -447,35 +453,80 @@ export class UpdateBookPage implements OnInit {
     this.copyError = false;
   }
 
-  showDeleteConfirmation(copyId: any) {
-    const copy = this.copies.find(c => c.id === copyId);
-    if (!copy) return;
+  // Mark as lost
+  showLostConfirmation(copyId: number) {
+    this.copyToBeMarkedLost = copyId;
+    this.LostConfirmation = true;
+    this.cdr.detectChanges();
+  }
 
+  markAsLost(value: string) {
+    this.LostConfirmation = false;
+    if (value !== 'confirm' || this.copyToBeMarkedLost == null) return;
+
+    this.deleteError = null;
+    this.api.setCopyStatus(this.copyToBeMarkedLost, 'KWIJT').subscribe({
+      next: (updatedCopy) => {
+        const index = this.copies.findIndex((c) => c.id === this.copyToBeMarkedLost);
+        if (index > -1) this.copies[index] = updatedCopy;
+        this.copyToBeMarkedLost = null;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.deleteError = err.error || 'Er is een fout opgetreden.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // Mark as found
+  showFoundConfirmation(copyId: number) {
+    this.copyToBeMarkedFound = copyId;
+    this.FoundConfirmation = true;
+    this.cdr.detectChanges();
+  }
+
+  markAsFound(value: string) {
+    this.FoundConfirmation = false;
+    if (value !== 'confirm' || this.copyToBeMarkedFound == null) return;
+
+    this.deleteError = null;
+    this.api.setCopyStatus(this.copyToBeMarkedFound, 'BESCHIKBAAR').subscribe({
+      next: (updatedCopy) => {
+        const index = this.copies.findIndex((c) => c.id === this.copyToBeMarkedFound);
+        if (index > -1) this.copies[index] = updatedCopy;
+        this.copyToBeMarkedFound = null;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.deleteError = err.error || 'Er is een fout opgetreden.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // Delete copy
+  showDeleteConfirmation(copyId: number) {
     this.copyToBeDeleted = copyId;
-    if (copy.copy_status === 'UITGELEEND') {
-      this.DeleteConfirmation = true;
-      this.cdr.detectChanges();
-    } else {
-      this.deleteCopy('confirm');
-    }
+    this.DeleteConfirmation = true;
+    this.cdr.detectChanges();
   }
 
   deleteCopy(value: string) {
-    if (value === 'confirm') {
-      this.deleteError = null;
-        this.api.deleteCopy(this.copyToBeDeleted!).subscribe({
-          next: () => {
-            this.loadCopies();
-            console.log('deleted copy with id: ' + this.copyToBeDeleted);
-          },
-          error: (err) => {
-            console.log('error deleting copy with id: ' + this.copyToBeDeleted, err);
-            this.deleteError = err.error || 'Er is een fout opgetreden bij het verwijderen.';
-            this.cdr.detectChanges();
-          },
-        });
-    }
     this.DeleteConfirmation = false;
+    if (value !== 'confirm' || this.copyToBeDeleted == null) return;
+
+    this.deleteError = null;
+    this.api.deleteCopy(this.copyToBeDeleted).subscribe({
+      next: () => {
+        this.loadCopies();
+        this.copyToBeDeleted = null;
+      },
+      error: (err) => {
+        this.deleteError = err.error || 'Er is een fout opgetreden bij het verwijderen.';
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   // Drag & drop

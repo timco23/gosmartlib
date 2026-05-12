@@ -293,8 +293,8 @@ export class BookDetailPage implements OnInit {
 
         this.api.getCopiesByBookId(data.id, this.school.id).subscribe({
           next: (copies) => {
-            this.copies = copies;
-            if (copies.length > 0 && copies[0].featured) this.isFeatured = true;
+            this.copies = copies.filter((c) => c.copy_status !== 'KWIJT');
+            if (this.copies.length > 0 && this.copies[0].featured) this.isFeatured = true;
             this.cdr.detectChanges();
           },
         });

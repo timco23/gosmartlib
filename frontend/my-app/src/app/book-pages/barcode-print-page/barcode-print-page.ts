@@ -27,7 +27,12 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   bookTitles: Map<number, string> = new Map();
   loading = true;
   historyOpen = false;
-  importHistory: { date: string; importedBooks: number; importedCopies: number; copyIds: number[] }[] = [];
+  importHistory: {
+    date: string;
+    importedBooks: number;
+    importedCopies: number;
+    copyIds: number[];
+  }[] = [];
 
   private objectUrls: string[] = [];
 
@@ -54,7 +59,9 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   private loadCopiesByIds(ids: number[]): void {
     this.api.getCopiesByIds(ids).subscribe({
       next: (copies) => {
-        this.items = copies.map((copy) => ({ copy, selected: true, imageUrl: null }));
+        this.items = copies
+          .filter((copy) => copy.copy_status !== 'KWIJT')
+          .map((copy) => ({ copy, selected: true, imageUrl: null }));
         this.loading = false;
         this.cdr.detectChanges();
         this.fetchBarcodeImages();
@@ -76,11 +83,13 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
 
         this.schoolService.getByName(userData.schoolName).subscribe((school) => {
           this.api.getCopiesByBookId(bookId, school.id!).subscribe((copies) => {
-            this.items = copies.map((copy) => ({
-              copy,
-              selected: preselectAll || copy.id === preselectId,
-              imageUrl: null,
-            }));
+            this.items = copies
+              .filter((copy) => copy.copy_status !== 'KWIJT')
+              .map((copy) => ({
+                copy,
+                selected: preselectAll || copy.id === preselectId,
+                imageUrl: null,
+              }));
             this.loading = false;
             this.cdr.detectChanges();
             this.fetchBarcodeImages();

@@ -13,7 +13,6 @@
   margin: 0 0 var(--space-6);
 }
 
-/* --- Error box --- */
 .error-box {
   background: var(--color-danger-bg);
   border: 1px solid var(--color-danger-border);
@@ -35,17 +34,17 @@
   font-weight: 500;
 }
 
-/* --- Main card --- */
 .update-card {
   background: var(--color-surface-1);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-8);
   box-shadow: var(--shadow-sm);
-  transition: background var(--transition-base), border-color var(--transition-base);
+  transition:
+    background var(--transition-base),
+    border-color var(--transition-base);
 }
 
-/* --- Grid layout --- */
 .update-grid {
   display: grid;
   grid-template-columns: 3fr 4fr;
@@ -73,7 +72,6 @@
   min-width: 0;
 }
 
-/* --- Form --- */
 .book-form {
   display: flex;
   flex-direction: column;
@@ -85,7 +83,6 @@
   gap: var(--space-2);
 }
 
-/* --- Labels --- */
 label {
   font-size: var(--text-xs);
   font-weight: 700;
@@ -98,7 +95,6 @@ label {
   gap: var(--space-2);
 }
 
-/* --- Inputs --- */
 input,
 textarea,
 select {
@@ -111,7 +107,9 @@ select {
   padding: 0.5rem 0.75rem;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 input::placeholder,
@@ -146,7 +144,6 @@ input[type='checkbox'] {
   accent-color: var(--color-primary);
 }
 
-/* --- Validation --- */
 input.ng-invalid.ng-touched,
 select.ng-invalid.ng-touched,
 textarea.ng-invalid.ng-touched {
@@ -155,7 +152,7 @@ textarea.ng-invalid.ng-touched {
   box-shadow: 0 0 0 3px var(--color-primary-tint);
 }
 
-/* --- Cover preview --- */
+/* Cover preview */
 .preview-title {
   font-size: var(--text-xs);
   font-weight: 700;
@@ -185,14 +182,14 @@ textarea.ng-invalid.ng-touched {
   display: inline-block;
 }
 
-/* --- Form buttons --- */
+/* Form buttons */
 .form-buttons {
   display: flex;
   gap: var(--space-3);
   margin-top: var(--space-6);
 }
 
-/* --- Copies section --- */
+/* Copies section */
 .copies-column > h3 {
   font-family: var(--font-body);
   font-size: var(--text-lg);
@@ -202,14 +199,16 @@ textarea.ng-invalid.ng-touched {
   margin: var(--space-2) 0 var(--space-4);
 }
 
-/* --- Campus groups --- */
+/* Campus groups */
 .existing-campus-group {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-3);
   padding: var(--space-4);
   background: var(--color-surface-2);
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .existing-campus-group.drag-over {
@@ -253,7 +252,7 @@ textarea.ng-invalid.ng-touched {
   padding: var(--space-3) 0;
 }
 
-/* --- Copies table --- */
+/* Copies table */
 .copies-table {
   width: 100%;
   border-collapse: collapse;
@@ -288,7 +287,38 @@ textarea.ng-invalid.ng-touched {
   color: var(--color-text-1);
 }
 
-/* --- Drag handle --- */
+/* Lost copy row */
+tr.copy-lost td {
+  color: var(--color-text-3);
+  opacity: 0.6;
+}
+
+tr.copy-lost:hover td {
+  background: var(--color-surface-2);
+  color: var(--color-text-3);
+}
+
+.lost-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+}
+
+.lost-badge::before {
+  content: '⚠';
+  font-size: 0.75rem;
+}
+
+/* Drag handle */
 .drag-col {
   width: 30px;
 }
@@ -313,7 +343,7 @@ tr.dragging {
   opacity: 0.4;
 }
 
-/* --- Copy actions --- */
+/* Copy actions */
 .copy-actions {
   text-align: right;
   white-space: nowrap;
@@ -332,7 +362,7 @@ tr.dragging {
   letter-spacing: 0.05em;
 }
 
-/* --- Edit copy card --- */
+/* Edit copy card */
 .edit-copy-card {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
@@ -349,7 +379,7 @@ tr.dragging {
   letter-spacing: -0.01em;
 }
 
-/* --- Form rows (inside edit copy) --- */
+/* Form rows (inside edit copy) */
 .form-row {
   display: flex;
   flex-direction: column;
@@ -366,7 +396,7 @@ tr.dragging {
   margin-top: 0;
 }
 
-/* --- Add copy section --- */
+/* Add copy section */
 .add-copy {
   margin-top: var(--space-5);
 }
@@ -382,7 +412,7 @@ tr.dragging {
   margin-top: var(--space-3);
 }
 
-/* --- Base button (used for generic actions: barcode, cancel, add copies) --- */
+/* Base button */
 button {
   width: 100%;
   padding: 0.5625rem 1.25rem;
@@ -397,7 +427,10 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 
 button:hover {
@@ -406,7 +439,7 @@ button:hover {
   background: var(--color-primary-tint);
 }
 
-/* --- Specific button variants --- */
+/* Specific button variants */
 .primary-btn {
   background: var(--color-primary);
   color: #fff;
@@ -424,7 +457,9 @@ button:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .primary-btn:hover {
@@ -449,7 +484,9 @@ button:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  transition: border-color var(--transition-fast), color var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .secondary-btn:hover {
@@ -507,6 +544,34 @@ button:hover {
   color: var(--color-text-1);
 }
 
+/* "Kwijt" button */
+.LostButton {
+  background: transparent;
+  color: var(--color-warning, #b45309);
+  border: 1px solid var(--color-warning-border, #d97706);
+}
+
+.LostButton:hover {
+  background: var(--color-warning-bg, #fffbeb);
+  border-color: var(--color-warning, #b45309);
+  color: var(--color-warning, #b45309);
+  box-shadow: none;
+}
+
+/* "Teruggevonden" button */
+.FoundButton {
+  background: var(--color-lime-bg);
+  color: var(--color-lime);
+  border: 1px solid var(--color-lime-border);
+}
+
+.FoundButton:hover {
+  background: var(--color-lime);
+  color: var(--color-inverse-bg);
+  border-color: var(--color-lime);
+  box-shadow: none;
+}
+
 .DeleteButton {
   background: var(--color-danger);
   color: #fff;
@@ -522,7 +587,7 @@ button:hover {
 }
 
 app-pop-up {
-  cursor:default
+  cursor: default;
 }
 
 /* --- Responsive --- */

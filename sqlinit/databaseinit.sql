@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     item_id BIGINT not null,
     school_id bigint not null,
     barcode VARCHAR(255),
-    copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND'),
+    copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND', 'KWIJT'),
     item_condition ENUM('NIEUW', 'GOED','GEBRUIKT','BESCHADIGD','ONGEDEFINIEERD'),
     featured boolean not null,
     campus_id bigint null,
