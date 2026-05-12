@@ -45,91 +45,94 @@
       }
     </section>
 
-    <section class="panel">
-      <h2 class="panel-title">Populariteit & Rangschikking</h2>
-      <p class="panel-sub">Positie binnen de schoolbibliotheek op drie criteria</p>
+    <section class="panel insights-panel">
+      <div class="insights-layout">
 
-      <div class="ranking-cards">
+        <div class="insights-left">
+          <h2 class="panel-title">Populariteit & Rangschikking</h2>
+          <p class="panel-sub">Positie binnen de schoolbibliotheek volgens verschillende criteria</p>
 
-        <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankAbsolute, stats.schoolRanking.totalBooks)">
-          <span class="ranking-card-label">Totale uitleningen</span>
-          <div class="ranking-card-main">
-            <span class="ranking-pos">#{{ stats.schoolRanking.rankAbsolute }}</span>
-            <span class="ranking-of">/ {{ stats.schoolRanking.totalBooks }}</span>
+          <div class="ranking-cards">
+
+            <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankAbsolute, stats.schoolRanking.totalBooks)">
+              <span class="ranking-card-label">Totale uitleningen</span>
+              <div class="ranking-card-main">
+                <span class="ranking-pos">#{{ stats.schoolRanking.rankAbsolute }}</span>
+                <span class="ranking-of">/ {{ stats.schoolRanking.totalBooks }}</span>
+              </div>
+              <div class="ranking-bar-track">
+                <div class="ranking-bar-fill" [style.width.%]="rankingBarAbsolute"></div>
+              </div>
+              <span class="ranking-score">Beter dan {{ betterThanPercent(stats.schoolRanking.rankAbsolute, stats.schoolRanking.totalBooks) }}% van de boeken</span>
+            </div>
+
+            <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankPerCopy, stats.schoolRanking.totalBooks)">
+              <span class="ranking-card-label">Per exemplaar</span>
+              <div class="ranking-card-main">
+                <span class="ranking-pos">#{{ stats.schoolRanking.rankPerCopy }}</span>
+                <span class="ranking-of">/ {{ stats.schoolRanking.totalBooks }}</span>
+              </div>
+              <div class="ranking-bar-track">
+                <div class="ranking-bar-fill" [style.width.%]="rankingBarPerCopy"></div>
+              </div>
+              <span class="ranking-score">{{ stats.schoolRanking.lendingsPerCopy }}x · beter dan {{ betterThanPercent(stats.schoolRanking.rankPerCopy, stats.schoolRanking.totalBooks) }}%</span>
+            </div>
+
+            @if (stats.schoolRanking.rankReadingLevel !== null && stats.schoolRanking.totalBooksReadingLevel !== null) {
+              <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankReadingLevel, stats.schoolRanking.totalBooksReadingLevel)">
+                <span class="ranking-card-label">
+                  Binnen leesniveau
+                  @if (rankingReadingLevelName) {
+                    <span class="ranking-level-chip">{{ rankingReadingLevelName }}</span>
+                  }
+                </span>
+                <div class="ranking-card-main">
+                  <span class="ranking-pos">#{{ stats.schoolRanking.rankReadingLevel }}</span>
+                  <span class="ranking-of">/ {{ stats.schoolRanking.totalBooksReadingLevel }}</span>
+                </div>
+                <div class="ranking-bar-track">
+                  <div class="ranking-bar-fill" [style.width.%]="rankingBarReadingLevel"></div>
+                </div>
+                <span class="ranking-score">Beter dan {{ betterThanPercent(stats.schoolRanking.rankReadingLevel, stats.schoolRanking.totalBooksReadingLevel) }}% binnen dit niveau</span>
+              </div>
+            }
+
           </div>
-          <div class="ranking-bar-track">
-            <div class="ranking-bar-fill" [style.width.%]="rankingBarAbsolute"></div>
-          </div>
-          <span class="ranking-score">Beter dan {{ betterThanPercent(stats.schoolRanking.rankAbsolute, stats.schoolRanking.totalBooks) }}% van de boeken</span>
         </div>
 
-        <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankPerCopy, stats.schoolRanking.totalBooks)">
-          <span class="ranking-card-label">Per exemplaar</span>
-          <div class="ranking-card-main">
-            <span class="ranking-pos">#{{ stats.schoolRanking.rankPerCopy }}</span>
-            <span class="ranking-of">/ {{ stats.schoolRanking.totalBooks }}</span>
-          </div>
-          <div class="ranking-bar-track">
-            <div class="ranking-bar-fill" [style.width.%]="rankingBarPerCopy"></div>
-          </div>
-          <span class="ranking-score">{{ stats.schoolRanking.lendingsPerCopy }}× · beter dan {{ betterThanPercent(stats.schoolRanking.rankPerCopy, stats.schoolRanking.totalBooks) }}%</span>
-        </div>
+        <div class="insights-divider"></div>
 
-        @if (stats.schoolRanking.rankReadingLevel !== null && stats.schoolRanking.totalBooksReadingLevel !== null) {
-          <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankReadingLevel, stats.schoolRanking.totalBooksReadingLevel)">
-            <span class="ranking-card-label">
-              Binnen leesniveau
-              @if (rankingReadingLevelName) {
-                <span class="ranking-level-chip">{{ rankingReadingLevelName }}</span>
+        <div class="insights-right">
+          <div class="chart-header">
+            <h2 class="panel-title">Uitleningen per {{ chartMode === 'month' ? 'maand' : 'jaar' }}</h2>
+            <div class="chart-toggle">
+              <button class="chart-toggle-btn" [class.chart-toggle-btn--active]="chartMode === 'month'" (click)="setChartMode('month')">Maanden</button>
+              <button class="chart-toggle-btn" [class.chart-toggle-btn--active]="chartMode === 'year'" (click)="setChartMode('year')">Jaren</button>
+            </div>
+          </div>
+          @if (stats.lendingsByMonth.length) {
+            <div class="bar-chart">
+              @for (entry of stats.lendingsByMonth; track entry.month) {
+                <div class="bar-col">
+                  <span class="bar-count">{{ entry.count }}</span>
+                  <div class="bar-track">
+                    <div class="bar-fill" [style.height.%]="(entry.count / maxChartCount) * 100"></div>
+                  </div>
+                  <span class="bar-label">{{ formatChartLabel(entry.month) }}</span>
+                </div>
               }
-            </span>
-            <div class="ranking-card-main">
-              <span class="ranking-pos">#{{ stats.schoolRanking.rankReadingLevel }}</span>
-              <span class="ranking-of">/ {{ stats.schoolRanking.totalBooksReadingLevel }}</span>
             </div>
-            <div class="ranking-bar-track">
-              <div class="ranking-bar-fill" [style.width.%]="rankingBarReadingLevel"></div>
-            </div>
-            <span class="ranking-score">Beter dan {{ betterThanPercent(stats.schoolRanking.rankReadingLevel, stats.schoolRanking.totalBooksReadingLevel) }}% binnen dit niveau</span>
-          </div>
-        }
-
-        <div class="ranking-card ranking-card--placeholder">
-          <span class="ranking-card-label">Populariteit per leerjaar</span>
-          <div class="ranking-card-main">
-            <span class="ranking-pos ranking-pos--placeholder">—</span>
-          </div>
-          <div class="ranking-bar-track">
-            <div class="ranking-bar-fill" style="width: 0%"></div>
-          </div>
-          <span class="ranking-score">Binnenkort beschikbaar</span>
+          } @else {
+            <p class="muted">Nog geen uitleendata beschikbaar.</p>
+          }
         </div>
 
       </div>
     </section>
 
-    <section class="panel">
-      <h2 class="panel-title">Uitleningen per maand (laatste 6)</h2>
-      @if (stats.lendingsByMonth.length) {
-        <div class="bar-chart">
-          @for (entry of stats.lendingsByMonth; track entry.month) {
-            <div class="bar-col">
-              <span class="bar-count">{{ entry.count }}</span>
-              <div class="bar-track">
-                <div class="bar-fill" [style.height.%]="(entry.count / maxMonthCount) * 100"></div>
-              </div>
-              <span class="bar-label">{{ formatMonth(entry.month) }}</span>
-            </div>
-          }
-        </div>
-      } @else {
-        <p class="muted">Nog geen uitleendata beschikbaar.</p>
-      }
-    </section>
-
     @if (stats.campusStats.length) {
       <section class="panel">
-        <h2 class="panel-title">Campusvergelijking</h2>
+        <h2 class="panel-title">Campusdistributie</h2>
         <p class="panel-sub">Uitleengedrag per campus</p>
 
         <div class="campus-table-wrap">

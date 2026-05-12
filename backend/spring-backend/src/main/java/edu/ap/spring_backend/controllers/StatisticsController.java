@@ -16,7 +16,10 @@ public class StatisticsController {
 
     @GetMapping("/book/{bookId}/statistics")
     public ResponseEntity<BookStatisticsDTO> getBookStatistics(
-            @PathVariable Long bookId, @RequestParam Long schoolId) {
-        return ResponseEntity.ok(statisticsService.getBookStatistics(bookId, schoolId));
+            @PathVariable Long bookId,
+            @RequestParam Long schoolId,
+            @RequestParam(defaultValue = "month") String groupBy,
+            @RequestParam(defaultValue = "6") int trendLimit) {
+        return ResponseEntity.ok(statisticsService.getBookStatistics(bookId, schoolId, groupBy, trendLimit));
     }
 }

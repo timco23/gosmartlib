@@ -26,6 +26,9 @@ export class BookReportPage implements OnInit {
   stats: BookStatisticsDTO | null = null;
   readingLevels: Readinglevel[] = [];
   loading = true;
+  chartMode: 'month' | 'year' = 'month';
+  trendLimit = 9;
+  private schoolId!: number;
 
   ngOnInit(): void {
     this.bookId = Number(this.route.snapshot.paramMap.get('id'));
@@ -41,16 +44,29 @@ export class BookReportPage implements OnInit {
 
     this.userApi.getUser().subscribe((user) => {
       if (user.schoolId) {
-        this.statisticsApi.getBookStatistics(this.bookId, user.schoolId).subscribe((stats) => {
-          this.stats = stats;
-          this.loading = false;
-          this.cdr.detectChanges();
-        });
+        this.schoolId = user.schoolId;
+        this.loadStats();
       }
     });
   }
 
-  get maxMonthCount(): number {
+  setChartMode(mode: 'month' | 'year'): void {
+    if (this.chartMode === mode) return;
+    this.chartMode = mode;
+    this.loadStats();
+  }
+
+  private loadStats(): void {
+    this.statisticsApi
+      .getBookStatistics(this.bookId, this.schoolId, this.chartMode, this.chartMode === 'year' ? 0 : this.trendLimit)
+      .subscribe((stats) => {
+        this.stats = stats;
+        this.loading = false;
+        this.cdr.detectChanges();
+      });
+  }
+
+  get maxChartCount(): number {
     return Math.max(...(this.stats?.lendingsByMonth.map((m) => m.count) ?? [1]), 1);
   }
 
@@ -84,7 +100,8 @@ export class BookReportPage implements OnInit {
     return 'Actief';
   }
 
-  formatMonth(key: string): string {
+  formatChartLabel(key: string): string {
+    if (!key.includes('-')) return key;
     const [year, month] = key.split('-');
     return new Date(Number(year), Number(month) - 1).toLocaleDateString('nl-BE', {
       month: 'short',

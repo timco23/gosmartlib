@@ -28,7 +28,7 @@ public class StatisticsService {
         this.copyRepository = copyRepository;
     }
 
-    public BookStatisticsDTO getBookStatistics(Long bookId, Long schoolId) {
+    public BookStatisticsDTO getBookStatistics(Long bookId, Long schoolId, String groupBy, int trendLimit) {
         List<Lending> lendings = lendingRepository.findByBook_Item_IdAndSchool_Id(bookId, schoolId);
         List<SchoolItemCopy> copies = copyRepository.findByItemIdAndSchoolId(bookId, schoolId);
 
@@ -59,7 +59,7 @@ public class StatisticsService {
                 calcLatePercent(lendings),
                 extensionPercent,
                 calcUnavailableDays(lendings, copies.size()),
-                calcMonthlyTrend(lendings, 6),
+                calcTrend(lendings, groupBy, trendLimit),
                 campusStats,
                 recentLendings,
                 calcSchoolRanking(bookId, schoolId, copies));
@@ -253,19 +253,21 @@ public class StatisticsService {
     }
 
     /**
-     * Lendings counted per month (key format: {@code "YYYY-MM"}), sorted chronologically
-     * and trimmed to the {@code months} most recent entries.
+     * Lendings grouped by month ({@code "YYYY-MM"}) or year ({@code "YYYY"}), sorted
+     * chronologically. When {@code limit > 0} the result is trimmed to the most recent entries.
      */
-    private List<BookStatisticsDTO.MonthlyLendingDTO> calcMonthlyTrend(List<Lending> lendings, int months) {
-        Map<String, Long> monthMap = lendings.stream().collect(Collectors.groupingBy(
-                l -> l.getLendingDate().getYear() + "-" + String.format("%02d", l.getLendingDate().getMonthValue()),
+    private List<BookStatisticsDTO.MonthlyLendingDTO> calcTrend(List<Lending> lendings, String groupBy, int limit) {
+        Map<String, Long> map = lendings.stream().collect(Collectors.groupingBy(
+                "year".equalsIgnoreCase(groupBy)
+                        ? l -> String.valueOf(l.getLendingDate().getYear())
+                        : l -> l.getLendingDate().getYear() + "-" + String.format("%02d", l.getLendingDate().getMonthValue()),
                 Collectors.counting()));
-        List<BookStatisticsDTO.MonthlyLendingDTO> result = monthMap.entrySet().stream()
+        List<BookStatisticsDTO.MonthlyLendingDTO> result = map.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(e -> new BookStatisticsDTO.MonthlyLendingDTO(e.getKey(), e.getValue().intValue()))
                 .collect(Collectors.toList());
-        if (result.size() > months) {
-            result = result.subList(result.size() - months, result.size());
+        if (limit > 0 && result.size() > limit) {
+            result = result.subList(result.size() - limit, result.size());
         }
         return result;
     }

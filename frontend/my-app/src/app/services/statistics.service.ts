@@ -12,9 +12,14 @@ export class StatisticsService {
 
   constructor(private http: HttpClient) {}
 
-  getBookStatistics(bookId: number, schoolId: number): Observable<BookStatisticsDTO> {
+  getBookStatistics(
+    bookId: number,
+    schoolId: number,
+    groupBy: 'month' | 'year' = 'month',
+    trendLimit = 6
+  ): Observable<BookStatisticsDTO> {
     return this.http.get<BookStatisticsDTO>(`${this.apiUrl}/book/${bookId}/statistics`, {
-      params: { schoolId },
+      params: { schoolId, groupBy, trendLimit },
     });
   }
 }

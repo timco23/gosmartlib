@@ -100,7 +100,7 @@ class StatisticsServiceTest {
         Lending returned = completedLending("BC001", LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 15), LocalDate.of(2024, 2, 14));
         stubMainRepositories(List.of(active, returned), List.of(copy));
 
-        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID);
+        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6);
 
         assertEquals(2, result.totalLendings());
         assertEquals(1, result.activeLendings());
@@ -113,7 +113,7 @@ class StatisticsServiceTest {
         Lending notExtended = completedLending("BC001", LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 15), LocalDate.of(2024, 2, 15));
         stubMainRepositories(List.of(extended, notExtended), List.of(copy));
 
-        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID);
+        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6);
 
         assertEquals(50, result.extensionPercent());
     }
@@ -126,7 +126,7 @@ class StatisticsServiceTest {
         Lending active = activeLending("BC001", LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 28));
         stubMainRepositories(List.of(completed, active), List.of(copy));
 
-        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID);
+        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6);
 
         assertEquals(10, result.avgDurationDays());
     }
@@ -137,7 +137,7 @@ class StatisticsServiceTest {
         Lending onTime = completedLending("BC001", LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 10), LocalDate.of(2024, 2, 8));
         stubMainRepositories(List.of(late, onTime), List.of(copy));
 
-        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID);
+        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6);
 
         assertEquals(50, result.lateReturnPercent());
     }
@@ -150,7 +150,7 @@ class StatisticsServiceTest {
         Lending notOverdue = activeLending("BC001", LocalDate.of(2099, 1, 1), LocalDate.of(2099, 12, 31));
         stubMainRepositories(List.of(overdue, notOverdue), List.of(copy));
 
-        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID);
+        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6);
 
         assertEquals(50, result.lateReturnPercent());
     }
@@ -167,7 +167,7 @@ class StatisticsServiceTest {
         Lending l2 = completedLending("BC002", LocalDate.of(2024, 1, 5), LocalDate.of(2024, 1, 20), LocalDate.of(2024, 1, 15));
         stubMainRepositories(List.of(l1, l2), List.of(copy, copy2));
 
-        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID);
+        BookStatisticsDTO result = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6);
 
         assertEquals(6, result.globalUnavailableDays());
     }
@@ -183,7 +183,7 @@ class StatisticsServiceTest {
         }
         stubMainRepositories(lendings, List.of(copy));
 
-        List<BookStatisticsDTO.MonthlyLendingDTO> trend = service.getBookStatistics(BOOK_ID, SCHOOL_ID).lendingsByMonth();
+        List<BookStatisticsDTO.MonthlyLendingDTO> trend = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).lendingsByMonth();
 
         assertEquals(6, trend.size());
         assertEquals("2023-07", trend.get(0).month()); // oldest kept month
@@ -203,7 +203,7 @@ class StatisticsServiceTest {
         }
         stubMainRepositories(lendings, List.of(copy));
 
-        List<BookStatisticsDTO.RecentLendingDTO> recent = service.getBookStatistics(BOOK_ID, SCHOOL_ID).recentLendings();
+        List<BookStatisticsDTO.RecentLendingDTO> recent = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).recentLendings();
 
         assertEquals(10, recent.size());
         assertEquals(12L, recent.get(0).id()); // most recent first
@@ -234,7 +234,7 @@ class StatisticsServiceTest {
         Lending lB  = completedLending("BC002", LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 10), LocalDate.of(2024, 3, 10));
         stubMainRepositories(List.of(lA1, lA2, lB), List.of(copyA, copyB));
 
-        List<BookStatisticsDTO.CampusStatisticsDTO> stats = service.getBookStatistics(BOOK_ID, SCHOOL_ID).campusStats();
+        List<BookStatisticsDTO.CampusStatisticsDTO> stats = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).campusStats();
 
         assertEquals(2, stats.size());
         // highest lendingCount first
@@ -266,7 +266,7 @@ class StatisticsServiceTest {
         Lending active    = activeLending("BC001", LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 15));
         stubMainRepositories(List.of(completed, active), List.of(campusCopy));
 
-        BookStatisticsDTO.CampusStatisticsDTO stat = service.getBookStatistics(BOOK_ID, SCHOOL_ID).campusStats().get(0);
+        BookStatisticsDTO.CampusStatisticsDTO stat = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).campusStats().get(0);
 
         assertEquals(2, stat.lendingCount());
         assertEquals(1, stat.activeLendings());
@@ -281,7 +281,7 @@ class StatisticsServiceTest {
                 List.of(new ItemCountDTO(BOOK_ID, 2L), new ItemCountDTO(1L, 1L))
         );
 
-        BookStatisticsDTO.SchoolRankingDTO ranking = service.getBookStatistics(BOOK_ID, SCHOOL_ID).schoolRanking();
+        BookStatisticsDTO.SchoolRankingDTO ranking = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).schoolRanking();
 
         assertEquals(2, ranking.rankAbsolute());  // 5 < 10 → rank 2
         assertEquals(2, ranking.rankPerCopy());   // 2.5 < 10.0 → rank 2
@@ -307,7 +307,7 @@ class StatisticsServiceTest {
         when(lendingRepository.countLendingsByItemForSchoolAndReadingLevel(SCHOOL_ID, 5L))
                 .thenReturn(List.of(new ItemCountDTO(BOOK_ID, 3L), new ItemCountDTO(99L, 7L)));
 
-        BookStatisticsDTO.SchoolRankingDTO ranking = service.getBookStatistics(BOOK_ID, SCHOOL_ID).schoolRanking();
+        BookStatisticsDTO.SchoolRankingDTO ranking = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).schoolRanking();
 
         assertEquals(2, ranking.rankReadingLevel()); // 3 < 7 → rank 2 within level
         assertEquals(2, ranking.totalBooksReadingLevel());
