@@ -70,7 +70,7 @@
               {{ isInWishlist ? 'Verwijderen uit verlanglijst' : 'Toevoegen aan verlanglijst' }}
             </button>
             @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-              <button class="action-btn report-btn" type="button">Bekijk rapportage</button>
+              <a class="action-btn report-btn" [routerLink]="['/books', book!.id, 'report']">Bekijk rapportage</a>
             }
           </div>
         </aside>

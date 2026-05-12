@@ -31,6 +31,7 @@ import { BookLendingHistoryComponent } from './book-lending-history/book-lending
 import { ProfileSelectionComponent } from './profile-selection/profile-selection';
 import { DidacticBooksPage } from './didactic-books-page/didactic-books-page';
 import { WishlistComponent } from './wishlist/wishlist.component';
+import { BookReportPage } from './book-pages/book-report-page/book-report-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -54,6 +55,7 @@ export const routes: Routes = [
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
 
   // LEERKRACHT +
+  { path: 'books/:id/report', component: BookReportPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
