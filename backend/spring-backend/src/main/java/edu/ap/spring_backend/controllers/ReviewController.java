@@ -249,7 +249,7 @@ public class ReviewController {
     }
 
     /**
-     * Approves a review, resetting its report count.
+     * Approves a review, resetting its report count and making it unable to reported again.
      *
      * @param reviewId id of the review
      * @return no content

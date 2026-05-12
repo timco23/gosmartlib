@@ -55,6 +55,12 @@ public class WebSecurityConfig {
                     "/api/lendings/user"
                 ).hasAnyAuthority(ALL_USERS)
 
+                //Restrict getting reviews by school and reports to librarians
+                .requestMatchers(HttpMethod.GET,
+                    "/reviews/schools/**",
+                    "/reviews/*/reports"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
                 .requestMatchers(HttpMethod.GET,
                     "/books/**",
                     "/items/**",
@@ -73,20 +79,21 @@ public class WebSecurityConfig {
 
                 ).hasAnyAuthority(ALL_USERS)
 
-                // ALL USERS: POST /books/{id}/reviews
+                // ALL USERS: POST REVIEWS AND REPORTS
                 .requestMatchers(HttpMethod.POST,
-                    "/books/*/reviews",
-                    "/books/*/reviews/**",
-                    "/api/books/*/reviews",
-                    "/api/books/*/reviews/**"
+                    "/reviews/**"
                 ).hasAnyAuthority(ALL_USERS)
 
+                //Restrict deleting all reviews from a book to librarians
                 .requestMatchers(HttpMethod.DELETE,
-                    "/books/*/reviews/*",
-                    "/books/*/reviews/**",
-                    "/api/books/*/reviews/*",
-                    "/api/books/*/reviews/**"
-                ).hasAnyAuthority(ALL_USERS)
+                    "/reviews/books/**"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
+               //Restrict approving a review to librarians
+               .requestMatchers(HttpMethod.PUT,
+                    "/reviews/*/approve"
+               ).hasAnyAuthority(LIBRARIAN_PLUS)
+
 
                 // ALL USERS
                 .requestMatchers("/favorites/**", "/profile/**", "/reviews/**")

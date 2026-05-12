@@ -128,7 +128,7 @@ class ReviewServiceTest {
                 () -> service.deleteReview(1L, 10L, "actor@example.com"));
 
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
-        verify(reviewRepository, never()).delete(any());
+        verify(reviewRepository, never()).delete((Review) any());
     }
 
     @Test
