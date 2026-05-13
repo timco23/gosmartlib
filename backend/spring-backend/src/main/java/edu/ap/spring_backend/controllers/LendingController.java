@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.ap.spring_backend.dto.BookStatisticsDTO;
 import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
@@ -21,7 +22,7 @@ import edu.ap.spring_backend.service.LendingService;
 @RequestMapping("/lendings")
 public class LendingController {
 
-    private LendingService lendingService;
+    private final LendingService lendingService;
 
     public LendingController(LendingService lendingService) {
         this.lendingService = lendingService;
@@ -72,6 +73,7 @@ public class LendingController {
     public ResponseEntity<LendingDTO> extendLending(@PathVariable Long id) {
         return ResponseEntity.ok(lendingService.extendLending(id));
     }
+
 
     @GetMapping("/book/{bookId}")
     public ResponseEntity<Object> getLendingsByBookId(@PathVariable Long bookId) {
