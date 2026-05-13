@@ -2,7 +2,6 @@ package edu.ap.spring_backend.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +17,9 @@ import edu.ap.spring_backend.dto.LendingRequestDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.dto.ItemDTO;
+import java.util.Optional;
+import edu.ap.spring_backend.mappers.ItemMapper;
 
 @Service
 public class LendingService {
@@ -26,15 +28,18 @@ public class LendingService {
     private final UserRepository userRepository;
     private final SchoolItemCopyRepository copyRepository;
     private final SchoolRepository schoolRepository;
+    private final ItemMapper itemMapper;
 
     public LendingService(LendingRepository repository,
             UserRepository userRepository,
             SchoolItemCopyRepository copyRepository,
-            SchoolRepository schoolRepository) {
+            SchoolRepository schoolRepository,
+            ItemMapper itemMapper) {
         this.lendingRepository = repository;
         this.userRepository = userRepository;
         this.copyRepository = copyRepository;
         this.schoolRepository = schoolRepository;
+        this.itemMapper = itemMapper;
     }
 
     private String getBorrowerName(Lending lending) {
@@ -164,5 +169,19 @@ public class LendingService {
                 lending.getReturned(),
                 lending.getBook().getBarcode(),
                 lending.getExtended());
+    }
+
+    public Optional<ItemDTO> getMostBorrowedThisMonth(Long schoolId) {
+        LocalDate start = LocalDate.now().withDayOfMonth(1);
+        LocalDate end = LocalDate.now();
+        return lendingRepository.findMostBorrowedThisMonth(schoolId, start, end)
+            .map(itemMapper::toItemDTO);
+    }
+
+    public Optional<ItemDTO> getLastBorrowedBook(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(EntityNotFoundException::new);
+        return lendingRepository.findTopByBorrower_IdOrderByLendingDateDesc(user.getId())
+            .map(l -> itemMapper.toItemDTO(l.getBook().getItem()));
     }
 }
