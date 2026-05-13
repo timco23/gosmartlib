@@ -133,6 +133,15 @@ public class ReviewService {
     }
 
     /**
+     * Returns all reports from a review.
+     * @param reviewId id of the review
+     * @return list of review report DTOs
+     */
+    public boolean reviewExistsByReviewIdAndReporterId(Long reviewId, Integer reporterId){
+        return reviewReportRepository.existsByReviewIdAndReporterId(reviewId, reporterId);
+    }
+
+    /**
      * Creates a new review for an item and updates item review statistics.
      * Validates review content for profanity before saving.
      * @throws ResponseStatusException if profanity is detected

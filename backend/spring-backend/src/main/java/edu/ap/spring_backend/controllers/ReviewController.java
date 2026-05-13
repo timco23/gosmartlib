@@ -40,8 +40,8 @@ public class ReviewController {
      * @return list of reviews
      */
     @GetMapping
-    public ResponseEntity<List<ReviewDTO>> getReviews(@PathVariable Long itemId) {
-        return ResponseEntity.ok(reviewService.getReviews(itemId));
+    public ResponseEntity<Boolean> getReviews(@PathVariable Long itemId, @PathVariable Integer reporterId) {
+        return ResponseEntity.ok(reviewService.reviewExistsByReviewIdAndReporterId(itemId, reporterId));
     }
 
     /**
