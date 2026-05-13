@@ -1,0 +1,106 @@
+<div class="report-container">
+  @if (stats) {
+    <header class="report-header">
+      <a class="back-link" routerLink="/home">← Terug</a>
+      <div class="class-hero">
+        <div>
+          <span class="eyebrow">Klasstatistieken</span>
+          <h1 class="class-title">{{ stats.className }}</h1>
+          <p class="class-sub">{{ stats.studentCount }} leerlingen</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.totalLendings }}</span>
+        <span class="stat-label">Totaal ontleend</span>
+      </div>
+      <div class="stat-card stat-card--green">
+        <span class="stat-value">{{ stats.activeLendings }}</span>
+        <span class="stat-label">Momenteel ontleend</span>
+      </div>
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
+        <span class="stat-value">{{ stats.lateReturnCount }}</span>
+        <span class="stat-label">Te laat ingeleverd</span>
+      </div>
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
+        <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
+        <span class="stat-label">Te laat %</span>
+      </div>
+      @if (stats.avgReadingLevel) {
+        <div class="stat-card">
+          <span class="stat-value stat-value--sm">{{ stats.avgReadingLevel }}</span>
+          <span class="stat-label">Meest ontleend leesniveau</span>
+        </div>
+      }
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.totalReviews }}</span>
+        <span class="stat-label">Geplaatste reviews</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">Leerlingen</h2>
+      <p class="panel-sub">Ontleengedrag per leerling in de klas</p>
+
+      @if (!stats.students.length) {
+        <p class="muted">Geen leerlingen gevonden in deze klas.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="data-table student-table">
+            <thead>
+              <tr>
+                <th>Naam</th>
+                <th class="num">Totaal</th>
+                <th class="num">Actief</th>
+                <th class="num">Te laat</th>
+                <th class="num">Te laat %</th>
+                <th>Leesniveau</th>
+                <th class="num">Reviews</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of stats.students; track s.userId) {
+                <tr>
+                  <td class="student-name">{{ s.fullName }}</td>
+                  <td class="num">{{ s.totalLendings }}</td>
+                  <td class="num">
+                    @if (s.activeLendings > 0) {
+                      <span class="badge badge--active">{{ s.activeLendings }}</span>
+                    } @else {
+                      <span class="dim">0</span>
+                    }
+                  </td>
+                  <td class="num">{{ s.lateReturnCount }}</td>
+                  <td class="num">
+                    <span class="pct-badge" [class.pct-badge--warn]="s.lateReturnPercent > 20">
+                      {{ s.lateReturnPercent }}%
+                    </span>
+                  </td>
+                  <td>
+                    @if (s.avgReadingLevel) {
+                      <span class="level-chip">{{ s.avgReadingLevel }}</span>
+                    } @else {
+                      <span class="dim">—</span>
+                    }
+                  </td>
+                  <td class="num">{{ s.reviewCount }}</td>
+                  <td>
+                    <a class="detail-link" [routerLink]="['/class', classId, 'student', s.userId, 'statistics']">
+                      Details →
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+  } @else if (loading) {
+    <p class="muted loading-msg">Laden…</p>
+  }
+</div>
