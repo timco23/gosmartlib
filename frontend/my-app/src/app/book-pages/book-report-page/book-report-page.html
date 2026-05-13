@@ -13,36 +13,38 @@
     </header>
 
     <section class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-value">{{ stats.totalLendings }}</span>
-        <span class="stat-label">Totaal uitgeleend</span>
-      </div>
-      <div class="stat-card stat-card--green">
-        <span class="stat-value">{{ stats.activeLendings }}</span>
-        <span class="stat-label">Momenteel uitgeleend</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-value">{{ stats.avgDurationDays }}<small>d</small></span>
-        <span class="stat-label">Gem. uitleenduur</span>
-      </div>
-      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
-        <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
-        <span class="stat-label">Te laat teruggebracht</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-value">{{ stats.extensionPercent }}%</span>
-        <span class="stat-label">Verlengingsgraad</span>
-      </div>
       @if (stats.campusStats.length) {
-        <div class="stat-card" [class.stat-card--red]="stats.globalUnavailableDays > 14">
-          <span class="stat-value">{{ stats.globalUnavailableDays }}<small>d</small></span>
-          <span class="stat-label">Volledig uitgeleend</span>
-        </div>
         <div class="stat-card">
           <span class="stat-value">{{ totalCopies }}</span>
           <span class="stat-label">Exemplaren</span>
         </div>
       }
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.totalLendings }}</span>
+        <span class="stat-label">Totaal ontleend</span>
+      </div>
+      <div class="stat-card stat-card--green">
+        <span class="stat-value">{{ stats.activeLendings }}</span>
+        <span class="stat-label">Momenteel ontleend</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.avgDurationDays }}<small>d</small></span>
+        <span class="stat-label">Gem. ontleenduur</span>
+      </div>
+      @if (stats.campusStats.length) {
+        <div class="stat-card" [class.stat-card--red]="stats.globalUnavailableDays > 14">
+          <span class="stat-value">{{ stats.globalUnavailableDays }}<small>d</small></span>
+          <span class="stat-label">Volledig ontleend</span>
+        </div>
+      }
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
+        <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
+        <span class="stat-label">Te laat ingeleverd</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.extensionPercent }}%</span>
+        <span class="stat-label">Verlengingsgraad</span>
+      </div>
     </section>
 
     <section class="panel insights-panel">
@@ -55,7 +57,7 @@
           <div class="ranking-cards">
 
             <div class="ranking-card" [class.ranking-card--good]="rankingIsGood(stats.schoolRanking.rankAbsolute, stats.schoolRanking.totalBooks)">
-              <span class="ranking-card-label">Totale uitleningen</span>
+              <span class="ranking-card-label">Totale ontleningen</span>
               <div class="ranking-card-main">
                 <span class="ranking-pos">#{{ stats.schoolRanking.rankAbsolute }}</span>
                 <span class="ranking-of">/ {{ stats.schoolRanking.totalBooks }}</span>
@@ -104,7 +106,7 @@
 
         <div class="insights-right">
           <div class="chart-header">
-            <h2 class="panel-title">Uitleningen per {{ chartMode === 'month' ? 'maand' : 'jaar' }}</h2>
+            <h2 class="panel-title">Ontleningen per {{ chartMode === 'month' ? 'maand' : 'jaar' }}</h2>
             <div class="chart-toggle">
               <button class="chart-toggle-btn" [class.chart-toggle-btn--active]="chartMode === 'month'" (click)="setChartMode('month')">Maanden</button>
               <button class="chart-toggle-btn" [class.chart-toggle-btn--active]="chartMode === 'year'" (click)="setChartMode('year')">Jaren</button>
@@ -123,7 +125,7 @@
               }
             </div>
           } @else {
-            <p class="muted">Nog geen uitleendata beschikbaar.</p>
+            <p class="muted">Nog geen ontleendata beschikbaar.</p>
           }
         </div>
 
@@ -133,7 +135,7 @@
     @if (stats.campusStats.length) {
       <section class="panel">
         <h2 class="panel-title">Campusdistributie</h2>
-        <p class="panel-sub">Uitleengedrag per campus</p>
+        <p class="panel-sub">Ontleengedrag per campus</p>
 
         <div class="campus-table-wrap">
           <table class="data-table campus-table">
@@ -142,11 +144,11 @@
                 <th>Campus</th>
                 <th class="num">Exemplaren</th>
                 <th class="num">Beschikbaar</th>
-                <th class="num">Uitleningen</th>
+                <th class="num">Ontleningen</th>
                 <th class="num">Actief</th>
                 <th class="num">Gem. duur</th>
-                <th class="num">Uitl./ex.</th>
-                <th class="num">Volledig uitg. (d)</th>
+                <th class="num">Ontl./ex.</th>
+                <th class="num">Volledig ontl. (d)</th>
                 <th></th>
               </tr>
             </thead>
@@ -182,25 +184,25 @@
         </div>
 
         <p class="table-legend">
-          <strong>Volledig uitg. (d)</strong>: aantal dagen dat alle exemplaren op die campus gelijktijdig door leerlingen of leerkrachten waren uitgeleend.
+          <strong>Volledig ontl. (d)</strong>: aantal dagen dat alle exemplaren op die campus gelijktijdig door leerlingen of leerkrachten waren ontleend.
           &nbsp;
-          <strong>Uitl./ex.</strong>: totale uitleningen gedeeld door het aantal exemplaren op die campus.
+          <strong>Ontl./ex.</strong>: totale ontleningen gedeeld door het aantal exemplaren op die campus.
         </p>
       </section>
     }
 
     <section class="panel">
-      <h2 class="panel-title">Recente uitleningen</h2>
+      <h2 class="panel-title">Recente ontleningen</h2>
       @if (!stats.recentLendings.length) {
-        <p class="muted">Geen uitleningen gevonden voor dit boek.</p>
+        <p class="muted">Geen ontleningen gevonden voor dit boek.</p>
       } @else {
         <table class="data-table lending-table">
           <thead>
             <tr>
               <th>Lener</th>
-              <th>Uitgeleend op</th>
+              <th>Ontleend op</th>
               <th>Terugbrengdatum</th>
-              <th>Teruggegeven op</th>
+              <th>Ingeleverd op</th>
               <th>Verlengd</th>
               <th>Status</th>
             </tr>
