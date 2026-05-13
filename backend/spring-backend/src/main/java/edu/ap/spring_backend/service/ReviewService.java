@@ -135,9 +135,10 @@ public class ReviewService {
     /**
      * Returns all reports from a review.
      * @param reviewId id of the review
-     * @return list of review report DTOs
+     * @param reporterId id of the reporter
+     * @return true if the user already reported the review
      */
-    public boolean reviewExistsByReviewIdAndReporterId(Long reviewId, Integer reporterId){
+    public boolean reportExistsByReviewIdAndReporterId(Long reviewId, Integer reporterId){
         return reviewReportRepository.existsByReviewIdAndReporterId(reviewId, reporterId);
     }
 

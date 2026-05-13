@@ -32,4 +32,10 @@ export class ReviewService {
       payload,
     );
   }
+
+  reportExistsByReviewIdAndReporterId(itemId: number, reviewId: number, reporterId: number): Observable<Boolean>{
+    return this.http.get<Boolean>(
+      `${this.apiBaseUrl}/books/${itemId}/reviews/${reviewId}/existsFrom/${reporterId}`,
+    )
+  }
 }

@@ -40,8 +40,19 @@ public class ReviewController {
      * @return list of reviews
      */
     @GetMapping
-    public ResponseEntity<Boolean> getReviews(@PathVariable Long itemId, @PathVariable Integer reporterId) {
-        return ResponseEntity.ok(reviewService.reviewExistsByReviewIdAndReporterId(itemId, reporterId));
+    public ResponseEntity<List<ReviewDTO>> getReviews(@PathVariable Long itemId) {
+        return ResponseEntity.ok(reviewService.getReviews(itemId));
+    }
+
+    /**
+     * Returns all reports from a review.
+     * @param reviewId id of the review
+     * @param reporterId id of the reporter
+     * @return true if the user already reported the review
+     */
+    @GetMapping
+    public ResponseEntity<Boolean> reportExistsByReviewIdAndReporterId(@PathVariable Long reviewId, @PathVariable Integer reporterId) {
+        return ResponseEntity.ok(reviewService.reportExistsByReviewIdAndReporterId(reviewId, reporterId));
     }
 
     /**
