@@ -430,6 +430,31 @@ export type LendingStatus = 'OVERDUE' | 'DUE_SOON' | 'OK' | 'RETURNED';
 export type LendingFilter = 'ALL' | LendingStatus;
 
 export interface Class {
+  id: number;
   className: string;
-  schoolId: number
+  schoolId: number;
+}
+
+export interface StudentStatisticsDTO {
+  userId: number;
+  fullName: string;
+  totalLendings: number;
+  activeLendings: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  avgReadingLevel: string | null;
+  reviewCount: number;
+}
+
+export interface ClassStatisticsDTO {
+  classId: number;
+  className: string;
+  studentCount: number;
+  totalLendings: number;
+  activeLendings: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  avgReadingLevel: string | null;
+  totalReviews: number;
+  students: StudentStatisticsDTO[];
 }

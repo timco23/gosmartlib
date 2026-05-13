@@ -110,6 +110,9 @@
         <a routerLink="/lists" class="nav-link">Klasleeslijsten</a>
       }
       @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+        <a routerLink="/classes" class="nav-link">Klasstatistieken</a>
+      }
+      @if (authService.atLeastHasRole(role.LEERKRACHT)) {
         <a routerLink="/didactic-books" class="nav-link" routerLinkActive="active"
           >Didactische collectie</a
         >

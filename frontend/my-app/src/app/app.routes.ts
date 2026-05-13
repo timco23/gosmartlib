@@ -32,6 +32,9 @@ import { ProfileSelectionComponent } from './profile-selection/profile-selection
 import { DidacticBooksPage } from './didactic-books-page/didactic-books-page';
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { BookReportPage } from './book-pages/book-report-page/book-report-page';
+import { ClassStatisticsPage } from './class-statistics-page/class-statistics-page';
+import { StudentStatisticsPage } from './student-statistics-page/student-statistics-page';
+import { ClassListPage } from './class-list-page/class-list-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -56,6 +59,10 @@ export const routes: Routes = [
 
   // LEERKRACHT +
   { path: 'books/:id/report', component: BookReportPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'class/:classId/statistics', component: ClassStatisticsPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'class/:classId/student/:userId/statistics', component: StudentStatisticsPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'statistics/class/:classId', component: ClassStatisticsPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'classes', component: ClassListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
