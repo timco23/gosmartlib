@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Review } from '../../../types/types';
@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { ReviewReportComponent } from '../../review-report-component/review-report-component';
 import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
+import { ReviewService } from '../../services/review.service';
 
 @Component({
   selector: 'app-review-list',
@@ -17,6 +18,7 @@ export class ReviewList {
   @Input() reviews: Review[] = [];
   @Input() userRole: string = '';
   @Input() currentUserName: string = '';
+  @Input() bookId!: number;
 
   @Output() deleteReview = new EventEmitter<number>();
   @Output() deleteAll = new EventEmitter<void>();
@@ -26,8 +28,10 @@ export class ReviewList {
   private pendingAction: (() => void) | null = null;
   activeReportReviewId: number | null = null;
   reportReason = '';
+  alreadyReportedError: boolean = false;
 
-  constructor(private authService: AuthService) {}
+
+  constructor(private authService: AuthService, private reviewService: ReviewService, private cdr: ChangeDetectorRef) {}
 
   getDisplayName(review: Review): string {
     // Admins and Library Administrators ALWAYS see the real name
@@ -114,8 +118,29 @@ export class ReviewList {
     return !this.isOwner(review);
   }
 
+  
   openReportForm(reviewId: number): void {
-    this.activeReportReviewId = this.activeReportReviewId === reviewId ? null : reviewId;
+    if (this.activeReportReviewId === reviewId) {
+      this.activeReportReviewId = null;
+      return;
+    }
+
+    this.reviewService.reportExistsByReviewIdAndReporterId(this.bookId, reviewId)
+      .subscribe({
+        next: (alreadyReported) => {
+          if (alreadyReported) {
+            this.alreadyReportedError = true;
+            this.cdr.detectChanges();
+          } else {
+            this.activeReportReviewId = reviewId;
+            this.cdr.detectChanges();
+          }
+        },
+      });
+  }
+
+  closeAlreadyReportedError(): void {
+    this.alreadyReportedError = false;
   }
 
   cancelReportForm(): void {

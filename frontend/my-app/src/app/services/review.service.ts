@@ -33,9 +33,9 @@ export class ReviewService {
     );
   }
 
-  reportExistsByReviewIdAndReporterId(itemId: number, reviewId: number, reporterId: number): Observable<Boolean>{
-    return this.http.get<Boolean>(
-      `${this.apiBaseUrl}/books/${itemId}/reviews/${reviewId}/existsFrom/${reporterId}`,
-    )
+  reportExistsByReviewIdAndReporterId(itemId: number, reviewId: number): Observable<boolean> {
+    return this.http.get<boolean>(
+      `${this.apiBaseUrl}/books/${itemId}/reviews/${reviewId}/existsFrom/me`,
+    );
   }
 }

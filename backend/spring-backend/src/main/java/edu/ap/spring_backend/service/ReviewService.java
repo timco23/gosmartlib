@@ -138,8 +138,9 @@ public class ReviewService {
      * @param reporterId id of the reporter
      * @return true if the user already reported the review
      */
-    public boolean reportExistsByReviewIdAndReporterId(Long reviewId, Integer reporterId){
-        return reviewReportRepository.existsByReviewIdAndReporterId(reviewId, reporterId);
+    public boolean reportExistsByReviewIdAndReporterId(Long reviewId, String requesterEmail) {
+        User reporter = resolveUser(requesterEmail);
+        return reviewReportRepository.existsByReviewIdAndReporterId(reviewId, reporter.getId());
     }
 
     /**

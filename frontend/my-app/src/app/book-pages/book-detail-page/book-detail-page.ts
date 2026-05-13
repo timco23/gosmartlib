@@ -242,7 +242,7 @@ export class BookDetailPage implements OnInit {
 
   onReportReview(event: { reviewId: number; reason?: string }): void {
     if (!this.book) return;
-
+    
     this.reviewService
       .reportReview(this.book.id, event.reviewId, { reason: event.reason })
       .subscribe({
@@ -255,6 +255,7 @@ export class BookDetailPage implements OnInit {
         },
         error: () => {
           this.reviewServerError = 'Rapporteren mislukt. Probeer later opnieuw.';
+          this.cdr.detectChanges();
         },
       });
   }

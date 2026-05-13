@@ -68,3 +68,11 @@
     />
   }
 </div>
+@if (alreadyReportedError) {
+  <app-pop-up
+    title="Al gerapporteerd"
+    message="Je hebt deze review al eerder gerapporteerd."
+    [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+    (actionClicked)="closeAlreadyReportedError()"
+  />
+}

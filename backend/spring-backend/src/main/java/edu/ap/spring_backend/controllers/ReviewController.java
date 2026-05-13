@@ -50,9 +50,15 @@ public class ReviewController {
      * @param reporterId id of the reporter
      * @return true if the user already reported the review
      */
-    @GetMapping
-    public ResponseEntity<Boolean> reportExistsByReviewIdAndReporterId(@PathVariable Long reviewId, @PathVariable Integer reporterId) {
-        return ResponseEntity.ok(reviewService.reportExistsByReviewIdAndReporterId(reviewId, reporterId));
+    @GetMapping("/{reviewId}/existsFrom/{reporterId}")
+    public ResponseEntity<Boolean> reportExistsByReviewIdAndReporterId(
+            @PathVariable Long itemId,
+            @PathVariable Long reviewId,
+            Authentication authentication,
+            HttpServletRequest request
+    ) {
+        String requester = resolveRequester(authentication, request);
+        return ResponseEntity.ok(reviewService.reportExistsByReviewIdAndReporterId(reviewId, requester));
     }
 
     /**

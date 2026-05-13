@@ -254,13 +254,13 @@
           <app-review-list
             #reviewList
             [reviews]="reviews"
+            [bookId]="book!.id"
             [userRole]="userRoleForReviews"
             [currentUserName]="currentUserNameForReviews"
             (deleteReview)="onDeleteReview($event)"
             (deleteAll)="onDeleteAllReviews()"
             (reportReview)="onReportReview($event)"
-          >
-          </app-review-list>
+          />
         </div>
       </section>
       <app-related-books [book]="book" />
