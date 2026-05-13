@@ -25,4 +25,9 @@ public interface LendingRepository extends JpaRepository<Lending, Long> {
 
     @Query("SELECT new edu.ap.spring_backend.dto.ItemCountDTO(l.book.item.id, COUNT(l)) FROM Lending l WHERE l.school.id = :schoolId AND l.book.item.readingLevel.id = :readingLevelId GROUP BY l.book.item.id")
     List<ItemCountDTO> countLendingsByItemForSchoolAndReadingLevel(@Param("schoolId") Long schoolId, @Param("readingLevelId") Long readingLevelId);
+
+    List<Lending> findByBorrower_IdAndSchool_Id(Integer userId, Long schoolId);
+
+    @Query("SELECT l FROM Lending l JOIN l.borrower.classes c WHERE c.id = :classId AND l.school.id = :schoolId")
+    List<Lending> findByClassIdAndSchoolId(@Param("classId") Long classId, @Param("schoolId") Long schoolId);
 }

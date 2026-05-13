@@ -1,12 +1,19 @@
 package edu.ap.spring_backend.service;
 
+import edu.ap.spring_backend.dao.ClassRepository;
 import edu.ap.spring_backend.dao.LendingRepository;
+import edu.ap.spring_backend.dao.ReviewRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
+import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
+import edu.ap.spring_backend.dto.ClassStatisticsDTO;
 import edu.ap.spring_backend.dto.ItemCountDTO;
+import edu.ap.spring_backend.dto.StudentStatisticsDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.CopyStatus;
 import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.jpa.ReadingLevel;
+import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.jpa.User;
 import org.springframework.stereotype.Service;
@@ -21,11 +28,20 @@ import java.util.stream.Collectors;
 public class StatisticsService {
     private final LendingRepository lendingRepository;
     private final SchoolItemCopyRepository copyRepository;
+    private final ReviewRepository reviewRepository;
+    private final ClassRepository classRepository;
+    private final UserRepository userRepository;
 
     public StatisticsService(LendingRepository repository,
-                             SchoolItemCopyRepository copyRepository) {
+                             SchoolItemCopyRepository copyRepository,
+                             ReviewRepository reviewRepository,
+                             ClassRepository classRepository,
+                             UserRepository userRepository) {
         this.lendingRepository = repository;
         this.copyRepository = copyRepository;
+        this.reviewRepository = reviewRepository;
+        this.classRepository = classRepository;
+        this.userRepository = userRepository;
     }
 
     public BookStatisticsDTO getBookStatistics(Long bookId, Long schoolId, String groupBy, int trendLimit) {
@@ -63,6 +79,55 @@ public class StatisticsService {
                 campusStats,
                 recentLendings,
                 calcSchoolRanking(bookId, schoolId, copies));
+    }
+
+    public StudentStatisticsDTO getStudentStatistics(Integer userId, Long schoolId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(EntityNotFoundException::new);
+        List<Lending> lendings = lendingRepository.findByBorrower_IdAndSchool_Id(userId, schoolId);
+        return buildStudentStats(user, lendings);
+    }
+
+    public ClassStatisticsDTO getClassStatistics(Long classId, Long schoolId) {
+        SchoolClass sc = classRepository.findById(classId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        List<Lending> allLendings = lendingRepository.findByClassIdAndSchoolId(classId, schoolId);
+
+        Map<Integer, List<Lending>> byUser = allLendings.stream()
+                .collect(Collectors.groupingBy(l -> l.getBorrower().getId()));
+
+        List<StudentStatisticsDTO> students = sc.getUsers().stream()
+                .map(u -> buildStudentStats(u, byUser.getOrDefault(u.getId(), List.of())))
+                .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
+                .toList();
+
+        return new ClassStatisticsDTO(
+                classId,
+                sc.getClassName(),
+                sc.getUsers().size(),
+                allLendings.size(),
+                (int) allLendings.stream().filter(l -> !l.isReturned()).count(),
+                (int) calcLateCount(allLendings),
+                calcLatePercent(allLendings),
+                calcModeReadingLevel(allLendings),
+                students.stream().mapToInt(StudentStatisticsDTO::reviewCount).sum(),
+                students);
+    }
+
+    private StudentStatisticsDTO buildStudentStats(User user, List<Lending> lendings) {
+        String fullName = user.getFirstName() != null
+                ? user.getFirstName() + " " + user.getName()
+                : user.getName();
+        return new StudentStatisticsDTO(
+                Long.valueOf(user.getId()),
+                fullName,
+                lendings.size(),
+                (int) lendings.stream().filter(l -> !l.isReturned()).count(),
+                (int) calcLateCount(lendings),
+                calcLatePercent(lendings),
+                calcModeReadingLevel(lendings),
+                (int) reviewRepository.countByAuthor_Id(user.getId()));
     }
 
     // helpers
@@ -128,18 +193,34 @@ public class StatisticsService {
                         .average().orElse(0));
     }
 
+    /** Number of lendings that were or still are overdue. */
+    private long calcLateCount(List<Lending> lendings) {
+        return lendings.stream()
+                .filter(l -> {
+                    if (l.getDateReturned() != null) return l.getDateReturned().isAfter(l.getReturnDate());
+                    return !l.isReturned() && LocalDate.now().isAfter(l.getReturnDate());
+                }).count();
+    }
+
     /**
      * Percentage of lendings that were or still are overdue.
      * A lending is overdue when dateReturned > returnDate, or when it is still active past returnDate.
      */
     private int calcLatePercent(List<Lending> lendings) {
         if (lendings.isEmpty()) return 0;
-        long lateCount = lendings.stream()
-                .filter(l -> {
-                    if (l.getDateReturned() != null) return l.getDateReturned().isAfter(l.getReturnDate());
-                    return !l.isReturned() && LocalDate.now().isAfter(l.getReturnDate());
-                }).count();
-        return (int) Math.round(100.0 * lateCount / lendings.size());
+        return (int) Math.round(100.0 * calcLateCount(lendings) / lendings.size());
+    }
+
+    /** Most frequently borrowed reading level name; null when no reading levels are assigned. */
+    private String calcModeReadingLevel(List<Lending> lendings) {
+        return lendings.stream()
+                .map(l -> l.getBook().getItem().getReadingLevel())
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(ReadingLevel::getName, Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
     }
 
     /**

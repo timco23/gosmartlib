@@ -171,7 +171,7 @@ class UserControllerTest extends BaseControllerTest {
 
     private UserResponse user() {
         List<ClassDTO> classes = new ArrayList<>();
-        classes.add(new ClassDTO("1A", 1L));
+        classes.add(new ClassDTO(1L, "1A", 1L));
         return new UserResponse(
                 1, "Doe", "Jane", "user@example.com", "LEERLING",
                 "S123", classes, "AP", 1L, new ItemDTO[]{item()}, 2

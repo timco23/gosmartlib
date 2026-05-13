@@ -7,4 +7,5 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByItemId(Long itemId);
     long deleteByItem_Id(Long itemId);
+    long countByAuthor_Id(Integer userId);
 }

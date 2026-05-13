@@ -109,6 +109,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/lists/**")
                 .hasAnyAuthority(TEACHER_PLUS)
                 .requestMatchers("/statistics", "/statistics/**").hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/classes").hasAnyAuthority(TEACHER_PLUS)
 
                 // BIBLIOTHEEKBEHEERDER
                 .requestMatchers("/lendings", "/lendings/**", "/collections", "/collections/**")
