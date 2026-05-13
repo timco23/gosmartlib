@@ -1,145 +1,167 @@
 <div class="school-list">
   @if (!addingSchool && !editingSchool && !isLibrarian) {
-  <div>
-    <h2>Scholen</h2>
-    <button class="add-school-btn" (click)="addingSchool = true">School toevoegen</button>
-    @if (schools) {
-    <ul>
-      @for (school of schools; track school.id) {
-      <li class="SchoolItem">
-        <span class="school-name">{{ school.name }}</span>
-        <div class="button-group">
-          @if (school.id !== undefined && currentUser?.schoolId === school.id) {
-            <span class="current-school-badge">Huidige school</span>
+    <div>
+      <h2>Scholen</h2>
+      <button class="add-school-btn" (click)="addingSchool = true">School toevoegen</button>
+      @if (schools) {
+        <ul>
+          @for (school of schools; track school.id) {
+            <li class="SchoolItem">
+              <span class="school-name">{{ school.name }}</span>
+              <div class="button-group">
+                @if (school.id !== undefined && currentUser?.schoolId === school.id) {
+                  <span class="current-school-badge">Huidige school</span>
+                }
+                @if (school.id === undefined || currentUser?.schoolId !== school.id) {
+                  <button class="SwitchButton" (click)="switchSchool(school)">Activeer</button>
+                }
+                <button class="EditButton" (click)="selectSchool(school)">Bewerken</button>
+              </div>
+            </li>
           }
-          @if (school.id === undefined || currentUser?.schoolId !== school.id) {
-            <button class="SwitchButton" (click)="switchSchool(school)">Activeer</button>
-          }
-          <button class="EditButton" (click)="selectSchool(school)">Bewerken</button>
-        </div>
-      </li>
+        </ul>
       }
-    </ul>
-    }
-  </div>
+    </div>
   }
 
   @if (addingSchool || editingSchool) {
-  <div class="form-wrapper">
-    <h2>{{ editingSchool ? 'School bewerken' : 'School toevoegen' }}</h2>
-    <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
+    <div class="form-wrapper">
+      <h2>{{ editingSchool ? 'School bewerken' : 'School toevoegen' }}</h2>
+      <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
+        <h3>Schoolinformatie</h3>
 
-      <h3>Schoolinformatie</h3>
+        <label [class.label-readonly]="isLibrarian">Naam</label>
+        <input placeholder="Naam" formControlName="name" />
 
-      <label [class.label-readonly]="isLibrarian">Naam</label>
-      <input placeholder="Naam" formControlName="name" />
+        <label [class.label-readonly]="isLibrarian">Adres / Gemeente</label>
+        <input placeholder="Adres" formControlName="address" />
 
-      <label [class.label-readonly]="isLibrarian">Adres</label>
-      <input placeholder="Adres" formControlName="address" />
-
-      <label [class.label-readonly]="isLibrarian">Campussen</label>
-      @if (!isLibrarian) {
-        <div class="campus-input-row">
-          <input type="text" placeholder="Campus naam" [(ngModel)]="campusInput" [ngModelOptions]="{ standalone: true }"
-            (keyup.enter)="addCampus()" />
-          <button type="button" (click)="addCampus()">Toevoegen</button>
-        </div>
-      }
-      @if (campuses.length > 0) {
-      <ul class="campus-list" [class.campus-list--readonly]="isLibrarian">
-        @for (campus of campuses; track campus.name; let i = $index) {
-        <li>
-          {{ campus.name }}
-          @if (!isLibrarian) {
-            <button type="button" class="remove-btn" (click)="removeCampus(i)">x</button>
-          }
-        </li>
+        <label [class.label-readonly]="isLibrarian">Campussen</label>
+        @if (!isLibrarian) {
+          <div class="campus-input-row">
+            <input
+              type="text"
+              placeholder="Campus naam"
+              [(ngModel)]="campusInput"
+              [ngModelOptions]="{ standalone: true }"
+              (keyup.enter)="addCampus()"
+            />
+            <button type="button" (click)="addCampus()">Toevoegen</button>
+          </div>
         }
-      </ul>
-      }
-      @if (campuses.length === 0 && isLibrarian) {
-        <p class="no-data">Geen campussen</p>
-      }
+        @if (campuses.length > 0) {
+          <ul class="campus-list" [class.campus-list--readonly]="isLibrarian">
+            @for (campus of campuses; track campus.name; let i = $index) {
+              <li>
+                {{ campus.name }}
+                @if (!isLibrarian) {
+                  <button type="button" class="remove-btn" (click)="removeCampus(i)">x</button>
+                }
+              </li>
+            }
+          </ul>
+        }
+        @if (campuses.length === 0 && isLibrarian) {
+          <p class="no-data">Geen campussen</p>
+        }
 
-      <h3>Bibliotheekinstellingen</h3>
+        <h3>Bibliotheekinstellingen</h3>
 
-      <label>Uitleenperiode (dagen)</label>
-      <input type="number" min="0" formControlName="lendingPeriodDays" />
-      <label>Verlengperiode (dagen)</label>
-      <input type="number" min="0" formControlName="extendPeriodDays" />
-      <label>Maximum aantal verlengingen</label>
-      <input type="number" min="0" formControlName="maxExtends" />
-      <label>Maximum aantal uitleningen per leerling</label>
-      <input type="number" min="0" formControlName="maxLendsStudent" />
-      <label>Maximum aantal uitleningen per leerkracht</label>
-      <input type="number" min="0" formControlName="maxLendTeacher" />
-      <label>Herinnering lener (dagen voor inleverdatum)</label>
-      <input type="number" min="0" formControlName="lenderNotificationPeriod" />
-      <label>Te-laat melding lener (dagen na inleverdatum)</label>
-      <input type="number" min="0" formControlName="lenderLateNotificationPeriod" />
-      <label>Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen na inleverdatum)</label>
-      <input type="number" min="0" formControlName="librarianNotificationNotReturned" />
-      <label>
-        <input type="checkbox" formControlName="librarianRequestNotification" />
-        Melding voor bibliotheekbeheerder bij verzoek
-      </label>
-      <label>
-        <input type="checkbox" formControlName="externalVisibility" />
-        Collectie zichtbaar voor externen
-      </label>
-      <label>
-        <input type="checkbox" formControlName="externalLending" />
-        Uitlenen aan externen toegestaan
-      </label>
-      <label>
-        <input type="checkbox" formControlName="reviews" />
-        Recensies inschakelen
-      </label>
-      <label>
-        <input type="checkbox" formControlName="reviewModeration" />
-        Recensies modereren
-      </label>
+        <label>Uitleenperiode (dagen)</label>
+        <input type="number" min="0" formControlName="lendingPeriodDays" />
+        <label>Verlengperiode (dagen)</label>
+        <input type="number" min="0" formControlName="extendPeriodDays" />
+        <label>Maximum aantal verlengingen</label>
+        <input type="number" min="0" formControlName="maxExtends" />
+        <label>Maximum aantal uitleningen per leerling</label>
+        <input type="number" min="0" formControlName="maxLendsStudent" />
+        <label>Maximum aantal uitleningen per leerkracht</label>
+        <input type="number" min="0" formControlName="maxLendTeacher" />
+        <label>Herinnering lener (dagen voor inleverdatum)</label>
+        <input type="number" min="0" formControlName="lenderNotificationPeriod" />
+        <label>Te-laat melding lener (dagen na inleverdatum)</label>
+        <input type="number" min="0" formControlName="lenderLateNotificationPeriod" />
+        <label
+          >Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen na inleverdatum)</label
+        >
+        <input type="number" min="0" formControlName="librarianNotificationNotReturned" />
+        <label>
+          <input type="checkbox" formControlName="librarianRequestNotification" />
+          Melding voor bibliotheekbeheerder bij verzoek
+        </label>
+        <label>
+          <input type="checkbox" formControlName="externalVisibility" />
+          Collectie zichtbaar voor externen
+        </label>
+        <label>
+          <input type="checkbox" formControlName="externalLending" />
+          Uitlenen aan externen toegestaan
+        </label>
+        <label>
+          <input type="checkbox" formControlName="reviews" />
+          Recensies inschakelen
+        </label>
+        <label>
+          <input type="checkbox" formControlName="reviewModeration" />
+          Recensies modereren
+        </label>
 
-      <div class="button-row">
-        <button type="button" class="cancel-button" (click)="cancelForm()">Terug</button>
-        <button type="submit" [disabled]="!hasUnsavedChanges">Opslaan</button>
-      </div>
-      @if (saveStatus === 'success') {
-        <p class="save-status save-status--success">Wijzigingen opgeslagen.</p>
-      }
-      @if (saveStatus === 'error') {
-        <p class="save-status save-status--error">Opslaan mislukt. Probeer opnieuw.</p>
-      }
-      @if (editingSchool && !isLibrarian) {
-      <button type="button" class="DeleteButton" style="width: 100%; margin-top: 8px" (click)="confirmDelete()">
-        School verwijderen
-      </button>
-      }
-    </form>
-  </div>
+        <div class="button-row">
+          <button type="button" class="cancel-button" (click)="cancelForm()">Terug</button>
+          <button type="submit" [disabled]="!hasUnsavedChanges">Opslaan</button>
+        </div>
+        @if (saveStatus === 'success') {
+          <p class="save-status save-status--success">Wijzigingen opgeslagen.</p>
+        }
+        @if (saveStatus === 'error') {
+          <p class="save-status save-status--error">Opslaan mislukt. Probeer opnieuw.</p>
+        }
+        @if (editingSchool && !isLibrarian) {
+          <button
+            type="button"
+            class="DeleteButton"
+            style="width: 100%; margin-top: 8px"
+            (click)="confirmDelete()"
+          >
+            School verwijderen
+          </button>
+        }
+      </form>
+    </div>
   }
 
   @if (showSwitchSchoolConfirm) {
-  <app-pop-up [message]="'Bent u zeker dat u wil wisselen naar <strong>' + schoolToSwitch?.name + '</strong>?'"
-    [actions]="[
-      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-      { label: 'Wisselen', type: 'primary', value: 'confirm' }
-    ]" (actionClicked)="processSchoolSwitchDialog($event)" />
+    <app-pop-up
+      [message]="
+        'Bent u zeker dat u wil wisselen naar <strong>' + schoolToSwitch?.name + '</strong>?'
+      "
+      [actions]="[
+        { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+        { label: 'Wisselen', type: 'primary', value: 'confirm' },
+      ]"
+      (actionClicked)="processSchoolSwitchDialog($event)"
+    />
   }
 
   @if (showBackConfirm) {
-  <app-pop-up message="Je hebt niet-opgeslagen wijzigingen. Weet je zeker dat je wil teruggaan?"
-    [actions]="[
-      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-      { label: 'Teruggaan', type: 'danger', value: 'confirm' }
-    ]" (actionClicked)="onBackConfirmAction($event)" />
+    <app-pop-up
+      message="Je hebt niet-opgeslagen wijzigingen. Weet je zeker dat je wil teruggaan?"
+      [actions]="[
+        { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+        { label: 'Teruggaan', type: 'danger', value: 'confirm' },
+      ]"
+      (actionClicked)="onBackConfirmAction($event)"
+    />
   }
 
   @if (showDeleteConfirm) {
-  <app-pop-up [message]="'Bent u zeker dat u <strong>' + editingSchool?.name + '</strong> wil verwijderen?'"
-    [actions]="[
-      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-      { label: 'Verwijderen', type: 'danger', value: 'confirm' }
-    ]" (actionClicked)="onDeleteDialogAction($event)" />
+    <app-pop-up
+      [message]="'Bent u zeker dat u <strong>' + editingSchool?.name + '</strong> wil verwijderen?'"
+      [actions]="[
+        { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+        { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+      ]"
+      (actionClicked)="onDeleteDialogAction($event)"
+    />
   }
 </div>

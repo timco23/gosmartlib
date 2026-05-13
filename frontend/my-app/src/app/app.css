@@ -23,7 +23,9 @@
   overflow-y: auto;
   scrollbar-width: none;
 }
-.navbar::-webkit-scrollbar { display: none; }
+.navbar::-webkit-scrollbar {
+  display: none;
+}
 
 /* --- Logo bovenaan --- */
 .nav-logo {
@@ -139,7 +141,10 @@
   letter-spacing: 0.01em;
   border-left: 3px solid transparent;
   white-space: nowrap;
-  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .nav-link:hover {
@@ -171,7 +176,9 @@
   font-size: var(--text-sm);
   cursor: pointer;
   user-select: none;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
   white-space: nowrap;
   overflow: hidden;
 }
@@ -219,7 +226,9 @@
   cursor: pointer;
   font-family: var(--font-body);
   font-size: var(--text-sm);
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .dropdown-item:hover {
@@ -284,7 +293,9 @@
   overflow-y: auto;
   scrollbar-width: none;
 }
-.page-content::-webkit-scrollbar { display: none; }
+.page-content::-webkit-scrollbar {
+  display: none;
+}
 
 /*
   MOBILE NAV TOGGLE + BACKDROP
@@ -303,6 +314,10 @@
 
 .mobile-backdrop.visible {
   display: block;
+}
+
+.no-scroll {
+  overflow: hidden;
 }
 
 /*
@@ -348,7 +363,10 @@
     cursor: pointer;
     z-index: 210;
     box-shadow: var(--shadow-md);
-    transition: background var(--transition-fast), left var(--transition-base), top var(--transition-base);
+    transition:
+      background var(--transition-fast),
+      left var(--transition-base),
+      top var(--transition-base);
     flex-shrink: 0;
   }
 

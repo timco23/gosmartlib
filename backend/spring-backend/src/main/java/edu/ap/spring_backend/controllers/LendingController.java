@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
 import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
@@ -83,5 +83,19 @@ public class LendingController {
     @GetMapping("/book/{bookId}/earliest-availability")
     public ResponseEntity<List<CampusAvailabilityDTO>> getEarliestAvailabilityPerCampus(@PathVariable Long bookId) {
         return ResponseEntity.ok(lendingService.getEarliestAvailabilityPerCampusByBookId(bookId));
+    }
+
+    @GetMapping("/most-borrowed-this-month/{schoolId}")
+    public ResponseEntity<ItemDTO> getMostBorrowedThisMonth(@PathVariable Long schoolId) {
+        return lendingService.getMostBorrowedThisMonth(schoolId)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/last-borrowed/{email}")
+    public ResponseEntity<ItemDTO> getLastBorrowedBook(@PathVariable String email) {
+        return lendingService.getLastBorrowedBook(email)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.noContent().build());
     }
 }
