@@ -109,14 +109,6 @@ export class App implements OnInit {
     this.mobileNavOpen = false;
   }
 
-  toggleDropdown() {
-    this.dropdownOpen = !this.dropdownOpen;
-  }
-
-  closeDropdown() {
-    this.dropdownOpen = false;
-  }
-
   logout() {
     this.authService.logout();
     this.router.navigate(['/login'], { replaceUrl: true });
@@ -124,14 +116,5 @@ export class App implements OnInit {
 
   private setBodyScrollLock(locked: boolean) {
     document.body.classList.toggle('no-scroll', locked);
-  }
-
-  // Close the dropdown when you click outside it
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.user-menu')) {
-      this.dropdownOpen = false;
-    }
   }
 }
