@@ -22,6 +22,7 @@ export class WishlistComponent {
 currentUser: LoginResponse | null = null;
   showRemoveWishlistedPopup: boolean = false;
   pendingRemoveWishlistedId: number | null = null;
+  loading: boolean = true;
 
   api = inject(UserService);
   bookApi = inject(BookService);
@@ -98,8 +99,13 @@ currentUser: LoginResponse | null = null;
         this.allBooks = data.sort((a, b) => a.title.localeCompare(b.title));
         this.totalPages = Math.ceil(this.allBooks.length / this.pageSize);
         this.applyPage();
+        this.loading = false;
         this.cdr.detectChanges();
       },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

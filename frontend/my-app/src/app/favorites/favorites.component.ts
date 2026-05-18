@@ -23,6 +23,7 @@ export class FavoritesComponent {
   currentUser: LoginResponse | null = null;
   showRemoveFavoritePopup: boolean = false;
   pendingRemoveFavoriteId: number | null = null;
+  loading: boolean = true;
 
   api = inject(UserService);
   bookApi = inject(BookService);
@@ -99,8 +100,13 @@ export class FavoritesComponent {
         this.allBooks = data.sort((a, b) => a.title.localeCompare(b.title));
         this.totalPages = Math.ceil(this.allBooks.length / this.pageSize);
         this.applyPage();
+        this.loading = false;
         this.cdr.detectChanges();
       },
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
