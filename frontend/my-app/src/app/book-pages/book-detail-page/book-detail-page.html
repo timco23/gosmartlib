@@ -13,7 +13,7 @@
             </a>
 
             <a class="edit-button" [routerLink]="['/book-lending-history', book.id]"
-              >Uitleengeschiedenis</a
+              >Uitleenhistoriek</a
             >
             <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
               Verwijder boek
@@ -234,7 +234,7 @@
                   Alle reviews verwijderen
                 </button>
               }
-              @if (!showReviewForm) {
+              @if (!showReviewForm && !currentUserHasReview) {
                 <button class="add-review-btn" type="button" (click)="showReviewForm = true">
                   Review schrijven
                 </button>

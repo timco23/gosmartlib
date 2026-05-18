@@ -157,6 +157,11 @@ public class ReviewService {
         User user = resolveUser(userEmail);
         Item item = itemRepository.findById(itemId).orElseThrow(EntityNotFoundException::new);
 
+        boolean alreadyReviewed = reviewRepository.existsByItemIdAndAuthorId(itemId, user.getId());
+        if (alreadyReviewed) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Je hebt dit item al beoordeeld");
+        }
+
         String description = hasText(dto.description()) ? dto.description().trim() : null;
 
          if (profanityFilterService.containsProfanity(description)) {

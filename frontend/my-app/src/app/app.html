@@ -70,6 +70,7 @@
       }
     </div>
 
+  @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
     <div class="nav-section">
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
       <a routerLink="/lendings" class="nav-link" routerLinkActive="active">Uitleenbeheer</a>
@@ -87,6 +88,7 @@
       <a routerLink="/school-settings" class="nav-link" routerLinkActive="active">Schoolinstellingen</a>
       }
     </div>
+  }
 
     <div class="nav-section-bottom">
       <a routerLink="/profile" class="dropdown-item">

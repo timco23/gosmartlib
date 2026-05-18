@@ -92,6 +92,14 @@ export class BookDetailPage implements OnInit {
 
   ratingLevels: number[] = [5, 4, 3, 2, 1];
 
+  
+  get currentUserHasReview(): boolean {
+    if (!this.currentUser) return false;
+    return this.reviews.some(
+      (r) => r.authorEmail === this.currentUser!.email
+    );
+  }
+
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
