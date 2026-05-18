@@ -15,7 +15,6 @@ import { Role } from '../types/types';
 })
 export class App implements OnInit {
   currentUser: LoginResponse | null = null;
-  dropdownOpen = false;
   isDarkMode = false;
   sidebarRight = false;
   mobileNavOpen = false;
@@ -38,11 +37,6 @@ export class App implements OnInit {
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
-
-      // cleanup when logged out
-      if (!user) {
-        this.dropdownOpen = false;
-      }
     });
 
     const isPublicRoute = (url: string) => {
@@ -109,26 +103,8 @@ export class App implements OnInit {
     this.mobileNavOpen = false;
   }
 
-  toggleDropdown() {
-    this.dropdownOpen = !this.dropdownOpen;
-  }
-
-  closeDropdown() {
-    this.dropdownOpen = false;
-  }
-
   logout() {
     this.authService.logout();
-    this.dropdownOpen = false;
     this.router.navigate(['/login'], { replaceUrl: true });
-  }
-
-  // Close the dropdown when you click outside it
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.user-menu')) {
-      this.dropdownOpen = false;
-    }
   }
 }

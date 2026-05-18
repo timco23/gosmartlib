@@ -25,6 +25,18 @@
 }
 .navbar::-webkit-scrollbar { display: none; }
 
+.nav-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.nav-section-bottom {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding-top: 0.5rem;
+}
+
 /* --- Logo bovenaan --- */
 .nav-logo {
   display: flex;
@@ -174,37 +186,12 @@
   transition: color var(--transition-fast), background var(--transition-fast);
   white-space: nowrap;
   overflow: hidden;
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .user-info:hover {
   color: #fff;
   background: rgba(0, 0, 0, 0.15);
-}
-
-.dropdown-arrow {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.55);
-  margin-left: auto;
-  flex-shrink: 0;
-  transition: transform var(--transition-base);
-}
-
-.dropdown-arrow.open {
-  transform: rotate(180deg);
-}
-
-/* --- Dropdown opent naar rechts bovenaan de user-info --- */
-.dropdown-menu {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  background: var(--color-surface-1);
-  border: 1px solid var(--color-border-hover);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  z-index: 300;
 }
 
 .dropdown-item {
@@ -403,4 +390,22 @@
     padding-top: 0;
     min-height: auto;
   }
+}
+.nav-section-bottom .dropdown-item {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.nav-section-bottom .dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #fff;
+}
+
+.nav-section-bottom .btn-logout {
+  color: rgba(255, 255, 255, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.nav-section-bottom .btn-logout:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #fff;
 }
