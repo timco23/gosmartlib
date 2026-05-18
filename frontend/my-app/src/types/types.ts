@@ -442,8 +442,9 @@ export interface StudentStatisticsDTO {
   activeLendings: number;
   lateReturnCount: number;
   lateReturnPercent: number;
-  avgReadingLevel: string | null;
   reviewCount: number;
+  readingLevelDistribution: Record<string, number>;
+  topGenres: string[];
 }
 
 export interface ClassStatisticsDTO {
@@ -454,7 +455,7 @@ export interface ClassStatisticsDTO {
   activeLendings: number;
   lateReturnCount: number;
   lateReturnPercent: number;
-  avgReadingLevel: string | null;
+  readingLevelDistribution: Record<string, number>;
   totalReviews: number;
   students: StudentStatisticsDTO[];
 }

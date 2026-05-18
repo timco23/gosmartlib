@@ -158,6 +158,114 @@
   font-weight: 500;
 }
 
+/* ── Bar chart ── */
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 200px;
+  margin-top: var(--space-4);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
+
+.bar-count {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-text-2);
+}
+
+.bar-track {
+  width: 100%;
+  flex: 1;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+}
+
+.bar-fill {
+  width: 100%;
+  background: linear-gradient(to top, var(--color-primary-dark) 0%, var(--color-primary-rose) 100%);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  min-height: 4px;
+  transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bar-col:hover .bar-fill {
+  filter: brightness(1.12);
+}
+
+.bar-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  text-align: center;
+  word-break: break-word;
+}
+
+/* ── Insights layout ── */
+
+.insights-panel {
+  display: grid;
+  grid-template-columns: 180px 1px 1fr;
+  gap: 0 var(--space-6);
+  align-items: stretch;
+}
+
+.insights-left {
+  min-width: 0;
+}
+
+.insights-divider {
+  background: var(--color-border);
+}
+
+.insights-right {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .insights-panel {
+    grid-template-columns: 1fr;
+    gap: var(--space-6) 0;
+  }
+  .insights-divider {
+    height: 1px;
+    width: 100%;
+  }
+}
+
+/* ── Genre list ── */
+
+.genre-list {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.genre-item {
+  font-size: var(--text-sm);
+  color: var(--color-text-1);
+  font-weight: 500;
+}
+
 /* ── Panel ── */
 
 .panel {
@@ -169,6 +277,18 @@
   margin-bottom: var(--space-6);
   animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: 0.15s;
+}
+
+.panel-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin: 0 0 var(--space-1);
+}
+
+.panel-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+  margin: 0 0 var(--space-5);
 }
 
 .empty-panel {

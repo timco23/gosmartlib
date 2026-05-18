@@ -11,6 +11,7 @@ import edu.ap.spring_backend.dto.ItemCountDTO;
 import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.CopyStatus;
+import edu.ap.spring_backend.jpa.Genre;
 import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.jpa.ReadingLevel;
 import edu.ap.spring_backend.jpa.SchoolClass;
@@ -102,6 +103,16 @@ public class StatisticsService {
                 .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
                 .toList();
 
+        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
+        List<Lending> lastYearLendings = allLendings.stream()
+                .filter(l -> !l.getLendingDate().isBefore(oneYearAgo))
+                .toList();
+
+        Map<String, Integer> readingLevelDistribution = lastYearLendings.stream()
+                .map(l -> l.getBook().getItem().getReadingLevel())
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(ReadingLevel::getName, Collectors.summingInt(x -> 1)));
+
         return new ClassStatisticsDTO(
                 classId,
                 sc.getClassName(),
@@ -110,7 +121,7 @@ public class StatisticsService {
                 (int) allLendings.stream().filter(l -> !l.isReturned()).count(),
                 (int) calcLateCount(allLendings),
                 calcLatePercent(allLendings),
-                calcModeReadingLevel(allLendings),
+                readingLevelDistribution,
                 students.stream().mapToInt(StudentStatisticsDTO::reviewCount).sum(),
                 students);
     }
@@ -119,6 +130,26 @@ public class StatisticsService {
         String fullName = user.getFirstName() != null
                 ? user.getFirstName() + " " + user.getName()
                 : user.getName();
+
+        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
+        List<Lending> lastYearLendings = lendings.stream()
+                .filter(l -> !l.getLendingDate().isBefore(oneYearAgo))
+                .toList();
+
+        Map<String, Integer> readingLevelDistribution = lastYearLendings.stream()
+                .map(l -> l.getBook().getItem().getReadingLevel())
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(ReadingLevel::getName, Collectors.summingInt(x -> 1)));
+
+        List<String> topGenres = lastYearLendings.stream()
+                .flatMap(l -> l.getBook().getItem().getGenres().stream())
+                .collect(Collectors.groupingBy(Genre::getName, Collectors.summingInt(x -> 1)))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(5)
+                .map(Map.Entry::getKey)
+                .toList();
+
         return new StudentStatisticsDTO(
                 Long.valueOf(user.getId()),
                 fullName,
@@ -126,8 +157,9 @@ public class StatisticsService {
                 (int) lendings.stream().filter(l -> !l.isReturned()).count(),
                 (int) calcLateCount(lendings),
                 calcLatePercent(lendings),
-                calcModeReadingLevel(lendings),
-                (int) reviewRepository.countByAuthor_Id(user.getId()));
+                (int) reviewRepository.countByAuthor_Id(user.getId()),
+                readingLevelDistribution,
+                topGenres);
     }
 
     // helpers
@@ -209,18 +241,6 @@ public class StatisticsService {
     private int calcLatePercent(List<Lending> lendings) {
         if (lendings.isEmpty()) return 0;
         return (int) Math.round(100.0 * calcLateCount(lendings) / lendings.size());
-    }
-
-    /** Most frequently borrowed reading level name; null when no reading levels are assigned. */
-    private String calcModeReadingLevel(List<Lending> lendings) {
-        return lendings.stream()
-                .map(l -> l.getBook().getItem().getReadingLevel())
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(ReadingLevel::getName, Collectors.counting()))
-                .entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(null);
     }
 
     /**

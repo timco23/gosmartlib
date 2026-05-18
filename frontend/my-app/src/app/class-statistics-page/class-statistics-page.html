@@ -28,15 +28,25 @@
         <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
         <span class="stat-label">Te laat %</span>
       </div>
-      @if (stats.avgReadingLevel) {
-        <div class="stat-card">
-          <span class="stat-value stat-value--sm">{{ stats.avgReadingLevel }}</span>
-          <span class="stat-label">Meest ontleend leesniveau</span>
-        </div>
-      }
       <div class="stat-card">
         <span class="stat-value">{{ stats.totalReviews }}</span>
         <span class="stat-label">Geplaatste reviews</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">Leesniveaus</h2>
+      <p class="panel-sub">Uitleningen per leesniveau — laatste 12 maanden</p>
+      <div class="bar-chart">
+        @for (bar of readingLevelBars; track bar.label) {
+          <div class="bar-col">
+            <span class="bar-count">{{ bar.count }}</span>
+            <div class="bar-track">
+              <div class="bar-fill" [style.height.%]="bar.pct"></div>
+            </div>
+            <span class="bar-label">{{ bar.label }}</span>
+          </div>
+        }
       </div>
     </section>
 
@@ -56,7 +66,6 @@
                 <th class="num">Actief</th>
                 <th class="num">Te laat</th>
                 <th class="num">Te laat %</th>
-                <th>Leesniveau</th>
                 <th class="num">Reviews</th>
                 <th></th>
               </tr>
@@ -78,13 +87,6 @@
                     <span class="pct-badge" [class.pct-badge--warn]="s.lateReturnPercent > 20">
                       {{ s.lateReturnPercent }}%
                     </span>
-                  </td>
-                  <td>
-                    @if (s.avgReadingLevel) {
-                      <span class="level-chip">{{ s.avgReadingLevel }}</span>
-                    } @else {
-                      <span class="dim">—</span>
-                    }
                   </td>
                   <td class="num">{{ s.reviewCount }}</td>
                   <td>

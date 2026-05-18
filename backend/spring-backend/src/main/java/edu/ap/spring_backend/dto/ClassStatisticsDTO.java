@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public record ClassStatisticsDTO(
     Long classId,
@@ -10,7 +11,7 @@ public record ClassStatisticsDTO(
     int activeLendings,
     int lateReturnCount,
     int lateReturnPercent,
-    String avgReadingLevel,
+    Map<String, Integer> readingLevelDistribution,
     int totalReviews,
     List<StudentStatisticsDTO> students
 ) {}

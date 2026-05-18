@@ -23,6 +23,19 @@ export class StudentStatisticsPage implements OnInit {
   loading = true;
   private schoolId!: number;
 
+  get readingLevelBars(): { label: string; count: number; pct: number }[] {
+    const distribution = this.stats?.readingLevelDistribution ?? {};
+    const levels = ['A', 'B', 'C', 'D'];
+    const bars = levels.map(label => ({ label, count: distribution[label] ?? 0, pct: 0 }));
+
+    const max = Math.max(...bars.map(b => b.count), 1);
+    for (const bar of bars) {
+      bar.pct = Math.round((bar.count / max) * 100);
+    }
+
+    return bars;
+  }
+
   ngOnInit(): void {
     this.classId = Number(this.route.snapshot.paramMap.get('classId'));
     this.userId = Number(this.route.snapshot.paramMap.get('userId'));

@@ -30,17 +30,43 @@
         <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
         <span class="stat-label">Te laat %</span>
       </div>
-      @if (stats.avgReadingLevel) {
-        <div class="stat-card">
-          <span class="stat-value stat-value--sm">{{ stats.avgReadingLevel }}</span>
-          <span class="stat-label">Meest ontleend leesniveau</span>
-        </div>
-      }
       <div class="stat-card">
         <span class="stat-value">{{ stats.reviewCount }}</span>
         <span class="stat-label">Geplaatste reviews</span>
       </div>
     </section>
+
+    <div class="panel insights-panel">
+      <div class="insights-left">
+        <p class="panel-title">Lievelingsgenres</p>
+        <p class="panel-sub">Laatste 12 maanden</p>
+        @if (stats.topGenres && stats.topGenres.length > 0) {
+          <ol class="genre-list">
+            @for (genre of stats.topGenres; track genre) {
+              <li class="genre-item">{{ genre }}</li>
+            }
+          </ol>
+        } @else {
+          <p class="muted">Geen data</p>
+        }
+      </div>
+      <div class="insights-divider"></div>
+      <div class="insights-right">
+        <p class="panel-title">Leesniveaus</p>
+        <p class="panel-sub">Uitleningen per leesniveau — laatste 12 maanden</p>
+        <div class="bar-chart">
+          @for (bar of readingLevelBars; track bar.label) {
+            <div class="bar-col">
+              <span class="bar-count">{{ bar.count }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.height.%]="bar.pct"></div>
+              </div>
+              <span class="bar-label">{{ bar.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
 
     @if (stats.totalLendings === 0) {
       <div class="panel empty-panel">
