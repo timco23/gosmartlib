@@ -3,12 +3,23 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LendingService } from '../services/lending.service';
-import { Lending, LoginResponse, Role, LendingStatus, LendingFilter } from '../../types/types';
+import {
+  Lending,
+  LoginResponse,
+  Role,
+  LendingStatus,
+  LendingFilter,
+  Book,
+  School,
+} from '../../types/types';
+import { UserService } from '../services/user.service';
+import { SchoolService } from '../services/school.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-component',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })
@@ -19,12 +30,19 @@ export class DashboardComponent implements OnInit {
   currentUser: LoginResponse | null = null;
   readonly dueSoonDays = 3;
   selectedFilter: LendingFilter = 'ALL';
+  searchTerm = '';
+
+  mostBorrowedBook: Book | null = null;
+  lastBorrowedBook: Book | null = null;
+  school: School | null = null;
 
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   constructor(
     private lendingApi: LendingService,
     public authService: AuthService,
+    private userService: UserService,
+    private schoolService: SchoolService,
   ) {}
 
   ngOnInit() {
@@ -36,6 +54,26 @@ export class DashboardComponent implements OnInit {
       .subscribe((user) => {
         this.currentUser = user;
         this.loadLendings(user.email);
+
+        this.userService.getUser(user.email).subscribe((userData) => {
+          if (!userData.schoolName) return;
+          this.schoolService.getByName(userData.schoolName).subscribe((school) => {
+            this.school = school;
+            this.lendingApi.getMostBorrowedThisMonth(school.id!).subscribe({
+              next: (book) => {
+                this.mostBorrowedBook = book;
+                this.cdr.detectChanges();
+              },
+            });
+          });
+        });
+
+        this.lendingApi.getLastBorrowedBook(user.email).subscribe({
+          next: (book) => {
+            this.lastBorrowedBook = book;
+            this.cdr.detectChanges();
+          },
+        });
       });
   }
 
@@ -68,7 +106,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get filteredAndSortedLendings(): Lending[] {
-    const filtered = this.lendings.filter((l) => this.matchesFilter(l));
+    const filtered = this.lendings.filter((l) => this.matchesFilter(l) && this.matchesSearch(l));
     return [...filtered].sort((a, b) => this.compareLendings(a, b));
   }
 
@@ -194,5 +232,12 @@ export class DashboardComponent implements OnInit {
     const datePart = value.length >= 10 ? value.substring(0, 10) : value;
     const date = new Date(`${datePart}T00:00:00`);
     return isNaN(date.getTime()) ? null : date;
+  }
+
+  private matchesSearch(lending: Lending): boolean {
+    const query = this.searchTerm.trim().toLowerCase();
+    if (!query) return true;
+    const title = (lending.bookTitle ?? '').toLowerCase();
+    return title.includes(query);
   }
 }

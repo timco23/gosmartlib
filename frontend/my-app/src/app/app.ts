@@ -20,7 +20,9 @@ export class App implements OnInit {
   mobileNavOpen = false;
   role = Role;
 
-  @HostBinding('class.sidebar-right') get sidebarRightClass() { return this.sidebarRight; }
+  @HostBinding('class.sidebar-right') get sidebarRightClass() {
+    return this.sidebarRight;
+  }
 
   constructor(
     public authService: AuthService,
@@ -34,6 +36,8 @@ export class App implements OnInit {
 
     this.sidebarRight = localStorage.getItem('gsmart-sidebar') === 'right';
     this.applySidebarPosition();
+
+    this.setBodyScrollLock(false);
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
@@ -59,6 +63,7 @@ export class App implements OnInit {
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.mobileNavOpen = false;
+      this.setBodyScrollLock(false);
       const currentUrl = this.router.url;
       const path = currentUrl.split('?')[0];
       const isLoggedIn = this.authService.isLoggedIn();
@@ -97,14 +102,36 @@ export class App implements OnInit {
 
   toggleMobileNav() {
     this.mobileNavOpen = !this.mobileNavOpen;
+    this.setBodyScrollLock(this.mobileNavOpen);
   }
 
   closeMobileNav() {
     this.mobileNavOpen = false;
   }
 
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  closeDropdown() {
+    this.dropdownOpen = false;
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigate(['/login'], { replaceUrl: true });
+  }
+
+  private setBodyScrollLock(locked: boolean) {
+    document.body.classList.toggle('no-scroll', locked);
+  }
+
+  // Close the dropdown when you click outside it
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-menu')) {
+      this.dropdownOpen = false;
+    }
   }
 }
