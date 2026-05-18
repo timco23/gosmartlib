@@ -140,10 +140,11 @@
 
       <div class="cover-preview">
         <p class="preview-title">Preview van coverafbeelding</p>
-        @if (previewUrl == '') {
-          <div class="no-cover">Geen afbeelding</div>
+      
+        @if (book?.id) {
+          <img [src]="api.getBookCoverUrl(book!.id)" alt="Book cover preview" />
         } @else {
-          <img [src]="previewUrl" />
+          <div class="no-cover">Geen afbeelding</div>
         }
       </div>
 
