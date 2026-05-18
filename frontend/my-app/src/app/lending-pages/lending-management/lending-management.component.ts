@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { ConfirmDialogAction, Lending } from '../../../types/types';
+import { ConfirmDialogAction, Lending, School } from '../../../types/types';
 import { LendingService } from '../../services/lending.service';
 import { RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
@@ -25,10 +25,13 @@ export class LendingManagementComponent {
   cdr = inject(ChangeDetectorRef);
   bookApi = inject(BookService);
 
+  private currentSchool: School | null = null;
+
   currentLending: Lending | null = null;
   extendConfirmation: boolean = false;
   extendConfirmationMessage: string = '';
   extendError: boolean = false;
+  extendErrorMessage: string = '';
 
   popUpActions: ConfirmDialogAction[] = [
     { label: 'Annuleren', type: 'cancel', value: 'cancel' },
@@ -61,6 +64,7 @@ export class LendingManagementComponent {
           if (!data.schoolName) return;
           this.schoolService.getByName(data.schoolName).subscribe({
             next: (school) => {
+              this.currentSchool = school;
               this.lendingService.getLendingsBySchool(school.id!).subscribe({
                 next: (data: Lending[]) => {
                   this.lendings = data
@@ -76,16 +80,26 @@ export class LendingManagementComponent {
     });
   }
 
+  canExtend(lending: Lending): boolean {
+    if (!this.currentSchool) return false;
+    return (lending.extendCount ?? 0) < this.currentSchool.maxExtends;
+  }
+
   onExtend(lending: Lending): void {
-    if (lending.extended) {
+    if (!this.canExtend(lending)) {
+      const max = this.currentSchool?.maxExtends ?? 0;
+      this.extendErrorMessage = max === 1
+        ? `De lening van "${lending.bookTitle}" kan slechts 1 keer verlengd worden en is al verlengd.`
+        : `De lening van "${lending.bookTitle}" kan maximaal ${max} keer verlengd worden en heeft dit maximum bereikt.`;
       this.extendError = true;
       return;
     }
 
     this.currentLending = lending;
-
+    const days = this.currentSchool?.extendPeriodDays ?? 0;
     this.extendConfirmation = true;
-    this.extendConfirmationMessage = `Bent u zeker dat u de lening van "${lending.bookTitle}" wilt verlengen?`;
+    this.extendConfirmationMessage =
+      `Bent u zeker dat u de lening van "${lending.bookTitle}" wilt verlengen met ${days} dagen?`;
   }
 
   coverSrcFromLending(lending: Lending): string | null {
@@ -104,6 +118,7 @@ export class LendingManagementComponent {
 
   closeExtendErrorPopup(): void {
     this.extendError = false;
+    this.extendErrorMessage = '';
   }
 
   onExtendDialogAction(value: string): void {

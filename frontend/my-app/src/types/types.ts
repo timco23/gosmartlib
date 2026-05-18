@@ -303,6 +303,7 @@ export interface Lending {
   returned: boolean;
   copyBarcode: string;
   extended: boolean;
+  extendCount: number;
 }
 
 export interface LendingRequest {

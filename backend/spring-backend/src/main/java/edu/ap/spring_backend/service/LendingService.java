@@ -6,7 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
@@ -112,11 +116,22 @@ public class LendingService {
     }
 
     public LendingDTO extendLending(Long id) {
-        Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if (Boolean.TRUE.equals(lending.getExtended())) {
-            throw new IllegalStateException("Lending has already been extended");
+        Lending lending = lendingRepository.findById(id)
+            .orElseThrow(EntityNotFoundException::new);
+
+        int maxExtends = lending.getSchool().getMaxExtends();
+
+        if (lending.getExtendCount() >= maxExtends) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Maximum aantal verlengingen (" + maxExtends + ") bereikt"
+            );
         }
-        lending.setReturnDate(lending.getReturnDate().plusDays(lending.getSchool().getExtendPeriodDays()));
+
+        lending.setReturnDate(
+            lending.getReturnDate().plusDays(lending.getSchool().getExtendPeriodDays())
+        );
+        lending.setExtendCount(lending.getExtendCount() + 1);
         lending.setExtended(true);
 
         return toDTO(lendingRepository.save(lending));
@@ -172,9 +187,11 @@ public class LendingService {
                 lending.getDateReturned() != null
                         ? lending.getDateReturned().toString()
                         : null,
-                lending.getReturned(),
+                lending.isReturned(),
                 lending.getBook().getBarcode(),
-                lending.getExtended());
+                lending.isReturned(),
+                lending.getExtendCount()
+        );
     }
 
     public Optional<ItemDTO> getMostBorrowedThisMonth(Long schoolId) {

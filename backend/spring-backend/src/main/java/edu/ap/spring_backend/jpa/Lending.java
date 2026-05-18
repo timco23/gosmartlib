@@ -27,13 +27,16 @@ public class Lending {
     private LocalDate returnDate;
     
     @Column()
-    private Boolean returned;
+    private boolean returned;
     
     @Column()
     private LocalDate dateReturned;
     
     @Column()
-    private Boolean extended;
+    private boolean extended;
+
+    @Column(nullable = false)
+    private int extendCount = 0;
 
     @ManyToOne
     @JoinColumn(name = "borrower_id", nullable = false)
@@ -46,14 +49,11 @@ public class Lending {
     @ManyToOne
     @JoinColumn(name = "school_id", nullable = false)
     private School school;
-    
-    public boolean isReturned() { return Boolean.TRUE.equals(returned); }
-    public boolean isExtended() { return Boolean.TRUE.equals(extended); }
 
     public Lending() {
     }
     
-    public Lending(User borrower, SchoolItemCopy book, LocalDate lendingDate, LocalDate returnDate, Boolean returned, LocalDate dateReturned) {
+    public Lending(User borrower, SchoolItemCopy book, LocalDate lendingDate, LocalDate returnDate, boolean returned, LocalDate dateReturned) {
         this.borrower = borrower;
         this.book = book;
         this.lendingDate = lendingDate;

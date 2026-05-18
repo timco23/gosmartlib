@@ -214,7 +214,6 @@ export class ReturnBookComponent {
     if (value === 'confirm') {
       this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
         next: () => {
-          console.log('Copy status updated');
           this.lendingService
             .updateLending(this.currentLending.id, {
               ...this.currentLending,
@@ -223,13 +222,11 @@ export class ReturnBookComponent {
             })
             .subscribe({
               next: () => {
-                console.log('Lending updated');
 
                 this.bookService
                   .setCondition(this.currentSchoolCopy!.id, this.selectedCondition)
                   .subscribe({
                     next: () => {
-                      console.log('Copy condition updated');
                     },
                     error: (err) => {
                       console.error('Error updating copy condition:', err);
@@ -238,7 +235,6 @@ export class ReturnBookComponent {
 
                 this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
                   next: () => {
-                    console.log('User borrowed count updated');
                     this.router.navigate(['/lendings']);
                   },
                   error: (err) => {

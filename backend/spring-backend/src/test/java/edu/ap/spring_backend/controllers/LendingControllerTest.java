@@ -48,7 +48,8 @@ class LendingControllerTest extends BaseControllerTest  {
                 null,
                 false,
                 "BC001",
-                false
+                false,
+            0
         );
     }
 
@@ -138,14 +139,16 @@ class LendingControllerTest extends BaseControllerTest  {
                 null,
                 false,
                 "BC001",
-                true
+                true,
+            1
         );
 
         Mockito.when(lendingService.extendLending(1L)).thenReturn(extended);
 
         mockMvc.perform(post("/lendings/1/extend"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.extended").value(true));
+                .andExpect(jsonPath("$.extended").value(true))
+                .andExpect(jsonPath("$.extendCount").value(1));
     }
 
     @Test

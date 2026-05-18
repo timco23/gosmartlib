@@ -447,6 +447,7 @@ CREATE TABLE IF NOT EXISTS lending (
     returned BOOLEAN DEFAULT FALSE,
     date_returned DATE,
     extended BOOLEAN DEFAULT FALSE,
+    extend_count INT NOT NULL DEFAULT 0,
     FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE RESTRICT,
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
