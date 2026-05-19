@@ -264,3 +264,14 @@
   margin-top: 24px;
   margin-bottom: 24px;
 }
+
+@media (max-width: 768px) {
+  .tile{
+    width: 90%;
+  }
+  
+  .back-link{
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

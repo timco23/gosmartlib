@@ -148,8 +148,8 @@
         }
       </div>
 
+      <h3>Exemplaren ({{ copies.length }})</h3>
       <section class="copies-column">
-        <h3>Exemplaren ({{ copies.length }})</h3>
 
         @if (deleteError) {
           <app-pop-up
@@ -218,10 +218,11 @@
                 >
               </div>
               @if (group.copies.length > 0) {
-                <table class="copies-table">
-                  <thead>
-                    <tr>
-                      <th class="drag-col"></th>
+                <div class="table-scroll">
+                  <table class="copies-table">
+                    <thead>
+                      <tr>
+                        <th class="drag-col"></th>
                       <th>Conditie</th>
                       <th>Status</th>
                       <th>Barcode</th>
@@ -231,12 +232,12 @@
                   <tbody>
                     @for (copy of group.copies; track copy.id) {
                       <tr
-                        draggable="true"
-                        [class.dragging]="draggedCopyId === copy.id"
+                      draggable="true"
+                      [class.dragging]="draggedCopyId === copy.id"
                         [class.copy-lost]="isCopyLost(copy)"
                         (dragstart)="onDragStart($event, copy.id)"
                         (dragend)="onDragEnd()"
-                      >
+                        >
                         <td class="drag-handle" title="Sleep naar andere campus">
                           <span class="drag-icon">&#x2807;</span>
                         </td>
@@ -247,7 +248,7 @@
                         <td>{{ copy.barcode }}</td>
                         <td class="copy-actions">
                           <button
-                            type="button"
+                          type="button"
                             (click)="
                               router.navigate(['/books', book!.id, 'barcodes'], {
                                 queryParams: { preselect: copy.id },
@@ -256,7 +257,7 @@
                           >
                             Barcode
                           </button>
-
+                          
                           @if (!isCopyLost(copy)) {
                             <button type="button" class="EditButton" (click)="startEdit(copy)">
                               Wijzigen
@@ -270,8 +271,8 @@
                             </button>
                           } @else {
                             <button
-                              type="button"
-                              class="FoundButton"
+                            type="button"
+                            class="FoundButton"
                               (click)="showFoundConfirmation(copy.id!)"
                             >
                               Teruggevonden
@@ -280,7 +281,7 @@
                               type="button"
                               class="DeleteButton"
                               (click)="showDeleteConfirmation(copy.id!)"
-                            >
+                              >
                               Verwijderen
                             </button>
                           }
@@ -289,6 +290,7 @@
                     }
                   </tbody>
                 </table>
+              </div>
               } @else {
                 <p class="empty-group-hint">Geen exemplaren toegewezen</p>
               }
