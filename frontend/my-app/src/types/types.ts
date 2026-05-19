@@ -338,7 +338,9 @@ export interface Review {
   authorSmartschoolUsername?: string;
   isAnonymous?: boolean;
   reportCount?: number;
-  approved: boolean
+  approved: boolean;
+  itemId: number;
+  itemTitle: string;
 }
 
 export interface CreateReview {

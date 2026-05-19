@@ -318,7 +318,9 @@ public class ReviewService {
                 review.getAuthor().getSmartschoolUsername(),
                 review.isAnonymous(),
                 review.getReportCount(),
-                review.isApproved()
+                review.isApproved(),
+                review.getItem().getId(),
+                review.getItem().getTitle()
         );
     }
 

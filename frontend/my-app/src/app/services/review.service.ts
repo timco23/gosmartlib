@@ -33,13 +33,13 @@ export class ReviewService {
     );
   }
 
-  getReviewsPaginated(schoolId: number, itemId?: number, userId?: number, reportStatus: string = "ALL", page: number = 0 , newestFirst: boolean = true): Observable<Page<Review>> {
+  getReviewsPaginated(schoolId: number, itemId: number, userId: number, reportStatus: string = "ALL", page: number = 0 , newestFirst: boolean = true): Observable<Page<Review>> {
     let params = new HttpParams()
       .set('page', page)
       .set('reportStatus', reportStatus)
       .set('newestFirst', newestFirst);
-    if (userId) params.set('userId', userId)
-    if (itemId) params.set('itemId', itemId)
+    if (userId != 0) params.set('userId', userId)
+    if (itemId != 0) params.set('itemId', itemId)
 
     return this.http.get<Page<Review>>(`${this.apiBaseUrl}/reviews/schools/${schoolId}`, { params });
   }
@@ -48,7 +48,7 @@ export class ReviewService {
     return this.http.get<ReviewReport[]>(`${this.apiBaseUrl}/reviews/${reviewId}/reports`);
   }
 
-  approveReivew(reviewId: number): Observable<ReviewReport[]> {
+  approveReview(reviewId: number): Observable<ReviewReport[]> {
     return this.http.put<ReviewReport[]>(`${this.apiBaseUrl}/reviews/${reviewId}/approve`, {});
   }
 }

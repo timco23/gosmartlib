@@ -42,7 +42,7 @@ class ReviewControllerTest {
     @Test
     void givenItemId_whenGetReviews_thenReturnsList() {
         ReviewDTO dto = new ReviewDTO(1L, "Great", 5, LocalDate.now(),
-                "Author", "a@b.com", "ss", false, 0, false);
+                "Author", "a@b.com", "ss", false, 0, false, 1L, "book");
         when(reviewService.getReviews(1L)).thenReturn(List.of(dto));
 
         ResponseEntity<List<ReviewDTO>> response = controller.getReviews(1L);
@@ -56,7 +56,7 @@ class ReviewControllerTest {
     void givenAuthentication_whenCreateReview_thenUsesAuthName() {
         CreateReviewDTO dto = new CreateReviewDTO("Nice", 4, false);
         ReviewDTO created = new ReviewDTO(1L, "Nice", 4, LocalDate.now(),
-                "Author", "a@b.com", "ss", false, 0, false);
+                "Author", "a@b.com", "ss", false, 0, false, 1L, "book");
         when(reviewService.createReview(1L, dto, "user@example.com")).thenReturn(created);
 
         Authentication auth = mock(Authentication.class);

@@ -25,5 +25,8 @@ public record ReviewDTO(
         @JsonProperty("authorSmartschoolUsername") String authorSmartschoolUsername,
         @JsonProperty("isAnonymous") boolean isAnonymous,
         @JsonProperty("reportCount") int reportCount,
-        @JsonProperty("approved") boolean approved
+        @JsonProperty("approved") boolean approved,
+        @JsonProperty("itemId") Long itemId,
+        @JsonProperty("itemTitle") String itemTitle
+
 ) {}
