@@ -28,9 +28,10 @@
     @if (filteredUsers.length === 0) {
       <div class="no-results">Geen gebruikers gevonden.</div>
     } @else {
-      <table class="users-table">
-        <thead>
-          <tr>
+      <div class="table-scroll">
+        <table class="users-table">
+          <thead>
+            <tr>
             <th (click)="sortBy('naam')" class="sortable">
               Naam
               <span class="sort-icon">{{
@@ -65,13 +66,18 @@
               <td>{{ getClasses(user) }}</td>
               <td>
                 <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
-                  {{ user.role }}
+                  @if (user.role?.toLowerCase() === 'bibliotheekbeheerder') {
+                    bibliotheek&shy;beheerder
+                  } @else {
+                    {{ user.role }}
+                  }
                 </span>
               </td>
             </tr>
           }
         </tbody>
       </table>
+    </div>
     }
   }
 </div>
