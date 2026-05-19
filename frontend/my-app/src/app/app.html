@@ -91,14 +91,16 @@
   }
 
     <div class="nav-section-bottom">
-      <a routerLink="/profile" class="dropdown-item">
+      <a routerLink="/profile" class="nav-link" routerLinkActive="active">
         Mijn gegevens
       </a>
-      <a routerLink="/lendingHistory" class="dropdown-item">
+      <a routerLink="/lendingHistory" class="nav-link" routerLinkActive="active">
         Mijn uitleenhistoriek
       </a>
-      <a routerLink="/dashboard" class="dropdown-item"> Dashboard </a>
-      <button (click)="logout()" class="dropdown-item btn-logout">Uitloggen</button>
+      <a routerLink="/dashboard" class="nav-link" routerLinkActive="active">
+        Dashboard
+      </a>
+      <button (click)="logout()" class="nav-link nav-link-logout">Uitloggen</button>
     </div>
   </div>
 

@@ -448,3 +448,22 @@ main.detailed .side-author {
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);
 }
+
+@media (max-width: 768px) {
+  main:not(.detailed) .carousel-outer {
+    gap: 0.5rem;
+  }
+
+  main:not(.detailed) .carousel-viewport {
+    justify-content: center;
+  }
+
+  main.detailed .carousel-outer {
+    gap: 0.5rem;
+  }
+
+  main.detailed .carousel-card.is-center {
+    flex: 1;
+    max-width: 100%;
+  }
+}
