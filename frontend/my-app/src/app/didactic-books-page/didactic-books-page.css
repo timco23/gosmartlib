@@ -640,4 +640,9 @@
     column-gap: var(--space-3);
     row-gap: var(--space-6);
   }
+
+  .list-button {
+    padding-left: 0.3rem;
+    width: 4.5rem;
+  }
 }
