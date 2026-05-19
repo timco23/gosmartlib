@@ -23,6 +23,18 @@ export class ProfileSelectionComponent implements OnInit {
   sortColumn: string = 'email';
   sortDirection: 'asc' | 'desc' = 'asc';
 
+  currentPage = 0;
+  readonly pageSize = 10;
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredUsers.length / this.pageSize);
+  }
+
+  get pagedUsers(): UserProfile[] {
+    const start = this.currentPage * this.pageSize;
+    return this.filteredUsers.slice(start, start + this.pageSize);
+  }
+  
   constructor(
     private userService: UserService,
     private router: Router,
@@ -47,8 +59,17 @@ export class ProfileSelectionComponent implements OnInit {
       },
     });
   }
+  
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) this.currentPage++;
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) this.currentPage--;
+  }
 
   onFilterChange(): void {
+    this.currentPage = 0;
     this.applyFilterAndSort();
   }
 
@@ -59,9 +80,10 @@ export class ProfileSelectionComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
+    this.currentPage = 0;
     this.applyFilterAndSort();
   }
-
+  
   private applyFilterAndSort(): void {
     const filter = this.nameFilter.toLowerCase().trim();
     let result = filter

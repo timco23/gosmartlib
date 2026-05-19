@@ -152,9 +152,7 @@ export class Profile implements OnInit, OnDestroy {
     this.lendingService.getLendingsByUser(email).subscribe({
       next: (data) => {
         const all = data ?? [];
-        // Active = not returned and no dateReturned
         this.activeLendings = all.filter((l) => !l.returned && !l.dateReturned);
-        // Returned only for display in the history card
         this.lendings = all.filter((l) => l.returned || !!l.dateReturned);
         this.cdr.detectChanges();
       },

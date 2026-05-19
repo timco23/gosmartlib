@@ -32,6 +32,13 @@ export class SchoolManagementComponent {
   saveStatus: 'success' | 'error' | null = null;
   showBackConfirm: boolean = false;
   private saveStatusTimer: any = null;
+  schoolFilter: string = '';
+
+  get filteredSchools(): School[] {
+    const q = this.schoolFilter.toLowerCase().trim();
+    if (!q) return this.schools;
+    return this.schools.filter(s => s.name?.toLowerCase().includes(q));
+  }
 
   constructor(
     private fb: FormBuilder,

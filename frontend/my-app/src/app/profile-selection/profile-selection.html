@@ -59,7 +59,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (user of filteredUsers; track user.email) {
+          @for (user of pagedUsers; track user.email) {
             <tr (click)="openProfile(user)" class="user-row">
               <td>{{ user.firstName }} {{ user.name }}</td>
               <td>{{ user.email }}</td>
@@ -78,6 +78,27 @@
         </tbody>
       </table>
     </div>
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button
+          class="page-btn"
+          type="button"
+          (click)="previousPage()"
+          [disabled]="currentPage === 0"
+        >
+          ←
+        </button>
+        <span class="page-indicator">{{ currentPage + 1 }} / {{ totalPages }}</span>
+        <button
+          class="page-btn"
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages - 1"
+        >
+          →
+        </button>
+      </div>
+    }
     }
   }
 </div>
