@@ -1,10 +1,15 @@
 package edu.ap.spring_backend.service;
 
+import edu.ap.spring_backend.dao.ClassRepository;
 import edu.ap.spring_backend.dao.LendingRepository;
+import edu.ap.spring_backend.dao.ReviewRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
+import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
+import edu.ap.spring_backend.dto.ClassStatisticsDTO;
 import edu.ap.spring_backend.dto.ItemCountDTO;
 import edu.ap.spring_backend.jpa.*;
+import edu.ap.spring_backend.util.SchoolYearUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,6 +19,8 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,6 +29,9 @@ class StatisticsServiceTest {
 
     @Mock private LendingRepository lendingRepository;
     @Mock private SchoolItemCopyRepository copyRepository;
+    @Mock private ReviewRepository reviewRepository;
+    @Mock private ClassRepository classRepository;
+    @Mock private UserRepository userRepository;
 
     @InjectMocks
     private StatisticsService service;
@@ -289,6 +299,95 @@ class StatisticsServiceTest {
         assertEquals(2.5, ranking.lendingsPerCopy());
         assertNull(ranking.rankReadingLevel());
         assertNull(ranking.totalBooksReadingLevel());
+    }
+
+    // --- class statistics tests ---
+
+    private User studentUser(int id, String firstName, String lastName) {
+        User u = mock(User.class);
+        when(u.getId()).thenReturn(id);
+        when(u.getFirstName()).thenReturn(firstName);
+        when(u.getName()).thenReturn(lastName);
+        when(u.getClasses()).thenReturn(List.of());
+        return u;
+    }
+
+    private Lending lendingWithSnapshot(User borrower, String snapClassName, String snapSchoolYear,
+                                        String snapReadingLevel, String snapBookGenre) {
+        Lending l = new Lending();
+        l.setBook(copy);
+        l.setBorrower(borrower);
+        l.setLendingDate(LocalDate.of(2025, 3, 1));
+        l.setReturnDate(LocalDate.of(2025, 3, 15));
+        l.setReturned(false);
+        l.setSnapClassName(snapClassName);
+        l.setSnapSchoolYear(snapSchoolYear);
+        l.setSnapReadingLevel(snapReadingLevel);
+        l.setSnapBookGenre(snapBookGenre);
+        return l;
+    }
+
+    @Test
+    void getClassStatistics_readingLevelDistribution_usesSnapshotNotLiveJoin() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending l = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", "Fantasy");
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID)).thenReturn(List.of(l));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID);
+
+        assertEquals(Map.of("AVI-M6", 1), result.readingLevelDistribution());
+    }
+
+    @Test
+    void getClassStatistics_readingLevelDistribution_excludesPreviousSchoolYear() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        String previousYear = (Integer.parseInt(currentYear.substring(0, 4)) - 1)
+                + "-" + currentYear.substring(0, 4);
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending currentYearLending = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", null);
+        Lending oldLending = lendingWithSnapshot(student, "4A", previousYear, "AVI-E3", null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID))
+                .thenReturn(List.of(currentYearLending, oldLending));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID);
+
+        assertEquals(Map.of("AVI-M6", 1), result.readingLevelDistribution());
+        assertFalse(result.readingLevelDistribution().containsKey("AVI-E3"));
+    }
+
+    @Test
+    void getClassStatistics_classSwitchAfterLending_historicalLendingStillCounted() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User movedStudent = studentUser(2, "Els", "Janssen");
+
+        // Class 4A now has no students (movedStudent switched to 4B)
+        SchoolClass sc = new SchoolClass("4A", null, List.of());
+        sc.setId(10L);
+
+        // But the lending snapshot still carries "4A"
+        Lending l = lendingWithSnapshot(movedStudent, "4A", currentYear, null, null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID)).thenReturn(List.of(l));
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID);
+
+        assertEquals(1, result.totalLendings());
     }
 
     @Test

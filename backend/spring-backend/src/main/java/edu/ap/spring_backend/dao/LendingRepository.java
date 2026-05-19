@@ -28,6 +28,5 @@ public interface LendingRepository extends JpaRepository<Lending, Long> {
 
     List<Lending> findByBorrower_IdAndSchool_Id(Integer userId, Long schoolId);
 
-    @Query("SELECT l FROM Lending l JOIN l.borrower.classes c WHERE c.id = :classId AND l.school.id = :schoolId")
-    List<Lending> findByClassIdAndSchoolId(@Param("classId") Long classId, @Param("schoolId") Long schoolId);
+    List<Lending> findBySnapClassNameAndSchool_Id(String snapClassName, Long schoolId);
 }

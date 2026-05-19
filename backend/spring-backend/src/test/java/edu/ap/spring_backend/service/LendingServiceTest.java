@@ -8,9 +8,12 @@ import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
 import edu.ap.spring_backend.jpa.Campus;
+import edu.ap.spring_backend.jpa.Genre;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.Lending;
+import edu.ap.spring_backend.jpa.ReadingLevel;
 import edu.ap.spring_backend.jpa.School;
+import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.jpa.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +26,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -272,6 +276,120 @@ class LendingServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    void fillSnapshot_schoolYear_alwaysSet() {
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+        assertEquals("2024-2025", l.getSnapSchoolYear());
+    }
+
+    @Test
+    void fillSnapshot_beforeSeptember_previousSchoolYear() {
+        Lending l = new Lending();
+        l.setLendingDate(LocalDate.of(2024, 6, 15));
+        service.fillSnapshot(l, user, copy);
+        assertEquals("2023-2024", l.getSnapSchoolYear());
+    }
+
+    @Test
+    void fillSnapshot_userWithClass_setsSnapClassName() {
+        SchoolClass sc = new SchoolClass();
+        sc.setClassName("4A");
+        when(user.getClasses()).thenReturn(List.of(sc));
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertEquals("4A", l.getSnapClassName());
+    }
+
+    @Test
+    void fillSnapshot_userWithoutClass_snapClassNameIsNull() {
+        when(user.getClasses()).thenReturn(List.of());
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertNull(l.getSnapClassName());
+    }
+
+    @Test
+    void fillSnapshot_copyWithCampus_setsCampusFields() {
+        Campus campus = new Campus();
+        campus.setId(5L);
+        campus.setName("Campus Noord");
+        copy.setCampus(campus);
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertEquals(5L, l.getSnapCampusId());
+        assertEquals("Campus Noord", l.getSnapCampusName());
+    }
+
+    @Test
+    void fillSnapshot_copyWithoutCampus_campusFieldsAreNull() {
+        copy.setCampus(null);
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertNull(l.getSnapCampusId());
+        assertNull(l.getSnapCampusName());
+    }
+
+    @Test
+    void fillSnapshot_itemWithReadingLevel_setsSnapReadingLevel() {
+        ReadingLevel rl = new ReadingLevel("AVI-M6", "Midden groep 6");
+        item.setReadingLevel(rl);
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertEquals("AVI-M6", l.getSnapReadingLevel());
+    }
+
+    @Test
+    void fillSnapshot_itemWithoutReadingLevel_snapReadingLevelIsNull() {
+        item.setReadingLevel(null);
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertNull(l.getSnapReadingLevel());
+    }
+
+    @Test
+    void fillSnapshot_itemWithGenres_setsSnapBookGenre() {
+        item.setGenres(Set.of(new Genre("Fantasy")));
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertEquals("Fantasy", l.getSnapBookGenre());
+    }
+
+    @Test
+    void fillSnapshot_itemWithoutGenres_snapBookGenreIsNull() {
+        item.setGenres(Set.of());
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertNull(l.getSnapBookGenre());
+    }
+
+    @Test
+    void fillSnapshot_setsTitleAndIsbn() {
+        item.setIsbn("978-3-16-148410-0");
+
+        Lending l = lendingForSnapshot();
+        service.fillSnapshot(l, user, copy);
+
+        assertEquals("Dune", l.getSnapBookTitle());
+        assertEquals("978-3-16-148410-0", l.getSnapBookIsbn());
+    }
+
     private static <T> T buildRecord(Class<T> recordClass, Map<String, Object> values) {
         if (!recordClass.isRecord()) {
             throw new IllegalArgumentException("Not a record: " + recordClass);
@@ -327,5 +445,11 @@ class LendingServiceTest {
         if (type == byte.class) return (byte) 0;
         if (type == char.class) return '\0';
         return null;
+    }
+
+    private Lending lendingForSnapshot() {
+        Lending l = new Lending();
+        l.setLendingDate(LocalDate.of(2024, 10, 1)); // school year 2024-2025
+        return l;
     }
 }

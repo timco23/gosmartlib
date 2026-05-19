@@ -11,12 +11,12 @@ import edu.ap.spring_backend.dto.ItemCountDTO;
 import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.CopyStatus;
-import edu.ap.spring_backend.jpa.Genre;
 import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.jpa.ReadingLevel;
 import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.util.SchoolYearUtil;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -93,9 +93,10 @@ public class StatisticsService {
         SchoolClass sc = classRepository.findById(classId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        List<Lending> allLendings = lendingRepository.findByClassIdAndSchoolId(classId, schoolId);
+        List<Lending> allLendings = lendingRepository.findBySnapClassNameAndSchool_Id(sc.getClassName(), schoolId);
 
         Map<Integer, List<Lending>> byUser = allLendings.stream()
+                .filter(l -> l.getBorrower() != null)
                 .collect(Collectors.groupingBy(l -> l.getBorrower().getId()));
 
         List<StudentStatisticsDTO> students = sc.getUsers().stream()
@@ -103,15 +104,8 @@ public class StatisticsService {
                 .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
                 .toList();
 
-        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
-        List<Lending> lastYearLendings = allLendings.stream()
-                .filter(l -> !l.getLendingDate().isBefore(oneYearAgo))
-                .toList();
-
-        Map<String, Integer> readingLevelDistribution = lastYearLendings.stream()
-                .map(l -> l.getBook().getItem().getReadingLevel())
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(ReadingLevel::getName, Collectors.summingInt(x -> 1)));
+        List<Lending> currentYearLendings = filterBySchoolYear(allLendings, null);
+        Map<String, Integer> readingLevelDistribution = readingLevelDistribution(currentYearLendings);
 
         return new ClassStatisticsDTO(
                 classId,
@@ -131,19 +125,13 @@ public class StatisticsService {
                 ? user.getFirstName() + " " + user.getName()
                 : user.getName();
 
-        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
-        List<Lending> lastYearLendings = lendings.stream()
-                .filter(l -> !l.getLendingDate().isBefore(oneYearAgo))
-                .toList();
+        List<Lending> currentYearLendings = filterBySchoolYear(lendings, null);
+        Map<String, Integer> readingLevelDistribution = readingLevelDistribution(currentYearLendings);
 
-        Map<String, Integer> readingLevelDistribution = lastYearLendings.stream()
-                .map(l -> l.getBook().getItem().getReadingLevel())
+        List<String> topGenres = currentYearLendings.stream()
+                .map(Lending::getSnapBookGenre)
                 .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(ReadingLevel::getName, Collectors.summingInt(x -> 1)));
-
-        List<String> topGenres = lastYearLendings.stream()
-                .flatMap(l -> l.getBook().getItem().getGenres().stream())
-                .collect(Collectors.groupingBy(Genre::getName, Collectors.summingInt(x -> 1)))
+                .collect(Collectors.groupingBy(s -> s, Collectors.summingInt(x -> 1)))
                 .entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(5)
@@ -163,6 +151,20 @@ public class StatisticsService {
     }
 
     // helpers
+    private List<Lending> filterBySchoolYear(List<Lending> lendings, String schoolYear) {
+        String year = (schoolYear != null) ? schoolYear : SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        return lendings.stream()
+                .filter(l -> year.equals(l.getSnapSchoolYear()))
+                .toList();
+    }
+
+    private Map<String, Integer> readingLevelDistribution(List<Lending> lendings) {
+        return lendings.stream()
+                .map(Lending::getSnapReadingLevel)
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(s -> s, Collectors.summingInt(x -> 1)));
+    }
+
     private List<BookStatisticsDTO.CampusStatisticsDTO> buildCampusStats(
             List<Lending> lendings, List<SchoolItemCopy> copies) {
 
