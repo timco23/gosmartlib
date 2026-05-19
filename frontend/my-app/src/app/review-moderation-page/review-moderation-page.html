@@ -1,1 +1,108 @@
-<p>review-moderation-page works!</p>
+<body class="moderation-container">
+    @if(this.loadingSchoolError()) {
+        <p class="warning">Er was een probleem met het ophalen van je schoolgegevens</p>
+    }
+    @else if (this.loadingSchool()) {
+        <p>Schoolgegevens ophalen...</p>
+    }
+    @else {
+        <div class="filter-container">
+            @if (selectedItemId() == 0) {
+                <button class="book-filter">
+                    Filter op boek
+                </button>
+            }
+            @else {
+                <button class="book-filter" (click)="clearSelectedItemId()">
+                    {{selectedItem()!.title}}
+                    <span class="x-icon">x</span>
+                </button>
+            }
+
+            @if (selectedUserId() == 0) {
+                <button class="user-filter">
+                    Filter op leerling
+                </button>
+            }
+            @else {
+                <button class="user-filter" (click)="clearSelectedUserId()">
+                    {{selectedUser()!.firstName}} {{selectedUser()!.name}}
+                    <span class="x-icon">x</span>
+                </button>
+            }
+
+            <label for="reportStatus">Reviewstatus</label>
+            <select id="reportStatus" class="report-status-filter" (change)="changeReportStatus($event)">
+                <option value="ALL" selected>Alle</option>
+                <option value="REPORTED">Gerapporteed</option>
+                <option value="NOT_REPORTED">Niet gerapporteerd</option>
+           </select>
+
+           <label for="sortBy">Sorteervolgorde</label>
+           <select id="sortBy" class="sort-by" (change)="toggleSortOrder($event)">
+                <option value="true" selected>Nieuwste</option>
+                <option value="false">Oudste</option>
+           </select>
+        </div>
+
+        <div class="reviews-container">
+        @if (this.loadingReviews()) {
+            <div class="loading-state">
+                <p>Reviews laden...</p>
+            </div>
+        }
+        @else {
+            <ul class="reviews-list">
+            @for (review of reviews; track review.id) {
+                <li class="review-item">
+                    <div class="review-info">
+                        <div class="review-main">
+                            <span class="author-name">{{review.authorName}}</span>
+                            <app-star-display [score]="review.stars" [size]="16"></app-star-display>
+                            <span class="item-title">{{review.itemTitle}}</span>
+                        </div>
+                        <div class="review-meta">
+                            <span class="approval-status" [class.approved]="review.approved">
+                                {{review.approved ? 'Goedgekeurd' : 'Wacht op goedkeuring'}}
+                            </span>
+                            <span class="report-count">
+                                {{review.reportCount || 0}} {{ (review.reportCount === 1) ? 'rapport' : 'rapporten' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="review-actions">
+                        <button class="action-btn approve-btn" [disabled]="review.approved">
+                            Goedkeuren
+                        </button>
+                        <button class="action-btn delete-btn">
+                            Verwijderen
+                        </button>
+                        <button class="action-btn inspect-btn">
+                            Rapporten inzien
+                        </button>
+                    </div>
+                </li>    
+            }
+            </ul>
+            
+            <div class="pagination-container">
+                <button 
+                    class="pagination-btn" 
+                    (click)="previousPage()" 
+                    [disabled]="currentPage === 0">
+                    Vorige
+                </button>
+                <span class="pagination-info">
+                    Pagina {{currentPage + 1}} van {{totalPages || 1}}
+                </span>
+                <button 
+                    class="pagination-btn" 
+                    (click)="nextPage()" 
+                    [disabled]="currentPage >= totalPages - 1">
+                    Volgende
+                </button>
+            </div>
+        }
+        </div>
+    }
+</body>

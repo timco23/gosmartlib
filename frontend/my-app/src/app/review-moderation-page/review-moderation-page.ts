@@ -1,13 +1,15 @@
 import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
-import { Review, School } from '../../types/types';
+import { Book, Review, School, UserProfile } from '../../types/types';
 import { ReviewService } from '../services/review.service';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { SchoolService } from '../services/school.service';
+import { BookService } from '../services/book-service';
+import { StarDisplayComponent } from '../widgets/star-display/star-display.component';
 
 @Component({
   selector: 'app-review-moderation-page',
-  imports: [],
+  imports: [StarDisplayComponent],
   templateUrl: './review-moderation-page.html',
   styleUrl: './review-moderation-page.css',
 })
@@ -16,8 +18,10 @@ export class ReviewModerationPage implements OnInit {
   currentPage: number = 0;
   totalPages: number = 0
   school: School | null = null;
-  selectedItemId: number = 0;
-  selectedUserId: number = 0;
+  selectedItemId = signal<number>(0);
+  selectedItem = signal<Book | null>(null);
+  selectedUserId = signal<number>(0);
+  selectedUser = signal<UserProfile | null>(null);
   reportStatus: string = "ALL";
   newestFirst: boolean = true;
   loadingSchool = signal<boolean>(true);
@@ -29,6 +33,7 @@ export class ReviewModerationPage implements OnInit {
   authService = inject(AuthService)
   userService = inject(UserService)
   schoolService = inject(SchoolService)
+  bookService = inject(BookService)
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
@@ -53,8 +58,9 @@ export class ReviewModerationPage implements OnInit {
   }
 
   loadReviews() {
+    this.cdr.detectChanges();
     this.loadingReviews.set(true);
-    this.reviewService.getReviewsPaginated(this.school!.id!, this.selectedItemId, this.selectedUserId, this.reportStatus, this.currentPage, this.newestFirst).subscribe({
+    this.reviewService.getReviewsPaginated(this.school!.id!, this.selectedItemId(), this.selectedUserId(), this.reportStatus, this.currentPage, this.newestFirst).subscribe({
       next: (data) => {
         this.reviews = data.content;
         this.totalPages = data.totalPages;
@@ -64,26 +70,29 @@ export class ReviewModerationPage implements OnInit {
   }
 
   changeSelectedItemId(id: number) {
-    this.selectedItemId = id;
+    this.selectedItemId.set(id);
+    this.getBook(id);
     this.loadReviews();
   }
 
-  changeSelectedUserId(id: number) {
-    this.selectedUserId = id;
+  changeSelectedUserId(id: number, email: string) {
+    this.selectedUserId.set(id);
+    this.getUser(email);
     this.loadReviews();
   }
 
   clearSelectedItemId() {
-    this.selectedItemId = 0;
+    this.selectedItemId.set(0);
     this.loadReviews();
   }
 
   clearSelectedUserId() {
-    this.selectedUserId = 0;
+    this.selectedUserId.set(0);
     this.loadReviews();
   }
 
-  changeReportStatus(status: string) {
+  changeReportStatus(event: Event) {
+    const status = (event.target as HTMLSelectElement).value;
     this.reportStatus = status;
     this.loadReviews();
   }
@@ -102,7 +111,8 @@ export class ReviewModerationPage implements OnInit {
     } 
   }
 
-  toggleSortOrder(state: boolean) {
+  toggleSortOrder(event: Event) {
+    const state = (event.target as HTMLSelectElement).value == "true" ? true : false;
     this.newestFirst = state;
     this.loadReviews();
   }
@@ -117,5 +127,21 @@ export class ReviewModerationPage implements OnInit {
     this.reviewService.approveReview(id).subscribe({
       next: () => this.loadReviews()
     }) 
+  }
+
+  getBook(id: number) {
+    this.bookService.getBookById(id).subscribe({
+      next: (data) => {
+        this.selectedItem.set(data);
+      }
+    }) 
+  }
+
+  getUser(email: string) {
+    this.userService.getProfileByEmail(email).subscribe({
+      next: (data) => {
+        this.selectedUser.set(data);
+      }
+    })
   }
 }

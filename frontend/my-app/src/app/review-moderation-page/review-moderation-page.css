@@ -1,0 +1,230 @@
+.moderation-container {
+  max-width: 75rem;
+  margin: 2.5rem auto;
+  padding: 1.25rem;
+  font-family: inherit;
+}
+
+.filter-container {
+  background: #f0efe4;
+  border-radius: 0.625rem;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filter-container label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.book-filter, .user-filter {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: border-color 0.2s;
+}
+
+.book-filter:hover, .user-filter:hover {
+  border-color: #8c1b3f;
+}
+
+.x-icon {
+  font-weight: bold;
+  color: #8c1b3f;
+}
+
+.report-status-filter, .sort-by {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  background: white;
+}
+
+/* Reviews List */
+.reviews-container {
+  margin-top: 1rem;
+}
+
+.reviews-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.review-item {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.review-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.review-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.review-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.author-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.item-title {
+  font-style: italic;
+  color: #666;
+}
+
+.review-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.approval-status {
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: #f0f0f0;
+}
+
+.approval-status.approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.report-count {
+  font-weight: 500;
+}
+
+/* Actions */
+.review-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.approve-btn {
+  background-color: #2e7d32;
+  color: white;
+}
+
+.approve-btn:hover:not(:disabled) {
+  background-color: #1b5e20;
+}
+
+.approve-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.delete-btn {
+  background-color: #c62828;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #b71c1c;
+}
+
+.inspect-btn {
+  background-color: #8c1b3f;
+  color: white;
+}
+
+.inspect-btn:hover {
+  background-color: #6f1532;
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2.5rem;
+  padding: 1rem;
+}
+
+.pagination-btn {
+  background-color: #8c1b3f;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #6f1532;
+}
+
+.pagination-btn:disabled {
+  background-color: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-weight: 500;
+  color: #333;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.warning {
+    color: #c62828;
+    background: #ffebee;
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+}
