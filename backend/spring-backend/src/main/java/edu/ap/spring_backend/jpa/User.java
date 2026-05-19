@@ -3,6 +3,7 @@ package edu.ap.spring_backend.jpa;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user")
@@ -51,6 +52,9 @@ public class User {
     @Column(name = "items_borrowed")
     private Integer itemsBorrowed = 0;
 
+    @Column(name = "deletion_requested_at")
+    private LocalDateTime deletionRequestedAt;
+
     /**
      * Refresh token for session persistence and future OAuth implementation.
      * Enables "stay logged in" and token refresh without re-authentication.
@@ -88,6 +92,7 @@ public class User {
     public List<Item> getFavoriteBooks() { return favoriteBooks; }
     public List<Item> getWishlistedBooks() { return wishlistedBooks; }
     public Integer getItemsBorrowed() { return itemsBorrowed; }
+    public LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
     
     public void setName(String name) { this.name = name; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -102,4 +107,5 @@ public class User {
     public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
     public void setWishlistedBooks(List<Item> wishlistedBooks) { this.wishlistedBooks = wishlistedBooks; }
     public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
+    public void setDeletionRequestedAt(LocalDateTime deletionRequestedAt) { this.deletionRequestedAt = deletionRequestedAt; }
 }

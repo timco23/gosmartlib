@@ -2,7 +2,7 @@ package edu.ap.spring_backend.dao;
 
 import edu.ap.spring_backend.jpa.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,4 +18,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     boolean existsByEmail(String email);
     boolean existsBySmartschoolUsername(String smartschoolUsername);
     boolean existsByEmailAndIdNot(String email, Integer id);    
+    List<User> findByDeletionRequestedAtBefore(LocalDateTime cutoff);
 }

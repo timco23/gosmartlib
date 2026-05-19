@@ -13,7 +13,8 @@ import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.mappers.ItemMapper;
 import edu.ap.spring_backend.mappers.UserMapper;
 import edu.ap.spring_backend.jpa.Role;
-
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -186,6 +187,23 @@ public class UserService {
         School school = schoolRepository.findById(schoolId)
                 .orElseThrow(EntityNotFoundException::new);
         user.setSchool(school);
+        userRepository.save(user);
+        return userMapper.toUserResponse(user);
+    }
+
+    public UserResponse requestDeletion(Integer userId) {
+        User user = findUserById(userId);
+        if (user.getRole() != Role.LEERLING) {
+            throw new SecurityException("Only students can request account deletion");
+        }
+        user.setDeletionRequestedAt(LocalDateTime.now(ZoneOffset.UTC));
+        userRepository.save(user);
+        return userMapper.toUserResponse(user);
+    }
+
+    public UserResponse cancelDeletion(Integer userId) {
+        User user = findUserById(userId);
+        user.setDeletionRequestedAt(null);
         userRepository.save(user);
         return userMapper.toUserResponse(user);
     }

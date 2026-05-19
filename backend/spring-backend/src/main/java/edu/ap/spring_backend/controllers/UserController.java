@@ -169,4 +169,16 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PostMapping("/request-deletion")
+    public ResponseEntity<UserResponse> requestDeletion(Authentication auth) {
+        UserResponse response = userService.requestDeletion(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/cancel-deletion")
+    public ResponseEntity<UserResponse> cancelDeletion(Authentication auth) {
+        UserResponse response = userService.cancelDeletion(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(response);
+    }
 }

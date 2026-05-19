@@ -68,6 +68,7 @@ public class WebSecurityConfig {
                     PATH_BOOKS_ALL,
                     PATH_ITEMS_ALL,
                     "/favorites/**",
+                    "/wishlist/**",
                     "/profile/**",
                     "/reviews/**",
                     "/genres/**",
@@ -78,8 +79,9 @@ public class WebSecurityConfig {
                     "/schools/search",
                     "/schools/search/**",
                     "/lendingHistory**",  
-                    "/dashboard**"
-
+                    "/dashboard**",
+                    "/lendings/last-borrowed/*",          
+                    "/lendings/most-borrowed-this-month/*" 
                 ).hasAnyAuthority(ALL_USERS)
 
                 // ALL USERS: POST /books/{id}/reviews
@@ -98,7 +100,12 @@ public class WebSecurityConfig {
                 ).hasAnyAuthority(ALL_USERS)
 
                 // ALL USERS
-                .requestMatchers("/favorites/**", "/profile/**", "/reviews/**")
+                .requestMatchers("/favorites/**", "/wishlist/**", "/profile/**", "/reviews/**")
+                .hasAnyAuthority(ALL_USERS)
+
+                .requestMatchers(HttpMethod.POST, "/user/request-deletion")
+                .hasAnyAuthority(ALL_USERS)
+                .requestMatchers(HttpMethod.DELETE, "/user/cancel-deletion")
                 .hasAnyAuthority(ALL_USERS)
 
                 //Reading list access for all users
@@ -108,10 +115,23 @@ public class WebSecurityConfig {
                 // TEACHER
                 .requestMatchers("/lists/**")
                 .hasAnyAuthority(TEACHER_PLUS)
-                .requestMatchers("/statistics", "/statistics/**").hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/statistics", "/statistics/**")
+                .hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/didactic-books")
+                .hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers(
+                    "/books/*/report",
+                    "/api/books/*/report"
+                ).hasAnyAuthority(TEACHER_PLUS)
 
                 // BIBLIOTHEEKBEHEERDER
-                .requestMatchers("/lendings", "/lendings/**", "/collections", "/collections/**")
+                .requestMatchers(HttpMethod.GET, "/lendings", "/lendings/**", "/collections", "/collections/**", "/book-lending-history/**", "/api/book-lending-history/**")
+                .hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.POST, "/lendings", "/lendings/**", "/collections", "/collections/**")
+                .hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.PUT, "/lendings", "/lendings/**", "/collections", "/collections/**")
+                .hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.DELETE, "/lendings", "/lendings/**", "/collections", "/collections/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.GET, "/schools/current", "/schools/users", "/user/school-users", "/user/profile/*")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
