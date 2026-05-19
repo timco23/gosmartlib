@@ -24,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StatisticsService {
@@ -104,23 +105,29 @@ public class StatisticsService {
                 .filter(l -> l.getBorrower() != null)
                 .collect(Collectors.groupingBy(l -> l.getBorrower().getId()));
 
-        // Current students always shown (0 lendings when none in selected period)
-        List<StudentStatisticsDTO> students = sc.getUsers().stream()
-                .map(u -> buildStudentStats(u, byUser.getOrDefault(u.getId(), List.of())))
-                .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
-                .collect(Collectors.toCollection(ArrayList::new));
+        // Current students always shown (0 lendings when none in selected period);
+        // former students shown individually if they have lendings in this period.
+        List<StudentStatisticsDTO> students = Stream.concat(
+                sc.getUsers().stream()
+                        .map(u -> buildStudentStats(
+                                u,
+                                byUser.getOrDefault(u.getId(), List.of())
+                        )),
 
-        // Former students shown individually if they have lendings in this period
-        byUser.entrySet().stream()
-                .filter(e -> !currentStudentIds.contains(e.getKey()))
-                .map(e -> buildStudentStats(e.getValue().getFirst().getBorrower(), e.getValue()))
-                .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
-                .forEach(students::add);
+                byUser.entrySet().stream()
+                        .filter(e -> !currentStudentIds.contains(e.getKey()))
+                        .map(e -> buildStudentStats(
+                                e.getValue().getFirst().getBorrower(),
+                                e.getValue()
+                        ))
+        )
+        .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
+        .toList();
 
         return new ClassStatisticsDTO(
                 classId,
                 sc.getClassName(),
-                sc.getUsers().size(),
+                students.size(),
                 lendings.size(),
                 (int) lendings.stream().filter(l -> !l.isReturned()).count(),
                 (int) calcLateCount(lendings),
@@ -367,23 +374,29 @@ public class StatisticsService {
         return (double) lendingCounts.getOrDefault(itemId, 0L) / copyCounts.getOrDefault(itemId, 1L);
     }
 
-    /**
-     * Lendings grouped by month ({@code "YYYY-MM"}) or year ({@code "YYYY"}), sorted
-     * chronologically. When {@code limit > 0} the result is trimmed to the most recent entries.
-     */
     private List<BookStatisticsDTO.MonthlyLendingDTO> calcTrend(List<Lending> lendings, String groupBy, int limit) {
         Map<String, Long> map = lendings.stream().collect(Collectors.groupingBy(
                 "year".equalsIgnoreCase(groupBy)
-                        ? l -> String.valueOf(l.getLendingDate().getYear())
+                        ? l -> l.getSnapSchoolYear() != null ? l.getSnapSchoolYear()
+                               : String.valueOf(l.getLendingDate().getYear())
                         : l -> l.getLendingDate().getYear() + "-" + String.format("%02d", l.getLendingDate().getMonthValue()),
                 Collectors.counting()));
-        List<BookStatisticsDTO.MonthlyLendingDTO> result = map.entrySet().stream()
+
+        // Month mode: always return exactly `limit` consecutive months ending this month, filling gaps with 0
+        if (limit > 0) {
+            LocalDate today = LocalDate.now();
+            List<BookStatisticsDTO.MonthlyLendingDTO> result = new ArrayList<>();
+            for (int i = limit - 1; i >= 0; i--) {
+                LocalDate m = today.minusMonths(i);
+                String key = m.getYear() + "-" + String.format("%02d", m.getMonthValue());
+                result.add(new BookStatisticsDTO.MonthlyLendingDTO(key, map.getOrDefault(key, 0L).intValue()));
+            }
+            return result;
+        }
+
+        return map.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(e -> new BookStatisticsDTO.MonthlyLendingDTO(e.getKey(), e.getValue().intValue()))
                 .collect(Collectors.toList());
-        if (limit > 0 && result.size() > limit) {
-            result = result.subList(result.size() - limit, result.size());
-        }
-        return result;
     }
 }

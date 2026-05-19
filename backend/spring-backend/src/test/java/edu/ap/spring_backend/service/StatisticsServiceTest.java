@@ -8,6 +8,7 @@ import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
 import edu.ap.spring_backend.dto.ClassStatisticsDTO;
 import edu.ap.spring_backend.dto.ItemCountDTO;
+import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.jpa.*;
 import edu.ap.spring_backend.util.SchoolYearUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -435,6 +436,68 @@ class StatisticsServiceTest {
 
         assertEquals(1, result.totalLendings());
         assertEquals(Map.of("AVI-E3", 1), result.readingLevelDistribution());
+    }
+
+    @Test
+    void getClassStatistics_currentStudentWithNoLendings_alwaysIncluded() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User student = studentUser(1, "Ann", "De Smet");
+
+        SchoolClass sc = new SchoolClass("3B", null, List.of(student));
+        sc.setId(20L);
+
+        when(classRepository.findById(20L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("3B", SCHOOL_ID)).thenReturn(List.of());
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(20L, SCHOOL_ID, currentYear);
+
+        assertEquals(1, result.students().size());
+        assertEquals(0, result.students().get(0).totalLendings());
+    }
+
+    @Test
+    void getClassStatistics_studentCount_includesFormerStudentsWithActivity() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User currentStudent = studentUser(1, "Ann", "De Smet");
+        User formerStudent  = studentUser(2, "Bram", "Vermeersch");
+
+        SchoolClass sc = new SchoolClass("3B", null, List.of(currentStudent));
+        sc.setId(20L);
+
+        Lending formerLending = lendingWithSnapshot(formerStudent, "3B", currentYear, null, null);
+
+        when(classRepository.findById(20L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("3B", SCHOOL_ID)).thenReturn(List.of(formerLending));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+        when(reviewRepository.countByAuthor_Id(2)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(20L, SCHOOL_ID, currentYear);
+
+        assertEquals(2, result.studentCount());
+    }
+
+    @Test
+    void getStudentStatistics_topGenres_orderCorrectAndResultLimitedToFive() {
+        User student = studentUser(1, "Tom", "Claes");
+        when(userRepository.findById(1)).thenReturn(Optional.of(student));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        List<Lending> lendings = new ArrayList<>();
+        for (int i = 0; i < 3; i++) lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Fantasy"));
+        for (int i = 0; i < 2; i++) lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Avontuur"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Humor"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Poëzie"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Natuur"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Geschiedenis"));
+
+        when(lendingRepository.findByBorrower_IdAndSchool_Id(1, SCHOOL_ID)).thenReturn(lendings);
+
+        StudentStatisticsDTO result = service.getStudentStatistics(1, SCHOOL_ID, "all");
+
+        assertEquals(5, result.topGenres().size());
+        assertEquals("Fantasy", result.topGenres().get(0));
+        assertEquals("Avontuur", result.topGenres().get(1));
     }
 
     @Test

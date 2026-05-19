@@ -101,13 +101,23 @@ export class BookReportPage implements OnInit {
   }
 
   formatChartLabel(key: string): string {
-    if (!key.includes('-')) return key;
-    const [year, month] = key.split('-');
-    return new Date(Number(year), Number(month) - 1).toLocaleDateString('nl-BE', {
+  const parts = key.split('-');
+  if (parts.length !== 2) return key;
+  const [a, b] = parts;
+
+  // schoolYear: YYYY-YYYY
+  if (b.length === 4) return key;
+
+  // month: YYYY-MM
+  if (b.length === 2) {
+    return new Date(+a, +b - 1).toLocaleDateString('nl-BE', {
       month: 'short',
       year: '2-digit',
     });
   }
+
+  return key;
+}
 
   formatDate(dateStr: string | null): string {
     if (!dateStr) return '—';
