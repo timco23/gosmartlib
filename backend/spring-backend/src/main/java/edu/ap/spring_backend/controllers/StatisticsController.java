@@ -7,6 +7,8 @@ import edu.ap.spring_backend.service.StatisticsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/statistics")
 public class StatisticsController {
@@ -28,14 +30,21 @@ public class StatisticsController {
     @GetMapping("/student/{userId}")
     public ResponseEntity<StudentStatisticsDTO> getStudentStatistics(
             @PathVariable Integer userId,
-            @RequestParam Long schoolId) {
-        return ResponseEntity.ok(statisticsService.getStudentStatistics(userId, schoolId));
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) String schoolYear) {
+        return ResponseEntity.ok(statisticsService.getStudentStatistics(userId, schoolId, schoolYear));
     }
 
     @GetMapping("/class/{classId}")
     public ResponseEntity<ClassStatisticsDTO> getClassStatistics(
             @PathVariable Long classId,
-            @RequestParam Long schoolId) {
-        return ResponseEntity.ok(statisticsService.getClassStatistics(classId, schoolId));
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) String schoolYear) {
+        return ResponseEntity.ok(statisticsService.getClassStatistics(classId, schoolId, schoolYear));
+    }
+
+    @GetMapping("/school-years")
+    public ResponseEntity<List<String>> getAvailableSchoolYears(@RequestParam Long schoolId) {
+        return ResponseEntity.ok(statisticsService.getAvailableSchoolYears(schoolId));
     }
 }

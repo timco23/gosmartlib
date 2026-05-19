@@ -341,7 +341,7 @@ class StatisticsServiceTest {
         when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID)).thenReturn(List.of(l));
         when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
 
-        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID);
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, null);
 
         assertEquals(Map.of("AVI-M6", 1), result.readingLevelDistribution());
     }
@@ -364,7 +364,7 @@ class StatisticsServiceTest {
                 .thenReturn(List.of(currentYearLending, oldLending));
         when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
 
-        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID);
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, null);
 
         assertEquals(Map.of("AVI-M6", 1), result.readingLevelDistribution());
         assertFalse(result.readingLevelDistribution().containsKey("AVI-E3"));
@@ -375,19 +375,66 @@ class StatisticsServiceTest {
         String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
         User movedStudent = studentUser(2, "Els", "Janssen");
 
-        // Class 4A now has no students (movedStudent switched to 4B)
         SchoolClass sc = new SchoolClass("4A", null, List.of());
         sc.setId(10L);
 
-        // But the lending snapshot still carries "4A"
         Lending l = lendingWithSnapshot(movedStudent, "4A", currentYear, null, null);
 
         when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
         when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID)).thenReturn(List.of(l));
 
-        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID);
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, null);
 
         assertEquals(1, result.totalLendings());
+    }
+
+    @Test
+    void getClassStatistics_schoolYearAll_returnsBothYears() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        String previousYear = (Integer.parseInt(currentYear.substring(0, 4)) - 1)
+                + "-" + currentYear.substring(0, 4);
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending l1 = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", null);
+        Lending l2 = lendingWithSnapshot(student, "4A", previousYear, "AVI-E3", null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID))
+                .thenReturn(List.of(l1, l2));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, "all");
+
+        assertEquals(2, result.totalLendings());
+        assertTrue(result.readingLevelDistribution().containsKey("AVI-M6"));
+        assertTrue(result.readingLevelDistribution().containsKey("AVI-E3"));
+    }
+
+    @Test
+    void getClassStatistics_specificSchoolYear_returnsOnlyThatYear() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        String previousYear = (Integer.parseInt(currentYear.substring(0, 4)) - 1)
+                + "-" + currentYear.substring(0, 4);
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending current = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", null);
+        Lending previous = lendingWithSnapshot(student, "4A", previousYear, "AVI-E3", null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID))
+                .thenReturn(List.of(current, previous));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, previousYear);
+
+        assertEquals(1, result.totalLendings());
+        assertEquals(Map.of("AVI-E3", 1), result.readingLevelDistribution());
     }
 
     @Test

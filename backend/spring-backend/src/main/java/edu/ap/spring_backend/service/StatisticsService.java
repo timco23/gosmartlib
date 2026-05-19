@@ -82,20 +82,21 @@ public class StatisticsService {
                 calcSchoolRanking(bookId, schoolId, copies));
     }
 
-    public StudentStatisticsDTO getStudentStatistics(Integer userId, Long schoolId) {
+    public StudentStatisticsDTO getStudentStatistics(Integer userId, Long schoolId, String schoolYear) {
         User user = userRepository.findById(userId)
                 .orElseThrow(EntityNotFoundException::new);
-        List<Lending> lendings = lendingRepository.findByBorrower_IdAndSchool_Id(userId, schoolId);
-        return buildStudentStats(user, lendings);
+        List<Lending> allLendings = lendingRepository.findByBorrower_IdAndSchool_Id(userId, schoolId);
+        return buildStudentStats(user, filterBySchoolYear(allLendings, schoolYear));
     }
 
-    public ClassStatisticsDTO getClassStatistics(Long classId, Long schoolId) {
+    public ClassStatisticsDTO getClassStatistics(Long classId, Long schoolId, String schoolYear) {
         SchoolClass sc = classRepository.findById(classId)
                 .orElseThrow(EntityNotFoundException::new);
 
         List<Lending> allLendings = lendingRepository.findBySnapClassNameAndSchool_Id(sc.getClassName(), schoolId);
+        List<Lending> lendings = filterBySchoolYear(allLendings, schoolYear);
 
-        Map<Integer, List<Lending>> byUser = allLendings.stream()
+        Map<Integer, List<Lending>> byUser = lendings.stream()
                 .filter(l -> l.getBorrower() != null)
                 .collect(Collectors.groupingBy(l -> l.getBorrower().getId()));
 
@@ -104,20 +105,21 @@ public class StatisticsService {
                 .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
                 .toList();
 
-        List<Lending> currentYearLendings = filterBySchoolYear(allLendings, null);
-        Map<String, Integer> readingLevelDistribution = readingLevelDistribution(currentYearLendings);
-
         return new ClassStatisticsDTO(
                 classId,
                 sc.getClassName(),
                 sc.getUsers().size(),
-                allLendings.size(),
-                (int) allLendings.stream().filter(l -> !l.isReturned()).count(),
-                (int) calcLateCount(allLendings),
-                calcLatePercent(allLendings),
-                readingLevelDistribution,
+                lendings.size(),
+                (int) lendings.stream().filter(l -> !l.isReturned()).count(),
+                (int) calcLateCount(lendings),
+                calcLatePercent(lendings),
+                readingLevelDistribution(lendings),
                 students.stream().mapToInt(StudentStatisticsDTO::reviewCount).sum(),
                 students);
+    }
+
+    public List<String> getAvailableSchoolYears(Long schoolId) {
+        return lendingRepository.findDistinctSchoolYearsBySchoolId(schoolId);
     }
 
     private StudentStatisticsDTO buildStudentStats(User user, List<Lending> lendings) {
@@ -125,10 +127,7 @@ public class StatisticsService {
                 ? user.getFirstName() + " " + user.getName()
                 : user.getName();
 
-        List<Lending> currentYearLendings = filterBySchoolYear(lendings, null);
-        Map<String, Integer> readingLevelDistribution = readingLevelDistribution(currentYearLendings);
-
-        List<String> topGenres = currentYearLendings.stream()
+        List<String> topGenres = lendings.stream()
                 .map(Lending::getSnapBookGenre)
                 .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(s -> s, Collectors.summingInt(x -> 1)))
@@ -146,12 +145,13 @@ public class StatisticsService {
                 (int) calcLateCount(lendings),
                 calcLatePercent(lendings),
                 (int) reviewRepository.countByAuthor_Id(user.getId()),
-                readingLevelDistribution,
+                readingLevelDistribution(lendings),
                 topGenres);
     }
 
     // helpers
     private List<Lending> filterBySchoolYear(List<Lending> lendings, String schoolYear) {
+        if ("all".equalsIgnoreCase(schoolYear)) return lendings;
         String year = (schoolYear != null) ? schoolYear : SchoolYearUtil.determineSchoolYear(LocalDate.now());
         return lendings.stream()
                 .filter(l -> year.equals(l.getSnapSchoolYear()))
@@ -249,7 +249,7 @@ public class StatisticsService {
      * Counts the days on which all copies of an item were simultaneously occupied
      * using the sweep-line algorithm.
      *
-     * @param lendings    the lendings to analyse (already filtered to a single book + optional campus)
+     * @param lendings    the lendings to analyze (already filtered to a single book + optional campus)
      * @param totalCopies number of physical copies available
      * @return the total number of days all copies were occupied at the same time
      */

@@ -1,9 +1,7 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.ClassDTO;
-import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.service.ClassService;
-import edu.ap.spring_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
