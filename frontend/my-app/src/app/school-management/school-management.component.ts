@@ -40,6 +40,18 @@ export class SchoolManagementComponent {
     return this.schools.filter(s => s.name?.toLowerCase().includes(q));
   }
 
+  currentPage = 0;
+  readonly pageSize = 10;
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredSchools.length / this.pageSize);
+  }
+
+  get pagedSchools(): School[] {
+    const start = this.currentPage * this.pageSize;
+    return this.filteredSchools.slice(start, start + this.pageSize);
+  }
+
   constructor(
     private fb: FormBuilder,
     private schoolService: SchoolService,
@@ -78,6 +90,15 @@ export class SchoolManagementComponent {
     } else {
       this.loadSchools();
     }
+  }
+
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) this.currentPage++;
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) this.currentPage--;
   }
 
   loadCurrentUser() {

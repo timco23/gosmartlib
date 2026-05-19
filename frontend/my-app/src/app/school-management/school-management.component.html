@@ -7,12 +7,13 @@
           type="text"
           placeholder="Zoek op naam..."
           [(ngModel)]="schoolFilter"
+          (ngModelChange)="currentPage = 0"
         />
       </div>
       <button class="add-school-btn" (click)="addingSchool = true">School toevoegen</button>
       @if (schools) {
         <ul>
-          @for (school of filteredSchools; track school.id) {
+          @for (school of pagedSchools; track school.id) {
             <li class="SchoolItem">
               <span class="school-name">{{ school.name }}</span>
               <div class="button-group">
@@ -27,6 +28,27 @@
             </li>
           }
         </ul>
+        @if (totalPages > 1) {
+          <div class="pagination">
+            <button
+              class="page-btn"
+              type="button"
+              (click)="previousPage()"
+              [disabled]="currentPage === 0"
+            >
+              ←
+            </button>
+            <span class="page-indicator">{{ currentPage + 1 }} / {{ totalPages }}</span>
+            <button
+              class="page-btn"
+              type="button"
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages - 1"
+            >
+              →
+            </button>
+          </div>
+        }
       }
     </div>
   }
