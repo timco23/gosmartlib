@@ -79,7 +79,42 @@
       </div>
     </div>
 
-    @if (stats.totalLendings === 0) {
+    @if (stats.recentLendings.length) {
+      <section class="panel">
+        <h2 class="panel-title">Recente ontleningen</h2>
+        <p class="panel-sub">10 meest recente ontleningen</p>
+        <div class="table-wrap">
+          <table class="data-table lending-table">
+            <thead>
+              <tr>
+                <th>Boek</th>
+                <th>Ontleend op</th>
+                <th>Terugbrengdatum</th>
+                <th>Ingeleverd op</th>
+                <th>Verlengd</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of stats.recentLendings; track l.id) {
+                <tr>
+                  <td class="book-title-cell">{{ l.bookTitle ?? '—' }}</td>
+                  <td>{{ formatDate(l.lendingDate) }}</td>
+                  <td>{{ formatDate(l.returnDate) }}</td>
+                  <td>{{ formatDate(l.dateReturned) }}</td>
+                  <td>{{ l.extended ? 'Ja' : 'Nee' }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="lendingStatus(l)">
+                      {{ lendingStatusLabel(l) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else {
       <div class="panel empty-panel">
         <p class="muted">Deze leerling heeft nog geen boeken ontleend in deze school.</p>
       </div>

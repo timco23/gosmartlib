@@ -435,6 +435,16 @@ export interface Class {
   schoolId: number;
 }
 
+export interface StudentRecentLendingDTO {
+  id: number;
+  bookTitle: string;
+  lendingDate: string;
+  returnDate: string;
+  dateReturned: string | null;
+  returned: boolean;
+  extended: boolean;
+}
+
 export interface StudentStatisticsDTO {
   userId: number;
   fullName: string;
@@ -445,6 +455,7 @@ export interface StudentStatisticsDTO {
   reviewCount: number;
   readingLevelDistribution: Record<string, number>;
   topGenres: string[];
+  recentLendings: StudentRecentLendingDTO[];
 }
 
 export interface ClassStatisticsDTO {
@@ -458,4 +469,51 @@ export interface ClassStatisticsDTO {
   readingLevelDistribution: Record<string, number>;
   totalReviews: number;
   students: StudentStatisticsDTO[];
+}
+
+export interface SchoolCampusStatisticsDTO {
+  name: string;
+  totalLendings: number;
+  activeLendings: number;
+  avgDurationDays: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  extensionPercent: number;
+}
+
+export interface SchoolRecentLendingDTO {
+  id: number;
+  borrowerName: string;
+  bookTitle: string;
+  lendingDate: string;
+  returnDate: string;
+  dateReturned: string | null;
+  returned: boolean;
+  extended: boolean;
+}
+
+export interface SchoolPeriodCountDTO {
+  period: string;
+  count: number;
+}
+
+export interface SchoolTopBookDTO {
+  itemId: number;
+  title: string;
+  value: number;
+}
+
+export interface SchoolStatisticsDTO {
+  totalLendings: number;
+  activeLendings: number;
+  avgDurationDays: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  extensionPercent: number;
+  totalReviews: number;
+  campusStats: SchoolCampusStatisticsDTO[];
+  recentLendings: SchoolRecentLendingDTO[];
+  lendingsTrend: SchoolPeriodCountDTO[];
+  topBorrowedBooks: SchoolTopBookDTO[];
+  topUnavailableBooks: SchoolTopBookDTO[];
 }

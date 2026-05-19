@@ -35,6 +35,7 @@ import { BookReportPage } from './book-pages/book-report-page/book-report-page';
 import { ClassStatisticsPage } from './class-statistics-page/class-statistics-page';
 import { StudentStatisticsPage } from './student-statistics-page/student-statistics-page';
 import { ClassListPage } from './class-list-page/class-list-page';
+import { SchoolStatisticsPage } from './school-statistics-page/school-statistics-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -84,6 +85,7 @@ export const routes: Routes = [
   { path: 'school-settings', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'book-lending-history/:bookId', component: BookLendingHistoryComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'accounts', component: ProfileSelectionComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'statistics/school', component: SchoolStatisticsPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
 
   // ADMIN
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },

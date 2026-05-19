@@ -329,7 +329,8 @@
   color: var(--color-primary);
 }
 
-.year-btn--active {
+.year-btn--active,
+.year-btn--active:hover {
   background: var(--color-primary);
   color: #fff;
   border-color: var(--color-primary);

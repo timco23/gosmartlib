@@ -2,6 +2,7 @@ package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
 import edu.ap.spring_backend.dto.ClassStatisticsDTO;
+import edu.ap.spring_backend.dto.SchoolStatisticsDTO;
 import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.service.StatisticsService;
 import org.springframework.http.ResponseEntity;
@@ -46,5 +47,12 @@ public class StatisticsController {
     @GetMapping("/school-years")
     public ResponseEntity<List<String>> getAvailableSchoolYears(@RequestParam Long schoolId) {
         return ResponseEntity.ok(statisticsService.getAvailableSchoolYears(schoolId));
+    }
+
+    @GetMapping("/school")
+    public ResponseEntity<SchoolStatisticsDTO> getSchoolStatistics(
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) String schoolYear) {
+        return ResponseEntity.ok(statisticsService.getSchoolStatistics(schoolId, schoolYear));
     }
 }

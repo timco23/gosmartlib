@@ -12,5 +12,16 @@ public record StudentStatisticsDTO(
     int lateReturnPercent,
     int reviewCount,
     Map<String, Integer> readingLevelDistribution,
-    List<String> topGenres
-) {}
+    List<String> topGenres,
+    List<RecentLendingDTO> recentLendings
+) {
+    public record RecentLendingDTO(
+        Long id,
+        String bookTitle,
+        String lendingDate,
+        String returnDate,
+        String dateReturned,
+        boolean returned,
+        boolean extended
+    ) {}
+}

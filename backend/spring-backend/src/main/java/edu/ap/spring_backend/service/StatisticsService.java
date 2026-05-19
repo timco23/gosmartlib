@@ -8,6 +8,7 @@ import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
 import edu.ap.spring_backend.dto.ClassStatisticsDTO;
 import edu.ap.spring_backend.dto.ItemCountDTO;
+import edu.ap.spring_backend.dto.SchoolStatisticsDTO;
 import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.CopyStatus;
@@ -87,7 +88,22 @@ public class StatisticsService {
         User user = userRepository.findById(userId)
                 .orElseThrow(EntityNotFoundException::new);
         List<Lending> allLendings = lendingRepository.findByBorrower_IdAndSchool_Id(userId, schoolId);
-        return buildStudentStats(user, filterBySchoolYear(allLendings, schoolYear));
+        List<Lending> lendings = filterBySchoolYear(allLendings, schoolYear);
+
+        List<StudentStatisticsDTO.RecentLendingDTO> recentLendings = allLendings.stream()
+                .sorted(Comparator.comparing(Lending::getLendingDate).reversed())
+                .limit(10)
+                .map(l -> new StudentStatisticsDTO.RecentLendingDTO(
+                        l.getId(),
+                        l.getSnapBookTitle(),
+                        l.getLendingDate().toString(),
+                        l.getReturnDate().toString(),
+                        l.getDateReturned() != null ? l.getDateReturned().toString() : null,
+                        l.isReturned(),
+                        l.isExtended()))
+                .toList();
+
+        return buildStudentStats(user, lendings, recentLendings);
     }
 
     public ClassStatisticsDTO getClassStatistics(Long classId, Long schoolId, String schoolYear) {
@@ -141,7 +157,144 @@ public class StatisticsService {
         return lendingRepository.findDistinctSchoolYearsBySchoolId(schoolId);
     }
 
-    private StudentStatisticsDTO buildStudentStats(User user, List<Lending> lendings) {
+    public SchoolStatisticsDTO getSchoolStatistics(Long schoolId, String schoolYear) {
+        List<Lending> allLendings = lendingRepository.findBySchool_Id(schoolId);
+        List<Lending> lendings = filterBySchoolYear(allLendings, schoolYear);
+
+        int totalLendings = lendings.size();
+        int activeLendings = (int) lendings.stream().filter(l -> !l.isReturned()).count();
+        int extensionPercent = totalLendings == 0 ? 0 : (int) Math.round(
+                100.0 * lendings.stream().filter(Lending::isExtended).count() / totalLendings);
+        int totalReviews = (int) reviewRepository.countByAuthor_School_Id(schoolId);
+
+        List<SchoolStatisticsDTO.CampusStatsDTO> campusStats = buildSchoolCampusStats(lendings);
+
+        List<SchoolStatisticsDTO.RecentLendingDTO> recentLendings = allLendings.stream()
+                .sorted(Comparator.comparing(Lending::getLendingDate).reversed())
+                .limit(10)
+                .map(l -> new SchoolStatisticsDTO.RecentLendingDTO(
+                        l.getId(),
+                        getBorrowerName(l),
+                        l.getSnapBookTitle(),
+                        l.getLendingDate().toString(),
+                        l.getReturnDate().toString(),
+                        l.getDateReturned() != null ? l.getDateReturned().toString() : null,
+                        l.isReturned(),
+                        l.isExtended()))
+                .toList();
+
+        List<SchoolStatisticsDTO.PeriodCountDTO> lendingsTrend;
+        if ("all".equalsIgnoreCase(schoolYear)) {
+            lendingsTrend = calcTrend(allLendings, "year", 0)
+                    .stream().map(m -> new SchoolStatisticsDTO.PeriodCountDTO(m.month(), m.count())).toList();
+        } else {
+            String year = schoolYear != null ? schoolYear : SchoolYearUtil.determineSchoolYear(LocalDate.now());
+            lendingsTrend = calcMonthlyForSchoolYear(lendings, year);
+        }
+
+        return new SchoolStatisticsDTO(
+                totalLendings,
+                activeLendings,
+                calcAvgDuration(lendings),
+                (int) calcLateCount(lendings),
+                calcLatePercent(lendings),
+                extensionPercent,
+                totalReviews,
+                campusStats,
+                recentLendings,
+                lendingsTrend,
+                calcTopBorrowedBooks(lendings),
+                calcTopUnavailableBooks(lendings, schoolId));
+    }
+
+    private List<SchoolStatisticsDTO.PeriodCountDTO> calcMonthlyForSchoolYear(List<Lending> lendings, String schoolYear) {
+        String[] parts = schoolYear.split("-");
+        if (parts.length != 2) return List.of();
+        int startYear = Integer.parseInt(parts[0]);
+        int endYear   = Integer.parseInt(parts[1]);
+
+        Map<String, Long> byMonth = lendings.stream().collect(Collectors.groupingBy(
+                l -> l.getLendingDate().getYear() + "-" + String.format("%02d", l.getLendingDate().getMonthValue()),
+                Collectors.counting()));
+
+        List<SchoolStatisticsDTO.PeriodCountDTO> result = new ArrayList<>();
+        for (int m = 9; m <= 12; m++) {
+            String key = startYear + "-" + String.format("%02d", m);
+            result.add(new SchoolStatisticsDTO.PeriodCountDTO(key, byMonth.getOrDefault(key, 0L).intValue()));
+        }
+        for (int m = 1; m <= 8; m++) {
+            String key = endYear + "-" + String.format("%02d", m);
+            result.add(new SchoolStatisticsDTO.PeriodCountDTO(key, byMonth.getOrDefault(key, 0L).intValue()));
+        }
+        return result;
+    }
+
+    private List<SchoolStatisticsDTO.TopBookDTO> calcTopBorrowedBooks(List<Lending> lendings) {
+        Map<Long, List<Lending>> byItem = lendings.stream()
+                .filter(l -> l.getBook() != null && l.getBook().getItem() != null)
+                .collect(Collectors.groupingBy(l -> l.getBook().getItem().getId()));
+
+        return byItem.entrySet().stream()
+                .map(e -> {
+                    List<Lending> il = e.getValue();
+                    String title = il.stream().map(Lending::getSnapBookTitle)
+                            .filter(Objects::nonNull).findFirst().orElse("(onbekend)");
+                    return new SchoolStatisticsDTO.TopBookDTO(e.getKey(), title, il.size());
+                })
+                .sorted(Comparator.comparingInt(SchoolStatisticsDTO.TopBookDTO::value).reversed())
+                .limit(10)
+                .toList();
+    }
+
+    private List<SchoolStatisticsDTO.TopBookDTO> calcTopUnavailableBooks(List<Lending> lendings, Long schoolId) {
+        Map<Long, Long> copiesByItem = copyRepository.countCopiesByItemForSchool(schoolId)
+                .stream().collect(Collectors.toMap(ItemCountDTO::itemId, ItemCountDTO::count));
+
+        Map<Long, List<Lending>> byItem = lendings.stream()
+                .filter(l -> l.getBook() != null && l.getBook().getItem() != null)
+                .collect(Collectors.groupingBy(l -> l.getBook().getItem().getId()));
+
+        return byItem.entrySet().stream()
+                .map(e -> {
+                    List<Lending> il = e.getValue();
+                    int copies = copiesByItem.getOrDefault(e.getKey(), 1L).intValue();
+                    int days = calcUnavailableDays(il, copies);
+                    String title = il.stream().map(Lending::getSnapBookTitle)
+                            .filter(Objects::nonNull).findFirst().orElse("(onbekend)");
+                    return new SchoolStatisticsDTO.TopBookDTO(e.getKey(), title, days);
+                })
+                .filter(b -> b.value() > 0)
+                .sorted(Comparator.comparingInt(SchoolStatisticsDTO.TopBookDTO::value).reversed())
+                .limit(10)
+                .toList();
+    }
+
+    private List<SchoolStatisticsDTO.CampusStatsDTO> buildSchoolCampusStats(List<Lending> lendings) {
+        Map<String, List<Lending>> byCampus = lendings.stream()
+                .collect(Collectors.groupingBy(
+                        l -> l.getSnapCampusName() != null ? l.getSnapCampusName() : "Geen locatie"));
+
+        return byCampus.entrySet().stream()
+                .map(entry -> {
+                    List<Lending> cl = entry.getValue();
+                    int total = cl.size();
+                    int extPct = total == 0 ? 0 : (int) Math.round(
+                            100.0 * cl.stream().filter(Lending::isExtended).count() / total);
+                    return new SchoolStatisticsDTO.CampusStatsDTO(
+                            entry.getKey(),
+                            total,
+                            (int) cl.stream().filter(l -> !l.isReturned()).count(),
+                            calcAvgDuration(cl),
+                            (int) calcLateCount(cl),
+                            calcLatePercent(cl),
+                            extPct);
+                })
+                .sorted(Comparator.comparingInt(SchoolStatisticsDTO.CampusStatsDTO::totalLendings).reversed())
+                .toList();
+    }
+
+    private StudentStatisticsDTO buildStudentStats(User user, List<Lending> lendings,
+                                                    List<StudentStatisticsDTO.RecentLendingDTO> recentLendings) {
         String fullName = user.getFirstName() != null
                 ? user.getFirstName() + " " + user.getName()
                 : user.getName();
@@ -165,7 +318,12 @@ public class StatisticsService {
                 calcLatePercent(lendings),
                 (int) reviewRepository.countByAuthor_Id(user.getId()),
                 readingLevelDistribution(lendings),
-                topGenres);
+                topGenres,
+                recentLendings);
+    }
+
+    private StudentStatisticsDTO buildStudentStats(User user, List<Lending> lendings) {
+        return buildStudentStats(user, lendings, List.of());
     }
 
     // helpers
@@ -378,7 +536,7 @@ public class StatisticsService {
         Map<String, Long> map = lendings.stream().collect(Collectors.groupingBy(
                 "year".equalsIgnoreCase(groupBy)
                         ? l -> l.getSnapSchoolYear() != null ? l.getSnapSchoolYear()
-                               : String.valueOf(l.getLendingDate().getYear())
+                               : SchoolYearUtil.determineSchoolYear(l.getLendingDate())
                         : l -> l.getLendingDate().getYear() + "-" + String.format("%02d", l.getLendingDate().getMonthValue()),
                 Collectors.counting()));
 

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { StudentStatisticsDTO } from '../../types/types';
+import { StudentRecentLendingDTO, StudentStatisticsDTO } from '../../types/types';
 import { StatisticsService } from '../services/statistics.service';
 import { UserService } from '../services/user.service';
 
@@ -78,6 +78,28 @@ export class StudentStatisticsPage implements OnInit {
       this.stats = s;
       this.loading = false;
       this.cdr.detectChanges();
+    });
+  }
+
+  lendingStatus(l: StudentRecentLendingDTO): 'returned' | 'overdue' | 'active' {
+    if (l.returned) return 'returned';
+    if (new Date() > new Date(l.returnDate)) return 'overdue';
+    return 'active';
+  }
+
+  lendingStatusLabel(l: StudentRecentLendingDTO): string {
+    const s = this.lendingStatus(l);
+    if (s === 'returned') return 'Teruggebracht';
+    if (s === 'overdue') return 'Te laat';
+    return 'Actief';
+  }
+
+  formatDate(dateStr: string | null): string {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('nl-BE', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     });
   }
 }
