@@ -23,15 +23,19 @@ export class StatisticsService {
     });
   }
 
-  getStudentStatistics(userId: number, schoolId: number): Observable<StudentStatisticsDTO> {
-    return this.http.get<StudentStatisticsDTO>(`${this.apiUrl}/student/${userId}`, {
-      params: { schoolId },
-    });
+  getStudentStatistics(userId: number, schoolId: number, schoolYear?: string): Observable<StudentStatisticsDTO> {
+    const params: Record<string, string | number> = { schoolId };
+    if (schoolYear !== undefined) params['schoolYear'] = schoolYear;
+    return this.http.get<StudentStatisticsDTO>(`${this.apiUrl}/student/${userId}`, { params });
   }
 
-  getClassStatistics(classId: number, schoolId: number): Observable<ClassStatisticsDTO> {
-    return this.http.get<ClassStatisticsDTO>(`${this.apiUrl}/class/${classId}`, {
-      params: { schoolId },
-    });
+  getClassStatistics(classId: number, schoolId: number, schoolYear?: string): Observable<ClassStatisticsDTO> {
+    const params: Record<string, string | number> = { schoolId };
+    if (schoolYear !== undefined) params['schoolYear'] = schoolYear;
+    return this.http.get<ClassStatisticsDTO>(`${this.apiUrl}/class/${classId}`, { params });
+  }
+
+  getAvailableSchoolYears(schoolId: number): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/school-years`, { params: { schoolId } });
   }
 }

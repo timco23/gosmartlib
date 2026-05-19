@@ -13,6 +13,17 @@
       </div>
     </header>
 
+    @if (availableYears.length > 0) {
+      <div class="year-selector">
+        @for (year of availableYears; track year; let i = $index) {
+          <button class="year-btn" [class.year-btn--active]="isYearActive(year, i)"
+                  (click)="selectYear(year)">{{ year }}</button>
+        }
+        <button class="year-btn" [class.year-btn--active]="selectedYear === 'all'"
+                (click)="selectYear('all')">Totaal</button>
+      </div>
+    }
+
     <section class="stats-grid">
       <div class="stat-card">
         <span class="stat-value">{{ stats.totalLendings }}</span>
@@ -39,7 +50,7 @@
     <div class="panel insights-panel">
       <div class="insights-left">
         <p class="panel-title">Lievelingsgenres</p>
-        <p class="panel-sub">Laatste 12 maanden</p>
+        <p class="panel-sub">{{ yearLabel }}</p>
         @if (stats.topGenres && stats.topGenres.length > 0) {
           <ol class="genre-list">
             @for (genre of stats.topGenres; track genre) {
@@ -53,7 +64,7 @@
       <div class="insights-divider"></div>
       <div class="insights-right">
         <p class="panel-title">Leesniveaus</p>
-        <p class="panel-sub">Uitleningen per leesniveau — laatste 12 maanden</p>
+        <p class="panel-sub">Uitleeningen per leesniveau — {{ yearLabel }}</p>
         <div class="bar-chart">
           @for (bar of readingLevelBars; track bar.label) {
             <div class="bar-col">
