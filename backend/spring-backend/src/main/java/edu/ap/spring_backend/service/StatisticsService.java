@@ -96,14 +96,26 @@ public class StatisticsService {
         List<Lending> allLendings = lendingRepository.findBySnapClassNameAndSchool_Id(sc.getClassName(), schoolId);
         List<Lending> lendings = filterBySchoolYear(allLendings, schoolYear);
 
+        Set<Integer> currentStudentIds = sc.getUsers().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+
         Map<Integer, List<Lending>> byUser = lendings.stream()
                 .filter(l -> l.getBorrower() != null)
                 .collect(Collectors.groupingBy(l -> l.getBorrower().getId()));
 
+        // Current students always shown (0 lendings when none in selected period)
         List<StudentStatisticsDTO> students = sc.getUsers().stream()
                 .map(u -> buildStudentStats(u, byUser.getOrDefault(u.getId(), List.of())))
                 .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Former students shown individually if they have lendings in this period
+        byUser.entrySet().stream()
+                .filter(e -> !currentStudentIds.contains(e.getKey()))
+                .map(e -> buildStudentStats(e.getValue().getFirst().getBorrower(), e.getValue()))
+                .sorted(Comparator.comparing(StudentStatisticsDTO::fullName))
+                .forEach(students::add);
 
         return new ClassStatisticsDTO(
                 classId,
