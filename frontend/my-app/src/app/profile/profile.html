@@ -127,9 +127,66 @@
           class="btn-lendings"
           [routerLink]="['/lendingHistory']"
           [queryParams]="{ userId: profile.id, userEmail: profile.email }"
-          >Meer bekijken</a
         >
+          Meer bekijken
+        </a>
       }
     </div>
+
+    @if (isDeletionStudent) {
+      <div class="deletion-zone">
+        @if (!hasPendingDeletion) {
+          <button
+            class="btn-request-deletion"
+            [class.disabled]="hasActiveLendings"
+            [disabled]="hasActiveLendings"
+            (click)="openDeleteConfirm()"
+          >
+            Aanvraag om mijn gegevens te verwijderen
+          </button>
+          @if (hasActiveLendings) {
+            <p class="deletion-blocked-msg">
+              Gegevens verwijderen is niet mogelijk omdat je nog boek(en) aan het uitlenen bent.
+            </p>
+          }
+        } @else {
+          <div class="deletion-pending">
+            <p class="deletion-warning">
+              Uw profiel wordt over <strong>{{ deletionCountdown }}</strong> verwijderd.
+            </p>
+            <button class="btn-cancel-deletion" (click)="openCancelConfirm()">
+              Mijn keuze wissen
+            </button>
+          </div>
+        }
+      </div>
+    }
   }
 </div>
+
+@if (showDeleteConfirm) {
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3>Profiel verwijderen</h3>
+      <p>Bent u zeker dat u uw profiel/gegevens wilt verwijderen?</p>
+      <p class="modal-note">U heeft 24 uur om deze keuze te annuleren.</p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="closeDeleteConfirm()">Annuleer</button>
+        <button class="btn-modal-confirm" (click)="confirmDeletion()">Ja, verwijderen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showCancelConfirm) {
+  <div class="modal-overlay" (click)="closeCancelConfirm()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3>Keuze wissen</h3>
+      <p>Wilt u zeker dat u uw keuze wilt wissen?</p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="closeCancelConfirm()">Annuleer</button>
+        <button class="btn-modal-confirm" (click)="confirmCancelDeletion()">Ja, wissen</button>
+      </div>
+    </div>
+  </div>
+}

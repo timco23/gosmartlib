@@ -18,32 +18,42 @@ export class UserService {
   }
 
   getProfileByEmail(email: string): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${environment.apiUrl}/user/profile/${encodeURIComponent(email)}`);
+    return this.http.get<UserProfile>(
+      `${environment.apiUrl}/user/profile/${encodeURIComponent(email)}`,
+    );
   }
 
   getFavorites(): Observable<any[]> {
     const stored = localStorage.getItem('currentUser');
-    if (!stored) return new Observable(o => { o.next([]); o.complete(); });
+    if (!stored)
+      return new Observable((o) => {
+        o.next([]);
+        o.complete();
+      });
 
     const user = JSON.parse(stored);
     return this.http.get<any[]>(`${environment.apiUrl}/user/favorites`, {
-      params: { email: user.email }
+      params: { email: user.email },
     });
   }
 
   getWishlistedBooks(): Observable<any[]> {
     const stored = localStorage.getItem('currentUser');
-    if(!stored)return new Observable(o => { o.next([]); o.complete(); })
+    if (!stored)
+      return new Observable((o) => {
+        o.next([]);
+        o.complete();
+      });
 
-      const user = JSON.parse(stored);
-      return this.http.get<any[]>(`${environment.apiUrl}/user/wishlist`, {
-      params: { email: user.email }
+    const user = JSON.parse(stored);
+    return this.http.get<any[]>(`${environment.apiUrl}/user/wishlist`, {
+      params: { email: user.email },
     });
   }
 
   getFromSchool(schoolId: number): Observable<UserProfile[]> {
     return this.http.get<UserProfile[]>(`${environment.apiUrl}/schools/users`, {
-      params: { schoolId: schoolId.toString() }
+      params: { schoolId: schoolId.toString() },
     });
   }
 
@@ -53,25 +63,33 @@ export class UserService {
 
   addBorrowedItem(userId: number): Observable<void> {
     return this.http.put<void>(`${environment.apiUrl}/user/addBorrowed`, null, {
-      params: { userId: userId.toString() }
+      params: { userId: userId.toString() },
     });
   }
 
   removeBorrowedItem(userId: number): Observable<void> {
     return this.http.put<void>(`${environment.apiUrl}/user/removeBorrowed`, null, {
-      params: { userId: userId.toString() }
+      params: { userId: userId.toString() },
     });
   }
 
   changeSchool(email: string, schoolId: number): Observable<UserProfile> {
     return this.http.put<UserProfile>(`${this.apiUrl}/school`, null, {
-      params: { email, schoolId: schoolId.toString() }
+      params: { email, schoolId: schoolId.toString() },
     });
   }
 
   updateUserRole(email: string, role: string): Observable<UserProfile> {
     return this.http.put<UserProfile>(`${this.apiUrl}/role`, null, {
-      params: { email, role }
+      params: { email, role },
     });
+  }
+
+  requestDeletion(): Observable<UserProfile> {
+    return this.http.post<UserProfile>(`${this.apiUrl}/request-deletion`, null);
+  }
+
+  cancelDeletion(): Observable<UserProfile> {
+    return this.http.delete<UserProfile>(`${this.apiUrl}/cancel-deletion`);
   }
 }

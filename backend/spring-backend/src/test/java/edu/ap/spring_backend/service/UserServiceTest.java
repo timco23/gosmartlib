@@ -87,7 +87,8 @@ class UserServiceTest {
                 school != null ? getField(school, "name", String.class) : null,
                 school != null ? getField(school, "id", Long.class) : null,
                 new ItemDTO[0],
-                itemsBorrowed
+                itemsBorrowed,
+                null
         );
     }
 
@@ -124,16 +125,16 @@ class UserServiceTest {
         }
     }
 
-    // ── help: make a School with Lombok setters 
+    // make a School with Lombok setters 
 
     private School buildSchool(Long id, String name) {
         School s = new School();
-        s.setId(id);           // Lombok setter
+        s.setId(id);     
         s.setName(name);
         return s;
     }
 
-    // ── help: make a User through reflection
+    // ─make a User through reflection
 
     private User buildUser(Integer id, String name, String firstName,
                            String email, Role role, School school) {
@@ -149,7 +150,7 @@ class UserServiceTest {
         return u;
     }
 
-    // ── help: make an Item with Lombok setters
+    // ─make an Item with Lombok setters
 
     private Item buildItem(Long id, String title) {
         Item i = new Item();
@@ -235,7 +236,7 @@ class UserServiceTest {
         ItemDTO[] result = userService.getFavoriteBooks("leerling@test.be");
 
         assertThat(result).hasSize(1);
-        assertThat(result[0].title()).isEqualTo("Test Boek"); // record accessor
+        assertThat(result[0].title()).isEqualTo("Test Boek"); 
     }
 
         @Test
@@ -498,6 +499,51 @@ class UserServiceTest {
         when(schoolRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.changeUserSchool("leerling@test.be", 999L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void requestDeletion_setsTimestamp() {
+        when(userRepository.findById(3)).thenReturn(Optional.of(leerlingUser));
+
+        userService.requestDeletion(3);
+
+        assertThat(getField(leerlingUser, "deletionRequestedAt", java.time.LocalDateTime.class)).isNotNull();
+        verify(userRepository).save(leerlingUser);
+    }
+
+    @Test
+    void requestDeletion_throwsWhenNotStudent() {
+        when(userRepository.findById(1)).thenReturn(Optional.of(adminUser));
+
+        assertThatThrownBy(() -> userService.requestDeletion(1))
+                .isInstanceOf(SecurityException.class);
+    }
+
+    @Test
+    void requestDeletion_throwsWhenUserNotFound() {
+        when(userRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.requestDeletion(99))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void cancelDeletion_clearsTimestamp() {
+        setField(leerlingUser, "deletionRequestedAt", java.time.LocalDateTime.now());
+        when(userRepository.findById(3)).thenReturn(Optional.of(leerlingUser));
+
+        userService.cancelDeletion(3);
+
+        assertThat(getField(leerlingUser, "deletionRequestedAt", java.time.LocalDateTime.class)).isNull();
+        verify(userRepository).save(leerlingUser);
+    }
+
+    @Test
+    void cancelDeletion_throwsWhenUserNotFound() {
+        when(userRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.cancelDeletion(99))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 }

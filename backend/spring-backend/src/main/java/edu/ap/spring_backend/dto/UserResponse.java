@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ public class UserResponse {
     private Long schoolId;
     private ItemDTO[] favoriteBooks;
     private Integer itemsBorrowed;
+    private LocalDateTime deletionRequestedAt;
 
     /**
      * Constructor for user profile response.
@@ -31,9 +33,11 @@ public class UserResponse {
      * @param schoolName school name (null for admins)
      * @param schoolId school ID (null for admins)
      * @param favoriteBooks list of user's favorite books
+     * @param items_borrowed list of user's borrowed books
+     * @param deletionRequestedAt requested deletion of information at a specific time
      */
     public UserResponse(Integer id, String name, String firstName, String email, String role,
-                       String studentNumber, List<ClassDTO> classes, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer items_borrowed) {
+                       String studentNumber, List<ClassDTO> classes, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer items_borrowed, LocalDateTime deletionRequestedAt) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
@@ -45,6 +49,7 @@ public class UserResponse {
         this.schoolId = schoolId;
         this.favoriteBooks = favoriteBooks;
         this.itemsBorrowed = items_borrowed;
+        this.deletionRequestedAt = deletionRequestedAt;
     }
     
     public Integer getId() { return id; }
@@ -58,6 +63,7 @@ public class UserResponse {
     public Long getSchoolId() { return schoolId; }
     public ItemDTO[] getFavoriteBooks() { return favoriteBooks; }
     public Integer getItems_borrowed() { return itemsBorrowed; }
+    public LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
     
     public void setId(Integer id) { this.id = id; }
     public void setName(String name) { this.name = name; }

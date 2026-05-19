@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -15,9 +15,10 @@ import { BookService } from '../services/book-service';
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
-export class Profile implements OnInit {
+export class Profile implements OnInit, OnDestroy {
   lendingService: LendingService = inject(LendingService);
   lendings: Lending[] = [];
+  activeLendings: Lending[] = [];
   bookApi: BookService = inject(BookService);
   failedCoverIds = new Set<number>();
 
@@ -34,6 +35,12 @@ export class Profile implements OnInit {
 
   currentPage = 0;
   pageSize = 10;
+
+  showDeleteConfirm = false;
+  deletionCountdown: string = '';
+  private countdownInterval: any;
+
+  showCancelConfirm = false;
 
   constructor(
     private authService: AuthService,
@@ -106,6 +113,7 @@ export class Profile implements OnInit {
     this.userService.getUser().subscribe({
       next: (data) => {
         this.profile = data;
+        if (this.profile.deletionRequestedAt) this.startCountdown();
         this.loading = false;
         this.loadLendings(data.email);
         this.cdr.detectChanges();
@@ -122,6 +130,7 @@ export class Profile implements OnInit {
     this.userService.getProfileByEmail(email).subscribe({
       next: (data) => {
         this.profile = data;
+        if (this.profile.deletionRequestedAt) this.startCountdown();
         this.selectedRole = data.role;
         this.loading = false;
         this.loadLendings(data.email);
@@ -142,7 +151,11 @@ export class Profile implements OnInit {
   loadLendings(email: string): void {
     this.lendingService.getLendingsByUser(email).subscribe({
       next: (data) => {
-        this.lendings = (data ?? []).filter((l) => l.returned || !!l.dateReturned);
+        const all = data ?? [];
+        // Active = not returned and no dateReturned
+        this.activeLendings = all.filter((l) => !l.returned && !l.dateReturned);
+        // Returned only for display in the history card
+        this.lendings = all.filter((l) => l.returned || !!l.dateReturned);
         this.cdr.detectChanges();
       },
       error: (err) => console.error('Failed to load lendings', err),
@@ -181,5 +194,98 @@ export class Profile implements OnInit {
 
   get classNames(): string {
     return this.profile?.classes.map((c) => c.className).join(', ') ?? '';
+  }
+
+  get hasPendingDeletion(): boolean {
+    return !!this.profile?.deletionRequestedAt;
+  }
+
+  get isDeletionStudent(): boolean {
+    return this.profile?.role === 'LEERLING' && !this.isViewingOther;
+  }
+
+  get hasActiveLendings(): boolean {
+    return this.activeLendings.length > 0;
+  }
+
+  openDeleteConfirm(): void {
+    if (this.hasActiveLendings) return;
+    this.showDeleteConfirm = true;
+  }
+
+  closeDeleteConfirm(): void {
+    this.showDeleteConfirm = false;
+  }
+
+  confirmDeletion(): void {
+    this.showDeleteConfirm = false;
+    this.userService.requestDeletion().subscribe({
+      next: (updated) => {
+        this.profile = updated;
+        this.startCountdown();
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to request deletion', err),
+    });
+  }
+
+  startCountdown(): void {
+    this.stopCountdown();
+    this.updateCountdown();
+    this.countdownInterval = setInterval(() => {
+      this.updateCountdown();
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  stopCountdown(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+    this.deletionCountdown = '';
+  }
+
+  updateCountdown(): void {
+    if (!this.profile?.deletionRequestedAt) return;
+
+    const rawDate = this.profile.deletionRequestedAt;
+    const utcString = rawDate.endsWith('Z') ? rawDate : rawDate + 'Z'; //Z: tells JavaScript that the timestamp is in UTC
+    const requestedAt = new Date(utcString);
+    const deleteAt = new Date(requestedAt.getTime() + 24 * 60 * 60 * 1000);
+    const diff = deleteAt.getTime() - Date.now();
+    if (diff <= 0) {
+      this.deletionCountdown = 'Wordt verwijderd...';
+      this.stopCountdown();
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    this.deletionCountdown = `${h}u ${m}m ${s}s`;
+  }
+
+  openCancelConfirm(): void {
+    this.showCancelConfirm = true;
+  }
+
+  closeCancelConfirm(): void {
+    this.showCancelConfirm = false;
+  }
+
+  confirmCancelDeletion(): void {
+    this.showCancelConfirm = false;
+    this.userService.cancelDeletion().subscribe({
+      next: (updated) => {
+        this.profile = updated;
+        this.stopCountdown();
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to cancel deletion', err),
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopCountdown();
   }
 }
