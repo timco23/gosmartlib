@@ -91,8 +91,10 @@ CREATE TABLE IF NOT EXISTS user (
     school_id BIGINT, 
     refresh_token VARCHAR(512),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
-    items_borrowed INT NOT NULL DEFAULT 0
+    items_borrowed INT NOT NULL DEFAULT 0,
+    deletion_requested_at TIMESTAMP NULL DEFAULT NULL
 );
+
 
 create table if not exists class_user (
 	class_id BIGINT,
@@ -436,10 +438,26 @@ CREATE TABLE IF NOT EXISTS collection_item (
     FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS user_favorite_books (
+    user_id INT NOT NULL,
+    item_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, item_id),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_wishlisted_books (
+    user_id INT NOT NULL,
+    item_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, item_id),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
+);
+
 -- uitleningen van schoolitems aan gebruikers, met datum van uitlening en terugkeer, en status of het item is teruggebracht of niet
 CREATE TABLE IF NOT EXISTS lending (
     id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    borrower_id INT NOT NULL,
+    borrower_id INT NULL,
     book_id INT NULL,
     school_id BIGINT NOT NULL,
     lending_date DATE,
@@ -448,7 +466,7 @@ CREATE TABLE IF NOT EXISTS lending (
     date_returned DATE,
     extended BOOLEAN DEFAULT FALSE,
     extend_count INT NOT NULL DEFAULT 0,
-    FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE RESTRICT,
+    FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE SET NULL,
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
