@@ -161,6 +161,38 @@
         }
       </div>
     }
+
+    @if (showAdminDeletion) {
+      <div class="deletion-zone">
+        @if (hasPendingDeletion) {
+          <div class="deletion-pending">
+            <p class="deletion-warning">
+              Profiel van <strong>{{ profile.firstName }} {{ profile.name }}</strong> wordt over
+              <strong>{{ deletionCountdown }}</strong> verwijderd.
+            </p>
+          </div>
+        } @else {
+          <button
+            class="btn-request-deletion"
+            [class.disabled]="!adminCanDelete"
+            [disabled]="!adminCanDelete"
+            (click)="openAdminDeleteConfirm()"
+          >
+            Gebruiker verwijderen
+          </button>
+          @if (hasActiveLendings) {
+            <p class="deletion-blocked-msg">
+              Gebruiker heeft momenteel boeken uitgelicht en kan niet verwijderd worden.
+            </p>
+          }
+          @if (adminDeleteError) {
+            <p class="deletion-blocked-msg" style="color: var(--color-danger)">
+              {{ adminDeleteError }}
+            </p>
+          }
+        }
+      </div>
+    }
   }
 </div>
 
@@ -186,6 +218,23 @@
       <div class="modal-actions">
         <button class="btn-modal-cancel" (click)="closeCancelConfirm()">Annuleer</button>
         <button class="btn-modal-confirm" (click)="confirmCancelDeletion()">Ja, wissen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showAdminDeleteConfirm) {
+  <div class="modal-overlay" (click)="closeAdminDeleteConfirm()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3>Gebruiker verwijderen</h3>
+      <p>
+        Bent u zeker dat u het profiel van
+        <strong>{{ profile?.firstName }} {{ profile?.name }}</strong>
+        wilt verwijderen? Dit kan niet ongedaan gemaakt worden.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="closeAdminDeleteConfirm()">Annuleer</button>
+        <button class="btn-modal-confirm" (click)="confirmAdminDeletion()">Ja, verwijderen</button>
       </div>
     </div>
   </div>

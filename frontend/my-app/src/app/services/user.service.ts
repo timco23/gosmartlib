@@ -92,4 +92,11 @@ export class UserService {
   cancelDeletion(): Observable<UserProfile> {
     return this.http.delete<UserProfile>(`${this.apiUrl}/cancel-deletion`);
   }
+
+  deleteUser(email: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete`, {
+      params: { email },
+      responseType: 'text' as 'json',
+    });
+  }
 }

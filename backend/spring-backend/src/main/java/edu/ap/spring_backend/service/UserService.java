@@ -4,6 +4,7 @@ import edu.ap.spring_backend.dto.ItemDTO;
 import edu.ap.spring_backend.dto.UserResponse;
 import org.springframework.stereotype.Service;
 import edu.ap.spring_backend.dao.ItemRepository;
+import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
@@ -24,14 +25,16 @@ public class UserService {
     private final SchoolRepository schoolRepository;
     private final UserMapper userMapper;
     private final ItemMapper itemMapper;
+    private final LendingRepository lendingRepository;
 
     public UserService(UserRepository userRepository, ItemRepository itemRepository,
-            SchoolRepository schoolRepository, UserMapper userMapper, ItemMapper itemMapper) {
+            SchoolRepository schoolRepository, UserMapper userMapper, ItemMapper itemMapper, LendingRepository lendingRepository) {
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.schoolRepository = schoolRepository;
         this.userMapper = userMapper;
         this.itemMapper = itemMapper;
+        this.lendingRepository = lendingRepository;
     }
 
     private User findUserById(Integer id) {
@@ -206,5 +209,23 @@ public class UserService {
         user.setDeletionRequestedAt(null);
         userRepository.save(user);
         return userMapper.toUserResponse(user);
+    }
+
+    public void deleteUser(Integer requesterUserId, String targetEmail) {
+        User requester = findUserById(requesterUserId);
+        if (requester.getRole() != Role.ADMIN) {
+            throw new SecurityException("Only admins can delete users");
+        }
+        User target = userRepository.findByEmail(targetEmail)
+                .orElseThrow(EntityNotFoundException::new);
+        if (target.getRole() == Role.ADMIN) {
+            throw new SecurityException("Cannot delete an admin user");
+        }
+        boolean hasActiveLendings = lendingRepository
+                .existsByBorrowerIdAndReturnedFalse(target.getId());
+        if (hasActiveLendings) {
+            throw new IllegalStateException("Gebruiker heeft nog actieve leningen en kan niet verwijderd worden");
+        }
+        userRepository.deleteUserByIdNative(target.getId());
     }
 }

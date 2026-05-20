@@ -5,6 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
@@ -19,4 +23,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     boolean existsBySmartschoolUsername(String smartschoolUsername);
     boolean existsByEmailAndIdNot(String email, Integer id);    
     List<User> findByDeletionRequestedAtBefore(LocalDateTime cutoff);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM user WHERE id = :id", nativeQuery = true)
+    void deleteUserByIdNative(@Param("id") Integer id);
 }

@@ -148,6 +148,7 @@ public class WebSecurityConfig {
                 // ADMIN
                 .requestMatchers("/schools/**", "/users/**").hasAuthority(ROLE_ADMIN)
                 .requestMatchers(HttpMethod.PUT, "/user/school").hasAuthority(ROLE_ADMIN)
+                .requestMatchers(HttpMethod.DELETE, "/user/delete").hasAuthority(ROLE_ADMIN) 
 
                 .anyRequest().authenticated()
             )
