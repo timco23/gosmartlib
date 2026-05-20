@@ -1,12 +1,12 @@
 <div class="report-container">
   @if (stats) {
     <header class="report-header">
-      <a class="back-link" routerLink="/home">← Terug</a>
+      <a class="back-link" routerLink="/classes">← Terug</a>
       <div class="class-hero">
         <div>
           <span class="eyebrow">Klasstatistieken</span>
           <h1 class="class-title">{{ stats.className }}</h1>
-          <p class="class-sub">{{ stats.studentCount }} leerlingen</p>
+          <p class="class-sub">{{ stats.studentCount }} leerling{{ stats.studentCount !== 1 ? 'en' : '' }}</p>
         </div>
       </div>
     </header>
@@ -36,8 +36,8 @@
         <span class="stat-label">Te laat ingeleverd</span>
       </div>
       <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
-        <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
-        <span class="stat-label">Te laat %</span>
+        <span class="stat-value">{{ stats.lateReturnPercent }}percentage</span>
+        <span class="stat-label">Te laat percentage</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ stats.totalReviews }}</span>
@@ -47,7 +47,7 @@
 
     <section class="panel">
       <h2 class="panel-title">Leesniveaus</h2>
-      <p class="panel-sub">Uitleeningen per leesniveau — {{ yearLabel }}</p>
+      <p class="panel-sub">Ontleningen per leesniveau</p>
       <div class="bar-chart">
         @for (bar of readingLevelBars; track bar.label) {
           <div class="bar-col">
@@ -63,7 +63,7 @@
 
     <section class="panel">
       <h2 class="panel-title">Leerlingen</h2>
-      <p class="panel-sub">Ontleengedrag per leerling — {{ yearLabel }}</p>
+      <p class="panel-sub">Ontleengedrag per leerling</p>
 
       @if (!stats.students.length) {
         <p class="muted">Geen leerlingen gevonden in deze klas.</p>

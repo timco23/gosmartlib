@@ -50,7 +50,7 @@
     <div class="panel insights-panel">
       <div class="insights-left">
         <p class="panel-title">Lievelingsgenres</p>
-        <p class="panel-sub">{{ yearLabel }}</p>
+        <p class="panel-sub">De 5 meest gelezen genres</p>
         @if (stats.topGenres && stats.topGenres.length > 0) {
           <ol class="genre-list">
             @for (genre of stats.topGenres; track genre) {
@@ -64,7 +64,7 @@
       <div class="insights-divider"></div>
       <div class="insights-right">
         <p class="panel-title">Leesniveaus</p>
-        <p class="panel-sub">Uitleeningen per leesniveau — {{ yearLabel }}</p>
+        <p class="panel-sub">Ontleningen per leesniveau</p>
         <div class="bar-chart">
           @for (bar of readingLevelBars; track bar.label) {
             <div class="bar-col">
@@ -82,7 +82,7 @@
     @if (stats.recentLendings.length) {
       <section class="panel">
         <h2 class="panel-title">Recente ontleningen</h2>
-        <p class="panel-sub">10 meest recente ontleningen</p>
+        <p class="panel-sub">De 10 meest recente ontleningen</p>
         <div class="table-wrap">
           <table class="data-table lending-table">
             <thead>
@@ -98,7 +98,7 @@
             <tbody>
               @for (l of stats.recentLendings; track l.id) {
                 <tr>
-                  <td class="book-title-cell">{{ l.bookTitle ?? '—' }}</td>
+                  <td class="book-title-cell">{{ l.bookTitle }}</td>
                   <td>{{ formatDate(l.lendingDate) }}</td>
                   <td>{{ formatDate(l.returnDate) }}</td>
                   <td>{{ formatDate(l.dateReturned) }}</td>

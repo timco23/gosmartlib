@@ -137,6 +137,9 @@
           >Schoolinstellingen</a
         >
       }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+        <a routerLink="/statistics/school" class="nav-link">Schoolstatistieken</a>
+      }
     </div>
 
     <div class="user-menu">

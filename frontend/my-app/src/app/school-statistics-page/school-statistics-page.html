@@ -41,7 +41,7 @@
       </div>
       <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
         <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
-        <span class="stat-label">Te laat %</span>
+        <span class="stat-label">Te laat percentage</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ stats.extensionPercent }}%</span>
@@ -55,9 +55,9 @@
 
     <section class="panel">
       <h2 class="panel-title">{{ chartTitle }}</h2>
-      @if (stats.lendingsTrend.length) {
+      @if (filteredLendingsTrend.length) {
         <div class="bar-chart">
-          @for (entry of stats.lendingsTrend; track entry.period) {
+          @for (entry of filteredLendingsTrend; track entry.period) {
             <div class="bar-col">
               <span class="bar-count">{{ entry.count }}</span>
               <div class="bar-track">
@@ -130,7 +130,7 @@
               <li class="top-book-item">
                 <span class="rank">{{ rank + 1 }}</span>
                 <a class="top-book-title" [routerLink]="['/books', b.itemId]">{{ b.title }}</a>
-                <span class="top-book-value">{{ b.value }}×</span>
+                <span class="top-book-value">{{ b.value }}x</span>
               </li>
             }
           </ol>
@@ -138,7 +138,7 @@
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Meest volledig ontleend</h2>
+        <h2 class="panel-title">Vaakst volledig ontleend</h2>
         <p class="panel-sub">Top 10 boeken op aantal dagen waarop alle exemplaren gelijktijdig ontleend waren</p>
         @if (!stats.topUnavailableBooks.length) {
           <p class="muted">Geen data beschikbaar.</p>
