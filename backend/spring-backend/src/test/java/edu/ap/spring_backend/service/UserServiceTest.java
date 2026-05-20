@@ -98,7 +98,7 @@ class UserServiceTest {
                 getField(item, "title", String.class),
                 null, null, null,
                 0, null, 0, null,
-                0.0, 0, null,
+                0.0, 0, null, false,
                 List.of(), List.of(), List.of(),
                 null, List.of(), null,
                 false, false, null

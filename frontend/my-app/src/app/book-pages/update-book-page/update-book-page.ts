@@ -158,6 +158,7 @@ export class UpdateBookPage implements OnInit {
         this.book = data;
         this.tryFillForm();
         this.loadCopies();
+        this.api.setBookUpdating(this.book.id, "true").subscribe();
       },
       error: (err) => {
         this.errorMessage = err;

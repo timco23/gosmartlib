@@ -235,4 +235,14 @@ export class BookService {
       params: { condition: condition },
     });
   }
+
+  setBookUpdating(bookId: number, value: string): Observable<Book> {
+    return this.http.put<Book>(`${this.apiBaseUrl}/books/${bookId}/mark-for-update`, null, {
+      params: { value: value },
+    });
+  }
+
+  getBookUpdatingStatus(bookId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiBaseUrl}/books/${bookId}/mark-for-update`);
+  }
 }

@@ -182,7 +182,7 @@ class UserControllerTest extends BaseControllerTest {
         return new ItemDTO(
                 1L, "Dune", "Ace Books", "Frank Herbert", "9780441568529",
                 1965, "ENGELS", 412, "https://covers.example.com/dune.jpg",
-                4.5, 10, "A sci-fi epic.",
+                4.5, 10, "A sci-fi epic.", false,
                 List.of(new TagDTO(1L, "sci-fi")),
                 List.of(1L), List.of(2L), 1L, List.of(3L),
                 1L, false, false, null

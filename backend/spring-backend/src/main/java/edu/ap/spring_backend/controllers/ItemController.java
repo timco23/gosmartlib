@@ -346,6 +346,17 @@ public class ItemController {
         return ResponseEntity.ok(schoolItemCopyService.updateCopyCondition(copyId, condition));
     }
 
+    @PutMapping("/books/{bookId}/mark-for-update")
+    public ResponseEntity<ItemDTO> markBookForUpdate(@PathVariable Long bookId, @RequestParam boolean value) {
+        this.itemService.markBookForUpdate(bookId, value);
+        return ResponseEntity.ok(itemService.getItemById(bookId));
+    }
+
+    @GetMapping("/books/{id}/mark-for-update")
+    public ResponseEntity<Boolean> isBookMarkedForUpdate(@PathVariable Long id) {
+        return ResponseEntity.ok(itemService.isBookMarkedForUpdate(id));
+    }
+
     @DeleteMapping("/books/{id}")
     public ResponseEntity<ItemDTO> deleteItem(@PathVariable Long id) {
         itemService.deleteItem(id);
