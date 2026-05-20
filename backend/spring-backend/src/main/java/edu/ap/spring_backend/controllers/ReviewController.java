@@ -47,6 +47,23 @@ public class ReviewController {
     }
 
     /**
+     * Returns all reports from a review.
+     * @param reviewId id of the review
+     * @param reporterId id of the reporter
+     * @return true if the user already reported the review
+     */
+    @GetMapping("/{reviewId}/existsFrom/{reporterId}")
+    public ResponseEntity<Boolean> reportExistsByReviewIdAndReporterId(
+            @PathVariable Long itemId,
+            @PathVariable Long reviewId,
+            Authentication authentication,
+            HttpServletRequest request
+    ) {
+        String requester = resolveRequester(authentication, request);
+        return ResponseEntity.ok(reviewService.reportExistsByReviewIdAndReporterId(reviewId, requester));
+    }
+
+    /**
      * Creates a new review for a given item.
      * @param itemId the item ID
      * @param dto review data

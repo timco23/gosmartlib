@@ -1,14 +1,19 @@
+/*
+  BOOK CAROUSEL WIDGET
+  Follows the GOSmartLib design system.
+*/
+
 main {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-/* Common Styles */
+/* --- Progress dots --- */
 .carousel-dots {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   margin-left: auto;
   margin-right: auto;
 }
@@ -18,19 +23,20 @@ main {
   height: 0.5rem;
   border-radius: 50%;
   border: none;
-  background: #ddd;
+  background: var(--color-surface-3);
   cursor: pointer;
   padding: 0;
   transition:
-    background 0.2s,
-    transform 0.2s;
+    background var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .dot.active {
-  background: #8c1b3f;
+  background: var(--color-primary);
   transform: scale(1.3);
 }
 
+/* --- Outer layout --- */
 .carousel-outer {
   display: flex;
   align-items: center;
@@ -40,52 +46,62 @@ main {
   width: 100%;
 }
 
+/* --- Arrow buttons --- */
 .carousel-arrow {
   flex-shrink: 0;
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 1px solid #8c1b3f;
-  background: white;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-1);
   font-size: 1.5rem;
   cursor: pointer;
-  color: #8c1b3f;
+  color: var(--color-text-2);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-  z-index: 10;
+  box-shadow: var(--shadow-sm);
   font-weight: bold;
+  z-index: 10;
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .carousel-arrow:hover {
-  background: #ffd6d6;
-  color: #8c1b3f;
-  border-color: #8c1b3f;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
+  transform: scale(1.05);
 }
 
+/* --- Viewport --- */
 .carousel-viewport {
   flex: 1;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 0;
+  padding: var(--space-4) 0;
 }
 
+/* --- Card base --- */
 .carousel-card {
-  border-radius: 10px;
-  background: #f0efe4;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-/* Default View (Collection/Reading List look) */
+/*
+  DEFAULT VIEW (collection / reading list look)
+*/
 main:not(.detailed) .carousel-dots {
   order: 1;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 main:not(.detailed) .carousel-outer {
@@ -97,19 +113,18 @@ main:not(.detailed) .carousel-outer {
 main:not(.detailed) .carousel-arrow {
   width: 2.8rem;
   height: 2.8rem;
-  border-width: 1px;
   font-size: 1.4rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--space-8);
 }
 
 main:not(.detailed) .carousel-viewport {
-  gap: 1.5rem;
-  padding: 1.5rem 0.5rem; /* Added horizontal padding to prevent shadow cutoff */
-  align-items: center; /* Center all cards vertically */
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-2);
+  align-items: center;
 }
 
 main:not(.detailed) .carousel-card {
-  background: transparent; /* No background for the card itself */
+  background: transparent;
   border-radius: 0;
   flex-shrink: 0;
   align-items: center;
@@ -117,8 +132,8 @@ main:not(.detailed) .carousel-card {
   width: 140px;
   opacity: 1;
   cursor: pointer;
-  overflow: visible; /* Allow shadow to spread beyond card bounds */
-  transition: transform 0.3s ease; /* Transition only for non-detailed view */
+  overflow: visible;
+  transition: transform var(--transition-base);
 }
 
 main:not(.detailed) .carousel-card:hover {
@@ -141,14 +156,14 @@ main:not(.detailed) .card-content {
 main:not(.detailed) .book-cover {
   width: 140px;
   height: 200px;
-  background: white;
-  border-radius: 8px;
+  background: var(--color-surface-1);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
+  box-shadow: var(--shadow-cover);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-3);
 }
 
 main:not(.detailed) .is-center .book-cover,
@@ -160,59 +175,62 @@ main:not(.detailed) .is-side .book-cover {
 main:not(.detailed) .cover-img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 main:not(.detailed) .book-title {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-2);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 2.7em; /* Fixed height for 2 lines to keep covers aligned */
+  height: 2.7em;
   line-height: 1.35;
   width: 100%;
 }
 
-/* Detailed View (Home Page) */
+/*
+  DETAILED VIEW (home page)
+*/
 main.detailed .carousel-outer {
   order: 1;
-  height: 26rem; /* Increased from 24rem */
+  height: 26rem;
   max-width: 1400px;
-  gap: 8rem; /* Increased from 5rem to space buttons more */
+  gap: 8rem;
 }
 
 main.detailed.has-3-slots .carousel-outer {
-  max-width: 1040px; /* Narrower container to bring arrows closer */
-  gap: 2rem; /* Reduced gap */
+  max-width: 1040px;
+  gap: 2rem;
 }
 
 main.detailed.has-3-slots .carousel-card.is-side {
-  flex: 0 0 19%; /* Increased percentage to maintain size in narrower viewport */
+  flex: 0 0 19%;
 }
 
 main.detailed.has-3-slots .carousel-card.is-center {
-  flex: 0 0 62%; /* Increased percentage to maintain size in narrower viewport */
+  flex: 0 0 62%;
 }
 
 main.detailed .carousel-arrow {
-  width: 2.8rem; /* Shrinked from 3.5rem */
-  height: 2.8rem; /* Shrinked from 3.5rem */
-  font-size: 1.6rem; /* Adjusted from 2rem */
+  width: 2.8rem;
+  height: 2.8rem;
+  font-size: 1.6rem;
 }
 
 main.detailed .carousel-dots {
   order: 2;
-  margin-top: 1rem;
-  margin-bottom: 2rem;
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-8);
 }
 
 main.detailed .carousel-viewport {
   gap: 0.75rem;
-  padding: 1rem 0;
+  padding: var(--space-4) 0;
 }
 
 main.detailed .carousel-card {
@@ -221,10 +239,10 @@ main.detailed .carousel-card {
 
 main.detailed .carousel-card.is-side {
   flex: 0 0 16%;
-  height: 78%; /* Decreased from 85% */
+  height: 78%;
   opacity: 0.85;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 main.detailed .carousel-card.is-side:hover {
@@ -234,13 +252,12 @@ main.detailed .carousel-card.is-side:hover {
 main.detailed .carousel-card.is-center {
   flex: 0 0 52%;
   height: 100%;
-  min-height: 390px; /* Increased from 362px */
+  min-height: 390px;
   max-height: 390px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   cursor: default;
 }
 
-/* Fix for single/few books in detailed view */
 main.detailed:not(.is-scrollable) .carousel-viewport {
   justify-content: center;
   gap: 1.25rem;
@@ -267,7 +284,7 @@ main.detailed .card-cover {
 }
 
 main.detailed .is-center .card-cover {
-  flex: 0 0 12rem; /* Set width to 12rem as requested */
+  flex: 0 0 12rem;
   display: flex;
   align-items: stretch;
   align-self: stretch;
@@ -288,7 +305,7 @@ main.detailed .is-center .cover-img {
 
 main.detailed .card-description-col {
   flex: 1;
-  padding: 1rem;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -296,8 +313,8 @@ main.detailed .card-description-col {
 
 main.detailed .card-description {
   margin: 0;
-  font-size: 0.875rem;
-  color: #444;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
   line-height: 1.65;
   overflow: hidden;
   flex: 1;
@@ -306,53 +323,54 @@ main.detailed .card-description {
 main.detailed .details-button {
   display: inline-block;
   align-self: flex-end;
-  margin-top: 0.75rem;
-  background-color: #8c1b3f;
-  color: white;
-  padding: 0.6rem 1.3rem;
-  border-radius: 6px;
+  margin-top: var(--space-3);
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.4375rem 0.875rem;
+  border-radius: var(--radius-sm);
   text-decoration: none;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 main.detailed .details-button:hover {
-  background-color: #c2e569;
-  color: #8c1b3f;
+  background: var(--color-primary-bright);
+  box-shadow: var(--shadow-red);
 }
 
 main.detailed .card-footer {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  padding: 0.875rem 1.25rem;
-  border-top: 1px solid #ddd;
-  gap: 1rem;
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  gap: var(--space-4);
 }
 
 main.detailed .footer-left {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: var(--space-1);
   flex: 1;
   min-width: 0;
 }
 
 main.detailed .card-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--text-md);
   font-weight: 700;
-  color: #8c1b3f;
+  color: var(--color-primary);
   word-wrap: break-word;
 }
 
 main.detailed .card-author {
   margin: 0;
-  font-size: 0.8125rem;
-  color: #666;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
   word-wrap: break-word;
 }
 
@@ -360,7 +378,7 @@ main.detailed .footer-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.4rem;
+  gap: var(--space-2);
   max-width: 60%;
   flex: 1;
 }
@@ -368,58 +386,84 @@ main.detailed .footer-right {
 main.detailed .card-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: var(--space-1);
   justify-content: flex-end;
 }
 
 main.detailed .badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.15rem 0.55rem;
-  border-radius: 1.25rem;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  display: inline-block;
 }
 
 main.detailed .badge-language {
-  background: #f0efe4;
-  color: #8c1b3f;
-  border: 1px solid #8c1b3f;
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+  border: 1px solid var(--color-border-hover);
 }
 
 main.detailed .badge-genre {
-  background: #8c1b3f;
-  color: white;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-bright);
+  border: 1px solid var(--color-border-active);
 }
 
 main.detailed .side-footer {
-  padding: 0.5rem 0.625rem;
-  border-top: 1px solid #ddd;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: var(--space-1);
   min-height: 0;
 }
 
 main.detailed .side-title {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 700;
-  color: #8c1b3f;
+  color: var(--color-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 main.detailed .side-author {
-  font-size: 0.6875rem;
-  color: #888;
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* --- Empty state --- */
 .empty-list {
   text-align: center;
-  padding: 3rem;
-  color: #888;
-  background: #f9f9f9;
-  border-radius: 10px;
+  padding: var(--space-12);
+  color: var(--color-text-3);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 768px) {
+  main:not(.detailed) .carousel-outer {
+    gap: 0.5rem;
+  }
+
+  main:not(.detailed) .carousel-viewport {
+    justify-content: center;
+  }
+
+  main.detailed .carousel-outer {
+    gap: 0.5rem;
+  }
+
+  main.detailed .carousel-card.is-center {
+    flex: 1;
+    max-width: 100%;
+  }
 }

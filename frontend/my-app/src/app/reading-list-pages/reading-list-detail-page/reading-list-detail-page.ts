@@ -1,14 +1,16 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ReadingListService } from '../../services/readingList-service';
-import { ReadingList, Book } from '../../../types/types';
+import { ReadingList, Book, Role } from '../../../types/types';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BookService } from '../../services/book-service';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-reading-list-detail-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './reading-list-detail-page.html',
   styleUrl: './reading-list-detail-page.css',
 })
@@ -27,6 +29,8 @@ export class ReadingListDetailPage implements OnInit {
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
   bookService = inject(BookService);
+  authService = inject(AuthService);
+  role = Role;
 
   ngOnInit() {
     this.route.paramMap.subscribe((p) => {

@@ -3,7 +3,7 @@
     <main class="book-detail-card">
       <header class="book-detail-header">
         <div class="header-row">
-          <a class="back-link" [routerLink]="['/books']">← Terug naar lijst</a>
+          <a class="back-link" [routerLink]="[returnUrl]">← Terug naar lijst</a>
         </div>
 
         @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
@@ -11,6 +11,13 @@
             <a class="action-btn edit-button" [routerLink]="['/books', book.id, 'edit']">
               Boek wijzigen
             </a>
+
+            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]"
+              >Uitleenhistoriek</a
+            >
+            <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
+              Verwijder boek
+            </button>
             <a
               class="action-btn edit-button secondary"
               [routerLink]="['/books', book.id, 'barcodes']"
@@ -18,10 +25,6 @@
             >
               Print barcodes
             </a>
-            <a class="edit-button" [routerLink]="['/book-lending-history', book.id]">Lending history</a>
-            <button class="action-btn delete-button" type="button" (click)="deleteBook(book!.id!)">
-              Verwijder boek
-            </button>
             <button
               class="action-btn feature-button"
               type="button"
@@ -63,8 +66,11 @@
             <button class="action-btn favorite-btn" type="button" (click)="addToFavorites()">
               {{ isFavorite ? 'Verwijderen uit favorieten' : 'Toevoegen aan favorieten' }}
             </button>
+            <button class="action-btn wishlist-btn" type="button" (click)="addToWishlist()">
+              {{ isInWishlist ? 'Verwijderen uit verlanglijst' : 'Toevoegen aan verlanglijst' }}
+            </button>
             @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-              <button class="action-btn report-btn" type="button">Bekijk rapportage</button>
+              <a class="action-btn report-btn" [routerLink]="['/books', book!.id, 'report']">Bekijk rapportage</a>
             }
           </div>
         </aside>
@@ -79,13 +85,14 @@
           <div class="chip-row">
             <span class="chip">
               Leesniveau: {{ readingLevelName || '—' }}
-              @if (readingLevelDescription) {
+              @if (readingLevelDescription && authService.atLeastHasRole(role.LEERKRACHT)) {
                 <span class="tooltip-anchor">
                   <span class="info-icon">i</span>
                   <span class="tooltip-box">{{ readingLevelDescription }}</span>
                 </span>
               }
             </span>
+
             <span class="chip">Pagina's: {{ book.pageCount }}</span>
             <span class="chip">
               Taal: {{ $any(book).bookLanguage || $any(book).language || '—' }}
@@ -159,19 +166,38 @@
         </section>
 
         <aside class="right-col">
-          <div class="panel side-box">
-            <p class="panel-title">Beschikbaarheid</p>
-            <p>{{ copies.length }} exemplaren</p>
-          </div>
-
-          <div class="panel side-box">
-            <p class="panel-title">Locatie(s)</p>
-            @if (school?.campuses?.length) {
-              @for (c of school!.campuses; track c.id) {
-                <div>{{ c.name }}</div>
+          <div class="panel side-box campus-availability-panel">
+            <p class="panel-title">Exemplaren per campus</p>
+            @if (copiesByCampus.length) {
+              @for (entry of copiesByCampus; track entry.campusName) {
+                <div
+                  class="campus-entry"
+                  [class.campus-entry--available]="entry.available > 0"
+                  [class.campus-entry--full]="entry.available === 0 && entry.borrowed > 0"
+                >
+                  @let count = authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) ? entry.total + entry.other : entry.total;
+                  <div class="campus-header">
+                    <span class="campus-name">{{ entry.campusName }}</span>
+                    <span class="campus-total">{{ count === 1 ? '1 exemplaar' : count + ' exemplaren' }}</span>
+                  </div>
+                  <div class="avail-grid">
+                    @if (entry.available > 0) {
+                      <span class="avail-badge avail-badge--available">{{ entry.available }} beschikbaar</span>
+                    }
+                    @if (entry.borrowed > 0) {
+                      <span class="avail-badge avail-badge--borrowed">{{ entry.borrowed }} uitgeleend</span>
+                    }
+                    @if (entry.other > 0 && authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+                      <span class="avail-badge avail-badge--other">{{ entry.other }} ontbrekend</span>
+                    }
+                    @if (entry.available === 0 && entry.borrowed > 0 && entry.earliestReturnDate) {
+                      <span class="avail-badge avail-badge--return-date">Beschikbaar vanaf: {{ entry.earliestReturnDate }}</span>
+                    }
+                  </div>
+                </div>
               }
             } @else {
-              <div>Geen locaties</div>
+              <p class="muted">Geen exemplaren gevonden.</p>
             }
           </div>
         </aside>
@@ -202,11 +228,18 @@
         <div class="reviews-content">
           <div class="reviews-header">
             <h3>Reviews</h3>
-            @if (!showReviewForm) {
-              <button class="add-review-btn" type="button" (click)="showReviewForm = true">
-                Review schrijven
-              </button>
-            }
+            <div class="reviews-header-actions">
+              @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER) && reviews.length > 0) {
+                <button class="delete-all-btn" type="button" (click)="reviewList.onDeleteAll()">
+                  Alle reviews verwijderen
+                </button>
+              }
+              @if (!showReviewForm && !currentUserHasReview) {
+                <button class="add-review-btn" type="button" (click)="showReviewForm = true">
+                  Review schrijven
+                </button>
+              }
+            </div>
           </div>
 
           @if (showReviewForm) {
@@ -219,16 +252,18 @@
           }
 
           <app-review-list
+            #reviewList
             [reviews]="reviews"
+            [bookId]="book!.id"
             [userRole]="userRoleForReviews"
             [currentUserName]="currentUserNameForReviews"
             (deleteReview)="onDeleteReview($event)"
             (deleteAll)="onDeleteAllReviews()"
             (reportReview)="onReportReview($event)"
-          >
-          </app-review-list>
+          />
         </div>
       </section>
+      <app-related-books [book]="book" />
     </main>
   } @else {
     <h3>Loading...</h3>
@@ -244,7 +279,7 @@
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
           { label: 'Verwijderen', type: 'danger', value: 'confirm' },
         ]"
-        (actionClicked)="cancelDelete()"
+        (actionClicked)="handleReadingListPopUp($event)"
       />
     </div>
   }
@@ -259,7 +294,7 @@
           { label: 'Annuleren', type: 'cancel', value: 'cancel' },
           { label: 'Verwijderen', type: 'danger', value: 'confirm' },
         ]"
-        (actionClicked)="cancelDelete()"
+        (actionClicked)="handleCollectionPopUp($event)"
       />
     </div>
   }
@@ -270,7 +305,7 @@
         title="Boek verwijderen mislukt"
         message="Kan boek niet verwijderen omdat deze momenteel door de admin uitgelicht wordt in een collectie."
         [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
-        (actionClicked)="closeNotification()"
+        (actionClicked)="cancelDelete()"
       />
     </div>
   }

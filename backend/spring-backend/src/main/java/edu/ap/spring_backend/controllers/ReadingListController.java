@@ -47,7 +47,8 @@ public class ReadingListController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ReadingListDTO> deleteReadingList(@PathVariable Long id) {
-        return ResponseEntity.ok(readingListService.deleteReadingList(id));
+    public ResponseEntity<Void> deleteReadingList(@PathVariable Long id) {
+        readingListService.deleteReadingList(id);
+        return ResponseEntity.noContent().build();
     }
 }

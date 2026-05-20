@@ -16,22 +16,24 @@ import { BookCarousel } from '../../widgets/book-carousel/book-carousel';
   styleUrl: './collection-list-page.css',
 })
 export class CollectionListPage {
-  collections: (Collection & { scrollIndex: number })[] | null = null
+  collections: (Collection & { scrollIndex: number })[] = [];
   loading: boolean = true;
   loadingError: boolean = false;
   school: School | null = null;
   role = Role;
   showDeleteConfirm: boolean = false;
+  pendingDeleteCollectionId: number | null = null;
 
   collectionService = inject(CollectionService);
   userService = inject(UserService);
   authService = inject(AuthService);
-  schoolService = inject(SchoolService)
+  schoolService = inject(SchoolService);
   bookService = inject(BookService);
   router = inject(Router);
-  cdr = inject(ChangeDetectorRef)
+  cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
+    sessionStorage.setItem('collectionOrigin', 'local');
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser?.email) {
       this.loadingError = true;
@@ -61,46 +63,57 @@ export class CollectionListPage {
   }
 
   deleteCollection(value: string, id: number) {
-    if(value === 'confirm') {
-    this.collectionService.deleteCollection(id).subscribe({
-      next: () => this.getCollections()
-    });
+    if (value === 'confirm') {
+      this.collectionService.deleteCollection(id).subscribe({
+        next: () => this.getCollections(),
+      });
     }
     this.showDeleteConfirm = false;
+    this.pendingDeleteCollectionId = null;
     this.cdr.detectChanges();
   }
 
-  showConfirmDelete() {
+  showConfirmDelete(id: number) {
+    this.pendingDeleteCollectionId = id;
     this.showDeleteConfirm = true;
     this.cdr.detectChanges();
   }
 
   getCollections() {
     this.loading = true;
+    this.loadingError = false;
+
     this.collectionService.getCollectionsBySchoolId(this.school!.id!).subscribe({
       next: (collections) => {
-        this.collections = collections.sort((c1, c2) => {
-          if (c2.featured && !c1.featured) {
-            return 1;
-          }
-          else if (c1.featured && !c2.featured) {
-            return -1;
-          }
-          return 0;
-        }).map(collection => ({ ...collection, scrollIndex: 0 }));
+        this.collections = collections
+          .sort((c1, c2) => {
+            if (c2.featured && !c1.featured) return 1;
+            if (c1.featured && !c2.featured) return -1;
+            return 0;
+          })
+          .map((collection) => ({
+            ...collection,
+            items: collection.items ?? [],
+            scrollIndex: 0,
+          }));
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => { this.loadingError = true; this.cdr.detectChanges(); }
-    })
+      error: () => {
+        this.loadingError = true;
+        this.loading = false;
+        this.collections = [];
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   editCollection(id: number) {
-    this.router.navigate(['/collections', id, 'edit'])
+    this.router.navigate(['/collections', id, 'edit']);
   }
 
   addCollection() {
-    this.router.navigate(['/collections/add'])
+    this.router.navigate(['/collections/add']);
   }
 
   getVisibleBooks(collection: Collection & { scrollIndex: number }): Book[] {
@@ -116,24 +129,25 @@ export class CollectionListPage {
   }
 
   nextBooks(collection: Collection & { scrollIndex: number }) {
-    if (collection.items.length > 0) {
-      collection.scrollIndex = (collection.scrollIndex + 1) % collection.items.length;
+    const length = collection.items?.length ?? 0;
+    if (length > 0) {
+      collection.scrollIndex = (collection.scrollIndex + 1) % length;
     }
   }
 
   prevBooks(collection: Collection & { scrollIndex: number }) {
-    if (collection.items.length > 0) {
-      const length = collection.items.length;
+    const length = collection.items?.length ?? 0;
+    if (length > 0) {
       collection.scrollIndex = (collection.scrollIndex - 1 + length) % length;
     }
   }
 
   goToBookDetails(id: number) {
-    this.router.navigate(['/books', id])
+    this.router.navigate(['/books', id]);
   }
 
   goToGlobalCollections() {
-    this.router.navigate(["/collections/global"])
+    this.router.navigate(['/collections/global']);
   }
 
   coverSrc(book: any): string | null {

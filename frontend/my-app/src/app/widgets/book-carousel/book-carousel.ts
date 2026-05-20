@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, inject, Input, OnInit } from '@angular/core';
 import { Book, CarouselSlot, Genre } from '../../../types/types';
 import { Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
@@ -20,9 +20,13 @@ export class BookCarousel implements OnInit {
   autoScrollInterval: number = 5000;
   cdr = inject(ChangeDetectorRef)
 
+  isMobile: boolean = window.innerWidth < 768;
+
   get scrollable(): boolean {
+    if (this.isMobile) return this.books.length > 1;
     return this.books.length >= this.scrollableThreshold;
   }
+
   scrollIndex: number = 0;
   router = inject(Router)
   bookService = inject(BookService)
@@ -35,6 +39,10 @@ export class BookCarousel implements OnInit {
 
   get visibleSlots(): CarouselSlot[] {
     if (!this.books || this.books.length === 0) return [];
+  
+    if (this.isMobile) {
+      return [{ book: this.books[this.scrollIndex], index: this.scrollIndex, position: 'center' }];
+    }
 
     const n = this.books.length;
 
@@ -161,5 +169,10 @@ export class BookCarousel implements OnInit {
     if (this.autoScrollTimer) {
       this.startAutoScroll();
     }
+  }
+  
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobile = window.innerWidth < 768;
   }
 }

@@ -3,6 +3,7 @@ import {
   effect,
   EventEmitter,
   inject,
+  Input,
   model,
   OnInit,
   Output,

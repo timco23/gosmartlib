@@ -48,7 +48,8 @@ class LendingControllerTest extends BaseControllerTest  {
                 null,
                 false,
                 "BC001",
-                false
+                false,
+            0
         );
     }
 
@@ -97,14 +98,14 @@ class LendingControllerTest extends BaseControllerTest  {
         mockMvc.perform(post("/lendings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.bookTitle").value("Dune"));
     }
 
     @Test
     void deleteLending_shouldReturnOk() throws Exception {
         mockMvc.perform(delete("/lendings/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Mockito.verify(lendingService).deleteLending(1L);
     }
@@ -138,14 +139,16 @@ class LendingControllerTest extends BaseControllerTest  {
                 null,
                 false,
                 "BC001",
-                true
+                true,
+            1
         );
 
         Mockito.when(lendingService.extendLending(1L)).thenReturn(extended);
 
         mockMvc.perform(post("/lendings/1/extend"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.extended").value(true));
+                .andExpect(jsonPath("$.extended").value(true))
+                .andExpect(jsonPath("$.extendCount").value(1));
     }
 
     @Test

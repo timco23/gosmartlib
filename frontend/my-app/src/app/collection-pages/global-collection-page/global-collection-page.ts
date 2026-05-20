@@ -1,67 +1,88 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Collection, School, Role, Book } from '../../../types/types';
+import { Collection, Role, Book } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
 import { CollectionService } from '../../services/collection-service';
-import { SchoolService } from '../../services/school.service';
-import { UserService } from '../../services/user.service';
 import { BookService } from '../../services/book-service';
 import { BookCarousel } from '../../widgets/book-carousel/book-carousel';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-global-collection-page',
-  imports: [BookCarousel],
+  imports: [BookCarousel, PopUpComponent],
   templateUrl: './global-collection-page.html',
   styleUrl: './global-collection-page.css',
 })
 export class GlobalCollectionPage {
-  collections: (Collection & { scrollIndex: number })[] | null = null
+  collections: (Collection & { scrollIndex: number })[] = [];
   loading: boolean = true;
   loadingError: boolean = false;
   role = Role;
+  showDeleteConfirm: boolean = false;
+  pendingDeleteCollectionId: number | null = null;
 
   collectionService = inject(CollectionService);
   authService = inject(AuthService);
   router = inject(Router);
-  cdr = inject(ChangeDetectorRef)
+  cdr = inject(ChangeDetectorRef);
   bookService = inject(BookService);
 
   ngOnInit(): void {
+    sessionStorage.setItem('collectionOrigin', 'global');
     this.getCollections();
   }
 
-  deleteCollection(id: number) {
-    this.collectionService.deleteCollection(id).subscribe({
-      next: () => this.getCollections()
-    });
+  deleteCollection(value: string, id: number) {
+    if (value === 'confirm') {
+      this.collectionService.deleteCollection(id).subscribe({
+        next: () => this.getCollections(),
+      });
+    }
+    this.showDeleteConfirm = false;
+    this.pendingDeleteCollectionId = null;
+    this.cdr.detectChanges();
+  }
+
+  showConfirmDelete(id: number) {
+    this.pendingDeleteCollectionId = id;
+    this.showDeleteConfirm = true;
+    this.cdr.detectChanges();
   }
 
   getCollections() {
     this.loading = true;
+    this.loadingError = false;
     this.collectionService.getCollectionsBySchoolId(0).subscribe({
       next: (collections) => {
-        this.collections = collections.sort((c1, c2) => {
-          if (c2.globallyFeatured && !c1.globallyFeatured) {
-            return 1;
-          }
-          else if (c1.globallyFeatured && !c2.globallyFeatured) {
-            return -1;
-          }
-          return 0;
-        }).map(collection => ({ ...collection, scrollIndex: 0 }));
+        this.collections = collections
+          .sort((c1, c2) => {
+            if (c2.globallyFeatured && !c1.globallyFeatured) return 1;
+            if (c1.globallyFeatured && !c2.globallyFeatured) return -1;
+            return 0;
+          })
+          .map((collection) => ({
+            ...collection,
+            items: collection.items ?? [],
+            scrollIndex: 0,
+          }));
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => { this.loadingError = true; this.cdr.detectChanges(); }
-    })
+      error: () => {
+        this.loadingError = true;
+        this.loading = false;
+        this.collections = [];
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   editCollection(id: number) {
-    this.router.navigate(['/collections', id, 'edit'])
+    this.router.navigate(['/collections', id, 'edit']);
   }
 
   addCollection() {
-    this.router.navigate(['/collections/add'])
+    this.router.navigate(['/collections/add']);
   }
 
   getVisibleBooks(collection: Collection & { scrollIndex: number }): Book[] {
@@ -77,24 +98,25 @@ export class GlobalCollectionPage {
   }
 
   nextBooks(collection: Collection & { scrollIndex: number }) {
-    if (collection.items.length > 0) {
-      collection.scrollIndex = (collection.scrollIndex + 1) % collection.items.length;
+    const length = collection.items?.length ?? 0;
+    if (length > 0) {
+      collection.scrollIndex = (collection.scrollIndex + 1) % length;
     }
   }
 
   prevBooks(collection: Collection & { scrollIndex: number }) {
-    if (collection.items.length > 0) {
-      const length = collection.items.length;
+    const length = collection.items?.length ?? 0;
+    if (length > 0) {
       collection.scrollIndex = (collection.scrollIndex - 1 + length) % length;
     }
   }
 
   goToBookDetails(id: number) {
-    this.router.navigate(['/books', id])
+    this.router.navigate(['/books', id]);
   }
 
   goBackToCollections() {
-    this.router.navigate(["/collections"])
+    this.router.navigate(['/collections']);
   }
 
   coverSrc(book: any): string | null {

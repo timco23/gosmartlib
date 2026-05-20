@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import edu.ap.spring_backend.dao.SubgenreRepository;
 import edu.ap.spring_backend.dto.SubgenreDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Subgenre;
 
 @Service
@@ -19,13 +20,13 @@ public class SubgenreService {
         this.genreService = genreService;
     }
 
-    public List<Subgenre> GetAll() {
+    public List<Subgenre> getAll() {
         return subgenreRepository.findAll();
     }
 
     public Subgenre create(SubgenreDTO newSubgenre) {
         if (subgenreRepository.existsByNameIgnoreCase(newSubgenre.name())) {
-            throw new IllegalArgumentException("Tag bestaat reeds");
+            throw new IllegalArgumentException("Subgenre bestaat reeds");
         }
         Subgenre subgenre = new Subgenre();
         subgenre.setName(newSubgenre.name());
@@ -33,8 +34,11 @@ public class SubgenreService {
         return subgenreRepository.save(subgenre);
     }
 
-    public List<Subgenre> getFromGenreIds(List<Long> genreIds) {
-        return subgenreRepository.findAllByGenreIdIn(genreIds);
+    public List<SubgenreDTO> getFromGenreIds(List<Long> genreIds) {
+        return subgenreRepository.findAllByGenreIdIn(genreIds)
+                .stream()
+                .map(sub -> new SubgenreDTO(sub.getId(), sub.getName(), sub.getGenre().getId()))
+                .toList();
     }
 
     public Subgenre addGenre(Subgenre newSubgenre) {
@@ -42,7 +46,7 @@ public class SubgenreService {
     }
 
     public Subgenre updateSubgenre(Long id, Subgenre updatedsubgenre) {
-        Subgenre subgenre = subgenreRepository.findById(id).orElseThrow();
+        Subgenre subgenre = subgenreRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         subgenre.setName(updatedsubgenre.getName());
         return subgenreRepository.save(subgenre);
     }

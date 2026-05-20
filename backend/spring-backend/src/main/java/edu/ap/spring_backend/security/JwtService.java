@@ -57,7 +57,7 @@ public class JwtService {
                 .compact();
     }
 
-      /**
+    /**
      * Verifies the token signature and returns its claims.
      * @param token raw JWT (without "Bearer ")
      * @return parsed JWT claims
@@ -69,11 +69,6 @@ public class JwtService {
             .parseSignedClaims(token);
     }
 
-     /**
-     * Extracts the user ID from the JWT subject (sub claim).
-     * @param token raw JWT
-     * @return user ID
-     */
     public Integer getUserIdFromToken(String token) {
         String sub = parse(token).getPayload().getSubject();
         return Integer.valueOf(sub);

@@ -1,6 +1,12 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CollectionService } from '../../services/collection-service';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { Book, CreateCollectionPayload, Role, School } from '../../../types/types';
 import { AuthService } from '../../services/auth.service';
@@ -9,6 +15,7 @@ import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
 import { SelectBookPopup } from '../../reading-list-pages/select-book-popup/select-book-popup';
 import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-create-collection-page',
@@ -19,12 +26,14 @@ import { Location } from '@angular/common';
 export class CreateCollectionPage {
   collectionService = inject(CollectionService);
   router = inject(Router);
-  authService = inject(AuthService)
-  userService = inject(UserService)
-  bookService = inject(BookService)
-  schoolService = inject(SchoolService)
-  cdr = inject(ChangeDetectorRef)
-  location = inject(Location)
+  authService = inject(AuthService);
+  userService = inject(UserService);
+  bookService = inject(BookService);
+  schoolService = inject(SchoolService);
+  cdr = inject(ChangeDetectorRef);
+  location = inject(Location);
+  route = inject(ActivatedRoute);
+  private origin: 'local' | 'global' | null = null;
 
   form: FormGroup;
   school: School | null = null;
@@ -45,14 +54,24 @@ export class CreateCollectionPage {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      titel: ["", Validators.required],
-      beschrijving: ["", Validators.required],
+      titel: ['', Validators.required],
+      beschrijving: ['', Validators.required],
       uitgelicht: [false],
-      globaalUitgelicht: [false]
-    })
+      globaalUitgelicht: [false],
+    });
+  }
+
+  private getOrigin(): 'local' | 'global' | null {
+    const fromQuery = this.route.snapshot.queryParamMap.get('origin');
+    const fromState = (history.state?.origin as string | undefined) ?? null;
+    const fromStorage = sessionStorage.getItem('collectionOrigin');
+    const origin = fromQuery ?? fromState ?? fromStorage;
+    return origin === 'global' || origin === 'local' ? origin : null;
   }
 
   ngOnInit(): void {
+    this.origin = this.getOrigin();
+    this.globalCollection = this.origin === 'global';
     this.authService.currentUser$.subscribe({
       next: (user) => {
         if (user) {
@@ -66,16 +85,23 @@ export class CreateCollectionPage {
                     this.cdr.detectChanges();
                   },
                   error: () => {
-                    this.loadingUserError = true; this.cdr.detectChanges();
-                  }
+                    this.loadingUserError = true;
+                    this.cdr.detectChanges();
+                  },
                 });
               }
             },
-            error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
-          })
+            error: () => {
+              this.loadingUserError = true;
+              this.cdr.detectChanges();
+            },
+          });
         }
       },
-      error: () => { this.loadingUserError = true; this.cdr.detectChanges(); }
+      error: () => {
+        this.loadingUserError = true;
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -92,7 +118,7 @@ export class CreateCollectionPage {
 
     if (this.itemIds.length < 1) {
       this.emptyCollectionError = true;
-      return
+      return;
     }
 
     const raw = this.form.value;
@@ -102,8 +128,8 @@ export class CreateCollectionPage {
       schoolId: this.school!.id!,
       itemIds: this.itemIds,
       featured: raw.uitgelicht,
-      globallyFeatured: raw.globaalUitgelicht
-    }
+      globallyFeatured: raw.globaalUitgelicht,
+    };
 
     if (this.globalCollection) {
       newCollection.schoolId = 0;
@@ -111,15 +137,14 @@ export class CreateCollectionPage {
 
     this.collectionService.addCollection(newCollection).subscribe({
       next: () => {
-        if (newCollection.schoolId != 0) {
-          this.router.navigate(["/collections"])
-        }
-        else {
-          this.router.navigate(["/collections/global"])
-        }
+        const isGlobal = this.origin === 'global' || this.globalCollection;
+        this.router.navigate([isGlobal ? '/collections/global' : '/collections']);
       },
-      error: () => { this.collectionAddError = true; this.cdr.detectChanges(); }
-    })
+      error: () => {
+        this.collectionAddError = true;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   addBook() {
@@ -142,12 +167,11 @@ export class CreateCollectionPage {
     if (this.itemIds.length < 1) {
       this.loadingBooks = false;
       this.cdr.detectChanges();
-    }
-    else {
+    } else {
       for (const id of this.itemIds) {
         this.bookService.getBookById(id).subscribe({
           next: (book) => {
-            this.books.push(book)
+            this.books.push(book);
             if (this.books.length == this.itemIds.length) {
               this.loadingBooks = false;
               this.cdr.detectChanges();
@@ -156,8 +180,8 @@ export class CreateCollectionPage {
           error: () => {
             this.getBookError = true;
             this.cdr.detectChanges();
-          }
-        })
+          },
+        });
       }
     }
   }
@@ -168,13 +192,13 @@ export class CreateCollectionPage {
   }
 
   removeBook(id: number) {
-    const index = this.itemIds.indexOf(id)
-    this.itemIds.splice(index, 1)
+    const index = this.itemIds.indexOf(id);
+    this.itemIds.splice(index, 1);
     this.loadBooks();
   }
 
   goToBookDetails(id: number) {
-    this.router.navigate(["/books", id])
+    this.router.navigate(['/books', id]);
   }
 
   goToCollections() {
@@ -183,8 +207,8 @@ export class CreateCollectionPage {
 
   resetFeatured() {
     this.globalCollection = !this.globalCollection;
-    this.form.controls["uitgelicht"].reset()
-    this.form.controls["globaalUitgelicht"].reset()
+    this.form.controls['uitgelicht'].reset();
+    this.form.controls['globaalUitgelicht'].reset();
   }
 
   coverSrc(book: any): string | null {

@@ -1,15 +1,29 @@
 package edu.ap.spring_backend.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
+import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Lending;
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.dto.ItemDTO;
+import java.util.Optional;
+import edu.ap.spring_backend.mappers.ItemMapper;
 
 @Service
 public class LendingService {
@@ -18,19 +32,23 @@ public class LendingService {
     private final UserRepository userRepository;
     private final SchoolItemCopyRepository copyRepository;
     private final SchoolRepository schoolRepository;
+    private final ItemMapper itemMapper;
 
     public LendingService(LendingRepository repository,
-                          UserRepository userRepository,
-                          SchoolItemCopyRepository copyRepository,
-                          SchoolRepository schoolRepository) {
+            UserRepository userRepository,
+            SchoolItemCopyRepository copyRepository,
+            SchoolRepository schoolRepository,
+            ItemMapper itemMapper) {
         this.lendingRepository = repository;
         this.userRepository = userRepository;
         this.copyRepository = copyRepository;
         this.schoolRepository = schoolRepository;
+        this.itemMapper = itemMapper;
     }
 
     private String getBorrowerName(Lending lending) {
-        if (lending.getBorrower() == null) return null;
+        if (lending.getBorrower() == null)
+            return null;
 
         User user = lending.getBorrower();
 
@@ -48,24 +66,7 @@ public class LendingService {
 
     public List<LendingDTO> getAll() {
         return lendingRepository.findAll().stream()
-                .map(lending -> new LendingDTO(
-                        lending.getId(),
-                        getBorrowerName(lending),
-                        lending.getBorrower() != null
-                                ? lending.getBorrower().getId().longValue()
-                                : null,
-                        lending.getBook().getItem().getTitle(),
-                        lending.getBook().getItem().getAuthor(),
-                        getItemId(lending), // itemId
-                        lending.getSchool().getId(),
-                        lending.getLendingDate().toString(),
-                        lending.getReturnDate().toString(),
-                        lending.getDateReturned() != null
-                                ? lending.getDateReturned().toString()
-                                : null,
-                        lending.getReturned(),
-                        lending.getBook().getBarcode(),
-                        lending.getExtended()))
+                .map(this::toDTO)
                 .toList();
     }
 
@@ -83,53 +84,19 @@ public class LendingService {
 
         Lending saved = lendingRepository.save(lending);
 
-        return new LendingDTO(
-                saved.getId(),
-                getBorrowerName(saved),
-                saved.getBorrower() != null
-                        ? saved.getBorrower().getId().longValue()
-                        : null,
-                saved.getBook().getItem().getTitle(),
-                saved.getBook().getItem().getAuthor(),
-                getItemId(saved), // itemId
-                saved.getSchool().getId(),
-                saved.getLendingDate().toString(),
-                saved.getReturnDate().toString(),
-                null,
-                false,
-                saved.getBook().getBarcode(),
-                false);
+        return toDTO(saved);
     }
 
-    public LendingDTO updateLending(Long id, LendingDTO dto) {
-        Lending lending = lendingRepository.findById(id).orElseThrow();
 
+    public LendingDTO updateLending(Long id, LendingDTO dto) {
+        Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         lending.setReturned(dto.returned());
         lending.setDateReturned(
                 dto.dateReturned() != null
                         ? java.time.LocalDate.parse(dto.dateReturned().substring(0, 10))
                         : null);
 
-        Lending saved = lendingRepository.save(lending);
-
-        return new LendingDTO(
-                saved.getId(),
-                getBorrowerName(saved),
-                saved.getBorrower() != null
-                        ? saved.getBorrower().getId().longValue()
-                        : null,
-                saved.getBook().getItem().getTitle(),
-                saved.getBook().getItem().getAuthor(),
-                getItemId(saved), // itemId
-                saved.getSchool().getId(),
-                saved.getLendingDate().toString(),
-                saved.getReturnDate().toString(),
-                saved.getDateReturned() != null
-                        ? saved.getDateReturned().toString()
-                        : null,
-                saved.getReturned(),
-                saved.getBook().getBarcode(),
-                saved.getExtended());
+        return toDTO(lendingRepository.save(lending));
     }
 
     public void deleteLending(Long id) {
@@ -138,104 +105,106 @@ public class LendingService {
 
     public LendingDTO getById(Long id) {
         return lendingRepository.findById(id)
-                .map(lending -> new LendingDTO(
-                        lending.getId(),
-                        getBorrowerName(lending),
-                        lending.getBorrower() != null
-                                ? lending.getBorrower().getId().longValue()
-                                : null,
-                        lending.getBook().getItem().getTitle(),
-                        lending.getBook().getItem().getAuthor(),
-                        getItemId(lending), // itemId
-                        lending.getSchool().getId(),
-                        lending.getLendingDate().toString(),
-                        lending.getReturnDate().toString(),
-                        lending.getDateReturned() != null
-                                ? lending.getDateReturned().toString()
-                                : null,
-                        lending.getReturned(),
-                        lending.getBook().getBarcode(),
-                        lending.getExtended()))
-                .orElseThrow();
+                .map(this::toDTO)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
+    public List<LendingDTO> getBySchool(Long id) {
+        return lendingRepository.findBySchool_Id(id).stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     public LendingDTO extendLending(Long id) {
-        Lending lending = lendingRepository.findById(id).orElseThrow();
+        Lending lending = lendingRepository.findById(id)
+            .orElseThrow(EntityNotFoundException::new);
 
-        if (Boolean.TRUE.equals(lending.getExtended())) {
-            throw new IllegalStateException("Lending has already been extended");
+        int maxExtends = lending.getSchool().getMaxExtends();
+
+        if (lending.getExtendCount() >= maxExtends) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Maximum aantal verlengingen (" + maxExtends + ") bereikt"
+            );
         }
 
-        int extendDays = lending.getSchool().getExtendPeriodDays();
-
-        lending.setReturnDate(lending.getReturnDate().plusDays(extendDays));
+        lending.setReturnDate(
+            lending.getReturnDate().plusDays(lending.getSchool().getExtendPeriodDays())
+        );
+        lending.setExtendCount(lending.getExtendCount() + 1);
         lending.setExtended(true);
 
-        Lending saved = lendingRepository.save(lending);
-
-        return new LendingDTO(
-                saved.getId(),
-                getBorrowerName(saved),
-                saved.getBorrower() != null
-                        ? saved.getBorrower().getId().longValue()
-                        : null,
-                saved.getBook().getItem().getTitle(),
-                saved.getBook().getItem().getAuthor(),
-                getItemId(saved), // itemId
-                saved.getSchool().getId(),
-                saved.getLendingDate().toString(),
-                saved.getReturnDate().toString(),
-                saved.getDateReturned() != null
-                        ? saved.getDateReturned().toString()
-                        : null,
-                saved.getReturned(),
-                saved.getBook().getBarcode(),
-                saved.getExtended());
+        return toDTO(lendingRepository.save(lending));
     }
 
-        public List<LendingDTO> getAllByUser(String email) {
-                return lendingRepository.findByBorrowerEmail(email).stream()
-                        .map(lending -> new LendingDTO(
-                                lending.getId(),
-                                getBorrowerName(lending),
-                                lending.getBorrower() != null
-                                        ? lending.getBorrower().getId().longValue()
-                                        : null,
-                                lending.getBook().getItem().getTitle(),
-                                lending.getBook().getItem().getAuthor(),
-                                getItemId(lending), // itemId
-                                lending.getSchool().getId(),
-                                lending.getLendingDate().toString(),
-                                lending.getReturnDate().toString(),
-                                lending.getDateReturned() != null
-                                        ? lending.getDateReturned().toString()
-                                        : null,
-                                lending.getReturned(),
-                                lending.getBook().getBarcode(),
-                                lending.getExtended()))
-                        .toList();
-        }
+    public List<LendingDTO> getAllByUser(String email) {
+        return lendingRepository.findByBorrowerEmail(email).stream()
+                .map(this::toDTO)
+                .toList();
+    }
 
-        public List<LendingDTO> getLendingsByBookId(Long bookId) {
-                return lendingRepository.findByBook_Item_Id(bookId).stream()
-                        .map(lending -> new LendingDTO(
-                                lending.getId(),
-                                getBorrowerName(lending),
-                                lending.getBorrower() != null
-                                        ? lending.getBorrower().getId().longValue()
-                                        : null,
-                                lending.getBook().getItem().getTitle(),
-                                lending.getBook().getItem().getAuthor(),
-                                getItemId(lending),
-                                lending.getSchool().getId(),
-                                lending.getLendingDate().toString(),
-                                lending.getReturnDate().toString(),
-                                lending.getDateReturned() != null
-                                        ? lending.getDateReturned().toString()
-                                        : null,
-                                lending.getReturned(),
-                                lending.getBook().getBarcode(),
-                                lending.getExtended()))
-                        .toList();
+    public List<LendingDTO> getAllByUserId(Long userId) {
+        return lendingRepository.findByBorrower_Id(userId).stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    public List<LendingDTO> getLendingsByBookId(Long bookId) {
+        return lendingRepository.findByBook_Item_Id(bookId).stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    public List<CampusAvailabilityDTO> getEarliestAvailabilityPerCampusByBookId(Long bookId) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.of("nl", "BE"));
+        Map<String, LocalDate> earliest = new HashMap<>();
+
+        for (Lending lending : lendingRepository.findByBook_Item_IdAndReturnedFalse(bookId)) {
+            String campus = lending.getBook().getCampus().getName();
+            LocalDate date = lending.getReturnDate();
+            if (!earliest.containsKey(campus) || date.isBefore(earliest.get(campus))) {
+                earliest.put(campus, date);
+            }
         }
+        return earliest.entrySet().stream()
+                .map(e -> new CampusAvailabilityDTO(e.getKey(), e.getValue().format(formatter)))
+                .toList();
+    }
+
+    private LendingDTO toDTO(Lending lending) {
+        return new LendingDTO(
+                lending.getId(),
+                getBorrowerName(lending),
+                lending.getBorrower() != null
+                        ? lending.getBorrower().getId().longValue()
+                        : null,
+                lending.getBook().getItem().getTitle(),
+                lending.getBook().getItem().getAuthor(),
+                getItemId(lending),
+                lending.getSchool().getId(),
+                lending.getLendingDate().toString(),
+                lending.getReturnDate().toString(),
+                lending.getDateReturned() != null
+                        ? lending.getDateReturned().toString()
+                        : null,
+                lending.isReturned(),
+                lending.getBook().getBarcode(),
+                lending.isReturned(),
+                lending.getExtendCount()
+        );
+    }
+
+    public Optional<ItemDTO> getMostBorrowedThisMonth(Long schoolId) {
+        LocalDate start = LocalDate.now().withDayOfMonth(1);
+        LocalDate end = LocalDate.now();
+        return lendingRepository.findMostBorrowedThisMonth(schoolId, start, end)
+            .map(itemMapper::toItemDTO);
+    }
+
+    public Optional<ItemDTO> getLastBorrowedBook(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(EntityNotFoundException::new);
+        return lendingRepository.findTopByBorrower_IdOrderByLendingDateDesc(user.getId())
+            .map(l -> itemMapper.toItemDTO(l.getBook().getItem()));
+    }
 }

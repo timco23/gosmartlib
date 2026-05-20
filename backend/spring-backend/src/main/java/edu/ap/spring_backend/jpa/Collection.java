@@ -18,14 +18,16 @@ public class Collection {
 
     private String title;
     private String description;
-    @ManyToOne(fetch = FetchType.EAGER )
-    @JoinColumn(name="school_id")
-    private School school;
+    private Boolean featured;
+    private Boolean globallyFeatured;
+    
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "collection_item",  joinColumns = @JoinColumn(name = "collection_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> items = new ArrayList<>();
-    private Boolean featured;
-    private Boolean globallyFeatured;
+    
+    @ManyToOne(fetch = FetchType.EAGER )
+    @JoinColumn(name="school_id")
+    private School school;
 
     public Collection() {}
 

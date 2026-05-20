@@ -15,7 +15,7 @@ public class ReadingLevelService {
         readingLevelRepository = repository;
     }
 
-    public List<ReadingLevel> GetAllReadingLevels(){
+    public List<ReadingLevel> getAllReadingLevels(){
         return readingLevelRepository.findAll();
     }
 }

@@ -26,7 +26,7 @@ public class DidacticCategoryController {
     }
 
     @GetMapping()
-    public List<DidacticCategory> GetAll(){
+    public List<DidacticCategory> getAll(){
         return didacticCategoryService.getAll();
     }
 
@@ -35,6 +35,12 @@ public class DidacticCategoryController {
         return ResponseEntity.ok(didacticCategoryService.addDidacticCategory(didacticCategoryDTO));
     }
 
+    /**
+     * Updates an existing didactic category with the given ID using the provided DTO.
+     * @param id the ID of the didactic category to update
+     * @param dto the data transfer object containing the updated fields for the didactic category
+     * @return ResponseEntity containing the updated DidacticCategory and HTTP status 200 OK
+     */
     @PutMapping("/{id}")
     public ResponseEntity<DidacticCategory> updateDidacticCategory(
             @PathVariable Long id,
@@ -46,6 +52,6 @@ public class DidacticCategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDidacticCategory(@PathVariable Long id) {
         didacticCategoryService.deleteDidacticCategory(id);
-        return ResponseEntity.noContent().build(); // 204 No Content als succes
+        return ResponseEntity.noContent().build();
     }
 }

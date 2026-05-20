@@ -9,34 +9,25 @@
   <div class="lending-card">
     <form (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="user">Uitlenen aan</label>
-        <select id="user" name="user" (change)="onUserSelect($event)">
-          <option value="" disabled selected>Kies een lener</option>
-          @for (user of users; track user.id) {
-            @if (user.classes.length > 0) {
-              <option [value]="user.id">{{ user.name }} ({{ user.email }}) - {{getClasses(user)}}</option>
-            }
-            @else {
-              <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
-            }
-          }
-        </select>
+        <label>Uitlenen aan</label>
+        <button type="button" class="choose-book-btn" (click)="openUserPopup()">
+          {{ currentUser ? currentUser.name : 'Kies een lener' }}
+        </button>
+        @if (currentUser) {
+          <small>{{ currentUser.email }}@if(getClasses(currentUser)) { — {{ getClasses(currentUser) }} }</small>
+          <button type="button" class="clear-book-btn" (click)="currentUser = null">Wissen</button>
+        }
       </div>
+    
+    <app-user-selector-popup
+      [(isOpen)]="isUserPopupOpen"
+      [users]="users"
+      [selectedId]="currentUser?.id ?? null"
+      (userSelected)="onUserSelected($event)"
+      (close)="closeUserPopup()"
+    />
 
       @if(currentUser?.role === 'LEERLING' || currentUser === null){}
-      @else{
-        <div class="form-group">
-          <label for="show-multiple-books">
-            <input
-              type="checkbox"
-              id="show-multiple-books"
-              name="showMultipleBooks"
-              [(ngModel)]="showMultipleBooks"
-            />
-            Meerdere boeken uitlenen
-          </label>
-        </div>
-      }
     
     <div class="form-group">
       <label>boek</label>
@@ -50,7 +41,7 @@
     </div>
 
       <div class="form-group">
-        <label for="book">Boek</label>
+        <label for="book">Barcode</label>
         <input
           #barcodeInput
           type="text"
@@ -74,12 +65,58 @@
       [getId]="bookId"
       [getTitle]="bookTitle"
       [getMeta]="bookMeta"
+      [disableFallback]="true"
+      [canAddInBulk]="canAddInBulk"
+      (booksConfirmed)="onBooksConfirmed($event)"
       (close)="closeBookPopup()"
       (bookSelected)="onBookSelected($event)"
     ></app-book-selector-popup-component>
 
+    @if (showCopyPicker && pendingBooks.length > 0) {
+      <div class="copy-picker-overlay" (click)="cancelPendingBooks()">
+        <div class="copy-picker-card" (click)="$event.stopPropagation()">
+          <div class="copy-picker-header">
+            <h3>Kies exemplaren per boek</h3>
+            <button type="button" class="icon-btn" (click)="cancelPendingBooks()">✕</button>
+          </div>
+        
+          @for (entry of pendingBooks; track entry.book.id) {
+            <div class="copy-picker-book">
+              <p class="copy-picker-title">{{ bookTitle(entry.book) }}</p>
+              <p class="copy-picker-meta">{{ bookMeta(entry.book) }}</p>
+              <div class="copies-list">
+                @for (copy of entry.copies; track copy.barcode) {
+                  <label class="copy-option">
+                    <input
+                      type="checkbox"
+                      [checked]="isPendingCopySelected(entry, copy)"
+                      (change)="togglePendingCopy(entry, copy)"
+                    />
+                    {{ copy.barcode }} — {{ copy.condition }}
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        
+          <div class="copy-picker-footer">
+            <span>{{ totalPendingSelected }} exemplaren geselecteerd</span>
+            <button
+              type="button"
+              class="confirm-btn"
+              [disabled]="noPendingCopiesSelected"
+              (click)="confirmPendingBooks()"
+            >
+              Bevestigen
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
     @if (currentBook != null) {
-        <div class="book-preview">
+      <div class="book-preview">
+        <div class="book-preview-cover">
           @let cover = bookApi.getBookCoverSrc(currentBook);
           @if (cover) {
             <img
@@ -91,14 +128,18 @@
           } @else {
             <div class="cover-placeholder">📖</div>
           }
-
-          <h3>Boek details</h3>
-          <p><strong>Titel:</strong> {{ currentBook.title }}</p>
-          <p><strong>Auteur:</strong> {{ currentBook.author }}</p>
-          <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>
-          <p><strong>Conditie:</strong> {{ currentSchoolCopy?.condition }}</p>
         </div>
-      }
+        <div class="book-preview-info">
+          <p class="book-preview-label">Boek details</p>
+          <p class="book-preview-title">{{ currentBook.title }}</p>
+          <p class="book-preview-meta">{{ currentBook.author }}</p>
+          <p class="book-preview-meta">{{ currentBook.isbn }}</p>
+          @if (currentSchoolCopy?.condition) {
+            <span class="book-preview-badge">{{ currentSchoolCopy?.condition }}</span>
+          }
+        </div>
+      </div>
+    }
       
     @if (currentCopies.length > 0) {
       <div class="form-group">
@@ -108,7 +149,8 @@
             @if (showMultipleBooks || selectedCopies.length === 0 || isCopySelected(copy)) {
               <label class="copy-option">
                 <input
-                  type="checkbox"
+                  [type]="showMultipleBooks ? 'checkbox' : 'radio'"
+                  name="copy-select"
                   [value]="copy.barcode"
                   [checked]="isCopySelected(copy)"
                   (change)="onCopyToggle(copy, $event)"
@@ -120,7 +162,7 @@
         </div>
       </div>
     }
-
+    
     @if (showMultipleBooks && currentBook && selectedCopies.length > 0) {
       <button type="button" class="add-book-btn" (click)="addBookToSelection()">
         + Voeg {{ selectedCopies.length > 1 ? selectedCopies.length + ' exemplaren' : 'exemplaar' }} toe aan lijst

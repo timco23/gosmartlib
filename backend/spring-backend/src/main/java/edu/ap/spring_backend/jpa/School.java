@@ -38,7 +38,6 @@ public class School {
     private boolean reviews;
     private boolean reviewModeration;
 
-    // Campussen lijst
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Campus> campuses = new ArrayList<>();
@@ -143,7 +142,6 @@ public class School {
         return reviewModeration;
     }
 
-    // Methods voor campussen
     public void addCampus(Campus campus) {
         campuses.add(campus);
         campus.setSchool(this);

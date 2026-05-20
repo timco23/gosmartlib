@@ -3,11 +3,8 @@ package edu.ap.spring_backend.jpa;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
-/**
- * Entity representing a user in the library system.
- * Users can be administrators, students (leerlingen), teachers (leerkrachten) or managers (beheerders).
- */
 @Entity
 @Table(name = "user")
 public class User {
@@ -48,8 +45,15 @@ public class User {
     @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> favoriteBooks = new ArrayList<>();
     
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_wishlisted_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private List<Item> wishlistedBooks = new ArrayList<>();
+
     @Column(name = "items_borrowed")
     private Integer itemsBorrowed = 0;
+
+    @Column(name = "deletion_requested_at")
+    private LocalDateTime deletionRequestedAt;
 
     /**
      * Refresh token for session persistence and future OAuth implementation.
@@ -58,9 +62,6 @@ public class User {
     @Column(name = "refresh_token")
     private String refreshToken;
 
-    /**
-     * Default constructor
-     */
     public User() {}
     
     /**
@@ -77,7 +78,6 @@ public class User {
         this.role = role;
     }
     
-    // Getters
     public Integer getId() { return id; }
     public String getName() { return name; }
     public String getFirstName() { return firstName; }
@@ -90,9 +90,10 @@ public class User {
     public String getSmartschoolUsername() { return smartschoolUsername; }
     public String getRefreshToken() { return refreshToken; }
     public List<Item> getFavoriteBooks() { return favoriteBooks; }
+    public List<Item> getWishlistedBooks() { return wishlistedBooks; }
     public Integer getItemsBorrowed() { return itemsBorrowed; }
+    public LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
     
-    // Setters
     public void setName(String name) { this.name = name; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setEmail(String email) { this.email = email; }
@@ -104,5 +105,7 @@ public class User {
     public void setSmartschoolUsername(String smartschoolUsername) { this.smartschoolUsername = smartschoolUsername; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
+    public void setWishlistedBooks(List<Item> wishlistedBooks) { this.wishlistedBooks = wishlistedBooks; }
     public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
+    public void setDeletionRequestedAt(LocalDateTime deletionRequestedAt) { this.deletionRequestedAt = deletionRequestedAt; }
 }

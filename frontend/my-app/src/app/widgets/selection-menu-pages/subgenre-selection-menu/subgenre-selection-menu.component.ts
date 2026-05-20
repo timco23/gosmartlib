@@ -41,9 +41,13 @@ export class SubgenreSelectionMenuComponent {
           this.subgenresChanged.emit(this.selectedSubgenres);
         });
       } else {
-        this.subgenres = [];
-        this.selectedSubgenres = [];
-        this.subgenresChanged.emit([]);
+        this.subgenreService.getSubgenres().subscribe((subgenres) => {
+          this.subgenres = subgenres;
+          this.selectedSubgenres = this.selectedSubgenres.filter(selected =>
+            subgenres.some(s => s.id === selected.id)
+          );
+          this.subgenresChanged.emit(this.selectedSubgenres);
+        });
       }
     });
   }

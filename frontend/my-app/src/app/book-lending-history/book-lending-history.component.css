@@ -1,7 +1,7 @@
 .dashboard {
   padding: 32px;
   min-height: calc(100vh - 90px);
-  background: linear-gradient(180deg, #ffffff 0%, #f9f6f7 100%);
+  background: var(--color-bg);
 }
 
 .header {
@@ -39,7 +39,7 @@
 }
 
 .subtitle {
-  color: #777;
+  color: var(--color-text-3);
   font-size: 14px;
 }
 
@@ -54,8 +54,8 @@
   padding: 8px 14px;
   border-radius: 999px;
   font-size: 12px;
-  border: 1px solid #eee;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-1);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -77,7 +77,7 @@
 }
 
 .legend-item.ok {
-  background: #e8f5e9;
+  background: rgba(76, 175, 80, 0.12);
 }
 
 .legend-item.due-soon.active {
@@ -96,13 +96,13 @@
 }
 
 .legend-item.due-soon {
-  background: #fff7e6;
+  background: rgba(255, 152, 0, 0.12);
 }
 .legend-item.overdue {
-  background: #ffebee;
+  background: rgba(244, 67, 54, 0.12);
 }
 .legend-item.returned {
-  background: #f5f5f5;
+  background: var(--color-surface-2);
 }
 
 .grid {
@@ -112,11 +112,11 @@
 }
 
 .tile {
-  background: #fff;
+  background: var(--color-surface-1);
   border-radius: 16px;
   padding: 14px 20px;
   gap: 6px;
-  border: 1px solid #eee;
+  border: 1px solid var(--color-border);
   border-left: 6px solid #8c1b3f;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   transition: all 0.25s ease;
@@ -182,7 +182,7 @@
 
 .meta {
   font-size: 13px;
-  color: #444;
+  color: var(--color-text-2);
 }
 
 .meta.strong {
@@ -236,9 +236,12 @@
 .state {
   padding: 16px;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid #eee;
-  color: #555;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-2);
+  width: 51%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .state.error {
@@ -260,4 +263,15 @@
   justify-content: center;
   margin-top: 24px;
   margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .tile{
+    width: 90%;
+  }
+  
+  .back-link{
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

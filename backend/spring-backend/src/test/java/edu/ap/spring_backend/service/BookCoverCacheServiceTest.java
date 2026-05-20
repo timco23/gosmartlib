@@ -3,17 +3,15 @@ package edu.ap.spring_backend.service;
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dto.BookCoverResponse;
 import edu.ap.spring_backend.dto.CachedCover;
-import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Item;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.test.util.ReflectionTestUtils;
-
+import edu.ap.spring_backend.exception.NoCoverAvailableException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -92,7 +90,7 @@ class BookCoverCacheServiceTest {
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
-        assertThrows(EntityNotFoundException.class, () -> service.getByItemId(itemId, null));
+        assertThrows(NoCoverAvailableException.class, () -> service.getByItemId(itemId, null));
     }
 
     @Test
@@ -117,7 +115,7 @@ class BookCoverCacheServiceTest {
 
         List<String> urls = ReflectionTestUtils.invokeMethod(service, "buildCandidateUrls", item);
 
-        assertEquals(4, urls.size());
+        assertEquals(3, urls.size());
         assertTrue(urls.contains("https://example.com/cover.jpg"));
         assertTrue(urls.contains("https://covers.openlibrary.org/b/isbn/9780441568529-L.jpg?default=false"));
         assertTrue(urls.contains("https://covers.openlibrary.org/b/isbn/9780441568529-M.jpg?default=false"));

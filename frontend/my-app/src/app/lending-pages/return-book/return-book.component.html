@@ -8,17 +8,24 @@
 
   <div class="lending-card">
     <form (ngSubmit)="onSubmit()">
+
       <div class="form-group">
-        <label for="lendingSelect">Boek</label>
-        <select id="lendingSelect" (change)="onBookSelect($event)">
-          <option value="">— Geen boek (barcode gebruiken) —</option>
-          @for (lending of lendings; track lending.id) {
-            <option [value]="lending.id">
-              {{ lending.bookTitle }} | {{ lending.borrowerName }}
-            </option>
-          }
-        </select>
+        <label>Lening</label>
+        <button type="button" class="choose-book-btn" (click)="openLendingPopup()">
+          {{ currentLending ? currentLending.bookTitle + ' — ' + currentLending.borrowerName : 'Kies een lening' }}
+        </button>
+        @if (currentLending && bookSelected) {
+          <button type="button" class="clear-book-btn" (click)="currentLending = null; bookSelected = false; barcode = ''">Wissen</button>
+        }
       </div>
+
+      <app-lending-selector-popup
+        [(isOpen)]="isLendingPopupOpen"
+        [lendings]="lendings"
+        [selectedId]="currentLending?.id ?? null"
+        (lendingSelected)="onLendingSelected($event)"
+        (close)="closeLendingPopup()"
+      />
 
       <div class="form-group">
         <label for="book">Barcode</label>
@@ -48,43 +55,47 @@
           } @else {
             <div class="cover-placeholder">📖</div>
           }
-
-          <div>
-            <h3>Boek details</h3>
-            <p><strong>Titel:</strong> {{ currentBook.title }}</p>
-            <p><strong>Auteur:</strong> {{ currentBook.author }}</p>
-            <p><strong>ISBN:</strong> {{ currentBook.isbn }}</p>app-pop
-            <p><strong>Conditie:</strong> {{ currentSchoolCopy?.condition }}</p>
-            <p><strong>Uitgeleend aan:</strong> {{ currentLending?.borrowerName }}</p>
+          <div class="book-preview-info">
+            <p class="book-preview-label">Boek details</p>
+            <p class="book-preview-title">{{ currentBook.title }}</p>
+            <p class="book-preview-meta">{{ currentBook.author }}</p>
+            <p class="book-preview-meta">{{ currentBook.isbn }}</p>
+            @if (currentSchoolCopy?.condition) {
+              <span class="book-preview-badge">{{ currentSchoolCopy?.condition }}</span>
+            }
+            <p class="book-preview-meta">Uitgeleend aan: {{ currentLending?.borrowerName }}</p>
           </div>
         </div>
       }
 
-      <select name="Condition" id="" [(ngModel)]="selectedCondition">
-        <option value="" disabled selected>Conditie bij terugbrengen</option>
-        <option value="NIEUW">Nieuw</option>
-        <option value="GOED">Goed</option>
-        <option value="GEBRUIKT">Gebruikt</option>
-        <option value="BESCHADIGD">Beschadigd</option>
-      </select>
-      
+      <div class="form-group">
+        <label for="condition">Conditie bij terugbrengen</label>
+        <select name="Condition" id="condition" [(ngModel)]="selectedCondition">
+          <option value="" disabled selected>Kies een conditie</option>
+          <option value="NIEUW">Nieuw</option>
+          <option value="GOED">Goed</option>
+          <option value="GEBRUIKT">Gebruikt</option>
+          <option value="BESCHADIGD">Beschadigd</option>
+        </select>
+      </div>
+
       <button type="submit" class="add-button">Boek terugbrengen</button>
     </form>
-    
-    @if (returnConfirmation) {
-  <app-pop-up
-    [message]="returnConfirmationMessage"
-    [actions]="popUpActions"
-    (actionClicked)="onDeleteDialogAction($event)" />
-  }
 
-  @if (selectBookError) {
-    <app-pop-up
-            title="Boek terugbrengen mislukt"
-            message="Selecteer eerst een boek."
-            [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
-            (actionClicked)="closeNotification()"
-          />
-  }
+    @if (returnConfirmation) {
+      <app-pop-up
+        [message]="returnConfirmationMessage"
+        [actions]="popUpActions"
+        (actionClicked)="onDeleteDialogAction($event)"
+      />
+    }
+    @if (selectBookError) {
+      <app-pop-up
+        title="Boek terugbrengen mislukt"
+        message="Selecteer eerst een boek."
+        [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+        (actionClicked)="closeNotification()"
+      />
+    }
   </div>
 </body>

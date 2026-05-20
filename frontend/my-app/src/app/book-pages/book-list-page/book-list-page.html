@@ -1,5 +1,8 @@
 <body class="books-container">
-  <app-reading-list-slide-out-pop-up [(readingListQueue)]="booksToBeAddedToReadingList" [(showPopUp)]="showReadingListPopUp"></app-reading-list-slide-out-pop-up>
+  <app-reading-list-slide-out-pop-up
+    [(readingListQueue)]="booksToBeAddedToReadingList"
+    [(showPopUp)]="showReadingListPopUp"
+  ></app-reading-list-slide-out-pop-up>
   <header class="books-header">
     <a class="back-link" [routerLink]="['/']">← Terug naar home</a>
 
@@ -57,7 +60,21 @@
         </div>
       }
 
-      <!-- ...existing code... -->
+      @if (getSchoolSpecificBooks && campuses.length > 1) {
+        <details class="filter-group" open>
+          <summary class="filter-label">Campus</summary>
+          <select
+            class="filter-select"
+            [ngModel]="selectedCampusId ?? ''"
+            (ngModelChange)="onCampusChanged($event)"
+          >
+            <option value="">Alle campussen</option>
+            @for (campus of campuses; track campus.id) {
+              <option [value]="campus.id">{{ campus.name }}</option>
+            }
+          </select>
+        </details>
+      }
 
       <details class="filter-group" open>
         <summary class="filter-label">Taal</summary>
@@ -105,7 +122,7 @@
         </div>
       </details>
 
-      <details class="filter-group" open>
+      <details class="filter-group">
         <summary class="filter-label">Leesniveau</summary>
         <select
           id="readingLevel"
@@ -120,7 +137,7 @@
         </select>
       </details>
 
-      <details class="filter-group" open>
+      <details class="filter-group">
         <summary class="filter-label">Leefwereldlabels</summary>
         <app-tag-selection-menu
           [initialTags]="selectedTags"
@@ -128,7 +145,7 @@
         />
       </details>
 
-      <details class="filter-group" open>
+      <details class="filter-group">
         <summary class="filter-label">Genres</summary>
         <app-genre-selection-menu
           [initialGenres]="selectedGenres"
@@ -136,7 +153,7 @@
         />
       </details>
 
-      <details class="filter-group" open>
+      <details class="filter-group">
         <summary class="filter-label">Subgenres</summary>
         <app-subgenre-selection-menu
           [initialSubgenres]="selectedSubgenres"
@@ -145,7 +162,7 @@
       </details>
 
       @if (canUseDidacticFilters) {
-        <details class="filter-group" open>
+        <details class="filter-group">
           <summary class="filter-label">Didactische boeken</summary>
 
           <select
@@ -217,7 +234,9 @@
 
     <main class="books-card">
       @if (visibleBooks.length > 0) {
-        <h3>Huidige boeken</h3>
+        <h3>
+          Huidige boeken <span class="book-count">({{ totalElements }})</span>
+        </h3>
 
         <ul class="book-list library-grid">
           @for (book of visibleBooks; track book.id) {
@@ -230,8 +249,6 @@
                     class="cover-img"
                     loading="lazy"
                   />
-                } @else {
-                  <div class="cover-placeholder">📖</div>
                 }
               </div>
 
@@ -247,7 +264,7 @@
                 }
               </div>
 
-              <div class="book-bottom" [class.has-reading-list]="authService.atLeastHasRole(role.LEERKRACHT)">
+              <div class="book-bottom has-reading-list">
                 <div class="book-score">
                   <app-star-display [score]="book.reviewScore" />
                   @if (book.reviewScore > 0) {
@@ -256,7 +273,9 @@
                 </div>
                 <div class="book-actions">
                   @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-                    <button class="list-button" (click)="addBookToReadingList(book)">Aan leeslijst toevoegen</button>
+                    <button class="list-button" (click)="addBookToReadingList(book)">
+                      Aan leeslijst toevoegen
+                    </button>
                   }
                   <button class="details-button" (click)="checkDetails(book.id!)">Details</button>
                 </div>

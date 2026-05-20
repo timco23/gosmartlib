@@ -31,9 +31,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.ArrayList;
 
-/**
- * Service containing business logic for item reviews.
- */
 @Service
 public class ReviewService {
 
@@ -70,39 +67,56 @@ public class ReviewService {
      * @throws ResponseStatusException if user is not found
      */
     private User resolveUser(String identifier) {
+        validateIdentifier(identifier);
+
+        Set<String> candidates = buildCandidates(identifier);
+
+        User byEmailOrSs = findByEmailOrSmartschool(candidates);
+        if (byEmailOrSs != null) return byEmailOrSs;
+
+        User byId = findByIdCandidate(candidates);
+        if (byId != null) return byId;
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
+    }
+
+    private void validateIdentifier(String identifier) {
         if (identifier == null || identifier.isBlank()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
         }
+    }
 
+    private Set<String> buildCandidates(String identifier) {
         Set<String> candidates = new LinkedHashSet<>();
         String raw = identifier.trim();
-        candidates.add(raw);
-        candidates.add(raw.toLowerCase(Locale.ROOT));
 
-        if (raw.contains("|")) {
-            String part = raw.substring(raw.lastIndexOf('|') + 1).trim();
-            if (!part.isBlank()) {
-                candidates.add(part);
-                candidates.add(part.toLowerCase(Locale.ROOT));
-            }
-        }
+        addCandidate(candidates, raw);
+        addPartAfterLast(candidates, raw, '|');
+        addPartAfterLast(candidates, raw, '\\');
+        addLocalPart(candidates, raw);
 
-        if (raw.contains("\\")) {
-            String part = raw.substring(raw.lastIndexOf('\\') + 1).trim();
-            if (!part.isBlank()) {
-                candidates.add(part);
-                candidates.add(part.toLowerCase(Locale.ROOT));
-            }
-        }
+        return candidates;
+    }
 
-        if (raw.contains("@")) {
-            String localPart = raw.substring(0, raw.indexOf('@')).trim();
-            if (!localPart.isBlank()) {
-                candidates.add(localPart);
-                candidates.add(localPart.toLowerCase(Locale.ROOT));
-            }
-        }
+    private void addCandidate(Set<String> candidates, String value) {
+        if (value == null || value.isBlank()) return;
+        candidates.add(value);
+        candidates.add(value.toLowerCase(Locale.ROOT));
+    }
 
+    private void addPartAfterLast(Set<String> candidates, String raw, char separator) {
+        int idx = raw.lastIndexOf(separator);
+        if (idx < 0) return;
+        addCandidate(candidates, raw.substring(idx + 1).trim());
+    }
+
+    private void addLocalPart(Set<String> candidates, String raw) {
+        int at = raw.indexOf('@');
+        if (at < 0) return;
+        addCandidate(candidates, raw.substring(0, at).trim());
+    }
+
+    private User findByEmailOrSmartschool(Set<String> candidates) {
         for (String c : candidates) {
             var byEmail = userRepository.findByEmailIgnoreCase(c);
             if (byEmail.isPresent()) return byEmail.get();
@@ -110,15 +124,17 @@ public class ReviewService {
             var bySs = userRepository.findBySmartschoolUsernameIgnoreCase(c);
             if (bySs.isPresent()) return bySs.get();
         }
+        return null;
+    }
 
+    private User findByIdCandidate(Set<String> candidates) {
         for (String c : candidates) {
             if (c.matches("\\d+")) {
                 var byId = userRepository.findById(Integer.parseInt(c));
                 if (byId.isPresent()) return byId.get();
             }
         }
-
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gebruiker niet gevonden");
+        return null;
     }
 
     /**
@@ -144,6 +160,17 @@ public class ReviewService {
     }
 
     /**
+     * Returns all reports from a review.
+     * @param reviewId id of the review
+     * @param reporterId id of the reporter
+     * @return true if the user already reported the review
+     */
+    public boolean reportExistsByReviewIdAndReporterId(Long reviewId, String requesterEmail) {
+        User reporter = resolveUser(requesterEmail);
+        return reviewReportRepository.existsByReviewIdAndReporterId(reviewId, reporter.getId());
+    }
+
+    /**
      * Creates a new review for an item and updates item review statistics.
      * Validates review content for profanity before saving.
      * @throws ResponseStatusException if profanity is detected
@@ -156,6 +183,11 @@ public class ReviewService {
     public ReviewDTO createReview(Long itemId, CreateReviewDTO dto, String userEmail) {
         User user = resolveUser(userEmail);
         Item item = itemRepository.findById(itemId).orElseThrow(EntityNotFoundException::new);
+
+        boolean alreadyReviewed = reviewRepository.existsByItemIdAndAuthorId(itemId, user.getId());
+        if (alreadyReviewed) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Je hebt dit item al beoordeeld");
+        }
 
         String description = hasText(dto.description()) ? dto.description().trim() : null;
 
@@ -274,9 +306,8 @@ public class ReviewService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Geen rechten om alle reviews te verwijderen");
         }
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item niet gevonden"));
-
+        Item item = itemRepository.findById(itemId).orElseThrow(EntityNotFoundException::new);
+        
         reviewRepository.deleteByItem_Id(itemId);
         updateItemReviewStats(item);
     }
@@ -306,8 +337,6 @@ public class ReviewService {
                 ? review.getAuthor().getFirstName() + " " + review.getAuthor().getName()
                 : review.getAuthor().getName();
 
-        // The backend ALWAYS passes the real name
-        // The frontend determines what is displayed based on isAnonymous and userRole
         return new ReviewDTO(
                 review.getId(),
                 review.getDescription(),
@@ -324,11 +353,6 @@ public class ReviewService {
         );
     }
 
-    /**
-     * Checks if a string contains non-whitespace text.
-     * @param s string to check
-     * @return true if not null and not empty
-     */
     private boolean hasText(String s) {
         return s != null && !s.trim().isEmpty();
     }

@@ -1,3 +1,45 @@
+@if (LostConfirmation) {
+  <app-pop-up
+    title="Exemplaar als kwijt markeren"
+    [message]="
+      'Weet u zeker dat u dit exemplaar als <strong>kwijt</strong> wilt markeren? Het exemplaar wordt grijs weergegeven en kan later als teruggevonden worden gemarkeerd.'
+    "
+    [actions]="[
+      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+      { label: 'Markeer als kwijt', type: 'danger', value: 'confirm' },
+    ]"
+    (actionClicked)="markAsLost($event)"
+  />
+}
+
+@if (FoundConfirmation) {
+  <app-pop-up
+    title="Exemplaar teruggevonden"
+    [message]="
+      'Weet u zeker dat u dit exemplaar als <strong>teruggevonden</strong> wilt markeren? De status wordt teruggezet op Beschikbaar.'
+    "
+    [actions]="[
+      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+      { label: 'Teruggevonden', type: 'primary', value: 'confirm' },
+    ]"
+    (actionClicked)="markAsFound($event)"
+  />
+}
+
+@if (DeleteConfirmation) {
+  <app-pop-up
+    title="Exemplaar verwijderen"
+    [message]="
+      'Weet u zeker dat u dit exemplaar definitief wilt <strong>verwijderen</strong>? Dit kan niet ongedaan worden gemaakt.'
+    "
+    [actions]="[
+      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+      { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+    ]"
+    (actionClicked)="deleteCopy($event)"
+  />
+}
+
 <div class="form-container">
   <h1>Boek wijzigen</h1>
   @if (error) {
@@ -98,21 +140,24 @@
 
       <div class="cover-preview">
         <p class="preview-title">Preview van coverafbeelding</p>
-        @if (previewUrl == '') {
-          <div class="no-cover">Geen afbeelding</div>
+      
+        @if (book?.id) {
+          <img [src]="api.getBookCoverUrl(book!.id)" alt="Book cover preview" />
         } @else {
-          <img [src]="previewUrl" />
+          <div class="no-cover">Geen afbeelding</div>
         }
       </div>
 
+      <h3>Exemplaren ({{ copies.length }})</h3>
       <section class="copies-column">
-        <h3>Exemplaren ({{ copies.length }})</h3>
 
         @if (deleteError) {
-                            <app-pop-up [message]="'Er is een fout opgetreden bij het verwijderen van het exemplaar. Probeer het opnieuw.'"
-                            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
-                            (actionClicked)="deleteError = null"/>
-                          }
+          <app-pop-up
+            [message]="'Er is een fout opgetreden. Probeer het opnieuw.'"
+            [actions]="[{ label: 'Ok', type: 'danger', value: 'ok' }]"
+            (actionClicked)="deleteError = null"
+          />
+        }
 
         @if (editingCopyId) {
           <div class="edit-copy-card">
@@ -173,10 +218,11 @@
                 >
               </div>
               @if (group.copies.length > 0) {
-                <table class="copies-table">
-                  <thead>
-                    <tr>
-                      <th class="drag-col"></th>
+                <div class="table-scroll">
+                  <table class="copies-table">
+                    <thead>
+                      <tr>
+                        <th class="drag-col"></th>
                       <th>Conditie</th>
                       <th>Status</th>
                       <th>Barcode</th>
@@ -186,20 +232,23 @@
                   <tbody>
                     @for (copy of group.copies; track copy.id) {
                       <tr
-                        draggable="true"
-                        [class.dragging]="draggedCopyId === copy.id"
+                      draggable="true"
+                      [class.dragging]="draggedCopyId === copy.id"
+                        [class.copy-lost]="isCopyLost(copy)"
                         (dragstart)="onDragStart($event, copy.id)"
                         (dragend)="onDragEnd()"
-                      >
+                        >
                         <td class="drag-handle" title="Sleep naar andere campus">
                           <span class="drag-icon">&#x2807;</span>
                         </td>
                         <td>{{ copy.condition }}</td>
-                        <td>{{ copy.copy_status }}</td>
+                        <td>
+                          <span [class.lost-badge]="isCopyLost(copy)">{{ copy.copy_status }}</span>
+                        </td>
                         <td>{{ copy.barcode }}</td>
                         <td class="copy-actions">
                           <button
-                            type="button"
+                          type="button"
                             (click)="
                               router.navigate(['/books', book!.id, 'barcodes'], {
                                 queryParams: { preselect: copy.id },
@@ -208,24 +257,40 @@
                           >
                             Barcode
                           </button>
-                          <button type="button" class="EditButton" (click)="startEdit(copy)">
-                            Wijzigen
-                          </button>
-                          <button type="button" class="DeleteButton" (click)="showDeleteConfirmation(copy.id)">
-                            Verwijderen
-                          </button>
-                          @if (copy.copy_status === 'UITGELEEND' && DeleteConfirmation) {
-                            <app-pop-up [message]="'U gaat een exemplaar verwijderen dat momenteel uitgeleend is. Weet u zeker dat u dit exemplaar wilt verwijderen?'"
-                              [actions]="[
-                              { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-                              { label: 'Verwijderen', type: 'danger', value: 'confirm' }
-                            ]" (actionClicked)="deleteCopy($event, copy.id)" />
+                          
+                          @if (!isCopyLost(copy)) {
+                            <button type="button" class="EditButton" (click)="startEdit(copy)">
+                              Wijzigen
+                            </button>
+                            <button
+                              type="button"
+                              class="LostButton"
+                              (click)="showLostConfirmation(copy.id!)"
+                            >
+                              Kwijt
+                            </button>
+                          } @else {
+                            <button
+                            type="button"
+                            class="FoundButton"
+                              (click)="showFoundConfirmation(copy.id!)"
+                            >
+                              Teruggevonden
+                            </button>
+                            <button
+                              type="button"
+                              class="DeleteButton"
+                              (click)="showDeleteConfirmation(copy.id!)"
+                              >
+                              Verwijderen
+                            </button>
                           }
                         </td>
                       </tr>
                     }
                   </tbody>
                 </table>
+              </div>
               } @else {
                 <p class="empty-group-hint">Geen exemplaren toegewezen</p>
               }

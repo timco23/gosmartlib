@@ -9,10 +9,11 @@ import { UserService } from '../../services/user.service';
 import { LendingService } from '../../services/lending.service';
 import { BookSelectorPopupComponent } from '../../book-pages/book-selector-popup-component/book-selector-popup-component';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
+import { UserSelectorPopupComponent } from '../../user-selector-popup/user-selector-popup.component';
 
 @Component({
   selector: 'app-lend-book',
-  imports: [RouterLink, FormsModule, BookSelectorPopupComponent, PopUpComponent],
+  imports: [RouterLink, FormsModule, BookSelectorPopupComponent, PopUpComponent, UserSelectorPopupComponent],
   templateUrl: './lend-book.component.html',
   styleUrl: './lend-book.component.css',
 })
@@ -27,6 +28,9 @@ export class LendBookComponent {
   public currentLending: Lending | null = null;
   public currentUser: UserProfile | null = null;
   public duration: number = 0;
+  canAddInBulk: boolean = false;
+  public pendingBooks: { book: Book; copies: SchoolItemCopy[]; selectedCopies: SchoolItemCopy[] }[] = [];
+  public showCopyPicker: boolean = false;
 
   private _showDurationInput: boolean = false;
   showMultipleBooks: boolean = false;
@@ -40,6 +44,10 @@ export class LendBookComponent {
   
   get showDurationInput(): boolean {
     return this._showDurationInput;
+  }
+
+  get totalPendingSelected(): number {
+    return this.pendingBooks.reduce((acc, e) => acc + e.selectedCopies.length, 0);
   }
   
   set showDurationInput(value: boolean) {
@@ -61,6 +69,18 @@ export class LendBookComponent {
   readonly bookId = (b: any) => b?.id ?? b?.bookId;
   readonly bookTitle = (b: any) => b?.title ?? b?.bookTitle ?? 'Onbekend boek';
   readonly bookMeta = (b: any) => [b?.author ?? b?.authorName, b?.isbn].filter(Boolean).join(' • ');
+
+  isUserPopupOpen = false;
+
+  openUserPopup(): void { this.isUserPopupOpen = true; }
+  closeUserPopup(): void { this.isUserPopupOpen = false; }
+
+  onUserSelected(user: UserProfile): void {
+    this.currentUser = user;
+    this.canAddInBulk = user.role !== 'LEERLING';
+    this.isUserPopupOpen = false;
+    this.cdr.detectChanges();
+  }
 
   openBookPopup(): void {
     this.isBookPopupOpen = true;
@@ -204,22 +224,26 @@ export class LendBookComponent {
           next: (book) => {
             this.currentBook = book ?? null;
             this.cdr.detectChanges();
-          
-            if (this.showMultipleBooks && this.currentBook && this.currentSchoolCopy) {
+
+            const isMultiUser = this.currentUser?.role !== 'LEERLING' && this.currentUser !== null;
+
+            if (isMultiUser && this.currentBook && this.currentSchoolCopy) {
               const alreadyAdded = this.selectedBooks.some(
                 (s) => s.copy.barcode === this.currentSchoolCopy!.barcode
               );
               if (alreadyAdded) {
                 this.showAlreadyAdded = true;
                 this.barcode = '';
+                this.currentBook = null;
+                this.currentSchoolCopy = null;
                 this.cdr.detectChanges();
                 setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 0);
                 return;
               }
-              if (!alreadyAdded) {
-                this.selectedBooks.push({ book: this.currentBook, copy: this.currentSchoolCopy });
-                this.selectedBooks.sort((a, b) => a.book.title.localeCompare(b.book.title));
-              }
+
+              this.selectedBooks.push({ book: this.currentBook, copy: this.currentSchoolCopy });
+              this.selectedBooks.sort((a, b) => a.book.title.localeCompare(b.book.title));
+              this.showMultipleBooks = true;
               this.currentBook = null;
               this.currentSchoolCopy = null;
               this.barcode = '';
@@ -274,24 +298,78 @@ export class LendBookComponent {
     this.cdr.detectChanges();
   }
 
+  onBooksConfirmed(books: any[]): void {
+    if (!this.school?.id) return;
+
+    const checks = books.map(book =>
+      this.bookService.getCopiesByBookId(Number(this.bookId(book)), this.school!.id!)
+        .toPromise()
+        .then(copies => {
+          const available = copies?.filter(c => c.copy_status === 'BESCHIKBAAR') ?? [];
+          return { book, copies: available, selectedCopies: [] as SchoolItemCopy[] };
+        })
+    );
+
+    Promise.all(checks).then(results => {
+      this.pendingBooks = results.filter(r => r.copies.length > 0);
+      this.showCopyPicker = true;
+      this.closeBookPopup();
+      this.cdr.detectChanges();
+    });
+  }
+
+  togglePendingCopy(entry: { selectedCopies: SchoolItemCopy[] }, copy: SchoolItemCopy): void {
+    const idx = entry.selectedCopies.findIndex(c => c.barcode === copy.barcode);
+    if (idx > -1) {
+      entry.selectedCopies.splice(idx, 1);
+    } else {
+      entry.selectedCopies.push(copy);
+    }
+    this.cdr.detectChanges();
+  }
+
+  isPendingCopySelected(entry: { selectedCopies: SchoolItemCopy[] }, copy: SchoolItemCopy): boolean {
+    return entry.selectedCopies.some(c => c.barcode === copy.barcode);
+  }
+
+  confirmPendingBooks(): void {
+    for (const entry of this.pendingBooks) {
+      for (const copy of entry.selectedCopies) {
+        const alreadyAdded = this.selectedBooks.some(s => s.copy.barcode === copy.barcode);
+        if (!alreadyAdded) {
+          this.selectedBooks.push({ book: entry.book, copy });
+        }
+      }
+    }
+    this.selectedBooks.sort((a, b) => a.book.title.localeCompare(b.book.title));
+    this.showMultipleBooks = true;
+    this.pendingBooks = [];
+    this.showCopyPicker = false;
+    this.clearSelectedBook();
+    this.cdr.detectChanges();
+  }
+
+  cancelPendingBooks(): void {
+    this.pendingBooks = [];
+    this.showCopyPicker = false;
+    this.cdr.detectChanges();
+  }
+
   onCopyToggle(copy: SchoolItemCopy, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
-    
+
     if (this.showMultipleBooks) {
       if (checked) {
         this.selectedCopies = [...this.selectedCopies, copy];
       } else {
         this.selectedCopies = this.selectedCopies.filter(c => c.barcode !== copy.barcode);
       }
+      this.currentSchoolCopy = this.selectedCopies[0] ?? null;
     } else {
-      if (checked) {
-        this.selectedCopies = [copy];
-      } else {
-        this.selectedCopies = [];
-      }
+      this.selectedCopies = [copy];
+      this.currentSchoolCopy = copy;
     }
-  
-    this.currentSchoolCopy = this.selectedCopies[0] ?? null;
+
     this.cdr.detectChanges();
   }
 
@@ -356,7 +434,7 @@ export class LendBookComponent {
       .then(() => this.router.navigate(['/lendings']))
       .catch((err) => {
         console.error('Error creating lendings:', err);
-        alert('Lening aanmaken mislukt, probeer later opnieuw.');
+        alert(err.message + this.barcode || 'Er is een fout opgetreden bij het aanmaken van de leningen.');
       });
   }
 
@@ -405,5 +483,9 @@ export class LendBookComponent {
 
   getClasses(user: UserProfile): string {
     return user.classes.map(clazz => clazz.className).join(" ")
+  }
+
+  get noPendingCopiesSelected(): boolean {
+    return this.pendingBooks.every(e => e.selectedCopies.length === 0);
   }
 }

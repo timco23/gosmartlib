@@ -1,11 +1,20 @@
 <div class="container">
-  <h1>Welkom bij GO!SmartLib</h1>
+  <div class="hero">
+    <span class="hero-circle hero-circle--1" aria-hidden="true"></span>
+    <span class="hero-circle hero-circle--2" aria-hidden="true"></span>
+    <span class="hero-circle hero-circle--3" aria-hidden="true"></span>
+    <div class="hero-inner">
+      <span class="hero-eyebrow">GO!SmartLib</span>
+      <h1>Welkom {{ currentUser?.name }}</h1>
+      <p class="hero-sub">Ontdek boeken, collecties en meer.</p>
+    </div>
+  </div>
 
   @if (globalCollections.length > 0) {
     <section class="featured-section">
-      @for(collection of globalCollections; track collection.id) {
+      @for (collection of globalCollections; track collection.id) {
         <div class="section-header">
-          <h2>{{collection.description}}</h2>
+          <h2>{{ collection.description }}</h2>
         </div>
 
         @if (isLoading) {
@@ -15,7 +24,13 @@
         } @else if (collection.items.length === 0) {
           <div class="state-message">Geen boeken gevonden in deze collectie.</div>
         } @else {
-          <app-book-carousel [allGenres]="allGenres" [books]="collection.items" [detailedView]="true" [progressDots]="true" [scrollableThreshold]="3"></app-book-carousel>
+          <app-book-carousel
+            [allGenres]="allGenres"
+            [books]="collection.items"
+            [detailedView]="true"
+            [progressDots]="true"
+            [scrollableThreshold]="3"
+          ></app-book-carousel>
         }
       }
     </section>
@@ -32,16 +47,22 @@
       } @else if (error) {
         <div class="state-message error">{{ error }}</div>
       } @else {
-          <app-book-carousel [allGenres]="allGenres" [books]="featuredBooks" [detailedView]="true" [progressDots]="true" [scrollableThreshold]="3"></app-book-carousel>
-        }
+        <app-book-carousel
+          [allGenres]="allGenres"
+          [books]="featuredBooks"
+          [detailedView]="true"
+          [progressDots]="true"
+          [scrollableThreshold]="3"
+        ></app-book-carousel>
+      }
     </section>
   }
 
   @if (collections.length > 0) {
     <section class="featured-section">
-      @for(collection of collections; track collection.id) {
+      @for (collection of collections; track collection.id) {
         <div class="section-header">
-          <h2>{{collection.description}}</h2>
+          <h2>{{ collection.description }}</h2>
         </div>
 
         @if (isLoading) {
@@ -51,7 +72,13 @@
         } @else if (collection.items.length === 0) {
           <div class="state-message">Geen boeken gevonden in deze collectie.</div>
         } @else {
-          <app-book-carousel [allGenres]="allGenres" [books]="collection.items" [detailedView]="true" [progressDots]="true" [scrollableThreshold]="3"></app-book-carousel>
+          <app-book-carousel
+            [allGenres]="allGenres"
+            [books]="collection.items"
+            [detailedView]="true"
+            [progressDots]="true"
+            [scrollableThreshold]="3"
+          ></app-book-carousel>
         }
       }
     </section>
@@ -62,7 +89,14 @@
       <div class="section-header">
         <h2>Nieuw in de bib</h2>
       </div>
-      <app-book-carousel [allGenres]="allGenres" [books]="latestBooks" [detailedView]="true" [progressDots]="true" [scrollableThreshold]="3" [autoScroll]="true"></app-book-carousel>
+      <app-book-carousel
+        [allGenres]="allGenres"
+        [books]="latestBooks"
+        [detailedView]="true"
+        [progressDots]="true"
+        [scrollableThreshold]="3"
+        [autoScroll]="true"
+      ></app-book-carousel>
     </section>
   }
 </div>

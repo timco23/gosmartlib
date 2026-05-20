@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
+import java.util.List;
 
-/**
- * JPA entity that represents a review on an item.
- */
 @Entity
 @Getter
 @Setter
@@ -33,7 +31,6 @@ public class Review {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private boolean approved;
 
-    // If createdAt is still null then sets createdAt to LocalDate.now()
     @PrePersist
     public void prePersist() {
         if (this.createdAt == null) {
@@ -49,15 +46,14 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "review", cascade = CascadeType.ALL,  orphanRemoval = true)
+    private List<ReviewReport> reports;
 
     @Column(nullable = false)
     private int reportCount = 0;
 
     public Review() {}
 
-    /**
-     * Creates a review and sets the creation date to today.
-     */
     public Review(String description, int stars, Item item, User author, boolean isAnonymous) {
         this.description = description;
         this.stars = stars;

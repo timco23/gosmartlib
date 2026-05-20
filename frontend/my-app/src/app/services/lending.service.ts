@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Lending, LendingRequest } from '../../types/types';
+import { BookStatisticsDTO, Lending, LendingRequest, Book } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
@@ -36,9 +36,9 @@ export class LendingService {
     return this.http.post<Lending>(`${this.apiUrl}/${id}/extend`, {});
   }
 
-  getLendingsByUserId(email: string): Observable<Lending[]> {
-    return this.http.get<Lending[]>(`${this.apiUrl}/user`, {
-      params: { email },
+  getLendingsByUserId(id: number): Observable<Lending[]> {
+    return this.http.get<Lending[]>(`${this.apiUrl}/userId`, {
+      params: { userId: id },
     });
   }
 
@@ -50,5 +50,23 @@ export class LendingService {
 
   getLendingsByBookId(bookId: number): Observable<Lending[]> {
     return this.http.get<Lending[]>(`${this.apiUrl}/book/${bookId}`);
+  }
+
+  getMostBorrowedThisMonth(schoolId: number): Observable<Book | null> {
+    return this.http.get<Book>(`${this.apiUrl}/most-borrowed-this-month/${schoolId}`);
+  }
+
+  getLastBorrowedBook(email: string): Observable<Book | null> {
+    return this.http.get<Book>(`${this.apiUrl}/last-borrowed/${email}`);
+  }
+
+  getLendingsBySchool(schoolId: number): Observable<Lending[]> {
+    return this.http.get<Lending[]>(`${this.apiUrl}/school/${schoolId}`);
+  }
+
+  getBookStatistics(bookId: number, schoolId: number): Observable<BookStatisticsDTO> {
+    return this.http.get<BookStatisticsDTO>(`${this.apiUrl}/book/${bookId}/statistics`, {
+      params: { schoolId },
+    });
   }
 }

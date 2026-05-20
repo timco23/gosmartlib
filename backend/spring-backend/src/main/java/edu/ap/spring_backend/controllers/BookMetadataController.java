@@ -21,7 +21,12 @@ public class BookMetadataController {
         this.bookMetadataService = bookMetadataService;
     }
 
-    // Used by the frontend add-book form to autofill fields from an ISBN.
+    /**
+     * Used by the frontend add-book form to autofill fields from an ISBN.
+     * @param pattern the isbn must be a 13-digit number (validated by @Pattern)
+     * @param isbn the 13-digit ISBN of the book to fetch metadata for
+     * @return returns 200 with BookMetadata if found, or 404 if no metadata found for the given ISBN
+     */
     @GetMapping
     public ResponseEntity<BookMetadata> getByIsbn(
             @RequestParam @Pattern(regexp = "\\d{13}") String isbn) {

@@ -34,6 +34,7 @@ services:
     build: ./backend/spring-backend
     restart: on-failure
     environment:
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dspring.mandatory-file-encoding=UTF-8
       - MYSQL_ROOT_PASSWORD=${sqlrootpwd}
       - SMARTSCHOOL_CLIENT_ID=${SMARTSCHOOL_CLIENT_ID}
       - SMARTSCHOOL_CLIENT_SECRET=${SMARTSCHOOL_CLIENT_SECRET}

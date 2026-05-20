@@ -23,7 +23,6 @@ public class Subgenre {
     @ManyToOne
     private Genre genre;
 
-    // constructors
     public Subgenre() {
     }
 

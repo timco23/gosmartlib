@@ -2,6 +2,7 @@ package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dao.TagRepository;
 import edu.ap.spring_backend.dto.TagDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Tag;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class TagService {
 
     public Tag update(Long id, TagDTO newTag) {
         Tag existing = tagRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Tag niet gevonden"));
+                .orElseThrow(EntityNotFoundException::new);
         if (tagRepository.existsByNameIgnoreCaseAndIdNot(newTag.name(), id)) {
             throw new IllegalArgumentException("Tag bestaat reeds");
         }
@@ -40,7 +41,7 @@ public class TagService {
 
     public void delete(Long id) {
         Tag existing = tagRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Tag niet gevonden"));
+                .orElseThrow(EntityNotFoundException::new);
         tagRepository.delete(existing);
     }
 }

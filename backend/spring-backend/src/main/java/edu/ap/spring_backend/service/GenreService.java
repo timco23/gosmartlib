@@ -8,6 +8,7 @@ import edu.ap.spring_backend.dao.GenreRepository;
 import edu.ap.spring_backend.dao.SubgenreRepository;
 import edu.ap.spring_backend.dto.GenreWithSubgenresDTO;
 import edu.ap.spring_backend.dto.SubgenreDTO;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Genre;
 
 @Service
@@ -27,7 +28,7 @@ public class GenreService {
                         genre.getName(),
                         subgenreRepository.findAllByGenreId(genre.getId())
                                 .stream()
-                                .map(s -> new SubgenreDTO(s.getId(), s.getName(), s.getGenre().getId()))
+                                .map(sub -> new SubgenreDTO(sub.getId(), sub.getName(), sub.getGenre().getId()))
                                 .toList()))
                 .toList();
     }
@@ -37,16 +38,17 @@ public class GenreService {
     }
 
     public Genre updateGenre(Long id, Genre updatedGenre) {
-        Genre genre = genreRepository.findById(id).orElseThrow();
+        Genre genre = genreRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         genre.setName(updatedGenre.getName());
         return genreRepository.save(genre);
     }
-
-    public void deleteGenre(Long id) {
-        genreRepository.deleteById(id);
+    
+    public Genre getById(Long id) {
+        return genreRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public Genre getById(Long id) {
-        return genreRepository.findById(id).orElseThrow();
+    public void deleteGenre(Long id) {
+        Genre genre = genreRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        genreRepository.delete(genre);
     }
 }

@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import {
   Book,
+  CampusAvailability,
   CreateBookPayload,
   CsvImportDTO,
   CsvPreviewDTO,
@@ -41,6 +42,7 @@ export class BookService {
     subgenreIds?: number[],
     didacticCategoryIds?: number[],
     didactic?: boolean,
+    campusId?: number,
   ): Observable<Page<Book>> {
     let params = new HttpParams()
       .set('page', page)
@@ -71,6 +73,9 @@ export class BookService {
 
     if (didactic !== undefined) {
       params = params.set('didactic', didactic);
+    }
+    if (campusId !== undefined) {
+      params = params.set('campusId', campusId);
     }
 
     return this.http.get<Page<Book>>(`${this.apiBaseUrl}/filteredBooks`, { params });
@@ -175,8 +180,26 @@ export class BookService {
     });
   }
 
+  addToWishlist(bookId: number, email: string): Observable<any> {
+    return this.http.post(`${this.apiBaseUrl}/user/wishlist`, null, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text',
+    });
+  }
+
+  removeFromWishlist(bookId: number, email: string): Observable<any> {
+    return this.http.delete(`${this.apiBaseUrl}/user/wishlist`, {
+      params: { itemId: bookId, email: email },
+      responseType: 'text',
+    });
+  }
+
   getByBarcode(barcode: string): Observable<SchoolItemCopy> {
     return this.http.get<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/barcode/${barcode}`);
+  }
+
+  getEarliestAvailabilityPerCampus(bookId: number): Observable<CampusAvailability[]> {
+    return this.http.get<CampusAvailability[]>(`${this.apiBaseUrl}/lendings/book/${bookId}/earliest-availability`);
   }
 
   getCopiesByBookId(bookId: number, schoolId: number): Observable<SchoolItemCopy[]> {

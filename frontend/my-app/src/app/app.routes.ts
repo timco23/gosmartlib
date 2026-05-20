@@ -29,6 +29,9 @@ import { LendingHistoryComponent } from './lending-history/lending-history.compo
 import { DashboardComponent } from './dashboard-component/dashboard-component';
 import { BookLendingHistoryComponent } from './book-lending-history/book-lending-history.component';
 import { ProfileSelectionComponent } from './profile-selection/profile-selection';
+import { DidacticBooksPage } from './didactic-books-page/didactic-books-page';
+import { WishlistComponent } from './wishlist/wishlist.component';
+import { BookReportPage } from './book-pages/book-report-page/book-report-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -49,12 +52,15 @@ export const routes: Routes = [
   { path: 'profile', component: Profile, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'lendingHistory', component: LendingHistoryComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
+  { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
 
   // LEERKRACHT +
+  { path: 'books/:id/report', component: BookReportPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
-  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'lists/:id/edit', component: UpdateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'didactic-books', component: DidacticBooksPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
 
   // BIBLIOTHEEKBEHEERDER +
   { path: 'books/add', component: AddBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },

@@ -19,7 +19,6 @@ public class Genre {
     @Column(unique = true)
     private String name;
         
-    // constructors
     public Genre() {
     }
 

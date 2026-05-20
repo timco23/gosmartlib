@@ -51,4 +51,10 @@ export class ReviewService {
   approveReview(reviewId: number): Observable<ReviewReport[]> {
     return this.http.put<ReviewReport[]>(`${this.apiBaseUrl}/reviews/${reviewId}/approve`, {});
   }
+
+  reportExistsByReviewIdAndReporterId(itemId: number, reviewId: number): Observable<boolean> {
+    return this.http.get<boolean>(
+      `${this.apiBaseUrl}/books/${itemId}/reviews/${reviewId}/existsFrom/me`,
+    );
+  }
 }

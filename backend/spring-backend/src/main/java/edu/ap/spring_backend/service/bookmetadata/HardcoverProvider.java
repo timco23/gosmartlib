@@ -43,6 +43,11 @@ public class HardcoverProvider implements BookMetadataProvider {
     @Override
     public boolean isEnabled() { return enabled; }
 
+    /**
+     * Fetches book metadata from the Hardcover API using the provided ISBN. Implements rate limiting to comply with API usage policies. Handles various error scenarios gracefully, returning an empty Optional if the fetch fails for any reason (e.g. network issues, API errors, no results found, etc.).
+     * @param isbn the ISBN of the book to fetch metadata for
+     * @return an Optional containing the BookMetadata if found, or empty if not found or an error occurred
+     */
     @Override
     public Optional<BookMetadata> fetchByIsbn(String isbn) {
         try {
@@ -81,6 +86,11 @@ public class HardcoverProvider implements BookMetadataProvider {
         }
     }
 
+    /**
+     * Converts Hardcover API edition data to our internal BookMetadata format. Handles missing or malformed data gracefully.
+     * @param edition
+     * @return BookMetadata object with fields mapped from the Hardcover API response. Handles missing or malformed data gracefully.
+     */
     private BookMetadata toBookMetadata(HardcoverResponse.Edition edition) {
         HardcoverResponse.Book book = edition.book();
 

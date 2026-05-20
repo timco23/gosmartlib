@@ -4,14 +4,11 @@ import edu.ap.spring_backend.dao.GenreRepository;
 import edu.ap.spring_backend.dao.SubgenreRepository;
 import edu.ap.spring_backend.dto.GenreWithSubgenresDTO;
 import edu.ap.spring_backend.jpa.Genre;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class GenreServiceTest {
@@ -70,9 +67,14 @@ class GenreServiceTest {
 
     @Test
     void deleteGenre_shouldCallRepository() {
+        Genre existing = new Genre("Rock");
+        existing.setId(1L);
+
+        Mockito.when(genreRepository.findById(1L)).thenReturn(Optional.of(existing));
+
         genreService.deleteGenre(1L);
 
-        Mockito.verify(genreRepository).deleteById(1L);
+        Mockito.verify(genreRepository).delete(existing);
     }
 
     @Test

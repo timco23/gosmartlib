@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record ReadingLevelDTO(
     @JsonProperty("id")
-    int id,
+    Long id,
 
     @JsonProperty("level")
     String level,

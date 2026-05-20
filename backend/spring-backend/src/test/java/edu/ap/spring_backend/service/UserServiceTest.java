@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import edu.ap.spring_backend.mappers.ItemMapper;
+import edu.ap.spring_backend.mappers.UserMapper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,6 +34,8 @@ class UserServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private ItemRepository itemRepository;
     @Mock private SchoolRepository schoolRepository;
+    @Mock private UserMapper userMapper;
+    @Mock private ItemMapper itemMapper;
 
     @InjectMocks
     private UserService userService;
@@ -42,6 +46,64 @@ class UserServiceTest {
     private School school;
     private Item item;
 
+    private void initCollectionField(Object target, String fieldName) {
+        try {
+            var field = findField(target.getClass(), fieldName);
+            field.setAccessible(true);
+            Object value = java.util.Set.class.isAssignableFrom(field.getType())
+                    ? new HashSet<>()
+                    : new ArrayList<>();
+            field.set(target, value);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Kon collectieveld '" + fieldName + "' niet instellen op " + target.getClass().getSimpleName(), e);
+        }
+    }
+
+    private <T> T getField(Object target, String fieldName, Class<T> type) {
+        try {
+            var field = findField(target.getClass(), fieldName);
+            field.setAccessible(true);
+            return type.cast(field.get(target));
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Kon veld '" + fieldName + "' niet lezen op " + target.getClass().getSimpleName(), e);
+        }
+    }
+
+    private UserResponse mapUser(User user) {
+        School school = getField(user, "school", School.class);
+        Role role = getField(user, "role", Role.class);
+        Integer itemsBorrowed = getField(user, "itemsBorrowed", Integer.class);
+
+        return new UserResponse(
+                getField(user, "id", Integer.class),
+                getField(user, "name", String.class),
+                getField(user, "firstName", String.class),
+                getField(user, "email", String.class),
+                role != null ? role.name() : null,
+                getField(user, "studentNumber", String.class),
+                List.of(),
+                school != null ? getField(school, "name", String.class) : null,
+                school != null ? getField(school, "id", Long.class) : null,
+                new ItemDTO[0],
+                itemsBorrowed,
+                null
+        );
+    }
+
+    private ItemDTO mapItem(Item item) {
+        return new ItemDTO(
+                getField(item, "id", Long.class),
+                getField(item, "title", String.class),
+                null, null, null,
+                0, null, 0, null,
+                0.0, 0, null,
+                List.of(), List.of(), List.of(),
+                null, List.of(), null,
+                false, false, null
+        );
+    }
 
     private void setField(Object target, String fieldName, Object value) {
         try {
@@ -63,16 +125,16 @@ class UserServiceTest {
         }
     }
 
-    // ── help: make a School with Lombok setters 
+    // make a School with Lombok setters 
 
     private School buildSchool(Long id, String name) {
         School s = new School();
-        s.setId(id);           // Lombok setter
+        s.setId(id);     
         s.setName(name);
         return s;
     }
 
-    // ── help: make a User through reflection
+    // ─make a User through reflection
 
     private User buildUser(Integer id, String name, String firstName,
                            String email, Role role, School school) {
@@ -83,12 +145,12 @@ class UserServiceTest {
         setField(u, "email", email);
         setField(u, "role", role);
         setField(u, "school", school);
-        setField(u, "favoriteBooks", new ArrayList<>());
+        initCollectionField(u, "favoriteBooks");
         setField(u, "itemsBorrowed", 0);
         return u;
     }
 
-    // ── help: make an Item with Lombok setters
+    // ─make an Item with Lombok setters
 
     private Item buildItem(Long id, String title) {
         Item i = new Item();
@@ -112,6 +174,11 @@ class UserServiceTest {
         leerlingUser = buildUser(3, "Leerling", "Le", "leerling@test.be", Role.LEERLING,             school);
 
         item = buildItem(10L, "Test Boek");
+
+        lenient().when(userMapper.toUserResponse(any(User.class)))
+                .thenAnswer(inv -> mapUser(inv.getArgument(0)));
+        lenient().when(itemMapper.toItemDTO(any(Item.class)))
+                .thenAnswer(inv -> mapItem(inv.getArgument(0)));
     }
 
     @Test
@@ -130,8 +197,7 @@ class UserServiceTest {
         when(userRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getOwnProfile(99))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -150,8 +216,7 @@ class UserServiceTest {
         when(userRepository.findByEmail("onbekend@test.be")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getProfile("onbekend@test.be"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -171,16 +236,15 @@ class UserServiceTest {
         ItemDTO[] result = userService.getFavoriteBooks("leerling@test.be");
 
         assertThat(result).hasSize(1);
-        assertThat(result[0].title()).isEqualTo("Test Boek"); // record accessor
+        assertThat(result[0].title()).isEqualTo("Test Boek"); 
     }
 
-    @Test
+        @Test
     void getFavoriteBooks_throwsWhenUserNotFound() {
         when(userRepository.findByEmail("niemand@test.be")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getFavoriteBooks("niemand@test.be"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -194,13 +258,12 @@ class UserServiceTest {
         verify(userRepository).save(leerlingUser);
     }
 
-    @Test
+     @Test
     void addFavoriteBook_throwsWhenUserNotFound() {
         when(userRepository.findByEmail("niemand@test.be")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.addFavoriteBook("niemand@test.be", 10L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -209,8 +272,7 @@ class UserServiceTest {
         when(itemRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.addFavoriteBook("leerling@test.be", 99L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Item not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -230,8 +292,7 @@ class UserServiceTest {
         when(userRepository.findByEmail("niemand@test.be")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteFavoriteBook("niemand@test.be", 10L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -240,8 +301,7 @@ class UserServiceTest {
         when(itemRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteFavoriteBook("leerling@test.be", 99L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Item not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -272,8 +332,7 @@ class UserServiceTest {
         when(userRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUsersByCurrentSchool(99))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -291,8 +350,7 @@ class UserServiceTest {
         when(userRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.addToItemsBorrowed(99))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -314,13 +372,12 @@ class UserServiceTest {
         assertThat(response.getItems_borrowed()).isEqualTo(0);
     }
 
-    @Test
+     @Test
     void removeFromItemsBorrowed_throwsWhenUserNotFound() {
         when(userRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.removeFromItemsBorrowed(99))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -442,6 +499,51 @@ class UserServiceTest {
         when(schoolRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.changeUserSchool("leerling@test.be", 999L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void requestDeletion_setsTimestamp() {
+        when(userRepository.findById(3)).thenReturn(Optional.of(leerlingUser));
+
+        userService.requestDeletion(3);
+
+        assertThat(getField(leerlingUser, "deletionRequestedAt", java.time.LocalDateTime.class)).isNotNull();
+        verify(userRepository).save(leerlingUser);
+    }
+
+    @Test
+    void requestDeletion_throwsWhenNotStudent() {
+        when(userRepository.findById(1)).thenReturn(Optional.of(adminUser));
+
+        assertThatThrownBy(() -> userService.requestDeletion(1))
+                .isInstanceOf(SecurityException.class);
+    }
+
+    @Test
+    void requestDeletion_throwsWhenUserNotFound() {
+        when(userRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.requestDeletion(99))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void cancelDeletion_clearsTimestamp() {
+        setField(leerlingUser, "deletionRequestedAt", java.time.LocalDateTime.now());
+        when(userRepository.findById(3)).thenReturn(Optional.of(leerlingUser));
+
+        userService.cancelDeletion(3);
+
+        assertThat(getField(leerlingUser, "deletionRequestedAt", java.time.LocalDateTime.class)).isNull();
+        verify(userRepository).save(leerlingUser);
+    }
+
+    @Test
+    void cancelDeletion_throwsWhenUserNotFound() {
+        when(userRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.cancelDeletion(99))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 }

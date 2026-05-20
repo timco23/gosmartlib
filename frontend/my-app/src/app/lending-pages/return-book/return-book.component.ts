@@ -14,10 +14,11 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LendingService } from '../../services/lending.service';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
+import { LendingSelectorPopupComponent } from '../../lending-selector-popup/lending-selector-popup.component';
 
 @Component({
   selector: 'app-return-book',
-  imports: [FormsModule, RouterLink, PopUpComponent],
+  imports: [FormsModule, RouterLink, PopUpComponent, LendingSelectorPopupComponent],
   templateUrl: './return-book.component.html',
   styleUrl: './return-book.component.css',
 })
@@ -34,10 +35,12 @@ export class ReturnBookComponent {
 
   returnConfirmation: boolean = false;
   selectBookError: boolean = false;
+  isLendingPopupOpen = false;
 
+  
   public bookSelected: boolean = false;
   public barcode: string = '';
-
+  
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private schoolService = inject(SchoolService);
   private authService = inject(AuthService);
@@ -47,18 +50,21 @@ export class ReturnBookComponent {
   private router = inject(Router);
 
   bookApi = inject(BookService);
-
+  
   popUpActions: ConfirmDialogAction[] = [
     { label: 'Annuleren', type: 'cancel', value: 'cancel' },
     { label: 'Terugbrengen', type: 'primary', value: 'confirm' },
   ];
-
+  
   get returnConfirmationMessage(): string {
     return `Bent u zeker dat ${this.currentLending?.borrowerName} het boek "${this.currentBook?.title}" terugbrengt?`;
   }
-
+  
   constructor(private bookService: BookService) {}
-
+  
+  openLendingPopup(): void { this.isLendingPopupOpen = true; }
+  closeLendingPopup(): void { this.isLendingPopupOpen = false; }
+  
   public ngOnInit(): void {
     this.cdr.detectChanges();
     this.authService.currentUser$.subscribe((user) => {
@@ -208,7 +214,6 @@ export class ReturnBookComponent {
     if (value === 'confirm') {
       this.bookService.setCopyStatus(this.currentSchoolCopy.id, 'BESCHIKBAAR').subscribe({
         next: () => {
-          console.log('Copy status updated');
           this.lendingService
             .updateLending(this.currentLending.id, {
               ...this.currentLending,
@@ -217,13 +222,11 @@ export class ReturnBookComponent {
             })
             .subscribe({
               next: () => {
-                console.log('Lending updated');
 
                 this.bookService
                   .setCondition(this.currentSchoolCopy!.id, this.selectedCondition)
                   .subscribe({
                     next: () => {
-                      console.log('Copy condition updated');
                     },
                     error: (err) => {
                       console.error('Error updating copy condition:', err);
@@ -232,7 +235,6 @@ export class ReturnBookComponent {
 
                 this.userService.removeBorrowedItem(this.currentLending.borrowerId).subscribe({
                   next: () => {
-                    console.log('User borrowed count updated');
                     this.router.navigate(['/lendings']);
                   },
                   error: (err) => {
@@ -272,5 +274,14 @@ export class ReturnBookComponent {
   coverSrcFromLending(lending: any): string {
     const book = lending?.book ?? lending?.item ?? this.currentBook ?? null;
     return this.bookApi.getBookCoverSrc(book) ?? '';
+  }
+  
+  onLendingSelected(lending: any): void {
+    this.currentLending = lending;
+    this.bookSelected = true;
+    this.barcode = lending.copyBarcode;
+    this.onBarcodeChange(lending.copyBarcode);
+    this.isLendingPopupOpen = false;
+    this.cdr.detectChanges();
   }
 }

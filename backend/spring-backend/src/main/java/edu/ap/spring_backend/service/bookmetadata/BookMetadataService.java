@@ -4,6 +4,7 @@ import edu.ap.spring_backend.dto.BookMetadata;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -84,7 +85,26 @@ public class BookMetadataService {
 
     private static String stripCopyright(String description) {
         if (description == null) return null;
-        return description.replaceAll("(?is)\\s*copyright\\b.*", "").trim();
+        String trimmed = description.trim();
+        if (trimmed.isEmpty()) return trimmed;
+
+        String lower = trimmed.toLowerCase(Locale.ROOT);
+        int idx = indexOfWord(lower, "copyright");
+        if (idx == -1) return trimmed;
+
+        return trimmed.substring(0, idx).trim();
+    }
+
+     private static int indexOfWord(String text, String word) {
+        int idx = text.indexOf(word);
+        while (idx != -1) {
+            boolean beforeOk = idx == 0 || !Character.isLetterOrDigit(text.charAt(idx - 1));
+            int end = idx + word.length();
+            boolean afterOk = end >= text.length() || !Character.isLetterOrDigit(text.charAt(end));
+            if (beforeOk && afterOk) return idx;
+            idx = text.indexOf(word, idx + 1);
+        }
+        return -1;
     }
 
     private static boolean isComplete(BookMetadata m) {

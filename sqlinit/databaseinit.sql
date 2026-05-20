@@ -91,8 +91,10 @@ CREATE TABLE IF NOT EXISTS user (
     school_id BIGINT, 
     refresh_token VARCHAR(512),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
-    items_borrowed INT NOT NULL DEFAULT 0
+    items_borrowed INT NOT NULL DEFAULT 0,
+    deletion_requested_at TIMESTAMP NULL DEFAULT NULL
 );
+
 
 create table if not exists class_user (
 	class_id BIGINT,
@@ -158,7 +160,7 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     item_id BIGINT not null,
     school_id bigint not null,
     barcode VARCHAR(255),
-    copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND'),
+    copy_status ENUM('BESCHIKBAAR', 'UITGELEEND','ONTBREKEND', 'KWIJT'),
     item_condition ENUM('NIEUW', 'GOED','GEBRUIKT','BESCHADIGD','ONGEDEFINIEERD'),
     featured boolean not null,
     campus_id bigint null,
@@ -437,10 +439,26 @@ CREATE TABLE IF NOT EXISTS collection_item (
     FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS user_favorite_books (
+    user_id INT NOT NULL,
+    item_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, item_id),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_wishlisted_books (
+    user_id INT NOT NULL,
+    item_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, item_id),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE
+);
+
 -- uitleningen van schoolitems aan gebruikers, met datum van uitlening en terugkeer, en status of het item is teruggebracht of niet
 CREATE TABLE IF NOT EXISTS lending (
     id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    borrower_id INT NOT NULL,
+    borrower_id INT NULL,
     book_id INT NULL,
     school_id BIGINT NOT NULL,
     lending_date DATE,
@@ -448,7 +466,8 @@ CREATE TABLE IF NOT EXISTS lending (
     returned BOOLEAN DEFAULT FALSE,
     date_returned DATE,
     extended BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE RESTRICT,
+    extend_count INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE SET NULL,
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );

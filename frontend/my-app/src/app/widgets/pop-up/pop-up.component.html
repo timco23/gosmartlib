@@ -1,5 +1,5 @@
-<div class="overlay">
-  <div class="confirm-dialog">
+<div class="overlay" draggable="false" (dragstart)="$event.stopPropagation()">
+  <div class="confirm-dialog" draggable="false" (dragstart)="$event.stopPropagation()">
     @if (title) {
       <h3>{{ title }}</h3>
     }

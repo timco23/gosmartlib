@@ -10,8 +10,9 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
-// Specifications replace the previous long complicated @Query with many optional filters
-// it builds queries dynamically, when new filters are needed they can be added here as additional methods
+/**
+ * Specifications for filtering Items based on various criteria. These are used to build dynamic queries
+ */
 public class ItemSpecifications {
 
     public static Specification<Item> withSearch(String search) {
@@ -47,15 +48,21 @@ public static Specification<Item> withMinScore(Double minScore) {
                 cb.greaterThanOrEqualTo(root.get("reviewScore"), minScore);
     }
 
-    // Filters Items by one or more tags using AND logic
-    // a book must have ALL specified tags
-    //
-    // A separate subquery is created for each tag, fetching the IDs of
-    // Items that have that tag. The main query retains only items
-    // that appear in every subquery
-    //
-    // subqueries are used because MySQL does not allow ORDER BY
-    // on columns absent from the SELECT list when DISTINCT is active
+    /**
+    * Filters Items by one or more tags using AND logic
+    * a book must have ALL specified tags
+    *
+    * A separate subquery is created for each tag, fetching the IDs of
+    * Items that have that tag. The main query retains only items
+    * that appear in every subquery
+    *
+    * subqueries are used because MySQL does not allow ORDER BY
+    * on columns absent from the SELECT list when DISTINCT is active
+    * 
+    * @param tagIds list of tag IDs to filter by
+    * @return Specification for filtering by tags
+    */
+
     public static Specification<Item> withTags(List<Long> tagIds) {
         return (root, query, cb) -> {
             if (tagIds == null || tagIds.isEmpty()) return null;
@@ -125,6 +132,15 @@ public static Specification<Item> withMinScore(Double minScore) {
             Join<Item, SchoolItemCopy> copies = root.join("copies");
             query.distinct(true);
             return cb.equal(copies.get("school").get("id"), schoolId);
+        };
+    }
+
+    public static Specification<Item> withCampusId(Long campusId) {
+        return (root, query, cb) -> {
+            if (campusId == null) return null;
+            Join<Item, SchoolItemCopy> copies = root.join("copies");
+            query.distinct(true);
+            return cb.equal(copies.get("campus").get("id"), campusId);
         };
     }
 }

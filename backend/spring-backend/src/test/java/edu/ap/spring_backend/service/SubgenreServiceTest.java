@@ -34,7 +34,7 @@ class SubgenreServiceTest {
 
         Mockito.when(subgenreRepository.findAll()).thenReturn(List.of(sub));
 
-        List<Subgenre> result = subgenreService.GetAll();
+        List<Subgenre> result = subgenreService.getAll();
 
         assertEquals(1, result.size());
         assertEquals("Metal", result.get(0).getName());
@@ -75,12 +75,14 @@ class SubgenreServiceTest {
     void getFromGenreIds_shouldReturnMatchingSubgenres() {
         Subgenre sub = new Subgenre("Metal");
         sub.setId(1L);
-
+        Genre genre = new Genre("Rock");
+        genre.setId(1L);
+        sub.setGenre(genre);
+    
         Mockito.when(subgenreRepository.findAllByGenreIdIn(List.of(1L)))
                 .thenReturn(List.of(sub));
-
-        List<Subgenre> result = subgenreService.getFromGenreIds(List.of(1L));
-
+    
+        List<SubgenreDTO> result = subgenreService.getFromGenreIds(List.of(1L));
         assertEquals(1, result.size());
     }
 

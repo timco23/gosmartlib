@@ -33,6 +33,8 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   @Input() books: BookSelectorItem[] = [];
   @Input() limit = 10;
   @Input() selectedId: string | number | null = null;
+  @Input() disableFallback = false;
+  @Input() canAddInBulk = false;
 
   @Input() getId: (book: BookSelectorItem) => string | number = (b) => b.id ?? b.bookId ?? '';
   @Input() getTitle: (book: BookSelectorItem) => string = (b) =>
@@ -41,6 +43,10 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
     [b.author ?? b.authorName, b.isbn].filter(Boolean).join(' • ');
 
   @Output() bookSelected = new EventEmitter<BookSelectorItem>();
+  @Output() close = new EventEmitter<void>();
+  @Output() booksConfirmed = new EventEmitter<BookSelectorItem[]>();
+
+  selectedBooks: BookSelectorItem[] = [];
 
   searchTerm = '';
   filteredBooks: BookSelectorItem[] = [];
@@ -49,11 +55,13 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   private readonly pageSize = 200;
   private readonly maxPages = 50;
 
-  //Locks scrolling for body of the entire page, not just this component.
+  showMultipleBooks = false;
+
   constructor() {
     effect(() => {
       if (this.isOpen()) {
         this.renderer.addClass(document.body, 'no-scroll');
+        this.selectedBooks = [];
       } else {
         this.renderer.removeClass(document.body, 'no-scroll');
       }
@@ -95,6 +103,7 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
   trackByBook = (_: number, book: BookSelectorItem): string | number => this.getId(book);
 
   private async loadFallbackBooks(): Promise<void> {
+    if (this.disableFallback) return;
     try {
       const unique = new Map<string, BookSelectorItem>();
 
@@ -154,5 +163,31 @@ export class BookSelectorPopupComponent implements OnChanges, OnInit {
 
   closePopup() {
     this.isOpen.set(false);
+    this.close.emit();
+  }
+
+  selectBook(book: BookSelectorItem): void {
+    if (!this.showMultipleBooks) {
+      this.bookSelected.emit(book);
+      return;
+    }
+
+    const id = String(this.getId(book));
+    const exists = this.selectedBooks.some(b => String(this.getId(b)) === id);
+    if (exists) {
+      this.selectedBooks = this.selectedBooks.filter(b => String(this.getId(b)) !== id);
+    } else {
+      this.selectedBooks = [...this.selectedBooks, book];
+    }
+  }
+
+  isInSelection(book: BookSelectorItem): boolean {
+    return this.selectedBooks.some(b => String(this.getId(b)) === String(this.getId(book)));
+  }
+
+  confirmSelection(): void {
+    this.booksConfirmed.emit(this.selectedBooks);
+    this.selectedBooks = [];
+    this.closePopup();
   }
 }

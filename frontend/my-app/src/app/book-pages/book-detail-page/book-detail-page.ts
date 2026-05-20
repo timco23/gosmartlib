@@ -1,16 +1,9 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  effect,
-  OnInit,
-  inject,
-  Renderer2,
-  signal,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, Renderer2, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookService } from '../../services/book-service';
 import {
   Book,
+  CampusAvailability,
   Role,
   LoginResponse,
   SchoolItemCopy,
@@ -34,12 +27,21 @@ import { ReviewList } from '../review-list/review-list';
 import { ReviewForm } from '../review-form/review-form';
 import { ReadingListService } from '../../services/readingList-service';
 import { CollectionService } from '../../services/collection-service';
-import { PopUpComponent } from "../../widgets/pop-up/pop-up.component";
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
+import { RelatedBooks } from '../../related-books/related-books';
 
 @Component({
   selector: 'app-book-detail-page',
-  imports: [RouterLink, CommonModule, ReviewForm, ReviewList, PopUpComponent, StarDisplayComponent],
+  imports: [
+    RouterLink,
+    CommonModule,
+    ReviewForm,
+    ReviewList,
+    PopUpComponent,
+    StarDisplayComponent,
+    RelatedBooks,
+  ],
   templateUrl: './book-detail-page.html',
   styleUrl: './book-detail-page.css',
 })
@@ -56,6 +58,7 @@ export class BookDetailPage implements OnInit {
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   renderer = inject(Renderer2);
   copies: SchoolItemCopy[] = [];
+  campusAvailabilities: CampusAvailability[] = [];
   role = Role;
   school: School | null = null;
   isFeatured: boolean = false;
@@ -83,8 +86,19 @@ export class BookDetailPage implements OnInit {
 
   isFavorite: boolean = false;
   favorites: any[] = [];
+  
+  isInWishlist: boolean = false;
+  wishListBooks: any[] = [];
 
   ratingLevels: number[] = [5, 4, 3, 2, 1];
+
+  
+  get currentUserHasReview(): boolean {
+    if (!this.currentUser) return false;
+    return this.reviews.some(
+      (r) => r.authorEmail === this.currentUser!.email
+    );
+  }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe((user) => {
@@ -125,6 +139,7 @@ export class BookDetailPage implements OnInit {
           next: (favorites) => {
             this.favorites = favorites;
             this.checkIfFavorite();
+            this.checkIfInWishlist();
             console.log(favorites);
             this.cdr.detectChanges();
           },
@@ -235,7 +250,7 @@ export class BookDetailPage implements OnInit {
 
   onReportReview(event: { reviewId: number; reason?: string }): void {
     if (!this.book) return;
-
+    
     this.reviewService
       .reportReview(this.book.id, event.reviewId, { reason: event.reason })
       .subscribe({
@@ -248,6 +263,7 @@ export class BookDetailPage implements OnInit {
         },
         error: () => {
           this.reviewServerError = 'Rapporteren mislukt. Probeer later opnieuw.';
+          this.cdr.detectChanges();
         },
       });
   }
@@ -255,6 +271,12 @@ export class BookDetailPage implements OnInit {
   checkIfFavorite() {
     if (this.book && this.favorites) {
       this.isFavorite = this.favorites.some((fav: any) => fav.id === this.book?.id);
+    }
+  }
+
+  checkIfInWishlist() {
+    if (this.book && this.favorites) {
+      this.isInWishlist = this.wishListBooks.some((fav: any) => fav.id === this.book?.id);
     }
   }
 
@@ -280,26 +302,78 @@ export class BookDetailPage implements OnInit {
     }
   }
 
+  addToWishlist() {
+    if (!this.book || !this.currentUser?.email) return;
+
+    if (!this.isInWishlist) {
+      this.api.addToWishlist(this.book.id, this.currentUser.email).subscribe({
+        next: () => {
+          this.isInWishlist = true;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij toevoegen:', err),
+      });
+    } else {
+      this.api.removeFromWishlist(this.book.id, this.currentUser.email).subscribe({
+        next: () => {
+          this.isInWishlist = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Probleem bij verwijderen:', err),
+      });
+    }
+  }
+
   getBook(id: string) {
     this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
         this.loadReviews();
         this.checkIfFavorite();
+        this.checkIfInWishlist();
         this.cdr.detectChanges();
 
         if (!this.school?.id) return;
 
         this.api.getCopiesByBookId(data.id, this.school.id).subscribe({
           next: (copies) => {
-            this.copies = copies;
-            if (copies.length > 0 && copies[0].featured) this.isFeatured = true;
+            this.copies = copies.filter((c) => c.copy_status !== 'KWIJT');
+            if (this.copies.length > 0 && this.copies[0].featured) this.isFeatured = true;
             this.cdr.detectChanges();
+
+            const hasUnavailableCampus = this.copiesByCampus.some((e) => e.available === 0 && e.borrowed > 0);
+            if (hasUnavailableCampus) {
+              this.api.getEarliestAvailabilityPerCampus(data.id).subscribe({
+                next: (dates) => {
+                  this.campusAvailabilities = dates;
+                  this.cdr.detectChanges();
+                },
+              });
+            }
           },
         });
       },
     });
   }
+  
+  get copiesByCampus(): { campusName: string; available: number; borrowed: number; other: number; total: number; earliestReturnDate: string | null }[] {
+    const groups = new Map<string, SchoolItemCopy[]>();
+    for (const copy of this.copies) {
+      const key = copy.campus?.name ?? 'Geen locatie';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(copy);
+    }
+
+    return Array.from(groups.entries()).map(([campusName, group]) => ({
+      campusName,
+      available: group.filter((c) => c.copy_status === 'BESCHIKBAAR').length,
+      borrowed: group.filter((c) => c.copy_status === 'UITGELEEND').length,
+      other: group.filter((c) => c.copy_status !== 'BESCHIKBAAR' && c.copy_status !== 'UITGELEEND').length,
+      total: group.filter((c) => c.copy_status === 'BESCHIKBAAR' || c.copy_status === 'UITGELEEND').length,
+      earliestReturnDate: this.campusAvailabilities.find((d) => d.campusName === campusName)?.availableFrom ?? null,
+    }));
+  }
+
 
   getTagName(id: number): string {
     return this.allTags.find((t) => t.id === id)?.name ?? '';
@@ -359,13 +433,11 @@ export class BookDetailPage implements OnInit {
       next: (isFeatured) => {
         if (isFeatured) {
           this.showUnableToDelete.set(true);
-          this.cdr.detectChanges();
         } else {
           this.readingListService.checkIfItemIsInReadingList(id).subscribe({
             next: (isInList) => {
               if (isInList) {
                 this.showDeleteConfirmation.set(true);
-                this.cdr.detectChanges();
               } else {
                 this.checkIfInCollection();
               }
@@ -390,7 +462,6 @@ export class BookDetailPage implements OnInit {
         if (isInCollection) {
           this.showDeleteConfirmationForCollections.set(true);
           this.showDeleteConfirmation.set(false);
-          this.cdr.detectChanges();
         } else {
           this.confirmDelete();
         }
@@ -428,11 +499,17 @@ export class BookDetailPage implements OnInit {
 
   closeNotification() {
     this.bookHasCopyError = false;
+    this.deleteError = false;
     this.cdr.detectChanges();
   }
 
   backToList() {
-    this.router.navigate(['/books'], { replaceUrl: true });
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/books';
+    this.router.navigate([returnUrl], { replaceUrl: true });
+  }
+
+  get returnUrl(): string {
+    return this.route.snapshot.queryParamMap.get('returnUrl') ?? '/books';
   }
 
   toggleFeatured() {
@@ -457,5 +534,21 @@ export class BookDetailPage implements OnInit {
   onReviewCancelled(): void {
     this.reviewServerError = '';
     this.showReviewForm = false;
+  }
+
+  handleReadingListPopUp(action: string) {
+    if (action == 'cancel') {
+      this.cancelDelete();
+    } else {
+      this.checkIfInCollection();
+    }
+  }
+
+  handleCollectionPopUp(action: string) {
+    if (action == 'cancel') {
+      this.cancelDelete();
+    } else {
+      this.confirmDelete();
+    }
   }
 }

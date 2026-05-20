@@ -1,0 +1,81 @@
+<section class="related-books-section">
+  <h3 class="related-title">Meer zoals dit</h3>
+
+  <div class="related-tabs">
+    @for (tab of tabs; track tab.key) {
+      <button
+        class="related-tab"
+        [class.active]="activeTab === tab.key"
+        type="button"
+        (click)="selectTab(tab.key)"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="related-loading">
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+    </div>
+  } @else if (relatedBooks.length === 0) {
+    <p class="related-empty">Geen gerelateerde boeken gevonden.</p>
+  } @else {
+    <div class="related-grid">
+      @for (b of relatedBooks; track b.id) {
+        <a class="related-card" [routerLink]="['/books', b.id]">
+          <div class="related-cover">
+            <img
+              [src]="getCoverUrl(b.id)"
+              [alt]="b.title"
+              loading="lazy"
+              class="related-cover-img"
+            />
+          </div>
+          <div class="related-info">
+            <span class="related-book-title">{{ b.title }}</span>
+            <span class="related-book-author">{{ b.author }}</span>
+            <span class="related-book-desc">{{ b.description }}</span>
+            <div class="related-meta">
+              @if (b.language) {
+                <span class="related-badge badge-lang">{{ b.language }}</span>
+              }
+              @if (b.genres?.length) {
+                <span class="related-badge badge-genre">
+                  {{ getGenreNames(b.genres) }}
+                </span>
+              }
+              @if (b.pageCount) {
+                <span class="related-badge badge-pages">{{ b.pageCount }} p.</span>
+              }
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="related-pagination">
+        <button
+          class="related-page-btn"
+          type="button"
+          (click)="prevPage()"
+          [disabled]="currentPage === 0"
+        >
+          ← Vorige
+        </button>
+        <span class="related-page-indicator">Pagina {{ currentPage + 1 }} / {{ totalPages }}</span>
+        <button
+          class="related-page-btn"
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage >= totalPages - 1"
+        >
+          Volgende →
+        </button>
+      </div>
+    }
+  }
+</section>

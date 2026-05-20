@@ -16,12 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
      * @return list of reviews for the item
      */
     List<Review> findByItemId(Long itemId);
-
-    /**
-     * Deletes all reviews associated with a specific item ID.
-     * @param itemId the ID of the item whose reviews should be deleted
-     * @return the number of reviews deleted
-     */
     long deleteByItem_Id(Long itemId);
 
     /**
@@ -30,4 +24,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
      * @return list of reviews from that school
      */
     List<Review> findAllByAuthorSchoolId(Long schoolId);
+    boolean existsByItemIdAndAuthorId(Long itemId, Integer authorId);
 }

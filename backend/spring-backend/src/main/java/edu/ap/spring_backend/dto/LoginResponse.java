@@ -1,27 +1,20 @@
 package edu.ap.spring_backend.dto;
 
 /**
- * Data Transfer Object for login response.
+ * DTO for login response.
  * Contains user information after successful authentication.
  */
 public class LoginResponse {
     private String name;
     private String role;
     private String email;
-    
-    /**
-     * Constructor with all fields.
-     * @param name user's display name
-     * @param role user's role
-     * @param email user's email address
-     */
+
     public LoginResponse(String name, String role, String email) {
         this.name = name;
         this.role = role;
         this.email = email;
     }
     
-    // Getters and setters
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     

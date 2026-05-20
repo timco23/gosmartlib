@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dao.SchoolRepository;
+import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.Campus;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,27 @@ public class SchoolService {
 
     public SchoolService(SchoolRepository schoolRepository) {
         this.schoolRepository = schoolRepository;
+    }
+
+    private School findOrThrow(Long id) {
+        return schoolRepository.findById(id)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
+    private void applySettings(School existing, School updated) {
+        existing.setLendingPeriodDays(updated.getLendingPeriodDays());
+        existing.setExtendPeriodDays(updated.getExtendPeriodDays());
+        existing.setMaxExtends(updated.getMaxExtends());
+        existing.setMaxLendsStudent(updated.getMaxLendsStudent());
+        existing.setMaxLendTeacher(updated.getMaxLendTeacher());
+        existing.setLenderNotificationPeriod(updated.getLenderNotificationPeriod());
+        existing.setLenderLateNotificationPeriod(updated.getLenderLateNotificationPeriod());
+        existing.setLibrarianNotificationNotReturned(updated.getLibrarianNotificationNotReturned());
+        existing.setLibrarianRequestNotification(updated.getLibrarianRequestNotification());
+        existing.setExternalVisibility(updated.isExternalVisibility());
+        existing.setExternalLending(updated.isExternalLending());
+        existing.setReviews(updated.isReviews());
+        existing.setReviewModeration(updated.isReviewModeration());
     }
 
     public List<School> getAllSchools() {
@@ -27,65 +49,32 @@ public class SchoolService {
     }
 
     public School updateSchool(Long id, School updatedSchool) {
-        School existingSchool = schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
+        School existingSchool = findOrThrow(id);
 
         existingSchool.setName(updatedSchool.getName());
         existingSchool.setAddress(updatedSchool.getAddress());
-        existingSchool.setLendingPeriodDays(updatedSchool.getLendingPeriodDays());
-        existingSchool.setExtendPeriodDays(updatedSchool.getExtendPeriodDays());
-        existingSchool.setMaxExtends(updatedSchool.getMaxExtends());
-        existingSchool.setMaxLendsStudent(updatedSchool.getMaxLendsStudent());
-        existingSchool.setMaxLendTeacher(updatedSchool.getMaxLendTeacher());
-        existingSchool.setLenderNotificationPeriod(updatedSchool.getLenderNotificationPeriod());
-        existingSchool.setLenderLateNotificationPeriod(updatedSchool.getLenderLateNotificationPeriod());
-        existingSchool.setLibrarianNotificationNotReturned(updatedSchool.getLibrarianNotificationNotReturned());
-        existingSchool.setLibrarianRequestNotification(updatedSchool.getLibrarianRequestNotification());
-        existingSchool.setExternalVisibility(updatedSchool.isExternalVisibility());
-        existingSchool.setExternalLending(updatedSchool.isExternalLending());
-        existingSchool.setReviews(updatedSchool.isReviews());
-        existingSchool.setReviewModeration(updatedSchool.isReviewModeration());
+        applySettings(existingSchool, updatedSchool);
 
-        // Update campussen
         existingSchool.getCampuses().clear();
         for (Campus campus : updatedSchool.getCampuses()) {
             existingSchool.addCampus(new Campus(campus.getName(), existingSchool));
         }
 
-        return schoolRepository.save(existingSchool); 
+        return schoolRepository.save(existingSchool);
     }
 
     public School getSchoolByName(String name) {
-        School school = schoolRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("School not found with name " + name));
-        return school;
+        return schoolRepository.findByName(name)
+                .orElseThrow(EntityNotFoundException::new);
     }
 
     public School getSchoolById(Long id) {
-        School school =  schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
-        return school;
+        return findOrThrow(id);
     }
 
-    //used by BIBLIOTHEEKBEHEERDER
     public School updateSchoolSettings(Long id, School updatedSchool) {
-        School existingSchool = schoolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("School not found with id " + id));
-
-        existingSchool.setLendingPeriodDays(updatedSchool.getLendingPeriodDays());
-        existingSchool.setExtendPeriodDays(updatedSchool.getExtendPeriodDays());
-        existingSchool.setMaxExtends(updatedSchool.getMaxExtends());
-        existingSchool.setMaxLendsStudent(updatedSchool.getMaxLendsStudent());
-        existingSchool.setMaxLendTeacher(updatedSchool.getMaxLendTeacher());
-        existingSchool.setLenderNotificationPeriod(updatedSchool.getLenderNotificationPeriod());
-        existingSchool.setLenderLateNotificationPeriod(updatedSchool.getLenderLateNotificationPeriod());
-        existingSchool.setLibrarianNotificationNotReturned(updatedSchool.getLibrarianNotificationNotReturned());
-        existingSchool.setLibrarianRequestNotification(updatedSchool.getLibrarianRequestNotification());
-        existingSchool.setExternalVisibility(updatedSchool.isExternalVisibility());
-        existingSchool.setExternalLending(updatedSchool.isExternalLending());
-        existingSchool.setReviews(updatedSchool.isReviews());
-        existingSchool.setReviewModeration(updatedSchool.isReviewModeration());
-
+        School existingSchool = findOrThrow(id);
+        applySettings(existingSchool, updatedSchool);
         return schoolRepository.save(existingSchool);
     }
 }

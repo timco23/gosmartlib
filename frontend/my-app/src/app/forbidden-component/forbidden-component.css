@@ -1,56 +1,49 @@
 .forbidden-page {
-  max-width: 720px;
-  margin: 4rem auto;
-  padding: 2.5rem;
+  max-width: 520px;
+  margin: var(--space-16) auto;
+  padding: var(--space-10);
   text-align: center;
-  background-color: #f9fafb;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .forbidden-page h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: #1f2937;
+  font-family: var(--font-body);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-1);
+  margin: 0 0 var(--space-4);
 }
 
 .forbidden-page p {
-  color: #4b5563;
-  margin-bottom: 2rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+  margin: 0 0 var(--space-8);
+  line-height: 1.6;
 }
 
 .home-button {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-
-  padding: 0.8rem 1.6rem;
-  background-color: #8c1d40;
-  color: #ffffff;
-
-  font-weight: 600;
+  gap: var(--space-2);
+  padding: 0.5625rem 1.25rem;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   text-decoration: none;
-  border-radius: 999px;
-
-  border: 2px solid transparent;
-  box-shadow: 0 6px 0 #a6ce39;
-
-  transition: all 0.2s ease;
-}
-
-.home-button::before {
-  content: '›';
-  font-size: 1.2rem;
-  color: #a6ce39;
+  border-radius: var(--radius-sm);
+  border: none;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .home-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 0 #a6ce39;
-  background-color: #a1224b;
-}
-
-.home-button:active {
-  transform: translateY(2px);
-  box-shadow: 0 3px 0 #a6ce39;
+  background: var(--color-primary-bright);
+  box-shadow: var(--shadow-red);
 }

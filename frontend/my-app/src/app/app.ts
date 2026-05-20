@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, HostBinding } from '@angular/core';
 import { RouterOutlet, Router, RouterLink, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
@@ -15,8 +15,14 @@ import { Role } from '../types/types';
 })
 export class App implements OnInit {
   currentUser: LoginResponse | null = null;
-  dropdownOpen = false;
+  isDarkMode = false;
+  sidebarRight = false;
+  mobileNavOpen = false;
   role = Role;
+
+  @HostBinding('class.sidebar-right') get sidebarRightClass() {
+    return this.sidebarRight;
+  }
 
   constructor(
     public authService: AuthService,
@@ -24,13 +30,17 @@ export class App implements OnInit {
   ) {}
 
   ngOnInit() {
+    const savedTheme = localStorage.getItem('gsmart-theme');
+    this.isDarkMode = savedTheme === 'dark';
+    this.applyTheme();
+
+    this.sidebarRight = localStorage.getItem('gsmart-sidebar') === 'right';
+    this.applySidebarPosition();
+
+    this.setBodyScrollLock(false);
+
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
-
-      // cleanup when logged out
-      if (!user) {
-        this.dropdownOpen = false;
-      }
     });
 
     const isPublicRoute = (url: string) => {
@@ -52,6 +62,8 @@ export class App implements OnInit {
     }
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.mobileNavOpen = false;
+      this.setBodyScrollLock(false);
       const currentUrl = this.router.url;
       const path = currentUrl.split('?')[0];
       const isLoggedIn = this.authService.isLoggedIn();
@@ -68,26 +80,41 @@ export class App implements OnInit {
     });
   }
 
-  toggleDropdown() {
-    this.dropdownOpen = !this.dropdownOpen;
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    this.applyTheme();
+    localStorage.setItem('gsmart-theme', this.isDarkMode ? 'dark' : 'light');
   }
 
-  closeDropdown() {
-    this.dropdownOpen = false;
+  toggleSidebarPosition() {
+    this.sidebarRight = !this.sidebarRight;
+    this.applySidebarPosition();
+    localStorage.setItem('gsmart-sidebar', this.sidebarRight ? 'right' : 'left');
+  }
+
+  private applySidebarPosition() {
+    document.documentElement.setAttribute('data-sidebar', this.sidebarRight ? 'right' : 'left');
+  }
+
+  private applyTheme() {
+    document.documentElement.setAttribute('data-theme', this.isDarkMode ? 'dark' : 'light');
+  }
+
+  toggleMobileNav() {
+    this.mobileNavOpen = !this.mobileNavOpen;
+    this.setBodyScrollLock(this.mobileNavOpen);
+  }
+
+  closeMobileNav() {
+    this.mobileNavOpen = false;
   }
 
   logout() {
     this.authService.logout();
-    this.dropdownOpen = false;
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 
-  // Close the dropdown when you click outside it
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.user-menu')) {
-      this.dropdownOpen = false;
-    }
+  private setBodyScrollLock(locked: boolean) {
+    document.body.classList.toggle('no-scroll', locked);
   }
 }

@@ -1,12 +1,19 @@
 <body>
   <app-share-list-popup [(link)]="copyLink" [(shown)]="showPopup"></app-share-list-popup>
-  <header>
-    <button (click)="addList()">Klasleeslijst toevoegen</button>
-  </header>
 
   <main>
-    <h1>Huidige klasleeslijsten</h1>
-    @if (!loading && readingLists!.length >= 1) {
+    <div class="page-header">
+      <h1>Huidige klasleeslijsten</h1>
+      <div class="header-actions">
+        <button (click)="addList()">Klasleeslijst toevoegen</button>
+      </div>
+    </div>
+
+    @if (loading) {
+      <p>Klasleeslijsten laden...</p>
+    } @else if (loadingError) {
+      <p class="error">Er was een probleem met het ophalen van je klasleeslijsten.</p>
+    } @else if (readingLists!.length >= 1) {
       <ul>
         @for (list of readingLists; track $index) {
           <li class="list-container">
@@ -17,17 +24,8 @@
               </div>
               <div class="list-buttons">
                 <button (click)="shareList(list.id)" title="Lijst delen" class="icon-btn">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="18" cy="5" r="3"></circle>
                     <circle cx="6" cy="12" r="3"></circle>
                     <circle cx="18" cy="19" r="3"></circle>
@@ -36,58 +34,45 @@
                   </svg>
                 </button>
                 <button (click)="editList(list.id)" title="Lijst wijzigen" class="icon-btn">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
                 </button>
-                <button (click)="showConfirmDelete()" title="Lijst verwijderen" class="icon-btn">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
+                <button (click)="showConfirmDelete(list.id)" title="Lijst verwijderen" class="icon-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
                 </button>
-                @if(showDeleteConfirm){
-                  <app-pop-up [message]="'Bent u zeker dat u deze lijst wil verwijderen?'"
-                    [actions]="[
-                      { label: 'Annuleren', type: 'cancel', value: 'cancel' },
-                      { label: 'Verwijderen', type: 'danger', value: 'confirm' }
-                    ]" (actionClicked)="deleteList($event, list.id)" />
-                  }
-                <button (click)="devGoToDetails(list.id)">DEV: Go to detail page</button>
+                <button class="detail-btn" (click)="devGoToDetails(list.id)">Details</button>
               </div>
             </div>
 
-            <app-book-carousel [books]="list.items" [detailedView]="false" [progressDots]="false" [scrollableThreshold]="6"></app-book-carousel>
+            <app-book-carousel
+              [books]="list.items"
+              [detailedView]="false"
+              [progressDots]="false"
+              [scrollableThreshold]="6"
+            ></app-book-carousel>
           </li>
         }
       </ul>
-    } @else if (loadingError) {
-      <p class="error">Er was een probleem met het ophalen van je klasleeslijsten.</p>
-    } @else if (readingLists!.length < 1) {
-      <p>Geen klasleeslijsten gevonden.</p>
     } @else {
-      <p>Klasleeslijsten laden...</p>
+      <p>Geen klasleeslijsten gevonden.</p>
     }
   </main>
+
+  @if (showDeleteConfirm && pendingDeleteListId !== null) {
+    <app-pop-up
+      [message]="'Bent u zeker dat u deze lijst wil verwijderen?'"
+      [actions]="[
+        { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+        { label: 'Verwijderen', type: 'danger', value: 'confirm' },
+      ]"
+      (actionClicked)="deleteList($event, pendingDeleteListId!)"
+    />
+  }
 </body>

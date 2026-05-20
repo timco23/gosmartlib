@@ -10,8 +10,8 @@
   <div class="search-bar">
     <input
       type="text"
-      placeholder="Zoek op e-mailadres..."
-      [(ngModel)]="emailFilter"
+      placeholder="Zoek op naam..."
+      [(ngModel)]="nameFilter"
       (ngModelChange)="onFilterChange()"
     />
   </div>
@@ -28,30 +28,77 @@
     @if (filteredUsers.length === 0) {
       <div class="no-results">Geen gebruikers gevonden.</div>
     } @else {
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th (click)="sortBy('naam')" class="sortable">Naam <span class="sort-icon">{{ sortColumn === 'naam' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
-            <th (click)="sortBy('email')" class="sortable">E-mail <span class="sort-icon">{{ sortColumn === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
-            <th (click)="sortBy('klas')" class="sortable">Klas <span class="sort-icon">{{ sortColumn === 'klas' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
-            <th (click)="sortBy('rol')" class="sortable">Rol <span class="sort-icon">{{ sortColumn === 'rol' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅' }}</span></th>
+      <div class="table-scroll">
+        <table class="users-table">
+          <thead>
+            <tr>
+            <th (click)="sortBy('naam')" class="sortable">
+              Naam
+              <span class="sort-icon">{{
+                sortColumn === 'naam' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
+            <th (click)="sortBy('email')" class="sortable">
+              E-mail
+              <span class="sort-icon">{{
+                sortColumn === 'email' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
+            <th (click)="sortBy('klas')" class="sortable">
+              Klas
+              <span class="sort-icon">{{
+                sortColumn === 'klas' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
+            <th (click)="sortBy('rol')" class="sortable">
+              Rol
+              <span class="sort-icon">{{
+                sortColumn === 'rol' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'
+              }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
-          @for (user of filteredUsers; track user.email) {
+          @for (user of pagedUsers; track user.email) {
             <tr (click)="openProfile(user)" class="user-row">
               <td>{{ user.firstName }} {{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ getClasses(user) }}</td>
               <td>
                 <span class="role-badge" [ngClass]="user.role?.toLowerCase()">
-                  {{ user.role }}
+                  @if (user.role?.toLowerCase() === 'bibliotheekbeheerder') {
+                    bibliotheek&shy;beheerder
+                  } @else {
+                    {{ user.role }}
+                  }
                 </span>
               </td>
             </tr>
           }
         </tbody>
       </table>
+    </div>
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button
+          class="page-btn"
+          type="button"
+          (click)="previousPage()"
+          [disabled]="currentPage === 0"
+        >
+          ←
+        </button>
+        <span class="page-indicator">{{ currentPage + 1 }} / {{ totalPages }}</span>
+        <button
+          class="page-btn"
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages - 1"
+        >
+          →
+        </button>
+      </div>
+    }
     }
   }
 </div>

@@ -22,8 +22,8 @@ public class UserController {
 
     /**
      * Constructor with dependency injection.
-     *
      * @param userService service for user operations
+     * @return a new instance of UserController with the provided UserService
      */
     public UserController(UserService userService) {
         this.userService = userService;
@@ -53,6 +53,12 @@ public class UserController {
         return ResponseEntity.ok(favoriteBooks);
     }
 
+    /**
+     * Adds a book to the user's favorites list based on the provided email and item ID.
+     * @param email
+     * @param itemId
+     * @return a ResponseEntity with a success message if the book was added, or an error message if the operation failed (e.g. user or item not found, item already in favorites, etc.)
+     */
     @PostMapping("/favorites")
     public ResponseEntity<String> addFavoriteBook(@RequestParam String email, @RequestParam Long itemId) {
         try {
@@ -63,16 +69,67 @@ public class UserController {
         }
     }
 
+    /**
+     * Removes a book from the user's favorites list based on the provided email and item ID.
+     * @param email
+     * @param itemId
+     * @return a ResponseEntity with a success message if the book was removed, or an error message if the operation failed (e.g. user or item not found, item not in favorites, etc.)
+     */
     @DeleteMapping("/favorites")
     public ResponseEntity<String> deleteFavoriteBook(@RequestParam String email, @RequestParam Long itemId) {
         try {
             userService.deleteFavoriteBook(email, itemId);
-            return ResponseEntity.ok("Book removed from favorites");
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
+    @GetMapping("/wishlist")
+    public ResponseEntity<ItemDTO[]> getWishlistedBooks(@RequestParam String email) {
+        ItemDTO[] favoriteBooks = userService.getWishlistedBooks(email);
+        return ResponseEntity.ok(favoriteBooks);
+    }
+
+    /**
+     * Adds a book to the user's wishlist based on the provided email and item ID.
+     * @param email
+     * @param itemId
+     * @return a ResponseEntity with a success message if the book was added, or an error message if the operation failed (e.g. user or item not found, item already in favorites, etc.)
+     */
+    @PostMapping("/wishlist")
+    public ResponseEntity<String> addWishlistedBook(@RequestParam String email, @RequestParam Long itemId) {
+        try {
+            userService.addWishlistedBook(email, itemId);
+            return ResponseEntity.ok("Book added to wishlist");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Removes a book from the user's wishlist based on the provided email and item ID.
+     * @param email
+     * @param itemId
+     * @return a ResponseEntity with a success message if the book was removed, or an error message if the operation failed (e.g. user or item not found, item not in favorites, etc.)
+     */
+    @DeleteMapping("/wishlist")
+    public ResponseEntity<String> deleteWishlistedBook(@RequestParam String email, @RequestParam Long itemId) {
+        try {
+            userService.deleteWishlistedBook(email, itemId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    /**
+     * Updates the role of a user based on their email. Only accessible by ADMIN users.
+     * @param email
+     * @param role
+     * @param auth
+     * @return a ResponseEntity containing the updated UserResponse if successful, or an error message if the operation failed (e.g. user not found, invalid role, insufficient permissions, etc.)
+     */
     @PutMapping("/role")
     public ResponseEntity<UserResponse> updateUserRole(
             @RequestParam String email,
@@ -82,7 +139,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // Admin-only
+    
     @PutMapping("/school")
     public ResponseEntity<UserResponse> changeSchool(@RequestParam String email, @RequestParam Long schoolId) {
         try {
@@ -111,5 +168,17 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PostMapping("/request-deletion")
+    public ResponseEntity<UserResponse> requestDeletion(Authentication auth) {
+        UserResponse response = userService.requestDeletion(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/cancel-deletion")
+    public ResponseEntity<UserResponse> cancelDeletion(Authentication auth) {
+        UserResponse response = userService.cancelDeletion(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(response);
     }
 }
