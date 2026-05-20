@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -148,6 +148,20 @@ export class UpdateBookPage implements OnInit {
     this.loadBook();
     this.loadSchool();
     this.api.setBookUpdating(this.book!.id, "true").subscribe();
+  }
+
+  ngOnDestroy(): void {
+    if (this.book?.id) {
+      this.api.setBookUpdating(this.book.id, "false").subscribe();
+    }
+  }
+
+  @HostListener('window:beforeunload')
+  onBeforeUnload(): void {
+    if (this.book?.id) {
+      const url = `/api/books/${this.book.id}/updating`;
+      navigator.sendBeacon(url, JSON.stringify({ updating: "false" }));
+    }
   }
 
   loadBook() {
