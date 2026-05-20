@@ -36,7 +36,7 @@
         <span class="stat-label">Te laat ingeleverd</span>
       </div>
       <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
-        <span class="stat-value">{{ stats.lateReturnPercent }}percentage</span>
+        <span class="stat-value">{{ stats.lateReturnPercent }} %</span>
         <span class="stat-label">Te laat percentage</span>
       </div>
       <div class="stat-card">
@@ -46,7 +46,7 @@
     </section>
 
     <section class="panel">
-      <h2 class="panel-title">Leesniveaus</h2>
+      <h2 class="panel-title">Leesniveau distributie</h2>
       <p class="panel-sub">Ontleningen per leesniveau</p>
       <div class="bar-chart">
         @for (bar of readingLevelBars; track bar.label) {
