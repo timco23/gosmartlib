@@ -203,7 +203,8 @@ public class LendingService {
         Map<String, LocalDate> earliest = new HashMap<>();
 
         for (Lending lending : lendingRepository.findByBook_Item_IdAndReturnedFalse(bookId)) {
-            String campus = lending.getBook().getCampus().getName();
+            Campus campusObj = lending.getBook().getCampus();
+            String campus = campusObj != null ? campusObj.getName() : "Geen locatie";
             LocalDate date = lending.getReturnDate();
             if (!earliest.containsKey(campus) || date.isBefore(earliest.get(campus))) {
                 earliest.put(campus, date);
