@@ -8,7 +8,11 @@
 
         @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
           <div class="action-bar">
-            <a class="action-btn edit-button" [routerLink]="['/books', book.id, 'edit']">
+            <a 
+              class="action-btn edit-button" 
+              [routerLink]="isUpdating ? null : ['/books', book.id, 'edit']"
+              (click)="onEditBookClick($event)"
+            >
               Boek wijzigen
             </a>
 
@@ -308,5 +312,14 @@
         (actionClicked)="cancelDelete()"
       />
     </div>
+  }
+
+  @if (showUpdatingWarning()) {
+    <app-pop-up
+      title="Boek wordt bijgewerkt"
+      message="Dit boek wordt momenteel bijgewerkt en kan niet gewijzigd worden. Probeer het later opnieuw."
+      [actions]="[{ label: 'Ok', type: 'cancel', value: 'ok' }]"
+      (actionClicked)="showUpdatingWarning.set(false)"
+    />
   }
 </div>

@@ -64,7 +64,8 @@ create table if not exists item
 	cover varchar(200) null,
 	review_score decimal(2,1) check(review_score >= 0) not null,
 	review_count int unsigned not null,
-    book_description text not null
+    book_description text not null,
+    isUpdating boolean not null default false
 );
 
 create table if not exists class (
