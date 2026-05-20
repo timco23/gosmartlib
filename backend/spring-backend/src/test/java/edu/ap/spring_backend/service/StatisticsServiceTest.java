@@ -8,6 +8,7 @@ import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
 import edu.ap.spring_backend.dto.ClassStatisticsDTO;
 import edu.ap.spring_backend.dto.ItemCountDTO;
+import edu.ap.spring_backend.dto.SchoolStatisticsDTO;
 import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.jpa.*;
 import edu.ap.spring_backend.util.SchoolYearUtil;
@@ -498,6 +499,75 @@ class StatisticsServiceTest {
         assertEquals(5, result.topGenres().size());
         assertEquals("Fantasy", result.topGenres().get(0));
         assertEquals("Avontuur", result.topGenres().get(1));
+    }
+
+    // --- school statistics tests ---
+
+    @Test
+    void getSchoolStatistics_schoolYearFilter_countsOnlyMatchingYear() {
+        Lending inYear  = lendingWithSnapshot(null, null, "2024-2025", null, null);
+        Lending outYear = lendingWithSnapshot(null, null, "2023-2024", null, null);
+
+        when(lendingRepository.findBySchool_Id(SCHOOL_ID)).thenReturn(List.of(inYear, outYear));
+        when(reviewRepository.countByAuthor_School_Id(SCHOOL_ID)).thenReturn(0L);
+
+        SchoolStatisticsDTO result = service.getSchoolStatistics(SCHOOL_ID, "2024-2025");
+
+        assertEquals(1, result.totalLendings());
+    }
+
+    @Test
+    void getSchoolStatistics_lendingsTrend_specificYear_returns12MonthlySlotsSepToAug() {
+        Lending l = new Lending();
+        l.setBook(copy);
+        l.setLendingDate(LocalDate.of(2024, 10, 5));
+        l.setReturnDate(LocalDate.of(2024, 10, 20));
+        l.setReturned(true);
+        l.setSnapSchoolYear("2024-2025");
+
+        when(lendingRepository.findBySchool_Id(SCHOOL_ID)).thenReturn(List.of(l));
+        when(reviewRepository.countByAuthor_School_Id(SCHOOL_ID)).thenReturn(0L);
+
+        List<SchoolStatisticsDTO.PeriodCountDTO> trend =
+                service.getSchoolStatistics(SCHOOL_ID, "2024-2025").lendingsTrend();
+
+        assertEquals(12, trend.size());
+        assertEquals("2024-09", trend.get(0).period());
+        assertEquals("2025-08", trend.get(11).period());
+        assertEquals(0, trend.get(0).count());  // September: geen uitleningen
+        assertEquals(1, trend.get(1).count());  // Oktober: 1 uitlening
+    }
+
+    @Test
+    void getSchoolStatistics_topBorrowedBooks_limitedTo10AndSortedByCount() {
+        List<Lending> lendings = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            Item itm = new Item();
+            itm.setId((long) (100 + i));
+            SchoolItemCopy c = new SchoolItemCopy();
+            c.setItem(itm);
+            int count = 11 - i; // item 100 → 11 uitleningen, item 110 → 1 uitlening
+            for (int j = 0; j < count; j++) {
+                Lending l = new Lending();
+                l.setBook(c);
+                l.setLendingDate(LocalDate.of(2025, 1, 1));
+                l.setReturnDate(LocalDate.of(2025, 1, 15));
+                l.setReturned(true);
+                l.setSnapSchoolYear("2024-2025");
+                lendings.add(l);
+            }
+        }
+
+        when(lendingRepository.findBySchool_Id(SCHOOL_ID)).thenReturn(lendings);
+        when(reviewRepository.countByAuthor_School_Id(SCHOOL_ID)).thenReturn(0L);
+
+        List<SchoolStatisticsDTO.TopBookDTO> top =
+                service.getSchoolStatistics(SCHOOL_ID, "2024-2025").topBorrowedBooks();
+
+        assertEquals(10, top.size());
+        assertEquals(100L, top.get(0).itemId()); // meeste uitleningen eerst
+        assertEquals(11, top.get(0).value());
+        assertEquals(109L, top.get(9).itemId()); // item met 1 uitlening valt eruit
     }
 
     @Test
