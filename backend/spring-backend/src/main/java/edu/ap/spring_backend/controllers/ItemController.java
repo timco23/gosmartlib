@@ -25,6 +25,7 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
+import edu.ap.spring_backend.dto.BulkImportHistoryDTO;
 import java.util.List;
 
 @Validated
@@ -309,6 +310,17 @@ public class ItemController {
     @PostMapping("/books/import/confirm")
     public ResponseEntity<CsvImportDTO> confirmImport(@RequestBody CsvConfirmDTO dto) {
         return ResponseEntity.ok(bookCsvImportService.confirmImport(dto));
+    }
+
+    @GetMapping("/books/import/history")
+    public ResponseEntity<List<BulkImportHistoryDTO>> getImportHistory(@RequestParam Long schoolId) {
+        return ResponseEntity.ok(bookCsvImportService.getHistoryBySchool(schoolId));
+    }
+
+    @DeleteMapping("/books/import/history/{id}")
+    public ResponseEntity<Void> undoImport(@PathVariable Long id) {
+        bookCsvImportService.undoImport(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/books/copies")

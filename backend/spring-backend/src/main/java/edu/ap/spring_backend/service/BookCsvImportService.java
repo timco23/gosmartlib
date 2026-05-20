@@ -1,15 +1,19 @@
 package edu.ap.spring_backend.service;
 
+import edu.ap.spring_backend.dao.BulkImportHistoryRepository;
 import edu.ap.spring_backend.dao.ItemRepository;
+import edu.ap.spring_backend.dao.LendingRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.BookImportRow;
+import edu.ap.spring_backend.dto.BulkImportHistoryDTO;
 import edu.ap.spring_backend.dto.CsvConfirmDTO;
 import edu.ap.spring_backend.dto.CsvImportDTO;
 import edu.ap.spring_backend.dto.CsvPreviewDTO;
 import edu.ap.spring_backend.dto.RowError;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.*;
+import java.time.LocalDateTime;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -61,15 +65,21 @@ public class BookCsvImportService {
     private final ItemRepository itemRepository;
     private final SchoolItemCopyRepository schoolItemCopyRepository;
     private final SchoolRepository schoolRepository;
+    private final BulkImportHistoryRepository bulkImportHistoryRepository;
+    private final LendingRepository lendingRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     public BookCsvImportService(ItemRepository itemRepository,
             SchoolItemCopyRepository schoolItemCopyRepository,
             SchoolRepository schoolRepository,
+            BulkImportHistoryRepository bulkImportHistoryRepository,
+            LendingRepository lendingRepository,
             ApplicationEventPublisher eventPublisher) {
         this.itemRepository = itemRepository;
         this.schoolItemCopyRepository = schoolItemCopyRepository;
         this.schoolRepository = schoolRepository;
+        this.bulkImportHistoryRepository = bulkImportHistoryRepository;
+        this.lendingRepository = lendingRepository;
         this.eventPublisher = eventPublisher;
     }
 
@@ -196,7 +206,32 @@ public class BookCsvImportService {
             eventPublisher.publishEvent(new ItemEnrichmentEvent(toEnrich));
         }
 
+        bulkImportHistoryRepository.save(
+                new BulkImportHistory(school, LocalDateTime.now(), dto.rows().size(), totalCopies, allCopyIds));
+
         return new CsvImportDTO(List.of(), dto.rows().size(), totalCopies, allCopyIds);
+    }
+
+    public List<BulkImportHistoryDTO> getHistoryBySchool(Long schoolId) {
+        return bulkImportHistoryRepository.findBySchoolIdOrderByImportedAtDesc(schoolId)
+                .stream()
+                .map(h -> new BulkImportHistoryDTO(h.getId(), h.getImportedAt(), h.getImportedBooks(), h.getImportedCopies(), h.getCopyIds()))
+                .toList();
+    }
+
+    @Transactional
+    public void undoImport(Long historyId) {
+        BulkImportHistory history = bulkImportHistoryRepository.findById(historyId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        List<Integer> copyIds = history.getCopyIds();
+
+        if (!copyIds.isEmpty() && lendingRepository.existsByBook_IdInAndReturnedFalse(copyIds)) {
+            throw new IllegalStateException("Import kan niet ongedaan worden gemaakt: een of meer exemplaren zijn momenteel uitgeleend.");
+        }
+
+        schoolItemCopyRepository.deleteAllById(copyIds);
+        bulkImportHistoryRepository.delete(history);
     }
 
     /**

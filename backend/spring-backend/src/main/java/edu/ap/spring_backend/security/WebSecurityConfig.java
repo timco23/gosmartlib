@@ -128,6 +128,8 @@ public class WebSecurityConfig {
                 // BIBLIOTHEEKBEHEERDER
                 .requestMatchers(HttpMethod.GET, "/lendings", "/lendings/**", "/collections", "/collections/**", "/book-lending-history/**", "/api/book-lending-history/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.GET, "/books/import/history")
+                .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.POST, "/lendings", "/lendings/**", "/collections", "/collections/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.PUT, "/lendings", "/lendings/**", "/collections", "/collections/**")
