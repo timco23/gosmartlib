@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,17 +51,12 @@ public class StatisticsService {
         List<SchoolItemCopy> copies = copyRepository.findByItemIdAndSchoolId(bookId, schoolId);
 
         int totalLendings = lendings.size();
-        int activeLendings = (int) lendings.stream()
-                .filter(l -> !l.isReturned())
-                .count();
-        int extensionPercent = totalLendings == 0 ? 0 : (int) Math.round(
-                100.0 * lendings.stream().filter(Lending::isExtended).count() / totalLendings);
+        int activeLendings = countActive(lendings);
+        int extensionPercent = calcExtensionPercent(lendings);
 
         List<BookStatisticsDTO.CampusStatisticsDTO> campusStats = buildCampusStats(lendings, copies);
 
-        List<BookStatisticsDTO.RecentLendingDTO> recentLendings = lendings.stream()
-                .sorted(Comparator.comparing(Lending::getLendingDate).reversed())
-                .limit(10)
+        List<BookStatisticsDTO.RecentLendingDTO> recentLendings = topRecentStream(lendings)
                 .map(l -> new BookStatisticsDTO.RecentLendingDTO(
                         l.getId(), getBorrowerName(l),
                         l.getLendingDate().toString(), l.getReturnDate().toString(),
@@ -90,9 +84,7 @@ public class StatisticsService {
         List<Lending> allLendings = lendingRepository.findByBorrower_IdAndSchool_Id(userId, schoolId);
         List<Lending> lendings = filterBySchoolYear(allLendings, schoolYear);
 
-        List<StudentStatisticsDTO.RecentLendingDTO> recentLendings = allLendings.stream()
-                .sorted(Comparator.comparing(Lending::getLendingDate).reversed())
-                .limit(10)
+        List<StudentStatisticsDTO.RecentLendingDTO> recentLendings = topRecentStream(allLendings)
                 .map(l -> new StudentStatisticsDTO.RecentLendingDTO(
                         l.getId(),
                         l.getSnapBookTitle(),
@@ -145,7 +137,7 @@ public class StatisticsService {
                 sc.getClassName(),
                 students.size(),
                 lendings.size(),
-                (int) lendings.stream().filter(l -> !l.isReturned()).count(),
+                countActive(lendings),
                 (int) calcLateCount(lendings),
                 calcLatePercent(lendings),
                 readingLevelDistribution(lendings),
@@ -162,16 +154,13 @@ public class StatisticsService {
         List<Lending> lendings = filterBySchoolYear(allLendings, schoolYear);
 
         int totalLendings = lendings.size();
-        int activeLendings = (int) lendings.stream().filter(l -> !l.isReturned()).count();
-        int extensionPercent = totalLendings == 0 ? 0 : (int) Math.round(
-                100.0 * lendings.stream().filter(Lending::isExtended).count() / totalLendings);
+        int activeLendings = countActive(lendings);
+        int extensionPercent = calcExtensionPercent(lendings);
         int totalReviews = (int) reviewRepository.countByAuthor_School_Id(schoolId);
 
         List<SchoolStatisticsDTO.CampusStatsDTO> campusStats = buildSchoolCampusStats(lendings);
 
-        List<SchoolStatisticsDTO.RecentLendingDTO> recentLendings = allLendings.stream()
-                .sorted(Comparator.comparing(Lending::getLendingDate).reversed())
-                .limit(10)
+        List<SchoolStatisticsDTO.RecentLendingDTO> recentLendings = topRecentStream(allLendings)
                 .map(l -> new SchoolStatisticsDTO.RecentLendingDTO(
                         l.getId(),
                         getBorrowerName(l),
@@ -230,15 +219,12 @@ public class StatisticsService {
     }
 
     private List<SchoolStatisticsDTO.TopBookDTO> calcTopBorrowedBooks(List<Lending> lendings) {
-        Map<Long, List<Lending>> byItem = lendings.stream()
-                .filter(l -> l.getBook() != null && l.getBook().getItem() != null)
-                .collect(Collectors.groupingBy(l -> l.getBook().getItem().getId()));
+        Map<Long, List<Lending>> byItem = groupByItem(lendings);
 
         return byItem.entrySet().stream()
                 .map(e -> {
                     List<Lending> il = e.getValue();
-                    String title = il.stream().map(Lending::getSnapBookTitle)
-                            .filter(Objects::nonNull).findFirst().orElse("(onbekend)");
+                    String title = firstTitle(il);
                     return new SchoolStatisticsDTO.TopBookDTO(e.getKey(), title, il.size());
                 })
                 .sorted(Comparator.comparingInt(SchoolStatisticsDTO.TopBookDTO::value).reversed())
@@ -250,17 +236,14 @@ public class StatisticsService {
         Map<Long, Long> copiesByItem = copyRepository.countCopiesByItemForSchool(schoolId)
                 .stream().collect(Collectors.toMap(ItemCountDTO::itemId, ItemCountDTO::count));
 
-        Map<Long, List<Lending>> byItem = lendings.stream()
-                .filter(l -> l.getBook() != null && l.getBook().getItem() != null)
-                .collect(Collectors.groupingBy(l -> l.getBook().getItem().getId()));
+        Map<Long, List<Lending>> byItem = groupByItem(lendings);
 
         return byItem.entrySet().stream()
                 .map(e -> {
                     List<Lending> il = e.getValue();
                     int copies = copiesByItem.getOrDefault(e.getKey(), 1L).intValue();
                     int days = calcUnavailableDays(il, copies);
-                    String title = il.stream().map(Lending::getSnapBookTitle)
-                            .filter(Objects::nonNull).findFirst().orElse("(onbekend)");
+                    String title = firstTitle(il);
                     return new SchoolStatisticsDTO.TopBookDTO(e.getKey(), title, days);
                 })
                 .filter(b -> b.value() > 0)
@@ -278,12 +261,11 @@ public class StatisticsService {
                 .map(entry -> {
                     List<Lending> cl = entry.getValue();
                     int total = cl.size();
-                    int extPct = total == 0 ? 0 : (int) Math.round(
-                            100.0 * cl.stream().filter(Lending::isExtended).count() / total);
+                    int extPct = calcExtensionPercent(cl);
                     return new SchoolStatisticsDTO.CampusStatsDTO(
                             entry.getKey(),
                             total,
-                            (int) cl.stream().filter(l -> !l.isReturned()).count(),
+                            countActive(cl),
                             calcAvgDuration(cl),
                             (int) calcLateCount(cl),
                             calcLatePercent(cl),
@@ -295,9 +277,7 @@ public class StatisticsService {
 
     private StudentStatisticsDTO buildStudentStats(User user, List<Lending> lendings,
                                                     List<StudentStatisticsDTO.RecentLendingDTO> recentLendings) {
-        String fullName = user.getFirstName() != null
-                ? user.getFirstName() + " " + user.getName()
-                : user.getName();
+        String fullName = getUserFullName(user);
 
         List<String> topGenres = lendings.stream()
                 .map(Lending::getSnapBookGenre)
@@ -313,7 +293,7 @@ public class StatisticsService {
                 Long.valueOf(user.getId()),
                 fullName,
                 lendings.size(),
-                (int) lendings.stream().filter(l -> !l.isReturned()).count(),
+                countActive(lendings),
                 (int) calcLateCount(lendings),
                 calcLatePercent(lendings),
                 (int) reviewRepository.countByAuthor_Id(user.getId()),
@@ -327,6 +307,32 @@ public class StatisticsService {
     }
 
     // helpers
+    private int countActive(List<Lending> lendings) {
+        return (int) lendings.stream().filter(l -> !l.isReturned()).count();
+    }
+
+    private int calcExtensionPercent(List<Lending> lendings) {
+        if (lendings.isEmpty()) return 0;
+        return (int) Math.round(100.0 * lendings.stream().filter(Lending::isExtended).count() / lendings.size());
+    }
+
+    private Stream<Lending> topRecentStream(List<Lending> lendings) {
+        return lendings.stream()
+                .sorted(Comparator.comparing(Lending::getLendingDate).reversed())
+                .limit(10);
+    }
+
+    private Map<Long, List<Lending>> groupByItem(List<Lending> lendings) {
+        return lendings.stream()
+                .filter(l -> l.getBook() != null && l.getBook().getItem() != null)
+                .collect(Collectors.groupingBy(l -> l.getBook().getItem().getId()));
+    }
+
+    private String firstTitle(List<Lending> lendings) {
+        return lendings.stream().map(Lending::getSnapBookTitle)
+                .filter(Objects::nonNull).findFirst().orElse("(onbekend)");
+    }
+
     private List<Lending> filterBySchoolYear(List<Lending> lendings, String schoolYear) {
         if ("all".equalsIgnoreCase(schoolYear)) return lendings;
         String year = (schoolYear != null) ? schoolYear : SchoolYearUtil.determineSchoolYear(LocalDate.now());
@@ -360,8 +366,7 @@ public class StatisticsService {
                             .toList();
 
                     int campusTotal = campusLendings.size();
-                    int campusActive = (int) campusLendings.stream()
-                            .filter(l -> !l.isReturned()).count();
+                    int campusActive = countActive(campusLendings);
                     double lendingsPerCopy = campusCopies.isEmpty() ? 0
                             : Math.round((double) campusTotal / campusCopies.size() * 10.0) / 10.0;
                     int campusAvailableCopies = (int) campusCopies.stream()
@@ -383,7 +388,10 @@ public class StatisticsService {
 
     private String getBorrowerName(Lending lending) {
         if (lending.getBorrower() == null) return null;
-        User user = lending.getBorrower();
+        return getUserFullName(lending.getBorrower());
+    }
+
+    private String getUserFullName(User user) {
         return user.getFirstName() != null
                 ? user.getFirstName() + " " + user.getName()
                 : user.getName();
