@@ -589,7 +589,6 @@ export class AddBookPage implements OnInit {
           this.previewRows = null;
           this.previewRowErrors = [];
           this.importResult = result;
-          this.saveToImportHistory(result);
         }
         this.cdr.detectChanges();
       },
@@ -608,18 +607,6 @@ export class AddBookPage implements OnInit {
     this.router.navigate(['/barcodes'], {
       queryParams: { copyIds: this.importResult!.copyIds },
     });
-  }
-
-  private saveToImportHistory(result: CsvImportDTO): void {
-    const entry = {
-      date: new Date().toISOString(),
-      importedBooks: result.importedBooks,
-      importedCopies: result.importedCopies,
-      copyIds: result.copyIds,
-    };
-    const existing = JSON.parse(localStorage.getItem('gosmartlib_barcode_history') ?? '[]');
-    existing.unshift(entry);
-    localStorage.setItem('gosmartlib_barcode_history', JSON.stringify(existing.slice(0, 5)));
   }
 
   //Book selector methods

@@ -249,6 +249,14 @@ export interface CsvImportDTO {
   copyIds: number[];
 }
 
+export interface BulkImportHistoryEntry {
+  id: number;
+  importedAt: string;
+  importedBooks: number;
+  importedCopies: number;
+  copyIds: number[];
+}
+
 export interface CarouselSlot {
   book: Book;
   index: number;
