@@ -1,0 +1,29 @@
+@if (shown()) {
+  <div class="overlay" (click)="closePopup()">
+    <div class="content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="closePopup()">&times;</button>
+      <h2 class="popup-title">Rapporten review</h2>
+
+      @if (loadingReportsError()) {
+        <p class="error">Er was een probleem met het ophalen van de rapporten van deze review.</p>
+      } @else if (loadingReports()) {
+        <p>Rapporten laden...</p>
+      } @else {
+        <ul class="result-list">
+          @for (report of reports; track $index) {
+            <li>
+                <p class="report-author">{{report.reporter.firstName}} {{report.reporter.name}}</p>
+                <p class="report-date">Gestuurd op {{report.createdAt}}</p>
+
+                <p class="report-description">{{report.reason}}</p>
+            </li>
+          }
+        </ul>
+
+        @if (!reports.length || reports.length == 0) {
+          <p class="empty-state">Geen rapporten gevonden.</p>
+        }
+      }
+    </div>
+  </div>
+}

@@ -320,7 +320,7 @@ public class ReviewService {
                 review.getReportCount(),
                 review.isApproved(),
                 review.getItem().getId(),
-                review.getItem().getTitle()
+                review.getItem().getTitle() 
         );
     }
 
