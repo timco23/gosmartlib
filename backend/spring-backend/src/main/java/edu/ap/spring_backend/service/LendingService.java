@@ -86,8 +86,10 @@ public class LendingService {
             throw new IllegalStateException("Cannot lend to a user with a pending deletion request");
         }
 
+        SchoolItemCopy copy = copyRepository.findByBarcode(request.copyBarcode()).orElseThrow();
+
         lending.setBorrower(borrower); 
-        lending.setBook(copyRepository.findByBarcode(request.copyBarcode()).orElseThrow());
+        lending.setBook(copy);
         lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow());
         lending.setLendingDate(request.lendingDate());
         lending.setReturnDate(request.returnDate());
@@ -95,11 +97,12 @@ public class LendingService {
         lending.setDateReturned(null);
         lending.setExtended(false);
 
-        fillSnapshot(lending, user, copy);
+        fillSnapshot(lending, borrower, copy);
 
         Lending saved = lendingRepository.save(lending);
         return toDTO(saved);
     }
+
     void fillSnapshot(Lending lending, User user, SchoolItemCopy copy) {
         List<SchoolClass> classes = user != null ? user.getClasses() : List.of();
         if (!classes.isEmpty()) {
@@ -127,7 +130,6 @@ public class LendingService {
             }
         }
     }
-
 
     public LendingDTO updateLending(Long id, LendingDTO dto) {
         Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);

@@ -187,19 +187,21 @@ class StatisticsServiceTest {
     @Test
     void getBookStatistics_monthlyTrend_trimmedToMostRecent6Months() {
         List<Lending> lendings = new ArrayList<>();
-        for (int month = 6; month <= 12; month++) { // 7 distinct months
-            lendings.add(completedLending("BC001",
-                    LocalDate.of(2023, month, 1),
-                    LocalDate.of(2023, month, 15),
-                    LocalDate.of(2023, month, 15)));
+        LocalDate now = LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = now.minusMonths(i).withDayOfMonth(1);
+            Lending l = completedLending("BC001", date, date.plusDays(14), date.plusDays(14));
+            lendings.add(l);
         }
         stubMainRepositories(lendings, List.of(copy));
 
         List<BookStatisticsDTO.MonthlyLendingDTO> trend = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).lendingsByMonth();
 
         assertEquals(6, trend.size());
-        assertEquals("2023-07", trend.get(0).month()); // oldest kept month
-        assertEquals("2023-12", trend.get(5).month()); // most recent
+        String expectedOldest = now.minusMonths(5).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+        String expectedNewest = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+        assertEquals(expectedOldest, trend.get(0).month());
+        assertEquals(expectedNewest, trend.get(5).month());
     }
 
     @Test
