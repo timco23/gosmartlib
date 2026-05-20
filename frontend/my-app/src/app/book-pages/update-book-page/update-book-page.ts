@@ -147,6 +147,7 @@ export class UpdateBookPage implements OnInit {
     this.loadSelectionOptions();
     this.loadBook();
     this.loadSchool();
+    this.api.setBookUpdating(this.book!.id, "true").subscribe();
   }
 
   loadBook() {
@@ -158,7 +159,6 @@ export class UpdateBookPage implements OnInit {
         this.book = data;
         this.tryFillForm();
         this.loadCopies();
-        this.api.setBookUpdating(this.book.id, "true").subscribe();
       },
       error: (err) => {
         this.errorMessage = err;
@@ -292,6 +292,7 @@ export class UpdateBookPage implements OnInit {
 
     this.api.updateBook(newBook, this.book!.id).subscribe({
       next: (data) => {
+        this.api.setBookUpdating(this.book!.id, "false").subscribe();
         this.router.navigate(['/books', data.id]);
       },
     });
@@ -323,6 +324,7 @@ export class UpdateBookPage implements OnInit {
 
   backToList() {
     if (this.book?.id) {
+      this.api.setBookUpdating(this.book.id, "false").subscribe();
       this.router.navigate(['/books', this.book.id]);
       return;
     }
