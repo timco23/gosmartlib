@@ -8,6 +8,23 @@
       (change)="onCsvFileSelected($event)"
       style="display: none"
     />
+    @if (importHistory.length > 0) {
+      <div class="history-dropdown">
+        <button type="button" class="secondary-btn history-toggle" (click)="historyOpen = !historyOpen">
+          Vorige imports {{ historyOpen ? '▴' : '▾' }}
+        </button>
+        @if (historyOpen) {
+          <div class="history-menu">
+            @for (entry of importHistory; track entry.id) {
+              <button type="button" class="history-item" (click)="loadBarcodesFromHistory(entry)">
+                <span class="history-date">{{ formatHistoryDate(entry.importedAt) }}</span>
+                <span class="history-meta">{{ entry.importedBooks }} boeken · {{ entry.importedCopies }} exemplaren</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
     <button
       type="button"
       class="secondary-btn csv-import-btn"

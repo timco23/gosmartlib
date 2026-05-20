@@ -14,6 +14,7 @@ import {
   Book,
   BookImportRow,
   BookMetadata,
+  BulkImportHistoryEntry,
   CampusCopyGroup,
   CreateBookPayload,
   CreateSchoolItemCopyPayload,
@@ -130,6 +131,10 @@ export class AddBookPage implements OnInit {
   importLoading: boolean = false;
   importLoadingMessage: string = '';
 
+  // Import history
+  importHistory: BulkImportHistoryEntry[] = [];
+  historyOpen = false;
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       itemId: ['0', [Validators.required]],
@@ -174,6 +179,7 @@ export class AddBookPage implements OnInit {
             next: (data) => {
               this.school = data;
               this.campusLoading = false;
+              this.loadImportHistory();
               this.cdr.detectChanges();
             },
             error: (err) => {
@@ -601,6 +607,25 @@ export class AddBookPage implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  loadImportHistory(): void {
+    if (!this.school?.id) return;
+    this.api.getImportHistory(this.school.id).subscribe({
+      next: (history) => {
+        this.importHistory = history;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadBarcodesFromHistory(entry: BulkImportHistoryEntry): void {
+    this.historyOpen = false;
+    this.router.navigate(['/barcodes'], { queryParams: { copyIds: entry.copyIds } });
+  }
+
+  formatHistoryDate(iso: string): string {
+    return new Date(iso).toLocaleString('nl-BE', { dateStyle: 'short', timeStyle: 'short' });
   }
 
   printImportedBarcodes(): void {
