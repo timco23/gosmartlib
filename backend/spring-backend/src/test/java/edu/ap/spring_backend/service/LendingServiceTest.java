@@ -16,16 +16,16 @@ import edu.ap.spring_backend.jpa.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-
+import org.springframework.web.server.ResponseStatusException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.RecordComponent;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 class LendingServiceTest {
@@ -57,6 +57,7 @@ class LendingServiceTest {
         school = new School();
         school.setId(1L);
         school.setExtendPeriodDays(7);
+        school.setMaxExtends(2); 
 
         item = new Item();
         item.setId(9L);
@@ -143,16 +144,17 @@ class LendingServiceTest {
 
         LendingDTO result = service.extendLending(10L);
 
-        assertTrue(result.extended());
+        verify(lendingRepository).save(argThat(l -> l.isExtended() && l.getExtendCount() == 1));
         assertEquals("2024-01-17", result.returnDate());
     }
 
     @Test
     void extendLending_whenAlreadyExtended_thenThrows() {
         lending.setExtended(true);
+        lending.setExtendCount(2);
         when(lendingRepository.findById(10L)).thenReturn(Optional.of(lending));
 
-        assertThrows(IllegalStateException.class, () -> service.extendLending(10L));
+        assertThrows(ResponseStatusException.class, () -> service.extendLending(10L));
     }
 
     @Test
