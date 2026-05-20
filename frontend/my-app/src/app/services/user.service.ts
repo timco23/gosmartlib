@@ -92,4 +92,10 @@ export class UserService {
   cancelDeletion(): Observable<UserProfile> {
     return this.http.delete<UserProfile>(`${this.apiUrl}/cancel-deletion`);
   }
+
+  hasSchool(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${environment.apiUrl}/user/has-school`, {
+      params: { email },
+    });
+  }
 }

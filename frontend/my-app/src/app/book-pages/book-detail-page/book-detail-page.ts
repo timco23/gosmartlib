@@ -144,7 +144,6 @@ export class BookDetailPage implements OnInit {
             this.favorites = favorites;
             this.checkIfFavorite();
             this.checkIfInWishlist();
-            console.log(favorites);
             this.cdr.detectChanges();
           },
         });
@@ -353,7 +352,6 @@ export class BookDetailPage implements OnInit {
           this.api.getBookUpdatingStatus(data.id).subscribe({
             next: (status) => {
               this.isUpdating = status;
-              console.log('isUpdating:', status);
               this.cdr.detectChanges();
             }
           });

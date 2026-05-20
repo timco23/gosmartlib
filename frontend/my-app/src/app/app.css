@@ -443,3 +443,21 @@
   color: #fff;
   background: rgba(0, 0, 0, 0.12);
 }
+
+.no-school-banner {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 2rem;
+  text-align: center;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.no-school-banner h2 {
+  margin-bottom: 1rem;
+}
+
+.no-school-banner p {
+  color: var(--text-muted);
+}

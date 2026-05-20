@@ -53,6 +53,11 @@ public class UserController {
         return ResponseEntity.ok(favoriteBooks);
     }
 
+    @GetMapping("/user/has-school")
+    public ResponseEntity<Boolean> userHasSchool(@RequestParam String email) {
+        return ResponseEntity.ok(userService.userHasSchool(email));
+    }
+
     /**
      * Adds a book to the user's favorites list based on the provided email and item ID.
      * @param email
