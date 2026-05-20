@@ -63,7 +63,15 @@
       <a routerLink="/favorites" class="nav-link">Favoriete boeken</a>
       <a routerLink="/wishlist" class="nav-link">Verlanglijst</a>
       @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-      <a routerLink="/lists" class="nav-link">Klasleeslijsten</a>
+        <a routerLink="/lists" class="nav-link">Klasleeslijsten</a>
+      }
+      @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+        <a routerLink="/classes" class="nav-link">Klasstatistieken</a>
+      }
+      @if (authService.atLeastHasRole(role.LEERKRACHT)) {
+        <a routerLink="/didactic-books" class="nav-link" routerLinkActive="active"
+          >Didactische collectie</a
+        >
       }
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
       <a routerLink="/collections" class="nav-link" routerLinkActive="active">Collecties</a>
@@ -86,6 +94,9 @@
       !authService.atLeastHasRole(role.ADMIN)
       ) {
       <a routerLink="/school-settings" class="nav-link" routerLinkActive="active">Schoolinstellingen</a>
+      }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+        <a routerLink="/statistics/school" class="nav-link">Schoolstatistieken</a>
       }
     </div>
   }

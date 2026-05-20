@@ -21,7 +21,7 @@
       }
       <div class="stat-card">
         <span class="stat-value">{{ stats.totalLendings }}</span>
-        <span class="stat-label">Totaal ontleend</span>
+        <span class="stat-label">Totaal aantal ontleningen</span>
       </div>
       <div class="stat-card stat-card--green">
         <span class="stat-value">{{ stats.activeLendings }}</span>
@@ -168,7 +168,7 @@
                   <td class="num">{{ s.lendingCount }}</td>
                   <td class="num">{{ s.activeLendings }}</td>
                   <td class="num">{{ s.avgDuration ? s.avgDuration + 'd' : '—' }}</td>
-                  <td class="num">{{ s.lendingsPerCopy }}×</td>
+                  <td class="num">{{ s.lendingsPerCopy }}x</td>
                   <td class="num" [class.cell-warn]="s.unavailableDays > 7">
                     {{ s.unavailableDays }}
                   </td>
@@ -184,7 +184,7 @@
         </div>
 
         <p class="table-legend">
-          <strong>Volledig ontl. (d)</strong>: aantal dagen dat alle exemplaren op die campus gelijktijdig door leerlingen of leerkrachten waren ontleend.
+          <strong>Volledig ontl. (d)</strong>: aantal dagen dat alle exemplaren op die campus gelijktijdig waren ontleend.
           &nbsp;
           <strong>Ontl./ex.</strong>: totale ontleningen gedeeld door het aantal exemplaren op die campus.
         </p>

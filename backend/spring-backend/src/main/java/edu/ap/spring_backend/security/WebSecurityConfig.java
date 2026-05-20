@@ -123,6 +123,7 @@ public class WebSecurityConfig {
                     "/books/*/report",
                     "/api/books/*/report"
                 ).hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/classes").hasAnyAuthority(TEACHER_PLUS)
 
                 // BIBLIOTHEEKBEHEERDER
                 .requestMatchers(HttpMethod.GET, "/lendings", "/lendings/**", "/collections", "/collections/**", "/book-lending-history/**", "/api/book-lending-history/**")

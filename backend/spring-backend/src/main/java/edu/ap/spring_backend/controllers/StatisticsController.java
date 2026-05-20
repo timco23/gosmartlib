@@ -1,9 +1,14 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
+import edu.ap.spring_backend.dto.ClassStatisticsDTO;
+import edu.ap.spring_backend.dto.SchoolStatisticsDTO;
+import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.service.StatisticsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/statistics")
@@ -14,12 +19,40 @@ public class StatisticsController {
         this.statisticsService = statisticsService;
     }
 
-    @GetMapping("/book/{bookId}/statistics")
+    @GetMapping("/book/{bookId}")
     public ResponseEntity<BookStatisticsDTO> getBookStatistics(
             @PathVariable Long bookId,
             @RequestParam Long schoolId,
             @RequestParam(defaultValue = "month") String groupBy,
             @RequestParam(defaultValue = "6") int trendLimit) {
         return ResponseEntity.ok(statisticsService.getBookStatistics(bookId, schoolId, groupBy, trendLimit));
+    }
+
+    @GetMapping("/student/{userId}")
+    public ResponseEntity<StudentStatisticsDTO> getStudentStatistics(
+            @PathVariable Integer userId,
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) String schoolYear) {
+        return ResponseEntity.ok(statisticsService.getStudentStatistics(userId, schoolId, schoolYear));
+    }
+
+    @GetMapping("/class/{classId}")
+    public ResponseEntity<ClassStatisticsDTO> getClassStatistics(
+            @PathVariable Long classId,
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) String schoolYear) {
+        return ResponseEntity.ok(statisticsService.getClassStatistics(classId, schoolId, schoolYear));
+    }
+
+    @GetMapping("/school-years")
+    public ResponseEntity<List<String>> getAvailableSchoolYears(@RequestParam Long schoolId) {
+        return ResponseEntity.ok(statisticsService.getAvailableSchoolYears(schoolId));
+    }
+
+    @GetMapping("/school")
+    public ResponseEntity<SchoolStatisticsDTO> getSchoolStatistics(
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) String schoolYear) {
+        return ResponseEntity.ok(statisticsService.getSchoolStatistics(schoolId, schoolYear));
     }
 }
