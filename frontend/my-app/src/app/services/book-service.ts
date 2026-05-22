@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import {
   Book,
+  BulkImportHistoryEntry,
   CampusAvailability,
   CreateBookPayload,
   CsvImportDTO,
@@ -128,6 +129,16 @@ export class BookService {
 
   confirmImport(dto: CsvConfirmDTO): Observable<CsvImportDTO> {
     return this.http.post<CsvImportDTO>(`${this.apiBaseUrl}/books/import/confirm`, dto);
+  }
+
+  getImportHistory(schoolId: number): Observable<BulkImportHistoryEntry[]> {
+    return this.http.get<BulkImportHistoryEntry[]>(`${this.apiBaseUrl}/books/import/history`, {
+      params: { schoolId },
+    });
+  }
+
+  undoImport(historyId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/books/import/history/${historyId}`);
   }
 
   updateBook(newBook: UpdateBookPayload, id: number): Observable<Book> {

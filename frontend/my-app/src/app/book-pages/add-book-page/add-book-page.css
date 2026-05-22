@@ -64,6 +64,65 @@
   margin: 0;
 }
 
+/* --- Import history dropdown --- */
+.history-dropdown {
+  position: relative;
+  display: flex;
+}
+
+.history-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  min-width: 420px;
+  overflow: hidden;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-1);
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-weight: normal;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-text-1);
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+.history-item:last-child {
+  border-bottom: none;
+}
+.history-item:hover {
+  background: var(--color-surface-2);
+}
+
+.history-date {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.history-meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+}
+
 /* --- Main form card --- */
 .book-form {
   display: flex;

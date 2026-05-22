@@ -6,11 +6,12 @@ import { BookService } from '../../services/book-service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
-import { BarcodePrintItem, SchoolItemCopy } from '../../../types/types';
+import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
+import { BarcodePrintItem, BulkImportHistoryEntry, ConfirmDialogAction, SchoolItemCopy } from '../../../types/types';
 
 @Component({
   selector: 'app-barcode-print-page',
-  imports: [FormsModule],
+  imports: [FormsModule, PopUpComponent],
   templateUrl: './barcode-print-page.html',
   styleUrl: './barcode-print-page.css',
 })
@@ -27,33 +28,54 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
   bookTitles: Map<number, string> = new Map();
   loading = true;
   historyOpen = false;
-  importHistory: {
-    date: string;
-    importedBooks: number;
-    importedCopies: number;
-    copyIds: number[];
-  }[] = [];
+  importHistory: BulkImportHistoryEntry[] = [];
+  undoError: string | null = null;
+  confirmUndoEntry: BulkImportHistoryEntry | null = null;
+  readonly undoActions: ConfirmDialogAction[] = [
+    { label: 'Annuleren', type: 'cancel', value: 'cancel' },
+    { label: 'Ongedaan maken', type: 'danger', value: 'confirm' },
+  ];
 
+  private schoolId: number | null = null;
   private objectUrls: string[] = [];
 
   ngOnInit(): void {
-    this.importHistory = JSON.parse(localStorage.getItem('gosmartlib_barcode_history') ?? '[]');
+    this.authService.currentUser$.subscribe((user) => {
+      if (!user?.email) return;
 
-    const params = this.route.snapshot.paramMap;
-    const queryParams = this.route.snapshot.queryParamMap;
-    const copyIds = queryParams.getAll('copyIds').map(Number);
+      this.userService.getUser(user.email).subscribe((userData) => {
+        if (!userData.schoolName) return;
 
-    if (copyIds.length > 0) {
-      // CSV import, load a specific selection of copies by their IDs
-      this.loadCopiesByIds(copyIds);
-    } else {
-      // load all copies for a book
-      const bookId = parseInt(params.get('id')!);
-      const preselect = queryParams.get('preselect');
-      const preselectAll = preselect === 'all';
-      const preselectId = !preselectAll && preselect ? parseInt(preselect) : null;
-      this.loadCopiesByBookId(bookId, preselectAll, preselectId);
-    }
+        this.schoolService.getByName(userData.schoolName).subscribe((school) => {
+          this.schoolId = school.id!;
+          this.loadHistory();
+
+          const params = this.route.snapshot.paramMap;
+          const queryParams = this.route.snapshot.queryParamMap;
+          const copyIds = queryParams.getAll('copyIds').map(Number);
+
+          if (copyIds.length > 0) {
+            this.loadCopiesByIds(copyIds);
+          } else {
+            const bookId = parseInt(params.get('id')!);
+            const preselect = queryParams.get('preselect');
+            const preselectAll = preselect === 'all';
+            const preselectId = !preselectAll && preselect ? parseInt(preselect) : null;
+            this.loadCopiesByBookId(bookId, school.id!, preselectAll, preselectId);
+          }
+        });
+      });
+    });
+  }
+
+  private loadHistory(): void {
+    if (this.schoolId === null) return;
+    this.api.getImportHistory(this.schoolId).subscribe({
+      next: (history) => {
+        this.importHistory = history;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   private loadCopiesByIds(ids: number[]): void {
@@ -72,31 +94,22 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
 
   private loadCopiesByBookId(
     bookId: number,
+    schoolId: number,
     preselectAll: boolean,
     preselectId: number | null = null,
   ): void {
-    this.authService.currentUser$.subscribe((user) => {
-      if (!user?.email) return;
-
-      this.userService.getUser(user.email).subscribe((userData) => {
-        if (!userData.schoolName) return;
-
-        this.schoolService.getByName(userData.schoolName).subscribe((school) => {
-          this.api.getCopiesByBookId(bookId, school.id!).subscribe((copies) => {
-            this.items = copies
-              .filter((copy) => copy.copy_status !== 'KWIJT')
-              .map((copy) => ({
-                copy,
-                selected: preselectAll || copy.id === preselectId,
-                imageUrl: null,
-              }));
-            this.loading = false;
-            this.cdr.detectChanges();
-            this.fetchBarcodeImages();
-            this.fetchBookTitles(copies);
-          });
-        });
-      });
+    this.api.getCopiesByBookId(bookId, schoolId).subscribe((copies) => {
+      this.items = copies
+        .filter((copy) => copy.copy_status !== 'KWIJT')
+        .map((copy) => ({
+          copy,
+          selected: preselectAll || copy.id === preselectId,
+          imageUrl: null,
+        }));
+      this.loading = false;
+      this.cdr.detectChanges();
+      this.fetchBarcodeImages();
+      this.fetchBookTitles(copies);
     });
   }
 
@@ -124,8 +137,9 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
     });
   }
 
-  loadFromHistory(entry: { copyIds: number[] }): void {
+  loadFromHistory(entry: BulkImportHistoryEntry): void {
     this.historyOpen = false;
+    this.undoError = null;
     this.objectUrls.forEach((url) => URL.revokeObjectURL(url));
     this.objectUrls = [];
     this.items = [];
@@ -133,6 +147,36 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
     this.loading = true;
     this.cdr.detectChanges();
     this.loadCopiesByIds(entry.copyIds);
+  }
+
+  undoImport(entry: BulkImportHistoryEntry): void {
+    this.undoError = null;
+    this.confirmUndoEntry = entry;
+  }
+
+  onUndoAction(value: string): void {
+    const entry = this.confirmUndoEntry!;
+    this.confirmUndoEntry = null;
+    if (value !== 'confirm') return;
+
+    this.api.undoImport(entry.id).subscribe({
+      next: () => {
+        const entryIds = new Set(entry.copyIds);
+        const viewingThisImport = this.items.some((i) => entryIds.has(i.copy.id));
+        if (viewingThisImport) {
+          this.objectUrls.forEach((url) => URL.revokeObjectURL(url));
+          this.objectUrls = [];
+          this.items = [];
+          this.bookTitles = new Map();
+          this.loading = false;
+        }
+        this.loadHistory();
+      },
+      error: (err) => {
+        this.undoError = err.error ?? 'Ongedaan maken mislukt.';
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   formatHistoryDate(iso: string): string {

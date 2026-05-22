@@ -70,30 +70,24 @@ class DeletionSchedulerTest {
     void scheduler_deletesUsersOlderThan24h() {
         when(userRepository.findByDeletionRequestedAtBefore(any(LocalDateTime.class)))
                 .thenReturn(List.of(expiredUser));
-
         deletionScheduler.deleteExpiredAccounts();
-
-        verify(userRepository).delete(expiredUser);
+        verify(userRepository).deleteUserByIdNative(1);
     }
 
     @Test
     void scheduler_doesNotDeleteUsersWithin24h() {
         when(userRepository.findByDeletionRequestedAtBefore(any(LocalDateTime.class)))
                 .thenReturn(List.of());
-
         deletionScheduler.deleteExpiredAccounts();
-
-        verify(userRepository, never()).delete(any(User.class));
+        verify(userRepository, never()).deleteUserByIdNative(any());
     }
 
     @Test
     void scheduler_doesNothingWhenNoUsersFound() {
         when(userRepository.findByDeletionRequestedAtBefore(any(LocalDateTime.class)))
                 .thenReturn(List.of());
-
         deletionScheduler.deleteExpiredAccounts();
-
-        verify(userRepository, never()).delete(any(User.class));
+        verify(userRepository, never()).deleteUserByIdNative(any());
         verify(userRepository, never()).deleteAll(any());
     }
 
@@ -101,14 +95,11 @@ class DeletionSchedulerTest {
     void scheduler_deletesMultipleExpiredUsers() {
         User anotherExpiredUser = buildUser(3, "expired2@test.be", Role.LEERLING,
                 LocalDateTime.now().minusHours(30));
-
         when(userRepository.findByDeletionRequestedAtBefore(any(LocalDateTime.class)))
                 .thenReturn(List.of(expiredUser, anotherExpiredUser));
-
         deletionScheduler.deleteExpiredAccounts();
-
-        verify(userRepository).delete(expiredUser);
-        verify(userRepository).delete(anotherExpiredUser);
-        verify(userRepository, times(2)).delete(any(User.class));
+        verify(userRepository).deleteUserByIdNative(1);
+        verify(userRepository).deleteUserByIdNative(3);
+        verify(userRepository, times(2)).deleteUserByIdNative(any());
     }
 }

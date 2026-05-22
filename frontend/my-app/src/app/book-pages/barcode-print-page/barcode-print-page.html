@@ -12,11 +12,19 @@
           </button>
           @if (historyOpen) {
             <div class="history-menu">
-              @for (entry of importHistory; track entry.date) {
-                <button type="button" class="history-item" (click)="loadFromHistory(entry)">
-                  <span class="history-date">{{ formatHistoryDate(entry.date) }}</span>
-                  <span class="history-meta">{{ entry.importedBooks }} boeken · {{ entry.importedCopies }} exemplaren</span>
-                </button>
+              @if (undoError) {
+                <p class="history-error">{{ undoError }}</p>
+              }
+              @for (entry of importHistory; track entry.id) {
+                <div class="history-item">
+                  <button type="button" class="history-item-info" (click)="loadFromHistory(entry)">
+                    <span class="history-date">{{ formatHistoryDate(entry.importedAt) }}</span>
+                    <span class="history-meta">{{ entry.importedBooks }} boeken · {{ entry.importedCopies }} exemplaren</span>
+                  </button>
+                  <button type="button" class="btn-danger-small" (click)="undoImport(entry)" title="Ongedaan maken">
+                    Ongedaan maken
+                  </button>
+                </div>
               }
             </div>
           }
@@ -80,3 +88,12 @@
     }
   </div>
 </div>
+
+@if (confirmUndoEntry) {
+  <app-pop-up
+    title="Import ongedaan maken"
+    [message]="'Import van <strong>' + confirmUndoEntry.importedBooks + ' boeken</strong> en <strong>' + confirmUndoEntry.importedCopies + ' exemplaren</strong> permanent verwijderen?'"
+    [actions]="undoActions"
+    (actionClicked)="onUndoAction($event)"
+  />
+}

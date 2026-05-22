@@ -467,8 +467,104 @@ CREATE TABLE IF NOT EXISTS lending (
     date_returned DATE,
     extended BOOLEAN DEFAULT FALSE,
     extend_count INT NOT NULL DEFAULT 0,
+    snap_class_name    VARCHAR(50),
+    snap_campus_id     BIGINT,
+    snap_campus_name   VARCHAR(100),
+    snap_school_year   VARCHAR(9) NOT NULL,
+    snap_reading_level VARCHAR(20),
+    snap_book_title    VARCHAR(255),
+    snap_book_genre    VARCHAR(50),
+    snap_book_isbn     VARCHAR(20),
     FOREIGN KEY (borrower_id) REFERENCES user(id) ON DELETE SET NULL,
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
+
+-- Extra teststudent in KlasA
+INSERT INTO user (name, first_name, email, password, role, school_id, smartschool_username, refresh_token)
+VALUES ('De Meyer', 'Lisa', 'lisa.demeyer@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERLING', 1, NULL, NULL);
+
+-- Lisa zit momenteel in KlasB (verplaatst vanaf 2025-2026)
+INSERT INTO class_user (class_id, user_id) VALUES (2, 5);
+
+-- Testleningen met snapshotdata
+INSERT INTO lending (borrower_id, book_id, school_id, lending_date, return_date, returned, date_returned, extended,
+    snap_class_name, snap_campus_id, snap_campus_name, snap_school_year, snap_reading_level, snap_book_title, snap_book_genre, snap_book_isbn)
+VALUES
+-- Leerling Test (user 2) – huidig schooljaar 2025-2026
+(2,  1, 1, '2025-10-05', '2025-10-19', TRUE,  '2025-10-18', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', 'Het smelt',                          'Literaire roman',     '9789492478092'),
+(2,  9, 1, '2025-11-12', '2025-11-26', TRUE,  '2025-11-25', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984',                               'Dystopie',            '9780451524935'),
+(2, 20, 1, '2026-01-08', '2026-01-22', TRUE,  '2026-01-20', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'B', 'Harry Potter en de Steen der Wijzen', 'Fantasy',             '9789061699552'),
+(2, 21, 1, '2026-04-20', '2026-05-20', FALSE, NULL,         FALSE, 'KlasA', NULL, NULL, '2025-2026', 'B', 'De schuld van de sterren',            'Romantiek',           '9789044628371'),
+-- Leerling Test (user 2) – vorig schooljaar 2024-2025
+(2, 12, 1, '2024-09-15', '2024-09-29', TRUE,  '2024-09-28', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'D', 'Sapiens',                            'Non-fictie algemeen', '9780062316097'),
+(2, 19, 1, '2025-02-10', '2025-02-24', TRUE,  '2025-02-23', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'A', 'Het dagboek van een muts',            'Humor',               '9789047514527'),
+(2,  7, 1, '2025-04-03', '2025-04-17', TRUE,  '2025-04-17', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', 'The Great Gatsby',                   'Literaire roman',     '9780743273565'),
+-- Lisa De Meyer (user 5) – huidig schooljaar 2025-2026 (al in KlasB)
+(5,  3, 1, '2025-09-10', '2025-09-24', TRUE,  '2025-09-23', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', 'De aanslag',                         'Historische roman',   '9789023442448'),
+(5,  8, 1, '2025-12-01', '2025-12-15', TRUE,  '2025-12-14', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'D', 'To Kill a Mockingbird',              'Literaire roman',     '9780061935466'),
+(5, 11, 1, '2026-03-05', '2026-03-19', FALSE, NULL,         FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', 'Brave New World',                    'Dystopie',            '9780060850524'),
+
+-- Lisa De Meyer (user 5) – schooljaar 2024-2025
+(5, 12, 1, '2024-10-02', '2024-10-16', TRUE,  '2024-10-15', FALSE,
+ 'KlasA', NULL, NULL, '2024-2025', 'C',
+ 'Sapiens', 'Non-fictie algemeen', '9780062316097'),
+
+(5, 19, 1, '2025-01-14', '2025-01-28', TRUE,  '2025-01-27', FALSE,
+ 'KlasA', NULL, NULL, '2024-2025', 'B',
+ 'Het dagboek van een muts', 'Humor', '9789047514527'),
+
+(5, 7, 1, '2025-04-22', '2025-05-06', TRUE,  '2025-05-04', FALSE,
+ 'KlasA', NULL, NULL, '2024-2025', 'C',
+ 'The Great Gatsby', 'Literaire roman', '9780743273565'),
+
+-- Lisa De Meyer (user 5) – schooljaar 2023-2024
+(5, 1, 1, '2023-09-18', '2023-10-02', TRUE,  '2023-09-30', FALSE,
+ 'KlasA', NULL, NULL, '2023-2024', 'D',
+ 'Het smelt', 'Literaire roman', '9789492478092'),
+
+(5, 20, 1, '2024-01-11', '2024-01-25', TRUE,  '2024-01-24', FALSE,
+ 'KlasA', NULL, NULL, '2023-2024', 'B',
+ 'Harry Potter en de Steen der Wijzen', 'Fantasy', '9789061699552'),
+
+(5, 9, 1, '2024-04-09', '2024-04-23', TRUE,  '2024-04-22', FALSE,
+ 'KlasA', NULL, NULL, '2023-2024', 'C',
+ '1984', 'Dystopie', '9780451524935');
+
+-- Testleningen voor boekstatistieken (item 9 = '1984', copy id = 9)
+INSERT INTO lending (borrower_id, book_id, school_id, lending_date, return_date, returned, date_returned, extended,
+    snap_class_name, snap_campus_id, snap_campus_name, snap_school_year, snap_reading_level, snap_book_title, snap_book_genre, snap_book_isbn)
+VALUES
+-- 2023-2024 (3 extra naast bestaande)
+(2, 9, 1, '2023-10-03', '2023-10-17', TRUE,  '2023-10-15', FALSE, 'KlasA', NULL, NULL, '2023-2024', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2023-12-04', '2023-12-18', TRUE,  '2023-12-20', FALSE, 'KlasA', NULL, NULL, '2023-2024', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2024-03-10', '2024-03-24', TRUE,  '2024-03-23', TRUE,  'KlasA', NULL, NULL, '2023-2024', 'C', '1984', 'Dystopie', '9780451524935'),
+-- 2024-2025 (4 nieuw)
+(5, 9, 1, '2024-09-16', '2024-09-30', TRUE,  '2024-09-28', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2024-11-05', '2024-11-19', TRUE,  '2024-11-19', TRUE,  'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2025-01-20', '2025-02-03', TRUE,  '2025-02-01', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2025-04-07', '2025-04-21', TRUE,  '2025-04-28', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
+-- 2025-2026: gevarieerde maandcijfers sep–apr voor een mooie chart
+(2, 9, 1, '2025-09-05', '2025-09-19', TRUE,  '2025-09-18', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2025-09-22', '2025-10-06', TRUE,  '2025-10-04', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2025-10-07', '2025-10-21', TRUE,  '2025-10-20', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2025-10-13', '2025-10-27', TRUE,  '2025-10-25', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2025-10-27', '2025-11-10', TRUE,  '2025-11-08', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2025-11-03', '2025-11-17', TRUE,  '2025-11-16', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2025-12-01', '2025-12-15', TRUE,  '2025-12-13', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2025-12-09', '2025-12-23', TRUE,  '2025-12-22', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2025-12-19', '2026-01-02', TRUE,  '2025-12-31', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2026-01-12', '2026-01-26', TRUE,  '2026-01-24', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2026-02-02', '2026-02-16', TRUE,  '2026-02-14', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2026-02-17', '2026-03-03', TRUE,  '2026-03-01', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2026-03-05', '2026-03-19', TRUE,  '2026-03-17', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2026-03-11', '2026-03-25', TRUE,  '2026-03-23', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2026-03-18', '2026-04-01', TRUE,  '2026-03-30', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(2, 9, 1, '2026-03-25', '2026-04-08', TRUE,  '2026-04-06', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+(5, 9, 1, '2026-04-03', '2026-04-17', TRUE,  '2026-04-14', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
+-- actief en te laat (return_date verstreken)
+(2, 9, 1, '2026-04-15', '2026-04-29', FALSE, NULL,         FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935');
+
+-- Kopiestatus bijwerken voor actieve uitleningen
+UPDATE school_item_copy SET copy_status = 'UITGELEEND' WHERE id IN (21, 11, 9);
 

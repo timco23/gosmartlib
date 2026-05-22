@@ -44,6 +44,6 @@ public class ClassService {
     }
 
     private ClassDTO mapToClassDTO(SchoolClass clazz) {
-        return new ClassDTO(clazz.getClassName(), clazz.getSchool().getId());
+        return new ClassDTO(clazz.getId() ,clazz.getClassName(), clazz.getSchool().getId());
     }
 }

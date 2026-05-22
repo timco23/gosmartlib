@@ -186,4 +186,16 @@ public class UserController {
         UserResponse response = userService.cancelDeletion(Integer.parseInt(auth.getName()));
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(
+            @RequestParam String email,
+            Authentication auth) {
+        try {
+            userService.deleteUser(Integer.parseInt(auth.getName()), email);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

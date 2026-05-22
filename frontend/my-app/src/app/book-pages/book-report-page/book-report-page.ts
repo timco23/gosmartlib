@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Book, BookStatisticsDTO, CampusStatisticsDTO, Readinglevel, RecentLendingDTO } from '../../../types/types';
+import { Book, BookStatisticsDTO, CampusStatisticsDTO, Readinglevel } from '../../../types/types';
 import { BookService } from '../../services/book-service';
 import { UserService } from '../../services/user.service';
 import { StatisticsService } from '../../services/statistics.service';
 import { ReadingLevelService } from '../../services/reading-level.service';
+import { formatChartLabel, formatDate, lendingStatus, lendingStatusLabel } from '../../shared/statistics-utils';
 
 @Component({
   selector: 'app-book-report-page',
@@ -29,6 +30,11 @@ export class BookReportPage implements OnInit {
   chartMode: 'month' | 'year' = 'month';
   trendLimit = 9;
   private schoolId!: number;
+
+  readonly lendingStatus = lendingStatus;
+  readonly lendingStatusLabel = lendingStatusLabel;
+  readonly formatDate = formatDate;
+  readonly formatChartLabel = formatChartLabel;
 
   ngOnInit(): void {
     this.bookId = Number(this.route.snapshot.paramMap.get('id'));
@@ -74,7 +80,6 @@ export class BookReportPage implements OnInit {
     return this.stats?.campusStats.reduce((sum, s) => sum + s.totalCopies, 0) ?? 0;
   }
 
-  /** Name of the book's reading level, looked up from the shared reading-levels list. */
   get rankingReadingLevelName(): string {
     return this.readingLevels.find((l) => l.id === this.book?.readingLevel)?.name ?? '';
   }
@@ -87,49 +92,15 @@ export class BookReportPage implements OnInit {
     return badge === 'onbenut' ? 'Niet gebruikt' : '';
   }
 
-  lendingStatus(l: RecentLendingDTO): 'returned' | 'overdue' | 'active' {
-    if (l.returned) return 'returned';
-    if (new Date() > new Date(l.returnDate)) return 'overdue';
-    return 'active';
-  }
-
-  lendingStatusLabel(l: RecentLendingDTO): string {
-    const s = this.lendingStatus(l);
-    if (s === 'returned') return 'Teruggebracht';
-    if (s === 'overdue') return 'Te laat';
-    return 'Actief';
-  }
-
-  formatChartLabel(key: string): string {
-    if (!key.includes('-')) return key;
-    const [year, month] = key.split('-');
-    return new Date(Number(year), Number(month) - 1).toLocaleDateString('nl-BE', {
-      month: 'short',
-      year: '2-digit',
-    });
-  }
-
-  formatDate(dateStr: string | null): string {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('nl-BE', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  }
-
-  /** Bar width (0–100%): 100% = rank 1, 0% = last place. */
   rankingBar(rank: number, total: number): number {
     if (total <= 1) return 100;
     return Math.round(((total - rank) / (total - 1)) * 100);
   }
 
-  /** Percentage of books this ranking beats (0–100). */
   betterThanPercent(rank: number, total: number): number {
     return Math.round(((total - rank) / total) * 100);
   }
 
-  /** True when the ranking is in the top third — used to apply green styling. */
   rankingIsGood(rank: number, total: number): boolean {
     return this.rankingBar(rank, total) >= 66;
   }

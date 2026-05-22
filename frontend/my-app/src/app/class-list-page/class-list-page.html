@@ -1,0 +1,37 @@
+<div class="page-container">
+  <header class="page-header">
+    <a class="back-link" routerLink="/home">← Terug</a>
+    <div class="page-hero">
+      <span class="eyebrow">Overzicht</span>
+      <h1 class="page-title">Klassen</h1>
+      <p class="page-sub">Bekijk de statistieken per klas</p>
+    </div>
+  </header>
+
+  @if (loading) {
+    <p class="muted loading-msg">Laden…</p>
+  } @else if (error) {
+    <p class="muted loading-msg">Er ging iets mis bij het laden van de klassen.</p>
+  } @else if (!classes.length) {
+    <p class="muted loading-msg">Geen klassen gevonden voor jouw school.</p>
+  } @else {
+    <div class="class-grid">
+      @for (cls of classes; track cls.id) {
+        <a class="class-card" [routerLink]="['/class', cls.id, 'statistics']">
+          <div class="class-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="class-info">
+            <span class="class-name">{{ cls.className }}</span>
+            <span class="class-cta">Statistieken bekijken →</span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

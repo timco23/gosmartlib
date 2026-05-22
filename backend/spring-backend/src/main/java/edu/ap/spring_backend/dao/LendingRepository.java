@@ -39,9 +39,18 @@ public interface LendingRepository extends JpaRepository<Lending, Long> {
     Optional<Lending> findTopByBorrower_IdOrderByLendingDateDesc(Integer borrowerId);
     List<Lending> findByBook_Item_IdAndSchool_Id(Long itemId, Long schoolId);
 
+    List<Lending> findByBorrower_IdAndSchool_Id(Integer userId, Long schoolId);
+    List<Lending> findBySnapClassNameAndSchool_Id(String snapClassName, Long schoolId);
+
     @Query("SELECT new edu.ap.spring_backend.dto.ItemCountDTO(l.book.item.id, COUNT(l)) FROM Lending l WHERE l.school.id = :schoolId GROUP BY l.book.item.id")
     List<ItemCountDTO> countLendingsByItemForSchool(@Param("schoolId") Long schoolId);
 
     @Query("SELECT new edu.ap.spring_backend.dto.ItemCountDTO(l.book.item.id, COUNT(l)) FROM Lending l WHERE l.school.id = :schoolId AND l.book.item.readingLevel.id = :readingLevelId GROUP BY l.book.item.id")
     List<ItemCountDTO> countLendingsByItemForSchoolAndReadingLevel(@Param("schoolId") Long schoolId, @Param("readingLevelId") Long readingLevelId);
+
+    boolean existsByBorrowerIdAndReturnedFalse(Integer borrowerId);
+    boolean existsByBook_IdInAndReturnedFalse(List<Integer> copyIds);
+
+    @Query("SELECT DISTINCT l.snapSchoolYear FROM Lending l WHERE l.school.id = :schoolId AND l.snapSchoolYear IS NOT NULL ORDER BY l.snapSchoolYear DESC")
+    List<String> findDistinctSchoolYearsBySchoolId(@Param("schoolId") Long schoolId);
 }

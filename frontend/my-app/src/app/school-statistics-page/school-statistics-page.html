@@ -1,0 +1,204 @@
+<div class="report-container">
+  @if (stats) {
+    <header class="report-header">
+      <a class="back-link" routerLink="/home">← Terug</a>
+      <div class="school-hero">
+        <div>
+          <span class="eyebrow">Schoolstatistieken</span>
+          <h1 class="school-title">{{ schoolName }}</h1>
+          <p class="school-sub">{{ yearLabel }}</p>
+        </div>
+      </div>
+    </header>
+
+    @if (availableYears.length > 0) {
+      <div class="year-selector">
+        @for (year of availableYears; track year; let i = $index) {
+          <button class="year-btn" [class.year-btn--active]="isYearActive(year, i)"
+                  (click)="selectYear(year)">{{ year }}</button>
+        }
+        <button class="year-btn" [class.year-btn--active]="selectedYear === 'all'"
+                (click)="selectYear('all')">Totaal</button>
+      </div>
+    }
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.totalLendings }}</span>
+        <span class="stat-label">Totaal ontleend</span>
+      </div>
+      <div class="stat-card stat-card--green">
+        <span class="stat-value">{{ stats.activeLendings }}</span>
+        <span class="stat-label">Momenteel ontleend</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.avgDurationDays }}<small>d</small></span>
+        <span class="stat-label">Gem. ontleenduur</span>
+      </div>
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
+        <span class="stat-value">{{ stats.lateReturnCount }}</span>
+        <span class="stat-label">Te laat ingeleverd</span>
+      </div>
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
+        <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
+        <span class="stat-label">Te laat percentage</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.extensionPercent }}%</span>
+        <span class="stat-label">Verlengingsgraad</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.totalReviews }}</span>
+        <span class="stat-label">Geplaatste reviews</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">{{ chartTitle }}</h2>
+      @if (filteredLendingsTrend.length) {
+        <div class="bar-chart">
+          @for (entry of filteredLendingsTrend; track entry.period) {
+            <div class="bar-col">
+              <span class="bar-count">{{ entry.count }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.height.%]="(entry.count / maxChartCount) * 100"></div>
+              </div>
+              <span class="bar-label">{{ formatChartLabel(entry.period) }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="muted">Nog geen ontleendata beschikbaar.</p>
+      }
+    </section>
+
+    @if (stats.campusStats.length > 1) {
+      <section class="panel">
+        <h2 class="panel-title">Campusdistributie</h2>
+        <p class="panel-sub">Ontleengedrag per campus</p>
+        <div class="table-wrap">
+          <table class="data-table campus-table">
+            <thead>
+              <tr>
+                <th>Campus</th>
+                <th class="num">Ontleningen</th>
+                <th class="num">Actief</th>
+                <th class="num">Gem. duur</th>
+                <th class="num">Te laat</th>
+                <th class="num">Te laat %</th>
+                <th class="num">Verlengingsgraad</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of stats.campusStats; track c.name) {
+                <tr>
+                  <td class="campus-name">{{ c.name }}</td>
+                  <td class="num">{{ c.totalLendings }}</td>
+                  <td class="num">
+                    @if (c.activeLendings > 0) {
+                      <span class="badge badge--active">{{ c.activeLendings }}</span>
+                    } @else {
+                      <span class="dim">0</span>
+                    }
+                  </td>
+                  <td class="num">{{ c.avgDurationDays ? c.avgDurationDays + 'd' : '—' }}</td>
+                  <td class="num">{{ c.lateReturnCount }}</td>
+                  <td class="num">
+                    <span class="pct-badge" [class.pct-badge--warn]="c.lateReturnPercent > 20">
+                      {{ c.lateReturnPercent }}%
+                    </span>
+                  </td>
+                  <td class="num">{{ c.extensionPercent }}%</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <div class="top-books-grid">
+
+      <section class="panel">
+        <h2 class="panel-title">Meest ontleende boeken</h2>
+        <p class="panel-sub">Top 10</p>
+        @if (!stats.topBorrowedBooks.length) {
+          <p class="muted">Geen data beschikbaar.</p>
+        } @else {
+          <ol class="top-book-list">
+            @for (b of stats.topBorrowedBooks; track b.itemId; let rank = $index) {
+              <li class="top-book-item">
+                <span class="rank">{{ rank + 1 }}</span>
+                <a class="top-book-title" [routerLink]="['/books', b.itemId]">{{ b.title }}</a>
+                <span class="top-book-value">{{ b.value }}x</span>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Vaakst volledig ontleend</h2>
+        <p class="panel-sub">Top 10 boeken op aantal dagen waarop alle exemplaren gelijktijdig ontleend waren</p>
+        @if (!stats.topUnavailableBooks.length) {
+          <p class="muted">Geen data beschikbaar.</p>
+        } @else {
+          <ol class="top-book-list">
+            @for (b of stats.topUnavailableBooks; track b.itemId; let rank = $index) {
+              <li class="top-book-item">
+                <span class="rank">{{ rank + 1 }}</span>
+                <a class="top-book-title" [routerLink]="['/books', b.itemId]">{{ b.title }}</a>
+                <span class="top-book-value">{{ b.value }}d</span>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+
+    </div>
+
+    <section class="panel">
+      <h2 class="panel-title">Recente ontleningen</h2>
+      <p class="panel-sub">10 meest recente ontleningen</p>
+      @if (!stats.recentLendings.length) {
+        <p class="muted">Geen ontleningen gevonden voor deze periode.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="data-table lending-table">
+            <thead>
+              <tr>
+                <th>Boek</th>
+                <th>Lener</th>
+                <th>Ontleend op</th>
+                <th>Terugbrengdatum</th>
+                <th>Ingeleverd op</th>
+                <th>Verlengd</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of stats.recentLendings; track l.id) {
+                <tr>
+                  <td class="book-title-cell">{{ l.bookTitle }}</td>
+                  <td>{{ l.borrowerName }}</td>
+                  <td>{{ formatDate(l.lendingDate) }}</td>
+                  <td>{{ formatDate(l.returnDate) }}</td>
+                  <td>{{ formatDate(l.dateReturned) }}</td>
+                  <td>{{ l.extended ? 'Ja' : 'Nee' }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="lendingStatus(l)">
+                      {{ lendingStatusLabel(l) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+  } @else if (loading) {
+    <p class="muted loading-msg">Laden…</p>
+  }
+</div>

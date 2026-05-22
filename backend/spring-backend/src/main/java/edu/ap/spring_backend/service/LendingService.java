@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,11 +21,16 @@ import edu.ap.spring_backend.dto.CampusAvailabilityDTO;
 import edu.ap.spring_backend.dto.LendingDTO;
 import edu.ap.spring_backend.dto.LendingRequestDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
+import edu.ap.spring_backend.jpa.Campus;
+import edu.ap.spring_backend.jpa.Genre;
+import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.Lending;
+import edu.ap.spring_backend.jpa.SchoolClass;
+import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.dto.ItemDTO;
-import java.util.Optional;
 import edu.ap.spring_backend.mappers.ItemMapper;
+import edu.ap.spring_backend.util.SchoolYearUtil;
 
 @Service
 public class LendingService {
@@ -73,8 +80,16 @@ public class LendingService {
     public LendingDTO addLending(LendingRequestDTO request) {
         Lending lending = new Lending();
 
-        lending.setBorrower(userRepository.findById(request.borrowerId()).orElseThrow());
-        lending.setBook(copyRepository.findByBarcode(request.copyBarcode()).orElseThrow());
+        User borrower = userRepository.findById(request.borrowerId())
+                .orElseThrow(EntityNotFoundException::new);
+        if (borrower.getDeletionRequestedAt() != null) {
+            throw new IllegalStateException("Cannot lend to a user with a pending deletion request");
+        }
+
+        SchoolItemCopy copy = copyRepository.findByBarcode(request.copyBarcode()).orElseThrow();
+
+        lending.setBorrower(borrower); 
+        lending.setBook(copy);
         lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow());
         lending.setLendingDate(request.lendingDate());
         lending.setReturnDate(request.returnDate());
@@ -82,11 +97,39 @@ public class LendingService {
         lending.setDateReturned(null);
         lending.setExtended(false);
 
-        Lending saved = lendingRepository.save(lending);
+        fillSnapshot(lending, borrower, copy);
 
+        Lending saved = lendingRepository.save(lending);
         return toDTO(saved);
     }
 
+    void fillSnapshot(Lending lending, User user, SchoolItemCopy copy) {
+        List<SchoolClass> classes = user != null ? user.getClasses() : List.of();
+        if (!classes.isEmpty()) {
+            lending.setSnapClassName(classes.get(0).getClassName());
+        }
+
+        Campus campus = copy.getCampus();
+        if (campus != null) {
+            lending.setSnapCampusId(campus.getId());
+            lending.setSnapCampusName(campus.getName());
+        }
+
+        lending.setSnapSchoolYear(SchoolYearUtil.determineSchoolYear(lending.getLendingDate()));
+
+        Item item = copy.getItem();
+        if (item != null) {
+            lending.setSnapBookTitle(item.getTitle());
+            lending.setSnapBookIsbn(item.getIsbn());
+            if (item.getReadingLevel() != null) {
+                lending.setSnapReadingLevel(item.getReadingLevel().getName());
+            }
+            Set<Genre> genres = item.getGenres();
+            if (genres != null && !genres.isEmpty()) {
+                lending.setSnapBookGenre(genres.iterator().next().getName());
+            }
+        }
+    }
 
     public LendingDTO updateLending(Long id, LendingDTO dto) {
         Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);
@@ -160,7 +203,8 @@ public class LendingService {
         Map<String, LocalDate> earliest = new HashMap<>();
 
         for (Lending lending : lendingRepository.findByBook_Item_IdAndReturnedFalse(bookId)) {
-            String campus = lending.getBook().getCampus().getName();
+            Campus campusObj = lending.getBook().getCampus();
+            String campus = campusObj != null ? campusObj.getName() : "Geen locatie";
             LocalDate date = lending.getReturnDate();
             if (!earliest.containsKey(campus) || date.isBefore(earliest.get(campus))) {
                 earliest.put(campus, date);
