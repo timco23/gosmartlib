@@ -4,6 +4,7 @@ import edu.ap.spring_backend.dao.ClassRepository;
 import edu.ap.spring_backend.dto.ClassDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.SchoolClass;
+import edu.ap.spring_backend.jpa.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,4 +47,8 @@ public class ClassService {
     private ClassDTO mapToClassDTO(SchoolClass clazz) {
         return new ClassDTO(clazz.getId() ,clazz.getClassName(), clazz.getSchool().getId());
     }
+
+    public List<SchoolClass> getClassesByUser(User user) {
+        return classRepository.findByUsersContaining(user);
+    }   
 }

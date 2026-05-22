@@ -316,13 +316,28 @@ public class SmartschoolOAuthController {
     private void syncUserClasses(User user, School defaultSchool, SmartschoolGroupInfoResponseDTO groupInfo) {
         if (groupInfo == null || groupInfo.groups() == null || defaultSchool == null) return;
 
+        // Names of classes currently returned by Smartschool
+        Set<String> smartschoolClassNames = Arrays.stream(groupInfo.groups())
+                .map(SmartschoolGroupDTO::name)
+                .collect(java.util.stream.Collectors.toSet());
+
+        // Remove the student from classes that are no longer listed in Smartschool
+        List<SchoolClass> currentClasses = classService.getClassesByUser(user);
+        for (SchoolClass currentClass : currentClasses) {
+            if (!smartschoolClassNames.contains(currentClass.getClassName())) {
+                currentClass.getUsers().remove(user);
+                classService.addClass(currentClass);
+            }
+        }
+
+        // Add the student to the classes returned by Smartschool
         for (SmartschoolGroupDTO group : groupInfo.groups()) {
             SchoolClass schoolClass = classService.getClassByNameAndSchoolId(group.name(), defaultSchool.getId());
 
             if (schoolClass == null) {
-                List<User> currentUser = new ArrayList<>();
-                currentUser.add(user);
-                schoolClass = new SchoolClass(group.name(), defaultSchool, currentUser);
+                List<User> users = new ArrayList<>();
+                users.add(user);
+                schoolClass = new SchoolClass(group.name(), defaultSchool, users);
             } else if (!schoolClass.getUsers().contains(user)) {
                 schoolClass.getUsers().add(user);
             }
