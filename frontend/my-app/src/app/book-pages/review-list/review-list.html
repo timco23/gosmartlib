@@ -16,6 +16,13 @@
             </span>
             <span class="review-date">{{ review.createdAt | date: 'dd-MM-yyyy' }}</span>
           </div>
+
+          @if (review.approved) {
+            <div class="approval-disclaimer">
+              <span class="check-icon">✓</span>
+              Goedgekeurd - kan niet gerapporteerd worden
+            </div>
+          }
         </div>
 
         @if (review.description) {

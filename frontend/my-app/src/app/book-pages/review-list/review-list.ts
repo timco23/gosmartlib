@@ -115,7 +115,7 @@ export class ReviewList {
   }
 
   canReport(review: Review): boolean {
-    return !this.isOwner(review);
+    return !this.isOwner(review) && !review.approved;
   }
 
   
