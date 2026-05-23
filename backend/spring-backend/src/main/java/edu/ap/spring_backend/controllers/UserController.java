@@ -63,6 +63,11 @@ public class UserController {
         return ResponseEntity.ok(favoriteBooks);
     }
 
+    @GetMapping("/user/has-school")
+    public ResponseEntity<Boolean> userHasSchool(@RequestParam String email) {
+        return ResponseEntity.ok(userService.userHasSchool(email));
+    }
+
     /**
      * Adds a book to the user's favorites list based on the provided email and item ID.
      * @param email
@@ -190,5 +195,17 @@ public class UserController {
     public ResponseEntity<UserResponse> cancelDeletion(Authentication auth) {
         UserResponse response = userService.cancelDeletion(Integer.parseInt(auth.getName()));
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(
+            @RequestParam String email,
+            Authentication auth) {
+        try {
+            userService.deleteUser(Integer.parseInt(auth.getName()), email);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

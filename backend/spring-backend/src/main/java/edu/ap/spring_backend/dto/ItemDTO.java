@@ -29,6 +29,8 @@ public record ItemDTO(
         int reviewCount,
         @JsonProperty("description")
         String description,
+        @JsonProperty("updating")
+        boolean updating,
         @JsonProperty("tags")
         List<TagDTO> tags,
         @JsonProperty("genres")

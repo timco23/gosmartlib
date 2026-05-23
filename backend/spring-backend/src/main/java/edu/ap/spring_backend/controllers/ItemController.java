@@ -25,6 +25,7 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
+import edu.ap.spring_backend.dto.BulkImportHistoryDTO;
 import java.util.List;
 
 @Validated
@@ -311,6 +312,17 @@ public class ItemController {
         return ResponseEntity.ok(bookCsvImportService.confirmImport(dto));
     }
 
+    @GetMapping("/books/import/history")
+    public ResponseEntity<List<BulkImportHistoryDTO>> getImportHistory(@RequestParam Long schoolId) {
+        return ResponseEntity.ok(bookCsvImportService.getHistoryBySchool(schoolId));
+    }
+
+    @DeleteMapping("/books/import/history/{id}")
+    public ResponseEntity<Void> undoImport(@PathVariable Long id) {
+        bookCsvImportService.undoImport(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/books/copies")
     public ResponseEntity<SchoolItemCopyDTO> addCopy(@RequestBody CreateSchoolItemCopyDTO copyDTO) {
         return ResponseEntity.ok(schoolItemCopyService.addCopy(copyDTO));
@@ -344,6 +356,17 @@ public class ItemController {
     public ResponseEntity<SchoolItemCopyDTO> updateCopyCondition(@PathVariable int copyId,
             @RequestParam String condition) {
         return ResponseEntity.ok(schoolItemCopyService.updateCopyCondition(copyId, condition));
+    }
+
+    @PutMapping("/books/{bookId}/mark-for-update")
+    public ResponseEntity<ItemDTO> markBookForUpdate(@PathVariable Long bookId, @RequestParam boolean value) {
+        this.itemService.markBookForUpdate(bookId, value);
+        return ResponseEntity.ok(itemService.getItemById(bookId));
+    }
+
+    @GetMapping("/books/{id}/mark-for-update")
+    public ResponseEntity<Boolean> isBookMarkedForUpdate(@PathVariable Long id) {
+        return ResponseEntity.ok(itemService.isBookMarkedForUpdate(id));
     }
 
     @DeleteMapping("/books/{id}")

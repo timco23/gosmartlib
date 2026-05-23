@@ -130,9 +130,12 @@ public class WebSecurityConfig {
                     "/books/*/report",
                     "/api/books/*/report"
                 ).hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/classes").hasAnyAuthority(TEACHER_PLUS)
 
                 // BIBLIOTHEEKBEHEERDER
                 .requestMatchers(HttpMethod.GET, "/lendings", "/lendings/**", "/collections", "/collections/**", "/book-lending-history/**", "/api/book-lending-history/**")
+                .hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.GET, "/books/import/history")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
                 .requestMatchers(HttpMethod.POST, "/lendings", "/lendings/**", "/collections", "/collections/**")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
@@ -154,6 +157,7 @@ public class WebSecurityConfig {
                 // ADMIN
                 .requestMatchers("/schools/**", "/users/**").hasAuthority(ROLE_ADMIN)
                 .requestMatchers(HttpMethod.PUT, "/user/school").hasAuthority(ROLE_ADMIN)
+                .requestMatchers(HttpMethod.DELETE, "/user/delete").hasAuthority(ROLE_ADMIN) 
 
                 .anyRequest().authenticated()
             )

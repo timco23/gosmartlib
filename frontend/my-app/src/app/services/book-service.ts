@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import {
   Book,
+  BulkImportHistoryEntry,
   CampusAvailability,
   CreateBookPayload,
   CsvImportDTO,
@@ -130,6 +131,16 @@ export class BookService {
     return this.http.post<CsvImportDTO>(`${this.apiBaseUrl}/books/import/confirm`, dto);
   }
 
+  getImportHistory(schoolId: number): Observable<BulkImportHistoryEntry[]> {
+    return this.http.get<BulkImportHistoryEntry[]>(`${this.apiBaseUrl}/books/import/history`, {
+      params: { schoolId },
+    });
+  }
+
+  undoImport(historyId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/books/import/history/${historyId}`);
+  }
+
   updateBook(newBook: UpdateBookPayload, id: number): Observable<Book> {
     return this.http.put<Book>(`${this.apiBaseUrl}/books/${id}`, newBook);
   }
@@ -234,5 +245,15 @@ export class BookService {
     return this.http.put<SchoolItemCopy>(`${this.apiBaseUrl}/books/copies/${copyId}/condition`, null, {
       params: { condition: condition },
     });
+  }
+
+  setBookUpdating(bookId: number, value: string): Observable<Book> {
+    return this.http.put<Book>(`${this.apiBaseUrl}/books/${bookId}/mark-for-update`, null, {
+      params: { value: value },
+    });
+  }
+
+  getBookUpdatingStatus(bookId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiBaseUrl}/books/${bookId}/mark-for-update`);
   }
 }

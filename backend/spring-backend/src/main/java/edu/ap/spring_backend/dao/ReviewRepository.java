@@ -3,6 +3,8 @@ package edu.ap.spring_backend.dao;
 import edu.ap.spring_backend.jpa.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,4 +27,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
      */
     List<Review> findAllByAuthorSchoolId(Long schoolId);
     boolean existsByItemIdAndAuthorId(Long itemId, Integer authorId);
+    long countByAuthor_Id(Integer userId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.author.school.id = :schoolId")
+    long countByAuthor_School_Id(@Param("schoolId") Long schoolId);
 }

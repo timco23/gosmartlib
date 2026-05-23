@@ -249,6 +249,14 @@ export interface CsvImportDTO {
   copyIds: number[];
 }
 
+export interface BulkImportHistoryEntry {
+  id: number;
+  importedAt: string;
+  importedBooks: number;
+  importedCopies: number;
+  copyIds: number[];
+}
+
 export interface CarouselSlot {
   book: Book;
   index: number;
@@ -435,8 +443,92 @@ export type LendingStatus = 'OVERDUE' | 'DUE_SOON' | 'OK' | 'RETURNED';
 export type LendingFilter = 'ALL' | LendingStatus;
 
 export interface Class {
+  id: number;
   className: string;
-  schoolId: number
+  schoolId: number;
+}
+
+export interface StudentRecentLendingDTO {
+  id: number;
+  bookTitle: string;
+  lendingDate: string;
+  returnDate: string;
+  dateReturned: string | null;
+  returned: boolean;
+  extended: boolean;
+}
+
+export interface StudentStatisticsDTO {
+  userId: number;
+  fullName: string;
+  totalLendings: number;
+  activeLendings: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  reviewCount: number;
+  readingLevelDistribution: Record<string, number>;
+  topGenres: string[];
+  recentLendings: StudentRecentLendingDTO[];
+}
+
+export interface ClassStatisticsDTO {
+  classId: number;
+  className: string;
+  studentCount: number;
+  totalLendings: number;
+  activeLendings: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  readingLevelDistribution: Record<string, number>;
+  totalReviews: number;
+  students: StudentStatisticsDTO[];
+}
+
+export interface SchoolCampusStatisticsDTO {
+  name: string;
+  totalLendings: number;
+  activeLendings: number;
+  avgDurationDays: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  extensionPercent: number;
+}
+
+export interface SchoolRecentLendingDTO {
+  id: number;
+  borrowerName: string;
+  bookTitle: string;
+  lendingDate: string;
+  returnDate: string;
+  dateReturned: string | null;
+  returned: boolean;
+  extended: boolean;
+}
+
+export interface SchoolPeriodCountDTO {
+  period: string;
+  count: number;
+}
+
+export interface SchoolTopBookDTO {
+  itemId: number;
+  title: string;
+  value: number;
+}
+
+export interface SchoolStatisticsDTO {
+  totalLendings: number;
+  activeLendings: number;
+  avgDurationDays: number;
+  lateReturnCount: number;
+  lateReturnPercent: number;
+  extensionPercent: number;
+  totalReviews: number;
+  campusStats: SchoolCampusStatisticsDTO[];
+  recentLendings: SchoolRecentLendingDTO[];
+  lendingsTrend: SchoolPeriodCountDTO[];
+  topBorrowedBooks: SchoolTopBookDTO[];
+  topUnavailableBooks: SchoolTopBookDTO[];
 }
 
 export interface ReviewReport {

@@ -1,0 +1,126 @@
+<div class="report-container">
+  @if (stats) {
+    <header class="report-header">
+      <a class="back-link" [routerLink]="['/class', classId, 'statistics']">← Terug naar klas</a>
+      <div class="student-hero">
+        <div class="student-avatar">
+          {{ stats.fullName.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <span class="eyebrow">Leerlingstatistieken</span>
+          <h1 class="student-title">{{ stats.fullName }}</h1>
+        </div>
+      </div>
+    </header>
+
+    @if (availableYears.length > 0) {
+      <div class="year-selector">
+        @for (year of availableYears; track year; let i = $index) {
+          <button class="year-btn" [class.year-btn--active]="isYearActive(year, i)"
+                  (click)="selectYear(year)">{{ year }}</button>
+        }
+        <button class="year-btn" [class.year-btn--active]="selectedYear === 'all'"
+                (click)="selectYear('all')">Totaal</button>
+      </div>
+    }
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.totalLendings }}</span>
+        <span class="stat-label">Totaal ontleend</span>
+      </div>
+      <div class="stat-card stat-card--green">
+        <span class="stat-value">{{ stats.activeLendings }}</span>
+        <span class="stat-label">Momenteel ontleend</span>
+      </div>
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnCount > 0">
+        <span class="stat-value">{{ stats.lateReturnCount }}</span>
+        <span class="stat-label">Te laat ingeleverd</span>
+      </div>
+      <div class="stat-card" [class.stat-card--red]="stats.lateReturnPercent > 20">
+        <span class="stat-value">{{ stats.lateReturnPercent }}%</span>
+        <span class="stat-label">Te laat %</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.reviewCount }}</span>
+        <span class="stat-label">Geplaatste reviews</span>
+      </div>
+    </section>
+
+    <div class="panel insights-panel">
+      <div class="insights-left">
+        <p class="panel-title">Lievelingsgenres</p>
+        <p class="panel-sub">De 5 meest gelezen genres</p>
+        @if (stats.topGenres && stats.topGenres.length > 0) {
+          <ol class="genre-list">
+            @for (genre of stats.topGenres; track genre) {
+              <li class="genre-item">{{ genre }}</li>
+            }
+          </ol>
+        } @else {
+          <p class="muted">Geen data</p>
+        }
+      </div>
+      <div class="insights-divider"></div>
+      <div class="insights-right">
+        <p class="panel-title">Leesniveaus</p>
+        <p class="panel-sub">Ontleningen per leesniveau</p>
+        <div class="bar-chart">
+          @for (bar of readingLevelBars; track bar.label) {
+            <div class="bar-col">
+              <span class="bar-count">{{ bar.count }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.height.%]="bar.pct"></div>
+              </div>
+              <span class="bar-label">{{ bar.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (stats.recentLendings.length) {
+      <section class="panel">
+        <h2 class="panel-title">Recente ontleningen</h2>
+        <p class="panel-sub">De 10 meest recente ontleningen</p>
+        <div class="table-wrap">
+          <table class="data-table lending-table">
+            <thead>
+              <tr>
+                <th>Boek</th>
+                <th>Ontleend op</th>
+                <th>Terugbrengdatum</th>
+                <th>Ingeleverd op</th>
+                <th>Verlengd</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (l of stats.recentLendings; track l.id) {
+                <tr>
+                  <td class="book-title-cell">{{ l.bookTitle }}</td>
+                  <td>{{ formatDate(l.lendingDate) }}</td>
+                  <td>{{ formatDate(l.returnDate) }}</td>
+                  <td>{{ formatDate(l.dateReturned) }}</td>
+                  <td>{{ l.extended ? 'Ja' : 'Nee' }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="lendingStatus(l)">
+                      {{ lendingStatusLabel(l) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else {
+      <div class="panel empty-panel">
+        <p class="muted">Deze leerling heeft nog geen boeken ontleend in deze school.</p>
+      </div>
+    }
+
+  } @else if (loading) {
+    <p class="muted loading-msg">Laden…</p>
+  }
+</div>

@@ -42,6 +42,9 @@ export class Profile implements OnInit, OnDestroy {
 
   showCancelConfirm = false;
 
+  showAdminDeleteConfirm = false;
+  adminDeleteError: string = '';
+
   constructor(
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
@@ -202,6 +205,16 @@ export class Profile implements OnInit, OnDestroy {
     return this.profile?.role === 'LEERLING' && !this.isViewingOther;
   }
 
+  get isAdminViewingOther(): boolean {
+    return this.isViewingOther && this.authService.atLeastHasRole(Role.ADMIN);
+  }
+
+  get showAdminDeletion(): boolean {
+    if (!this.isAdminViewingOther || !this.profile) return false;
+    if (this.profile.role === 'ADMIN') return false;
+    return true;
+  }
+
   get hasActiveLendings(): boolean {
     return this.activeLendings.length > 0;
   }
@@ -248,13 +261,19 @@ export class Profile implements OnInit, OnDestroy {
     if (!this.profile?.deletionRequestedAt) return;
 
     const rawDate = this.profile.deletionRequestedAt;
-    const utcString = rawDate.endsWith('Z') ? rawDate : rawDate + 'Z'; //Z: tells JavaScript that the timestamp is in UTC
+    const utcString = rawDate.endsWith('Z') ? rawDate : rawDate + 'Z';
     const requestedAt = new Date(utcString);
-    const deleteAt = new Date(requestedAt.getTime() + 24 * 60 * 60 * 1000);
+    const deleteAt = new Date(requestedAt.getTime() + 24 * 60 * 60 * 1000); // 24 uur
     const diff = deleteAt.getTime() - Date.now();
     if (diff <= 0) {
       this.deletionCountdown = 'Wordt verwijderd...';
       this.stopCountdown();
+      if (!this.isViewingOther) {
+        setTimeout(() => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 5000);
+      }
       return;
     }
     const h = Math.floor(diff / 3600000);
@@ -281,6 +300,35 @@ export class Profile implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Failed to cancel deletion', err),
     });
+  }
+
+  openAdminDeleteConfirm(): void {
+    if (!this.adminCanDelete) return;
+    this.adminDeleteError = '';
+    this.showAdminDeleteConfirm = true;
+  }
+
+  closeAdminDeleteConfirm(): void {
+    this.showAdminDeleteConfirm = false;
+  }
+
+  confirmAdminDeletion(): void {
+    if (!this.profile) return;
+    this.showAdminDeleteConfirm = false;
+    this.adminDeleteError = '';
+    this.userService.deleteUser(this.profile.email).subscribe({
+      next: () => {
+        this.router.navigate(['/accounts']);
+      },
+      error: (err) => {
+        this.adminDeleteError = err.error ?? 'Kan gebruiker niet verwijderen.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  get adminCanDelete(): boolean {
+    return !this.hasActiveLendings && !this.hasPendingDeletion;
   }
 
   ngOnDestroy(): void {

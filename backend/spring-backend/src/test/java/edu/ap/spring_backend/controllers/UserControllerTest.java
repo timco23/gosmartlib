@@ -171,7 +171,7 @@ class UserControllerTest extends BaseControllerTest {
 
     private UserResponse user() {
         List<ClassDTO> classes = new ArrayList<>();
-        classes.add(new ClassDTO("1A", 1L));
+        classes.add(new ClassDTO(1L, "1A", 1L));
         return new UserResponse(
                 1, "Doe", "Jane", "user@example.com", "LEERLING",
                 "S123", classes, "AP", 1L, new ItemDTO[]{item()}, 2, null
@@ -182,7 +182,7 @@ class UserControllerTest extends BaseControllerTest {
         return new ItemDTO(
                 1L, "Dune", "Ace Books", "Frank Herbert", "9780441568529",
                 1965, "ENGELS", 412, "https://covers.example.com/dune.jpg",
-                4.5, 10, "A sci-fi epic.",
+                4.5, 10, "A sci-fi epic.", false,
                 List.of(new TagDTO(1L, "sci-fi")),
                 List.of(1L), List.of(2L), 1L, List.of(3L),
                 1L, false, false, null

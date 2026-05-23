@@ -56,6 +56,8 @@ public class Item {
     @Column(name = "book_description", columnDefinition = "TEXT")
     private String description;
 
+    private boolean updating;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "item_tag", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();

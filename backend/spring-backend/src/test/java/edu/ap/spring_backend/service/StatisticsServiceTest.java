@@ -1,10 +1,17 @@
 package edu.ap.spring_backend.service;
 
+import edu.ap.spring_backend.dao.ClassRepository;
 import edu.ap.spring_backend.dao.LendingRepository;
+import edu.ap.spring_backend.dao.ReviewRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
+import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.BookStatisticsDTO;
+import edu.ap.spring_backend.dto.ClassStatisticsDTO;
 import edu.ap.spring_backend.dto.ItemCountDTO;
+import edu.ap.spring_backend.dto.SchoolStatisticsDTO;
+import edu.ap.spring_backend.dto.StudentStatisticsDTO;
 import edu.ap.spring_backend.jpa.*;
+import edu.ap.spring_backend.util.SchoolYearUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,6 +21,8 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,6 +31,9 @@ class StatisticsServiceTest {
 
     @Mock private LendingRepository lendingRepository;
     @Mock private SchoolItemCopyRepository copyRepository;
+    @Mock private ReviewRepository reviewRepository;
+    @Mock private ClassRepository classRepository;
+    @Mock private UserRepository userRepository;
 
     @InjectMocks
     private StatisticsService service;
@@ -175,19 +187,21 @@ class StatisticsServiceTest {
     @Test
     void getBookStatistics_monthlyTrend_trimmedToMostRecent6Months() {
         List<Lending> lendings = new ArrayList<>();
-        for (int month = 6; month <= 12; month++) { // 7 distinct months
-            lendings.add(completedLending("BC001",
-                    LocalDate.of(2023, month, 1),
-                    LocalDate.of(2023, month, 15),
-                    LocalDate.of(2023, month, 15)));
+        LocalDate now = LocalDate.now();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = now.minusMonths(i).withDayOfMonth(1);
+            Lending l = completedLending("BC001", date, date.plusDays(14), date.plusDays(14));
+            lendings.add(l);
         }
         stubMainRepositories(lendings, List.of(copy));
 
         List<BookStatisticsDTO.MonthlyLendingDTO> trend = service.getBookStatistics(BOOK_ID, SCHOOL_ID, "month", 6).lendingsByMonth();
 
         assertEquals(6, trend.size());
-        assertEquals("2023-07", trend.get(0).month()); // oldest kept month
-        assertEquals("2023-12", trend.get(5).month()); // most recent
+        String expectedOldest = now.minusMonths(5).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+        String expectedNewest = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM"));
+        assertEquals(expectedOldest, trend.get(0).month());
+        assertEquals(expectedNewest, trend.get(5).month());
     }
 
     @Test
@@ -289,6 +303,273 @@ class StatisticsServiceTest {
         assertEquals(2.5, ranking.lendingsPerCopy());
         assertNull(ranking.rankReadingLevel());
         assertNull(ranking.totalBooksReadingLevel());
+    }
+
+    // --- class statistics tests ---
+
+    private User studentUser(int id, String firstName, String lastName) {
+        User u = mock(User.class);
+        when(u.getId()).thenReturn(id);
+        when(u.getFirstName()).thenReturn(firstName);
+        when(u.getName()).thenReturn(lastName);
+        when(u.getClasses()).thenReturn(List.of());
+        return u;
+    }
+
+    private Lending lendingWithSnapshot(User borrower, String snapClassName, String snapSchoolYear,
+                                        String snapReadingLevel, String snapBookGenre) {
+        Lending l = new Lending();
+        l.setBook(copy);
+        l.setBorrower(borrower);
+        l.setLendingDate(LocalDate.of(2025, 3, 1));
+        l.setReturnDate(LocalDate.of(2025, 3, 15));
+        l.setReturned(false);
+        l.setSnapClassName(snapClassName);
+        l.setSnapSchoolYear(snapSchoolYear);
+        l.setSnapReadingLevel(snapReadingLevel);
+        l.setSnapBookGenre(snapBookGenre);
+        return l;
+    }
+
+    @Test
+    void getClassStatistics_readingLevelDistribution_usesSnapshotNotLiveJoin() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending l = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", "Fantasy");
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID)).thenReturn(List.of(l));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, null);
+
+        assertEquals(Map.of("AVI-M6", 1), result.readingLevelDistribution());
+    }
+
+    @Test
+    void getClassStatistics_readingLevelDistribution_excludesPreviousSchoolYear() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        String previousYear = (Integer.parseInt(currentYear.substring(0, 4)) - 1)
+                + "-" + currentYear.substring(0, 4);
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending currentYearLending = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", null);
+        Lending oldLending = lendingWithSnapshot(student, "4A", previousYear, "AVI-E3", null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID))
+                .thenReturn(List.of(currentYearLending, oldLending));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, null);
+
+        assertEquals(Map.of("AVI-M6", 1), result.readingLevelDistribution());
+        assertFalse(result.readingLevelDistribution().containsKey("AVI-E3"));
+    }
+
+    @Test
+    void getClassStatistics_classSwitchAfterLending_historicalLendingStillCounted() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User movedStudent = studentUser(2, "Els", "Janssen");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of());
+        sc.setId(10L);
+
+        Lending l = lendingWithSnapshot(movedStudent, "4A", currentYear, null, null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID)).thenReturn(List.of(l));
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, null);
+
+        assertEquals(1, result.totalLendings());
+    }
+
+    @Test
+    void getClassStatistics_schoolYearAll_returnsBothYears() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        String previousYear = (Integer.parseInt(currentYear.substring(0, 4)) - 1)
+                + "-" + currentYear.substring(0, 4);
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending l1 = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", null);
+        Lending l2 = lendingWithSnapshot(student, "4A", previousYear, "AVI-E3", null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID))
+                .thenReturn(List.of(l1, l2));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, "all");
+
+        assertEquals(2, result.totalLendings());
+        assertTrue(result.readingLevelDistribution().containsKey("AVI-M6"));
+        assertTrue(result.readingLevelDistribution().containsKey("AVI-E3"));
+    }
+
+    @Test
+    void getClassStatistics_specificSchoolYear_returnsOnlyThatYear() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        String previousYear = (Integer.parseInt(currentYear.substring(0, 4)) - 1)
+                + "-" + currentYear.substring(0, 4);
+        User student = studentUser(1, "Jan", "Peeters");
+
+        SchoolClass sc = new SchoolClass("4A", null, List.of(student));
+        sc.setId(10L);
+
+        Lending current = lendingWithSnapshot(student, "4A", currentYear, "AVI-M6", null);
+        Lending previous = lendingWithSnapshot(student, "4A", previousYear, "AVI-E3", null);
+
+        when(classRepository.findById(10L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("4A", SCHOOL_ID))
+                .thenReturn(List.of(current, previous));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(10L, SCHOOL_ID, previousYear);
+
+        assertEquals(1, result.totalLendings());
+        assertEquals(Map.of("AVI-E3", 1), result.readingLevelDistribution());
+    }
+
+    @Test
+    void getClassStatistics_currentStudentWithNoLendings_alwaysIncluded() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User student = studentUser(1, "Ann", "De Smet");
+
+        SchoolClass sc = new SchoolClass("3B", null, List.of(student));
+        sc.setId(20L);
+
+        when(classRepository.findById(20L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("3B", SCHOOL_ID)).thenReturn(List.of());
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(20L, SCHOOL_ID, currentYear);
+
+        assertEquals(1, result.students().size());
+        assertEquals(0, result.students().get(0).totalLendings());
+    }
+
+    @Test
+    void getClassStatistics_studentCount_includesFormerStudentsWithActivity() {
+        String currentYear = SchoolYearUtil.determineSchoolYear(LocalDate.now());
+        User currentStudent = studentUser(1, "Ann", "De Smet");
+        User formerStudent  = studentUser(2, "Bram", "Vermeersch");
+
+        SchoolClass sc = new SchoolClass("3B", null, List.of(currentStudent));
+        sc.setId(20L);
+
+        Lending formerLending = lendingWithSnapshot(formerStudent, "3B", currentYear, null, null);
+
+        when(classRepository.findById(20L)).thenReturn(Optional.of(sc));
+        when(lendingRepository.findBySnapClassNameAndSchool_Id("3B", SCHOOL_ID)).thenReturn(List.of(formerLending));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+        when(reviewRepository.countByAuthor_Id(2)).thenReturn(0L);
+
+        ClassStatisticsDTO result = service.getClassStatistics(20L, SCHOOL_ID, currentYear);
+
+        assertEquals(2, result.studentCount());
+    }
+
+    @Test
+    void getStudentStatistics_topGenres_orderCorrectAndResultLimitedToFive() {
+        User student = studentUser(1, "Tom", "Claes");
+        when(userRepository.findById(1)).thenReturn(Optional.of(student));
+        when(reviewRepository.countByAuthor_Id(1)).thenReturn(0L);
+
+        List<Lending> lendings = new ArrayList<>();
+        for (int i = 0; i < 3; i++) lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Fantasy"));
+        for (int i = 0; i < 2; i++) lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Avontuur"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Humor"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Poëzie"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Natuur"));
+        lendings.add(lendingWithSnapshot(student, null, "2024-2025", null, "Geschiedenis"));
+
+        when(lendingRepository.findByBorrower_IdAndSchool_Id(1, SCHOOL_ID)).thenReturn(lendings);
+
+        StudentStatisticsDTO result = service.getStudentStatistics(1, SCHOOL_ID, "all");
+
+        assertEquals(5, result.topGenres().size());
+        assertEquals("Fantasy", result.topGenres().get(0));
+        assertEquals("Avontuur", result.topGenres().get(1));
+    }
+
+    // --- school statistics tests ---
+
+    @Test
+    void getSchoolStatistics_schoolYearFilter_countsOnlyMatchingYear() {
+        Lending inYear  = lendingWithSnapshot(null, null, "2024-2025", null, null);
+        Lending outYear = lendingWithSnapshot(null, null, "2023-2024", null, null);
+
+        when(lendingRepository.findBySchool_Id(SCHOOL_ID)).thenReturn(List.of(inYear, outYear));
+        when(reviewRepository.countByAuthor_School_Id(SCHOOL_ID)).thenReturn(0L);
+
+        SchoolStatisticsDTO result = service.getSchoolStatistics(SCHOOL_ID, "2024-2025");
+
+        assertEquals(1, result.totalLendings());
+    }
+
+    @Test
+    void getSchoolStatistics_lendingsTrend_specificYear_returns12MonthlySlotsSepToAug() {
+        Lending l = new Lending();
+        l.setBook(copy);
+        l.setLendingDate(LocalDate.of(2024, 10, 5));
+        l.setReturnDate(LocalDate.of(2024, 10, 20));
+        l.setReturned(true);
+        l.setSnapSchoolYear("2024-2025");
+
+        when(lendingRepository.findBySchool_Id(SCHOOL_ID)).thenReturn(List.of(l));
+        when(reviewRepository.countByAuthor_School_Id(SCHOOL_ID)).thenReturn(0L);
+
+        List<SchoolStatisticsDTO.PeriodCountDTO> trend =
+                service.getSchoolStatistics(SCHOOL_ID, "2024-2025").lendingsTrend();
+
+        assertEquals(12, trend.size());
+        assertEquals("2024-09", trend.get(0).period());
+        assertEquals("2025-08", trend.get(11).period());
+        assertEquals(0, trend.get(0).count());  // September: geen uitleningen
+        assertEquals(1, trend.get(1).count());  // Oktober: 1 uitlening
+    }
+
+    @Test
+    void getSchoolStatistics_topBorrowedBooks_limitedTo10AndSortedByCount() {
+        List<Lending> lendings = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            Item itm = new Item();
+            itm.setId((long) (100 + i));
+            SchoolItemCopy c = new SchoolItemCopy();
+            c.setItem(itm);
+            int count = 11 - i; // item 100 → 11 uitleningen, item 110 → 1 uitlening
+            for (int j = 0; j < count; j++) {
+                Lending l = new Lending();
+                l.setBook(c);
+                l.setLendingDate(LocalDate.of(2025, 1, 1));
+                l.setReturnDate(LocalDate.of(2025, 1, 15));
+                l.setReturned(true);
+                l.setSnapSchoolYear("2024-2025");
+                lendings.add(l);
+            }
+        }
+
+        when(lendingRepository.findBySchool_Id(SCHOOL_ID)).thenReturn(lendings);
+        when(reviewRepository.countByAuthor_School_Id(SCHOOL_ID)).thenReturn(0L);
+
+        List<SchoolStatisticsDTO.TopBookDTO> top =
+                service.getSchoolStatistics(SCHOOL_ID, "2024-2025").topBorrowedBooks();
+
+        assertEquals(10, top.size());
+        assertEquals(100L, top.get(0).itemId()); // meeste uitleningen eerst
+        assertEquals(11, top.get(0).value());
+        assertEquals(109L, top.get(9).itemId()); // item met 1 uitlening valt eruit
     }
 
     @Test

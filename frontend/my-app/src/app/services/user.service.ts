@@ -100,4 +100,17 @@ export class UserService {
     
     return this.http.get<Page<UserProfile>>(`${this.apiUrl}/filteredUsers`, { params });
   }
+
+  deleteUser(email: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete`, {
+      params: { email },
+      responseType: 'text' as 'json',
+    });
+  }
+
+  hasSchool(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${environment.apiUrl}/user/has-school`, {
+      params: { email },
+    });
+  }
 }

@@ -33,6 +33,10 @@ import { DidacticBooksPage } from './didactic-books-page/didactic-books-page';
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { BookReportPage } from './book-pages/book-report-page/book-report-page';
 import { ReviewModerationPage } from './review-moderation-page/review-moderation-page';
+import { ClassStatisticsPage } from './class-statistics-page/class-statistics-page';
+import { StudentStatisticsPage } from './student-statistics-page/student-statistics-page';
+import { ClassListPage } from './class-list-page/class-list-page';
+import { SchoolStatisticsPage } from './school-statistics-page/school-statistics-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -57,6 +61,10 @@ export const routes: Routes = [
 
   // LEERKRACHT +
   { path: 'books/:id/report', component: BookReportPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'class/:classId/statistics', component: ClassStatisticsPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'class/:classId/student/:userId/statistics', component: StudentStatisticsPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'statistics/class/:classId', component: ClassStatisticsPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
+  { path: 'classes', component: ClassListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists', component: ReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/add', component: CreateReadingListPage, canActivate: [authGuard], data: { roles: TEACHER_PLUS } },
   { path: 'lists/:id', component: ReadingListDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
@@ -78,6 +86,7 @@ export const routes: Routes = [
   { path: 'school-settings', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'book-lending-history/:bookId', component: BookLendingHistoryComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'accounts', component: ProfileSelectionComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'statistics/school', component: SchoolStatisticsPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'reviews', component: ReviewModerationPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
 
   // ADMIN

@@ -30,6 +30,7 @@ import { CollectionService } from '../../services/collection-service';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
 import { StarDisplayComponent } from '../../widgets/star-display/star-display.component';
 import { RelatedBooks } from '../../related-books/related-books';
+import { interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-book-detail-page',
@@ -75,6 +76,9 @@ export class BookDetailPage implements OnInit {
   reviews: Review[] = [];
   showReviewForm: boolean = false;
   reviewServerError = '';
+  isUpdating: boolean = false;
+  showUpdatingWarning = signal(false);
+  private updatingPollSub: Subscription | null = null;
 
   tagService = inject(TagService);
   genreService = inject(GenreService);
@@ -140,12 +144,28 @@ export class BookDetailPage implements OnInit {
             this.favorites = favorites;
             this.checkIfFavorite();
             this.checkIfInWishlist();
-            console.log(favorites);
             this.cdr.detectChanges();
           },
         });
       });
     });
+  }
+
+  private startUpdatingPoll(bookId: number): void {
+    this.updatingPollSub?.unsubscribe();
+    this.updatingPollSub = interval(5000)
+      .pipe(switchMap(() => this.api.getBookUpdatingStatus(bookId)))
+      .subscribe({
+        next: (status) => {
+          this.isUpdating = status;
+          this.cdr.detectChanges();
+        },
+        error: () => {}
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.updatingPollSub?.unsubscribe();
   }
 
   get displayedReviewCount(): number {
@@ -328,6 +348,15 @@ export class BookDetailPage implements OnInit {
     this.api.getBookById(parseInt(id)).subscribe({
       next: (data) => {
         this.book = data;
+        if (data?.id) {
+          this.api.getBookUpdatingStatus(data.id).subscribe({
+            next: (status) => {
+              this.isUpdating = status;
+              this.cdr.detectChanges();
+            }
+          });
+          this.startUpdatingPoll(data.id); 
+        }
         this.loadReviews();
         this.checkIfFavorite();
         this.checkIfInWishlist();
@@ -353,6 +382,18 @@ export class BookDetailPage implements OnInit {
           },
         });
       },
+    });
+  }
+
+  onEditBookClick(event: Event): void {
+    this.api.getBookUpdatingStatus(this.book!.id).subscribe({
+      next: (status) => {
+        this.isUpdating = status;
+        if (status) {
+          event.preventDefault();
+          this.showUpdatingWarning.set(true);
+        }
+      }
     });
   }
   
