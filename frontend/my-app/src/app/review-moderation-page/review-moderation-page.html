@@ -1,3 +1,13 @@
+<app-select-book-popup [(shown)]="showSelectBookPopup" [(itemId)]="selectedItemId" (addBookEvent)="changeSelectedItemId()"></app-select-book-popup>
+<app-user-selector-popup [(isOpen)]="showSelectUserPopup" (userSelected)="changeSelectedUserId($event)"></app-user-selector-popup>
+<app-review-report-pop-up [(shown)]="showReportPopup" [reviewId]="selectedReviewId"></app-review-report-pop-up>
+@if (showReviewDeletePopup()) {
+    <app-pop-up [title]="'Review verwijderen'" [message]="'Ben je zeker dat je deze review wilt verwijderen?'" (actionClicked)="handleReviewDeletePopup($event)"></app-pop-up>
+}
+@if (showReviewApprovalPopup()) {
+    <app-pop-up [title]="'Review goedkeuren'" [message]="'Ben je zeker dat je deze review wilt goedkeuren?'" (actionClicked)="handleReviewApprovePopup($event)"></app-pop-up>
+}
+
 <body class="moderation-container">
     @if(this.loadingSchoolError()) {
         <p class="warning">Er was een probleem met het ophalen van je schoolgegevens</p>
@@ -8,7 +18,7 @@
     @else {
         <div class="filter-container">
             @if (selectedItemId() == 0) {
-                <button class="book-filter">
+                <button class="book-filter" (click)="showBookSelectionPopup()">
                     Filter op boek
                 </button>
             }
@@ -20,8 +30,8 @@
             }
 
             @if (selectedUserId() == 0) {
-                <button class="user-filter">
-                    Filter op leerling
+                <button class="user-filter" (click)="showUserSelectionPopup()">
+                    Filter op gebruiker
                 </button>
             }
             @else {
@@ -54,7 +64,7 @@
         @else {
             <ul class="reviews-list">
             @for (review of reviews; track review.id) {
-                <li class="review-item">
+                <li class="review-item" [class.reported]="review.reportCount! > 0">
                     <div class="review-info">
                         <div class="review-main">
                             <span class="author-name">{{review.authorName}}</span>
@@ -71,13 +81,13 @@
                         </div>
                     </div>
                     <div class="review-actions">
-                        <button class="action-btn approve-btn" [disabled]="review.approved">
+                        <button class="action-btn approve-btn" [disabled]="review.approved" (click)="showReviewApprovePopup(review.id)">
                             Goedkeuren
                         </button>
-                        <button class="action-btn delete-btn">
+                        <button class="action-btn delete-btn" (click)="showReviewDeletionPopup(review.id, review.itemId)">
                             Verwijderen
                         </button>
-                        <button class="action-btn inspect-btn">
+                        <button class="action-btn inspect-btn" (click)="showReviewReportPopup(review.id)">
                             Rapporten inzien
                         </button>
                     </div>

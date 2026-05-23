@@ -2,6 +2,7 @@ import { Component, effect, EventEmitter, inject, Input, model, OnChanges, OnIni
 import { UserProfile } from '../../types/types';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-user-selector-popup',
@@ -11,9 +12,10 @@ import { FormsModule } from '@angular/forms';
 })
 export class UserSelectorPopupComponent {
   renderer = inject(Renderer2);
+  userService = inject(UserService)
 
   isOpen = model<boolean>(false);
-  @Input() users: UserProfile[] = [];
+  users: UserProfile[] = [];
   @Input() limit = 20;
   @Input() selectedId: string | number | null = null;
 
@@ -34,7 +36,7 @@ export class UserSelectorPopupComponent {
   }
 
   ngOnInit(): void {
-    this.applyFilter();
+    this.getUsers();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -42,19 +44,8 @@ export class UserSelectorPopupComponent {
       this.searchTerm = '';
     }
     if (changes['isOpen'] || changes['users']) {
-      this.applyFilter();
+      this.getUsers();
     }
-  }
-
-  applyFilter(): void {
-    const q = this.normalize(this.searchTerm);
-    const list = !q
-      ? this.users
-      : this.users.filter((u) => {
-          const haystack = this.normalize(`${u.name} ${u.email} ${this.getClasses(u)}`);
-          return haystack.includes(q);
-        });
-    this.filteredUsers = list.slice(0, this.limit);
   }
 
   isSelected(user: UserProfile): boolean {
@@ -78,7 +69,9 @@ export class UserSelectorPopupComponent {
     this.close.emit();
   }
 
-  private normalize(value: string | null | undefined): string {
-    return (value ?? '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+  getUsers() {
+    this.userService.getFilteredUsers(0, this.searchTerm).subscribe({
+      next: (data) => this.users = data.content
+    })
   }
 }

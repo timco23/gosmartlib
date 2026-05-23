@@ -21,7 +21,6 @@
     
     <app-user-selector-popup
       [(isOpen)]="isUserPopupOpen"
-      [users]="users"
       [selectedId]="currentUser?.id ?? null"
       (userSelected)="onUserSelected($event)"
       (close)="closeUserPopup()"

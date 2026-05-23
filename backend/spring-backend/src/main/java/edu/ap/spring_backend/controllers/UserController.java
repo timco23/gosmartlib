@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.ItemDTO;
+import edu.ap.spring_backend.dto.PageResponseDTO;
 import edu.ap.spring_backend.dto.UserResponse;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.service.UserService;
@@ -44,6 +45,15 @@ public class UserController {
     @GetMapping("/school-users")
     public ResponseEntity<List<UserResponse>> getSchoolUsers(Authentication auth) {
         List<UserResponse> users = userService.getUsersByCurrentSchool(Integer.parseInt(auth.getName()));
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/filteredUsers")
+    public ResponseEntity<PageResponseDTO<UserResponse>> getFilteredUsers(
+            @RequestParam(required = false) String filter,
+            @RequestParam(defaultValue = "0") int page,
+            Authentication auth) {
+        PageResponseDTO<UserResponse> users = userService.getFilteredUsers(Integer.parseInt(auth.getName()), filter, page);
         return ResponseEntity.ok(users);
     }
 

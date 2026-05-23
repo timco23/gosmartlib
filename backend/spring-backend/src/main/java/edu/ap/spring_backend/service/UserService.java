@@ -1,7 +1,11 @@
 package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dto.ItemDTO;
+import edu.ap.spring_backend.dto.PageResponseDTO;
 import edu.ap.spring_backend.dto.UserResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
@@ -107,6 +111,18 @@ public class UserService {
         if (requester.getSchool() == null)
             return List.of();
         return getUsersBySchool(requester.getSchool().getId());
+    }
+
+    public PageResponseDTO<UserResponse> getFilteredUsers(Integer userId, String filter, int page) {
+        User requester = findUserById(userId);
+        if (requester.getSchool() == null) {
+            return new PageResponseDTO<>(Page.empty());
+        }
+
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<User> userPage = userRepository.findBySchoolIdAndNameFilter(requester.getSchool().getId(), filter, pageable);
+        
+        return new PageResponseDTO<>(userPage.map(userMapper::toUserResponse));
     }
 
     public UserResponse addToItemsBorrowed(Integer userId) {

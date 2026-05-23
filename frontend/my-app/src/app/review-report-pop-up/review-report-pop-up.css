@@ -55,6 +55,22 @@
   margin: 0;
   max-height: 400px;
   overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* Scrollbar styling */
+.result-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.result-list::-webkit-scrollbar-track {
+  background: #e0dfd4;
+  border-radius: 10px;
+}
+
+.result-list::-webkit-scrollbar-thumb {
+  background: #bfbfe8;
+  border-radius: 10px;
 }
 
 .result-list li {

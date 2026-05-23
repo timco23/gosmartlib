@@ -6,10 +6,14 @@ import { UserService } from '../services/user.service';
 import { SchoolService } from '../services/school.service';
 import { BookService } from '../services/book-service';
 import { StarDisplayComponent } from '../widgets/star-display/star-display.component';
+import { UserSelectorPopupComponent } from '../user-selector-popup/user-selector-popup.component';
+import { SelectBookPopup } from '../reading-list-pages/select-book-popup/select-book-popup';
+import { ReviewReportPopUp } from '../review-report-pop-up/review-report-pop-up';
+import { PopUpComponent } from '../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-review-moderation-page',
-  imports: [StarDisplayComponent],
+  imports: [StarDisplayComponent, UserSelectorPopupComponent, SelectBookPopup, ReviewReportPopUp, PopUpComponent],
   templateUrl: './review-moderation-page.html',
   styleUrl: './review-moderation-page.css',
 })
@@ -27,6 +31,13 @@ export class ReviewModerationPage implements OnInit {
   loadingSchool = signal<boolean>(true);
   loadingSchoolError = signal<boolean>(false);
   loadingReviews = signal<boolean>(true);
+  showSelectBookPopup: boolean = false;
+  showSelectUserPopup: boolean = false;
+  showReportPopup: boolean = false;
+  selectedReviewId: number = 0; 
+  showReviewDeletePopup = signal<boolean>(false);
+  showReviewApprovalPopup = signal<boolean>(false);
+  reviewItemId: number = 0;
 
   reviewService = inject(ReviewService)
   cdr = inject(ChangeDetectorRef)
@@ -69,15 +80,14 @@ export class ReviewModerationPage implements OnInit {
     });
   }
 
-  changeSelectedItemId(id: number) {
-    this.selectedItemId.set(id);
-    this.getBook(id);
+  changeSelectedItemId() {
+    this.getBook(this.selectedItemId());
     this.loadReviews();
   }
 
-  changeSelectedUserId(id: number, email: string) {
-    this.selectedUserId.set(id);
-    this.getUser(email);
+  changeSelectedUserId(user: UserProfile) {
+    this.selectedUserId.set(user.id);
+    this.getUser(user.email);
     this.loadReviews();
   }
 
@@ -117,14 +127,14 @@ export class ReviewModerationPage implements OnInit {
     this.loadReviews();
   }
 
-  deleteReview(id: number, itemId: number) {
-    this.reviewService.deleteReview(itemId, id).subscribe({
+  deleteReview() {
+    this.reviewService.deleteReview(this.reviewItemId, this.selectedReviewId).subscribe({
       next: () => this.loadReviews()
     });
   }
 
-  approveReview(id: number) {
-    this.reviewService.approveReview(id).subscribe({
+  approveReview() {
+    this.reviewService.approveReview(this.selectedReviewId).subscribe({
       next: () => this.loadReviews()
     }) 
   }
@@ -143,5 +153,49 @@ export class ReviewModerationPage implements OnInit {
         this.selectedUser.set(data);
       }
     })
+  }
+
+  showBookSelectionPopup() {
+    this.showSelectBookPopup = true;
+  }
+
+  showUserSelectionPopup() {
+    this.showSelectUserPopup = true;
+  }
+
+  showReviewReportPopup(reviewId: number) {
+    this.selectedReviewId = reviewId
+    this.showReportPopup = true;
+  }
+
+  showReviewDeletionPopup(reviewId: number, itemId: number) {
+    this.showReviewDeletePopup.set(true);
+    this.selectedReviewId = reviewId;
+    this.reviewItemId = itemId;
+  }
+
+  showReviewApprovePopup(reviewId: number) {
+    this.showReviewApprovalPopup.set(true);
+    this.selectedReviewId = reviewId;
+  }
+
+  handleReviewDeletePopup(action: string) {
+    if (action == "cancel") {
+      this.showReviewDeletePopup.set(false);
+    }
+    else if (action == "confirm") {
+      this.deleteReview();
+      this.showReviewDeletePopup.set(false);
+    }
+  }
+
+  handleReviewApprovePopup(action: string) {
+    if (action == "cancel") {
+      this.showReviewApprovalPopup.set(false)
+    }
+    else if (action == "confirm") {
+      this.approveReview()
+      this.showReviewApprovalPopup.set(false)
+    }
   }
 }

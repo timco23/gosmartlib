@@ -1,7 +1,12 @@
 package edu.ap.spring_backend.dao;
 
 import edu.ap.spring_backend.jpa.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +19,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByRefreshToken(String refreshToken);
 
     List<User> findBySchoolId(Long schoolId);
+
+    @Query("SELECT u FROM User u WHERE u.school.id = :schoolId " +
+           "AND (:filter IS NULL OR LOWER(CONCAT(u.firstName, ' ', u.name)) LIKE LOWER(CONCAT('%', :filter, '%')))")
+    Page<User> findBySchoolIdAndNameFilter(@Param("schoolId") Long schoolId, @Param("filter") String filter, Pageable pageable);
 
     boolean existsByEmail(String email);
     boolean existsBySmartschoolUsername(String smartschoolUsername);

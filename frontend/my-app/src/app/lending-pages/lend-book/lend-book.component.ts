@@ -22,7 +22,6 @@ export class LendBookComponent {
   public selectedCopies: SchoolItemCopy[] = [];
   public currentCopies: SchoolItemCopy[] = [];
   public currentBook: Book | null = null;
-  public users: UserProfile[] = [];
   school: School | null = null;
   public books: Book[] = [];
   public currentLending: Lending | null = null;
@@ -153,14 +152,6 @@ export class LendBookComponent {
               next: (schoolData) => {
                 this.school = schoolData;
                 const schoolId = this.school!.id!;
-
-                this.userService.getFromSchool(schoolId).subscribe({
-                  next: (users) => {
-                    this.users = users;
-                    this.duration = this.school?.lendingPeriodDays ?? 0;
-                    this.cdr.detectChanges();
-                  },
-                });
 
                 this.bookService.getBooks().subscribe({
                   next: (books) => {
@@ -375,17 +366,6 @@ export class LendBookComponent {
 
   isCopySelected(copy: SchoolItemCopy): boolean {
     return this.selectedCopies.some(c => c.barcode === copy.barcode);
-  }
-
-  onUserSelect(event: Event): void {
-    const userId = (event.target as HTMLSelectElement).value;
-    if (!userId) {
-      this.currentUser = null;
-      this.cdr.detectChanges();
-      return;
-    }
-    this.currentUser = this.users.find((u) => u.id === +userId) ?? null;
-    this.cdr.detectChanges();
   }
 
   onSubmit(): void {

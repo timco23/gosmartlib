@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { UserProfile } from '../../types/types';
+import { Page, UserProfile } from '../../types/types';
 
 @Injectable({
   providedIn: 'root',
@@ -91,5 +91,13 @@ export class UserService {
 
   cancelDeletion(): Observable<UserProfile> {
     return this.http.delete<UserProfile>(`${this.apiUrl}/cancel-deletion`);
+  }
+
+  getFilteredUsers(page: number, nameFilter?: string): Observable<Page<UserProfile>> {
+    let params = new HttpParams()
+    params.set("page", page)
+    if (nameFilter) params.set("filter", nameFilter)
+    
+    return this.http.get<Page<UserProfile>>(`${this.apiUrl}/filteredUsers`, { params });
   }
 }

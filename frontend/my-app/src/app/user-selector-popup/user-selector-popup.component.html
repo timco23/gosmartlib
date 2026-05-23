@@ -8,7 +8,7 @@
         class="search-input"
         placeholder="Zoek op naam, e-mail of klas..."
         [(ngModel)]="searchTerm"
-        (ngModelChange)="applyFilter()"
+        (ngModelChange)="getUsers()"
       />
       <ul class="result-list">
         @for (user of filteredUsers; track trackByUser($index, user)) {
