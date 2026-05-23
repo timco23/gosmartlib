@@ -32,6 +32,7 @@ import { ProfileSelectionComponent } from './profile-selection/profile-selection
 import { DidacticBooksPage } from './didactic-books-page/didactic-books-page';
 import { WishlistComponent } from './wishlist/wishlist.component';
 import { BookReportPage } from './book-pages/book-report-page/book-report-page';
+import { ReviewModerationPage } from './review-moderation-page/review-moderation-page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -77,6 +78,7 @@ export const routes: Routes = [
   { path: 'school-settings', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'book-lending-history/:bookId', component: BookLendingHistoryComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'accounts', component: ProfileSelectionComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'reviews', component: ReviewModerationPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
 
   // ADMIN
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },

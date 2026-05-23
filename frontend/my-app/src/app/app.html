@@ -78,6 +78,9 @@
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
       <a routerLink="/accounts" class="nav-link" routerLinkActive="active">Accountbeheer</a>
       }
+      @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+        <a routerLink="/reviews" class="nav-link" routerLinkActive="active">Reviewbeheer</a>
+      }
       @if (authService.atLeastHasRole(role.ADMIN)) {
       <a routerLink="/schools" class="nav-link" routerLinkActive="active">Schoolbeheer</a>
       }

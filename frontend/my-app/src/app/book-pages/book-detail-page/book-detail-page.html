@@ -154,7 +154,7 @@
           <div class="panel tag-panel">
             <p class="panel-title">Leefwereldlabels</p>
             <div class="tag-list">
-              @if (book?.tags?.length) {
+              @if (book.tags.length) {
                 @for (t of book!.tags; track t.id) {
                   <span class="tag">{{ t.name }}</span>
                 }
