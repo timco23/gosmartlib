@@ -185,7 +185,6 @@
   font-family: var(--font-body);
   font-weight: 600;
   font-size: var(--text-sm);
-  cursor: pointer;
   user-select: none;
   transition:
     color var(--transition-fast),
@@ -195,10 +194,6 @@
   background: rgba(0, 0, 0, 0.12);
 }
 
-.user-info:hover {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.15);
-}
 
 .dropdown-item {
   display: block;
@@ -436,6 +431,7 @@
   font-family: var(--font-body);
   color: rgba(255, 255, 255, 0.75);
   font-weight: 600;
+  border-left: 3px solid transparent;
 }
 
 .nav-link-logout:hover {

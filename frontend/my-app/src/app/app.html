@@ -68,11 +68,6 @@
       @if (authService.atLeastHasRole(role.LEERKRACHT)) {
         <a routerLink="/classes" class="nav-link">Klasstatistieken</a>
       }
-      @if (authService.atLeastHasRole(role.LEERKRACHT)) {
-        <a routerLink="/didactic-books" class="nav-link" routerLinkActive="active"
-          >Didactische collectie</a
-        >
-      }
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
       <a routerLink="/collections" class="nav-link" routerLinkActive="active">Collecties</a>
       }
