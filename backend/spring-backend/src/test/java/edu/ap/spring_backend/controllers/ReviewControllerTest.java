@@ -15,7 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 
@@ -41,7 +41,7 @@ class ReviewControllerTest {
 
     @Test
     void givenItemId_whenGetReviews_thenReturnsList() {
-        ReviewDTO dto = new ReviewDTO(1L, "Great", 5, LocalDate.now(),
+        ReviewDTO dto = new ReviewDTO(1L, "Great", 5, LocalDateTime.now(),
                 "Author", "a@b.com", "ss", false, 0, false, 1L, "book");
         when(reviewService.getReviews(1L)).thenReturn(List.of(dto));
 
@@ -55,7 +55,7 @@ class ReviewControllerTest {
     @Test
     void givenAuthentication_whenCreateReview_thenUsesAuthName() {
         CreateReviewDTO dto = new CreateReviewDTO("Nice", 4, false);
-        ReviewDTO created = new ReviewDTO(1L, "Nice", 4, LocalDate.now(),
+        ReviewDTO created = new ReviewDTO(1L, "Nice", 4, LocalDateTime.now(),
                 "Author", "a@b.com", "ss", false, 0, false, 1L, "book");
         when(reviewService.createReview(1L, dto, "user@example.com")).thenReturn(created);
 

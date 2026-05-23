@@ -120,7 +120,7 @@ public class UserService {
         }
 
         Pageable pageable = PageRequest.of(page, 10);
-        Page<User> userPage = userRepository.findBySchoolIdAndNameFilter(requester.getSchool().getId(), filter, pageable);
+        Page<User> userPage = userRepository.findBySchoolIdAndFilter(requester.getSchool().getId(), filter, pageable);
         
         return new PageResponseDTO<>(userPage.map(userMapper::toUserResponse));
     }

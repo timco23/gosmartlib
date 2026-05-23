@@ -13,7 +13,7 @@
           @for (report of reports; track $index) {
             <li>
                 <p class="report-author">{{report.reporter.firstName}} {{report.reporter.name}}</p>
-                <p class="report-date">Gestuurd op {{report.createdAt}}</p>
+                <p class="report-date">Gestuurd op {{report.createdAt | date: 'dd-MM-yyyy HH:mm'}}</p>
 
                 <p class="report-description">{{report.reason}}</p>
             </li>

@@ -38,8 +38,8 @@ export class ReviewService {
       .set('page', page)
       .set('reportStatus', reportStatus)
       .set('newestFirst', newestFirst);
-    if (userId != 0) params.set('userId', userId)
-    if (itemId != 0) params.set('itemId', itemId)
+    if (userId != 0) params = params.set('userId', userId);
+    if (itemId != 0) params = params.set('itemId', itemId);
 
     return this.http.get<Page<Review>>(`${this.apiBaseUrl}/reviews/schools/${schoolId}`, { params });
   }
@@ -52,9 +52,9 @@ export class ReviewService {
     return this.http.put<ReviewReport[]>(`${this.apiBaseUrl}/reviews/${reviewId}/approve`, {});
   }
 
-  reportExistsByReviewIdAndReporterId(itemId: number, reviewId: number): Observable<boolean> {
+  reportExistsByReviewIdAndReporterId(reviewId: number): Observable<boolean> {
     return this.http.get<boolean>(
-      `${this.apiBaseUrl}/books/${itemId}/reviews/${reviewId}/existsFrom/me`,
+      `${this.apiBaseUrl}/reviews/${reviewId}/existsFrom/me`,
     );
   }
 }

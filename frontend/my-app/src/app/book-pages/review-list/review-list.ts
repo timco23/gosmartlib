@@ -125,7 +125,7 @@ export class ReviewList {
       return;
     }
 
-    this.reviewService.reportExistsByReviewIdAndReporterId(this.bookId, reviewId)
+    this.reviewService.reportExistsByReviewIdAndReporterId(reviewId)
       .subscribe({
         next: (alreadyReported) => {
           if (alreadyReported) {

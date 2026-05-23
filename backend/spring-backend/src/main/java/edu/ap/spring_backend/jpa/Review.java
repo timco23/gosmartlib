@@ -3,7 +3,7 @@ package edu.ap.spring_backend.jpa;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,7 +23,7 @@ public class Review {
     private int stars;
 
     @Column(nullable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isAnonymous;
@@ -34,7 +34,7 @@ public class Review {
     @PrePersist
     public void prePersist() {
         if (this.createdAt == null) {
-            this.createdAt = LocalDate.now();
+            this.createdAt = LocalDateTime.now();
         }
     }
 
@@ -60,7 +60,7 @@ public class Review {
         this.item = item;
         this.author = author;
         this.isAnonymous = isAnonymous;
-        this.createdAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
         this.approved = false;
     }
 }

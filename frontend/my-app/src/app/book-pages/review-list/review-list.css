@@ -62,20 +62,18 @@
 .approval-disclaimer {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #2e7d32;
-  background-color: #e8f5e9;
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid #c8e6c9;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--color-text-3);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
 }
 
 .check-icon {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  color: var(--color-success);
 }
 
 .review-description {

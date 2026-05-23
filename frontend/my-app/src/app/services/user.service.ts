@@ -93,10 +93,10 @@ export class UserService {
     return this.http.delete<UserProfile>(`${this.apiUrl}/cancel-deletion`);
   }
 
-  getFilteredUsers(page: number, nameFilter?: string): Observable<Page<UserProfile>> {
+  getFilteredUsers(page: number, filter?: string): Observable<Page<UserProfile>> {
     let params = new HttpParams()
     params.set("page", page)
-    if (nameFilter) params.set("filter", nameFilter)
+    if (filter) params = params.set("filter", filter)
     
     return this.http.get<Page<UserProfile>>(`${this.apiUrl}/filteredUsers`, { params });
   }

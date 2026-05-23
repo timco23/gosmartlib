@@ -1,14 +1,15 @@
 import { Component, effect, inject, Input, model, OnInit, Renderer2, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { ReviewService } from '../services/review.service';
 import { ReviewReport } from '../../types/types';
 
 @Component({
   selector: 'app-review-report-pop-up',
-  imports: [],
+  imports: [DatePipe],
   templateUrl: './review-report-pop-up.html',
   styleUrl: './review-report-pop-up.css',
 })
-export class ReviewReportPopUp implements OnInit {
+export class ReviewReportPopUp {
   shown = model<boolean>(false);
   reports: ReviewReport[] = [];
   loadingReports = signal<boolean>(true);
@@ -22,14 +23,11 @@ export class ReviewReportPopUp implements OnInit {
     effect(() => {
       if (this.shown()) {
         this.renderer.addClass(document.body, 'no-scroll');
+        this.loadReports();
       } else {
         this.renderer.removeClass(document.body, 'no-scroll');
       }
     });
-  }
-
-  ngOnInit(): void {
-    this.loadReports();
   }
 
   closePopup(): void {

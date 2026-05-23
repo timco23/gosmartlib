@@ -12,14 +12,14 @@
 }
 
 .content {
-  background-color: #f0efe4;
+  background-color: var(--color-surface-1);
   padding: 30px;
-  border: 1px solid #8c1b3f;
-  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   width: 90%;
   max-width: 600px;
   position: relative;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .close-btn {
@@ -30,22 +30,23 @@
   border: none;
   font-size: 28px;
   line-height: 1;
-  color: #8c1b3f;
+  color: var(--color-text-3);
   cursor: pointer;
   padding: 0;
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-fast), color var(--transition-fast);
 }
 
 .close-btn:hover {
   transform: scale(1.1);
-  color: #a02048;
+  color: var(--color-text-1);
 }
 
 .popup-title {
-  color: #8c1b3f;
+  color: var(--color-text-1);
   margin: 0 0 20px 0;
-  font-size: 1.5rem;
-  border-bottom: 2px solid #bfbfe8;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 10px;
 }
 
@@ -64,45 +65,49 @@
 }
 
 .result-list::-webkit-scrollbar-track {
-  background: #e0dfd4;
+  background: var(--color-surface-3);
   border-radius: 10px;
 }
 
 .result-list::-webkit-scrollbar-thumb {
-  background: #bfbfe8;
+  background: var(--color-surface-3);
   border-radius: 10px;
 }
 
+[data-theme="dark"] .result-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+
 .result-list li {
-  background: white;
-  border-radius: 8px;
+  background: var(--color-surface-1);
+  border-radius: var(--radius-md);
   padding: 15px;
   margin-bottom: 10px;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .report-author {
   font-weight: bold;
-  color: #333;
+  color: var(--color-text-1);
   margin: 0 0 5px 0;
 }
 
 .report-date {
-  font-size: 0.85rem;
-  color: #777;
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
   margin: 0 0 10px 0;
 }
 
 .report-description {
   margin: 0;
-  color: #555;
+  color: var(--color-text-2);
   line-height: 1.4;
   word-wrap: break-word;
 }
 
 .error {
-  color: #c0392b;
+  color: var(--color-danger);
   font-weight: 500;
   margin-top: 15px;
   text-align: center;
@@ -110,6 +115,6 @@
 
 .empty-state {
   text-align: center;
-  color: #666;
+  color: var(--color-text-3);
   margin-top: 20px;
 }

@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, inject, Input, model, OnChanges, OnInit, Output, Renderer2, SimpleChanges } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, model, OnChanges, OnInit, Output, Renderer2, signal, SimpleChanges } from '@angular/core';
 import { UserProfile } from '../../types/types';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +15,7 @@ export class UserSelectorPopupComponent {
   userService = inject(UserService)
 
   isOpen = model<boolean>(false);
-  users: UserProfile[] = [];
+  users = signal<UserProfile[]>([]);
   @Input() limit = 20;
   @Input() selectedId: string | number | null = null;
 
@@ -23,7 +23,6 @@ export class UserSelectorPopupComponent {
   @Output() close = new EventEmitter<void>();
 
   searchTerm = '';
-  filteredUsers: UserProfile[] = [];
 
   constructor() {
     effect(() => {
@@ -71,7 +70,9 @@ export class UserSelectorPopupComponent {
 
   getUsers() {
     this.userService.getFilteredUsers(0, this.searchTerm).subscribe({
-      next: (data) => this.users = data.content
+      next: (data) => {
+        this.users.set(data.content);
+      }
     })
   }
 }

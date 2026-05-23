@@ -378,8 +378,9 @@ public class ReviewService {
                 ReviewSpecifications.withReportStatus(reportStatus)
         );
 
-        Sort sort = Sort.by(Sort.Order.desc("reportCount"));
-        sort = sort.and(newestFirst ? Sort.by(Sort.Order.desc("createdAt")) : Sort.by(Sort.Order.asc("createdAt")));
+        Sort.Direction direction = newestFirst ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(Sort.Direction.DESC, "reportCount")
+                        .and(Sort.by(direction, "createdAt"));
 
         Pageable pageable = PageRequest.of(page, 10, sort);
         Page<Review> reviewPage = reviewRepository.findAll(spec, pageable);

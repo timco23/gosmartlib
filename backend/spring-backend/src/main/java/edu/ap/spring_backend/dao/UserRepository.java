@@ -20,9 +20,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     List<User> findBySchoolId(Long schoolId);
 
-    @Query("SELECT u FROM User u WHERE u.school.id = :schoolId " +
-           "AND (:filter IS NULL OR LOWER(CONCAT(u.firstName, ' ', u.name)) LIKE LOWER(CONCAT('%', :filter, '%')))")
-    Page<User> findBySchoolIdAndNameFilter(@Param("schoolId") Long schoolId, @Param("filter") String filter, Pageable pageable);
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.classes c WHERE u.school.id = :schoolId " +
+           "AND (:filter IS NULL OR LOWER(CONCAT(u.firstName, ' ', u.name)) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :filter, '%')) " +
+           "OR LOWER(c.className) LIKE LOWER(CONCAT('%', :filter, '%')))")
+    Page<User> findBySchoolIdAndFilter(@Param("schoolId") Long schoolId, @Param("filter") String filter, Pageable pageable);
 
     boolean existsByEmail(String email);
     boolean existsBySmartschoolUsername(String smartschoolUsername);

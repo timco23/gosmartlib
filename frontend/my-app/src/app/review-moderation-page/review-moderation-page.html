@@ -9,6 +9,8 @@
 }
 
 <body class="moderation-container">
+    <h1 class="page-title">Reviews</h1>
+
     @if(this.loadingSchoolError()) {
         <p class="warning">Er was een probleem met het ophalen van je schoolgegevens</p>
     }
@@ -17,13 +19,13 @@
     }
     @else {
         <div class="filter-container">
-            @if (selectedItemId() == 0) {
+            @if (!selectedItem()) {
                 <button class="book-filter" (click)="showBookSelectionPopup()">
                     Filter op boek
                 </button>
             }
             @else {
-                <button class="book-filter" (click)="clearSelectedItemId()">
+                <button class="book-filter" (click)="clearSelectedItem()">
                     {{selectedItem()!.title}}
                     <span class="x-icon">x</span>
                 </button>
@@ -61,19 +63,31 @@
                 <p>Reviews laden...</p>
             </div>
         }
+        @else if (reviews.length == 0) {
+            <p>Geen reviews gevonden</p>
+        }
         @else {
             <ul class="reviews-list">
             @for (review of reviews; track review.id) {
                 <li class="review-item" [class.reported]="review.reportCount! > 0">
                     <div class="review-info">
-                        <div class="review-main">
-                            <span class="author-name">{{review.authorName}}</span>
-                            <app-star-display [score]="review.stars" [size]="16"></app-star-display>
-                            <span class="item-title">{{review.itemTitle}}</span>
+                        <div class="review-header">
+                            <div class="author-row">
+                                <span class="author-name">{{review.authorName}}</span>
+                                <app-star-display [score]="review.stars" [size]="16"></app-star-display>
+                                <span class="review-date">{{review.createdAt | date: 'dd-MM-yyyy HH:mm'}}</span>
+                            </div>
+                            <div class="item-title">
+                                <span class="item-label">Review voor:</span>
+                                {{review.itemTitle}}
+                            </div>
                         </div>
+                        @if (review.description) {
+                            <p class="review-description">{{review.description}}</p>
+                        }
                         <div class="review-meta">
                             <span class="approval-status" [class.approved]="review.approved">
-                                {{review.approved ? 'Goedgekeurd' : 'Wacht op goedkeuring'}}
+                                {{review.approved ? 'Goedgekeurd' : 'Niet goedgekeurd'}}
                             </span>
                             <span class="report-count">
                                 {{review.reportCount || 0}} {{ (review.reportCount === 1) ? 'rapport' : 'rapporten' }}

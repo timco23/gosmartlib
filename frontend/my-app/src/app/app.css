@@ -28,7 +28,7 @@
 }
 
 .nav-section {
-  margin-bottom: 1.5rem;
+  margin-top: .5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
@@ -47,7 +47,6 @@
   gap: var(--space-3);
   padding: var(--space-5) var(--space-4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  margin-bottom: var(--space-2);
 }
 
 .nav-logo a {

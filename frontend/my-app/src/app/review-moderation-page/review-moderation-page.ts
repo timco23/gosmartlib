@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Book, Review, School, UserProfile } from '../../types/types';
 import { ReviewService } from '../services/review.service';
 import { AuthService } from '../services/auth.service';
@@ -13,7 +14,7 @@ import { PopUpComponent } from '../widgets/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-review-moderation-page',
-  imports: [StarDisplayComponent, UserSelectorPopupComponent, SelectBookPopup, ReviewReportPopUp, PopUpComponent],
+  imports: [StarDisplayComponent, UserSelectorPopupComponent, SelectBookPopup, ReviewReportPopUp, PopUpComponent, DatePipe],
   templateUrl: './review-moderation-page.html',
   styleUrl: './review-moderation-page.css',
 })
@@ -22,7 +23,7 @@ export class ReviewModerationPage implements OnInit {
   currentPage: number = 0;
   totalPages: number = 0
   school: School | null = null;
-  selectedItemId = signal<number>(0);
+  selectedItemId: number = 0;
   selectedItem = signal<Book | null>(null);
   selectedUserId = signal<number>(0);
   selectedUser = signal<UserProfile | null>(null);
@@ -71,7 +72,7 @@ export class ReviewModerationPage implements OnInit {
   loadReviews() {
     this.cdr.detectChanges();
     this.loadingReviews.set(true);
-    this.reviewService.getReviewsPaginated(this.school!.id!, this.selectedItemId(), this.selectedUserId(), this.reportStatus, this.currentPage, this.newestFirst).subscribe({
+    this.reviewService.getReviewsPaginated(this.school!.id!, this.selectedItemId, this.selectedUserId(), this.reportStatus, this.currentPage, this.newestFirst).subscribe({
       next: (data) => {
         this.reviews = data.content;
         this.totalPages = data.totalPages;
@@ -81,7 +82,7 @@ export class ReviewModerationPage implements OnInit {
   }
 
   changeSelectedItemId() {
-    this.getBook(this.selectedItemId());
+    this.getBook(this.selectedItemId);
     this.loadReviews();
   }
 
@@ -91,8 +92,9 @@ export class ReviewModerationPage implements OnInit {
     this.loadReviews();
   }
 
-  clearSelectedItemId() {
-    this.selectedItemId.set(0);
+  clearSelectedItem() {
+    this.selectedItemId = 0;
+    this.selectedItem.set(null)
     this.loadReviews();
   }
 

@@ -1,13 +1,13 @@
 package edu.ap.spring_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ReviewDTO(
         @JsonProperty("id") Long id,
         @JsonProperty("description") String description,
         @JsonProperty("stars") int stars,
-        @JsonProperty("createdAt") LocalDate createdAt,
+        @JsonProperty("createdAt") LocalDateTime createdAt,
         @JsonProperty("authorName") String authorName,
         @JsonProperty("authorEmail") String authorEmail,
         @JsonProperty("authorSmartschoolUsername") String authorSmartschoolUsername,

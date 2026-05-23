@@ -47,14 +47,12 @@ public class ReviewController {
     }
 
     /**
-     * Returns all reports from a review.
+     * Checks if a user has reported a review with the corresponding review id.
      * @param reviewId id of the review
-     * @param reporterId id of the reporter
      * @return true if the user already reported the review
      */
-    @GetMapping("/{reviewId}/existsFrom/{reporterId}")
+    @GetMapping("/{reviewId}/existsFrom/me")
     public ResponseEntity<Boolean> reportExistsByReviewIdAndReporterId(
-            @PathVariable Long itemId,
             @PathVariable Long reviewId,
             Authentication authentication,
             HttpServletRequest request
@@ -276,4 +274,6 @@ public class ReviewController {
         reviewService.approveReview(reviewId);
         return ResponseEntity.noContent().build();
     }
+
+    
 }
