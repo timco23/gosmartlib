@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -36,6 +36,7 @@ import { GenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/
 import { ReadingLevelSelectionMenuComponent } from '../../widgets/selection-menu-pages/reading-level/reading-level.component';
 import { SubgenreSelectionMenuComponent } from '../../widgets/selection-menu-pages/subgenre-selection-menu/subgenre-selection-menu.component';
 import { TagSelectionMenu } from '../../widgets/selection-menu-pages/tag-selection-menu/tag-selection-menu';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-update-book-page',
@@ -149,6 +150,20 @@ export class UpdateBookPage implements OnInit {
     this.loadSchool();
   }
 
+  ngOnDestroy(): void {
+    if (this.book?.id) {
+      this.api.setBookUpdating(this.book.id, "false").subscribe();
+    }
+  }
+
+  @HostListener('window:beforeunload')
+  onBeforeUnload(): void {
+    if (this.book?.id) {
+      const url = `${environment.apiUrl}/books/${this.book.id}/mark-for-update?value=false`;
+      navigator.sendBeacon(url);
+    }
+  }
+
   loadBook() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
@@ -157,7 +172,8 @@ export class UpdateBookPage implements OnInit {
       next: (data) => {
         this.book = data;
         this.tryFillForm();
-        this.loadCopies();
+        this.loadCopies();  
+        this.api.setBookUpdating(this.book!.id, "true").subscribe();
       },
       error: (err) => {
         this.errorMessage = err;
@@ -291,6 +307,7 @@ export class UpdateBookPage implements OnInit {
 
     this.api.updateBook(newBook, this.book!.id).subscribe({
       next: (data) => {
+        this.api.setBookUpdating(this.book!.id, "false").subscribe();
         this.router.navigate(['/books', data.id]);
       },
     });
@@ -322,6 +339,7 @@ export class UpdateBookPage implements OnInit {
 
   backToList() {
     if (this.book?.id) {
+      this.api.setBookUpdating(this.book.id, "false").subscribe();
       this.router.navigate(['/books', this.book.id]);
       return;
     }

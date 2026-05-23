@@ -248,6 +248,7 @@ public class ItemService {
                 item.getReviewScore(),
                 item.getReviewCount(),
                 item.getDescription(),
+                item.isUpdating(),
                 tags,
                 item.getGenres() != null ? item.getGenres().stream().map(g -> (long) g.getId()).toList() : List.of(),
                 item.getSubgenres() != null ? item.getSubgenres().stream().map(s -> (long) s.getId()).toList()
@@ -281,5 +282,19 @@ public class ItemService {
                 .limit(10)
                 .map(this::mapToItemDTO)
                 .toList();
+    }
+
+    public ItemDTO markBookForUpdate(Long bookId, boolean value) throws EntityNotFoundException {
+        Item item = itemRepository.findById(bookId)
+                .orElseThrow(EntityNotFoundException::new);
+        item.setUpdating(value);
+        itemRepository.save(item);
+        return mapToItemDTO(item);
+    }
+    
+    public boolean isBookMarkedForUpdate(Long bookId) throws EntityNotFoundException {
+        Item item = itemRepository.findById(bookId)
+                .orElseThrow(EntityNotFoundException::new);
+        return item.isUpdating();
     }
 }

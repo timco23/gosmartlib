@@ -5,6 +5,7 @@ import { AuthService } from './services/auth.service';
 import { LoginResponse } from '../types/types';
 import { filter } from 'rxjs';
 import { Role } from '../types/types';
+import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class App implements OnInit {
   sidebarRight = false;
   mobileNavOpen = false;
   role = Role;
+  hasSchool = false;
 
   @HostBinding('class.sidebar-right') get sidebarRightClass() {
     return this.sidebarRight;
@@ -27,6 +29,7 @@ export class App implements OnInit {
   constructor(
     public authService: AuthService,
     private router: Router,
+    private userService: UserService,
   ) {}
 
   ngOnInit() {
@@ -41,6 +44,17 @@ export class App implements OnInit {
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
+      this.authService.currentUser$.subscribe((user) => {
+        this.currentUser = user;
+        if (user?.email) {
+          this.userService.hasSchool(user.email).subscribe({
+            next: (result) => this.hasSchool = result,
+            error: () => this.hasSchool = false,
+          });
+        } else {
+          this.hasSchool = false;
+        }
+      });
     });
 
     const isPublicRoute = (url: string) => {

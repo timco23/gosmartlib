@@ -119,6 +119,7 @@ public class ReadingListService {
                 item.getReviewScore(),
                 item.getReviewCount(),
                 item.getDescription(),
+                item.isUpdating(),
                 tags,
                 item.getGenres() != null ? item.getGenres().stream().map(g -> (long) g.getId()).toList() : List.of(),
                 item.getSubgenres() != null ? item.getSubgenres().stream().map(s -> (long) s.getId()).toList()

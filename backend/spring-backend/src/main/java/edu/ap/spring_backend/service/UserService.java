@@ -112,6 +112,11 @@ public class UserService {
         return getUsersBySchool(requester.getSchool().getId());
     }
 
+    public boolean userHasSchool(String email) {
+        User user = findUserByEmail(email);
+        return user.getSchool() != null;
+    }
+
     public UserResponse addToItemsBorrowed(Integer userId) {
         User user = findUserById(userId);
         user.setItemsBorrowed(user.getItemsBorrowed() + 1);

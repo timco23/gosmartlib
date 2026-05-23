@@ -51,6 +51,7 @@
     </div>
   </div>
 
+  @if (hasSchool) {
   <div class="nav-links">
     <div class="nav-section">
       <a routerLink="/books" class="nav-link">Boeken</a>
@@ -78,7 +79,7 @@
       }
     </div>
 
-  @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
+    @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
     <div class="nav-section">
       @if (authService.atLeastHasRole(role.BIBLIOTHEEKBEHEERDER)) {
       <a routerLink="/lendings" class="nav-link" routerLinkActive="active">Uitleenbeheer</a>
@@ -99,7 +100,7 @@
         <a routerLink="/statistics/school" class="nav-link">Schoolstatistieken</a>
       }
     </div>
-  }
+    }
 
     <div class="nav-section-bottom">
       <a routerLink="/profile" class="nav-link" routerLinkActive="active">
@@ -114,7 +115,14 @@
       <button (click)="logout()" class="nav-link nav-link-logout">Uitloggen</button>
     </div>
   </div>
-
+  } @else {
+    <div class="nav-links">
+      <div class="nav-section-bottom">
+        <a routerLink="/profile" class="nav-link" routerLinkActive="active">Mijn gegevens</a>
+        <button (click)="logout()" class="nav-link nav-link-logout">Uitloggen</button>
+      </div>
+    </div>
+  }
   <div class="user-menu">
     <div class="user-info">
       <strong>{{ currentUser.name }}</strong>
@@ -124,5 +132,14 @@
 }
 
 <div class="page-content">
+  @if (currentUser && !hasSchool) {
+    <div class="no-school-banner">
+      <h2>Welkom, {{ currentUser.name }}!</h2>
+      <p>
+        Uw school is nog niet beschikbaar op dit platform. 
+        Probeer later opnieuw of neem contact op met een administrator.
+      </p>
+    </div>
+  }
   <router-outlet></router-outlet>
 </div>
