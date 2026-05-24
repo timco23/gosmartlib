@@ -23,6 +23,8 @@ public record SchoolDTO(
         boolean externalLending,
         boolean reviews,
         boolean reviewModeration,
+        boolean dashboardShowBookOfMonth,
+        boolean dashboardShowLastBorrowed,
         List<CampusDTO> campuses
 ) {
     public record CampusDTO(Long id, String name) {}
@@ -44,11 +46,13 @@ public record SchoolDTO(
                 school.getLenderNotificationPeriod(),
                 school.getLenderLateNotificationPeriod(),
                 school.getLibrarianNotificationNotReturned(),
-                school.getLibrarianRequestNotification(),
+                school.isLibrarianRequestNotification(),
                 school.isExternalVisibility(),
                 school.isExternalLending(),
                 school.isReviews(),
                 school.isReviewModeration(),
+                school.isDashboardShowBookOfMonth(),
+                school.isDashboardShowLastBorrowed(),
                 campusDTOs
         );
     }
