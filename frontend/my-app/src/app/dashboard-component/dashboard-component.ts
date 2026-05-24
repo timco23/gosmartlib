@@ -3,17 +3,10 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LendingService } from '../services/lending.service';
-import {
-  Lending,
-  LoginResponse,
-  Role,
-  LendingStatus,
-  LendingFilter,
-  Book,
-  School,
-} from '../../types/types';
+import { Lending, LoginResponse, Role, LendingStatus, Book, School } from '../../types/types';
 import { UserService } from '../services/user.service';
 import { SchoolService } from '../services/school.service';
+import { BookService } from '../services/book-service';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -29,8 +22,6 @@ export class DashboardComponent implements OnInit {
   error: string | null = null;
   currentUser: LoginResponse | null = null;
   readonly dueSoonDays = 3;
-  selectedFilter: LendingFilter = 'ALL';
-  searchTerm = '';
 
   mostBorrowedBook: Book | null = null;
   lastBorrowedBook: Book | null = null;
@@ -43,6 +34,7 @@ export class DashboardComponent implements OnInit {
     public authService: AuthService,
     private userService: UserService,
     private schoolService: SchoolService,
+    private bookService: BookService,
   ) {}
 
   ngOnInit() {
@@ -106,18 +98,10 @@ export class DashboardComponent implements OnInit {
     return this.authService.atLeastHasRole(Role.BIBLIOTHEEKBEHEERDER);
   }
 
-  setFilter(filter: LendingFilter) {
-    this.selectedFilter = filter;
-  }
-
   get filteredAndSortedLendings(): Lending[] {
-    const filtered = this.lendings.filter((l) => this.matchesFilter(l) && this.matchesSearch(l));
-    return [...filtered].sort((a, b) => this.compareLendings(a, b));
-  }
-
-  private matchesFilter(lending: Lending): boolean {
-    if (this.selectedFilter === 'ALL') return true;
-    return this.getStatus(lending) === this.selectedFilter;
+    return [...this.lendings.filter((l) => !l.returned)].sort((a, b) =>
+      this.compareLendings(a, b),
+    );
   }
 
   private compareLendings(a: Lending, b: Lending): number {
@@ -239,10 +223,7 @@ export class DashboardComponent implements OnInit {
     return isNaN(date.getTime()) ? null : date;
   }
 
-  private matchesSearch(lending: Lending): boolean {
-    const query = this.searchTerm.trim().toLowerCase();
-    if (!query) return true;
-    const title = (lending.bookTitle ?? '').toLowerCase();
-    return title.includes(query);
+  coverUrl(itemId: number): string {
+    return this.bookService.getBookCoverUrl(itemId);
   }
 }
