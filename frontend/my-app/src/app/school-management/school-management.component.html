@@ -96,7 +96,7 @@
 
         <h3>Bibliotheekinstellingen</h3>
 
-        <label>Uitleenperiode (dagen)</label>
+        <label>Ontleenperiode (dagen)</label>
         <input type="number" min="0" formControlName="lendingPeriodDays" />
         <label>Verlengperiode (dagen)</label>
         <input type="number" min="0" formControlName="extendPeriodDays" />
@@ -133,6 +133,16 @@
         <label>
           <input type="checkbox" formControlName="reviewModeration" />
           Recensies modereren
+        </label>
+
+        <h3>Dashboardinstellingen</h3>
+        <label>
+          <input type="checkbox" formControlName="dashboardShowBookOfMonth" />
+          Boek van de maand tonen
+        </label>
+        <label>
+          <input type="checkbox" formControlName="dashboardShowLastBorrowed" />
+          Laatst ontleend tonen
         </label>
 
         <div class="button-row">

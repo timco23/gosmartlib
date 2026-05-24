@@ -59,20 +59,25 @@ export class DashboardComponent implements OnInit {
           if (!userData.schoolName) return;
           this.schoolService.getByName(userData.schoolName).subscribe((school) => {
             this.school = school;
-            this.lendingApi.getMostBorrowedThisMonth(school.id!).subscribe({
-              next: (book) => {
-                this.mostBorrowedBook = book;
-                this.cdr.detectChanges();
-              },
-            });
-          });
-        });
 
-        this.lendingApi.getLastBorrowedBook(user.email).subscribe({
-          next: (book) => {
-            this.lastBorrowedBook = book;
-            this.cdr.detectChanges();
-          },
+            if (school.dashboardShowBookOfMonth) {
+              this.lendingApi.getMostBorrowedThisMonth(school.id!).subscribe({
+                next: (book) => {
+                  this.mostBorrowedBook = book;
+                  this.cdr.detectChanges();
+                },
+              });
+            }
+
+            if (school.dashboardShowLastBorrowed) {
+              this.lendingApi.getLastBorrowedBook(user.email).subscribe({
+                next: (book) => {
+                  this.lastBorrowedBook = book;
+                  this.cdr.detectChanges();
+                },
+              });
+            }
+          });
         });
       });
   }
