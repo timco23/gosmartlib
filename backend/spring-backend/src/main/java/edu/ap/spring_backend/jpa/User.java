@@ -11,32 +11,32 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
+
     @Column(nullable = false, name = "name")
     private String name;
-    
+
     @Column(name = "first_name")
     private String firstName;
-    
+
     @Column(unique = true, nullable = false, name = "email")
     private String email;
-    
+
     @Column(nullable = true, name = "password")
     private String password;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "role")
     private Role role;
-    
+
     @Column(name = "student_number")
     private String studentNumber;
-    
+
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users")
     private List<SchoolClass> classes = new ArrayList<>();
 
     @Column(name = "smartschool_username", unique = true)
     private String smartschoolUsername;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
@@ -44,7 +44,7 @@ public class User {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> favoriteBooks = new ArrayList<>();
-    
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_wishlisted_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> wishlistedBooks = new ArrayList<>();
@@ -56,28 +56,27 @@ public class User {
     private LocalDateTime deletionRequestedAt;
 
     /**
-     * Refresh token for session persistence and future OAuth implementation.
-     * Enables "stay logged in" and token refresh without re-authentication.
+     * Refresh token for JWT session persistence (our own token, not Smartschool's).
      */
     @Column(name = "refresh_token")
     private String refreshToken;
 
-    public User() {}
-    
     /**
-     * Constructor for creating admin users.
-     * @param name user's last name
-     * @param email user's unique email address
-     * @param password encrypted password
-     * @param role user role (ADMIN, LEERLING, LEERKRACHT or BEHEERDER)
+     * Smartschool OAuth access token.
+     * Short-lived (1 hour). Used to call /Api/V1/sendnotif and /Api/V1/sendmsg.
      */
+    @Column(name = "smartschool_access_token", length = 512)
+    private String smartschoolAccessToken;
+
+    public User() {}
+
     public User(String name, String email, String password, Role role) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
     }
-    
+
     public Integer getId() { return id; }
     public String getName() { return name; }
     public String getFirstName() { return firstName; }
@@ -89,11 +88,12 @@ public class User {
     public School getSchool() { return school; }
     public String getSmartschoolUsername() { return smartschoolUsername; }
     public String getRefreshToken() { return refreshToken; }
+    public String getSmartschoolAccessToken() { return smartschoolAccessToken; }
     public List<Item> getFavoriteBooks() { return favoriteBooks; }
     public List<Item> getWishlistedBooks() { return wishlistedBooks; }
     public Integer getItemsBorrowed() { return itemsBorrowed; }
     public LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
-    
+
     public void setName(String name) { this.name = name; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setEmail(String email) { this.email = email; }
@@ -104,6 +104,7 @@ public class User {
     public void setSchool(School school) { this.school = school; }
     public void setSmartschoolUsername(String smartschoolUsername) { this.smartschoolUsername = smartschoolUsername; }
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+    public void setSmartschoolAccessToken(String smartschoolAccessToken) { this.smartschoolAccessToken = smartschoolAccessToken; }
     public void setFavoriteBooks(List<Item> favoriteBooks) { this.favoriteBooks = favoriteBooks; }
     public void setWishlistedBooks(List<Item> wishlistedBooks) { this.wishlistedBooks = wishlistedBooks; }
     public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
