@@ -58,7 +58,7 @@ public class User {
     /**
      * Refresh token for JWT session persistence (our own token, not Smartschool's).
      */
-    @Column(name = "refresh_token")
+    @Column(name = "refresh_token", length = 1024)
     private String refreshToken;
 
     /**

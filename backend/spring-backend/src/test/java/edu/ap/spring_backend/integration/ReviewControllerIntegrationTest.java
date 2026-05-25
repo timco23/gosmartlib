@@ -18,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
+    private static final String BOOKS_BASE = "/reviews/books";
+
     @Autowired
     private ReviewRepository reviewRepository;
 
@@ -38,13 +40,13 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void getReviews_unauthenticated_returns401() throws Exception {
-        mockMvc.perform(get("/books/" + item.getId() + "/reviews"))
+        mockMvc.perform(get(BOOKS_BASE + "/" + item.getId()))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
     void getReviews_authenticated_returnsEmptyList() throws Exception {
-        mockMvc.perform(get("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(get(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -55,13 +57,13 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
         String body = """
                 {"stars": 4, "description": "Geweldig boek!", "isAnonymous": false}
                 """;
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(get(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -74,7 +76,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
         String body = """
                 {"stars": 3, "description": "test", "isAnonymous": false}
                 """;
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().is4xxClientError());
@@ -86,7 +88,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
                 {"stars": 5, "description": "Fantastisch!", "isAnonymous": false}
                 """;
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -105,13 +107,13 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
                 {"stars": 3, "description": "Eerste review", "isAnonymous": false}
                 """;
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -124,7 +126,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
                 {"stars": 1, "description": "Dit is shit", "isAnonymous": false}
                 """;
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -133,13 +135,13 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void createReview_averageScoreCalculatedCorrectly() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 5, \"description\": \"Top!\", \"isAnonymous\": false}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(otherStudent))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 3, \"description\": \"Goed\", \"isAnonymous\": false}"))
@@ -152,7 +154,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteReview_byOwner_returns204AndUpdatesScore() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 4, \"description\": \"Goed\", \"isAnonymous\": false}"))
@@ -160,7 +162,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
         Long reviewId = reviewRepository.findByItemId(item.getId()).get(0).getId();
 
-        mockMvc.perform(delete("/books/" + item.getId() + "/reviews/" + reviewId)
+        mockMvc.perform(delete("/reviews/" + reviewId + "/books/" + item.getId())
                         .header("Authorization", jwtFor(student)))
                 .andExpect(status().isNoContent());
 
@@ -171,7 +173,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void deleteReview_byOtherStudent_returns403() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 4, \"description\": \"Goed\", \"isAnonymous\": false}"))
@@ -179,14 +181,14 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
         Long reviewId = reviewRepository.findByItemId(item.getId()).get(0).getId();
 
-        mockMvc.perform(delete("/books/" + item.getId() + "/reviews/" + reviewId)
+        mockMvc.perform(delete("/reviews/" + reviewId + "/books/" + item.getId())
                         .header("Authorization", jwtFor(otherStudent)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void deleteReview_byLibrarian_returns204() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 2, \"description\": \"Matig\", \"isAnonymous\": false}"))
@@ -194,33 +196,33 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
         Long reviewId = reviewRepository.findByItemId(item.getId()).get(0).getId();
 
-        mockMvc.perform(delete("/books/" + item.getId() + "/reviews/" + reviewId)
+        mockMvc.perform(delete("/reviews/" + reviewId + "/books/" + item.getId())
                         .header("Authorization", jwtFor(librarian)))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void deleteAllReviews_asStudent_returns403() throws Exception {
-        mockMvc.perform(delete("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(delete(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void deleteAllReviews_asLibrarian_returns204() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 4, \"description\": \"Goed\", \"isAnonymous\": false}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(otherStudent))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 2, \"description\": \"Matig\", \"isAnonymous\": false}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(delete("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(delete(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(librarian)))
                 .andExpect(status().isNoContent());
 
@@ -229,7 +231,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void reportReview_byOtherUser_returns201() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 1, \"description\": \"Slecht\", \"isAnonymous\": false}"))
@@ -237,7 +239,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
         Long reviewId = reviewRepository.findByItemId(item.getId()).get(0).getId();
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews/" + reviewId + "/reports")
+        mockMvc.perform(post("/reviews/" + reviewId + "/books/" + item.getId() + "/reports")
                         .header("Authorization", jwtFor(otherStudent))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"reason\": \"Ongepaste inhoud\"}"))
@@ -246,7 +248,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void reportReview_byAuthor_returns400() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 3, \"description\": \"Eigen review\", \"isAnonymous\": false}"))
@@ -254,7 +256,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
         Long reviewId = reviewRepository.findByItemId(item.getId()).get(0).getId();
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews/" + reviewId + "/reports")
+        mockMvc.perform(post("/reviews/" + reviewId + "/books/" + item.getId() + "/reports")
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"reason\": \"test\"}"))
@@ -263,7 +265,7 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void reportReview_duplicate_returns409() throws Exception {
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews")
+        mockMvc.perform(post(BOOKS_BASE + "/" + item.getId())
                         .header("Authorization", jwtFor(student))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stars\": 1, \"description\": \"Slecht\", \"isAnonymous\": false}"))
@@ -271,13 +273,13 @@ class ReviewControllerIntegrationTest extends BaseIntegrationTest {
 
         Long reviewId = reviewRepository.findByItemId(item.getId()).get(0).getId();
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews/" + reviewId + "/reports")
+        mockMvc.perform(post("/reviews/" + reviewId + "/books/" + item.getId() + "/reports")
                         .header("Authorization", jwtFor(otherStudent))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"reason\": \"Spam\"}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/books/" + item.getId() + "/reviews/" + reviewId + "/reports")
+        mockMvc.perform(post("/reviews/" + reviewId + "/books/" + item.getId() + "/reports")
                         .header("Authorization", jwtFor(otherStudent))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"reason\": \"Spam nogmaals\"}"))

@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS user (
     student_number VARCHAR(50),
     smartschool_username VARCHAR(255) UNIQUE, 
     school_id BIGINT, 
-    refresh_token VARCHAR(512),
+    refresh_token VARCHAR(1024),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
     items_borrowed INT NOT NULL DEFAULT 0,
     deletion_requested_at TIMESTAMP NULL DEFAULT NULL
