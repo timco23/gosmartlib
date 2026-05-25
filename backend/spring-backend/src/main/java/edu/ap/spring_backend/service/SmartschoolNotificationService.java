@@ -57,21 +57,25 @@ public class SmartschoolNotificationService {
             return;
         }
 
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl("https://" + platform + NOTIF_PATH)
-                .queryParam("access_token", token)
-                .queryParam("notifTitle", title)
-                .queryParam("notifDesc", description);
+        String url = "https://" + platform + NOTIF_PATH;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("access_token", token);
+        form.add("notifTitle", title);
+        form.add("notifDesc", description);
 
         String notifUrl = buildFrontendUrl(relativeUrl);
         if (notifUrl != null) {
-            builder.queryParam("notifUrl", notifUrl);
+            form.add("notifUrl", notifUrl);
         }
 
-        String url = builder.build().encode().toUriString();
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(form, headers);
 
         try {
-            restTemplate.getForEntity(url, String.class);
+            restTemplate.postForEntity(url, request, String.class);
             log.debug("Notification sent to {}: {}", user.getEmail(), title);
         } catch (Exception e) {
             log.error("Failed to send notification to {}: {}", user.getEmail(), e.getMessage());
@@ -87,17 +91,20 @@ public class SmartschoolNotificationService {
             return;
         }
 
-        String url = UriComponentsBuilder
-                .fromHttpUrl("https://" + platform + MSG_PATH)
-                .queryParam("access_token", token)
-                .queryParam("messageTitle", title)
-                .queryParam("messageBody", body)
-                .build()
-                .encode()
-                .toUriString();
+        String url = "https://" + platform + MSG_PATH;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("access_token", token);
+        form.add("messageTitle", title);
+        form.add("messageBody", body);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(form, headers);
 
         try {
-            restTemplate.getForEntity(url, String.class);
+            restTemplate.postForEntity(url, request, String.class);
             log.debug("Message sent to {}: {}", user.getEmail(), title);
         } catch (Exception e) {
             log.error("Failed to send message to {}: {}", user.getEmail(), e.getMessage());

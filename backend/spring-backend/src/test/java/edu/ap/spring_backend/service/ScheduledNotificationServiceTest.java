@@ -231,11 +231,20 @@ class ScheduledNotificationServiceTest {
         scheduledService.runDailyNotifications();
 
         verify(notificationService).sendNotificationAndMessage(
-                eq(reminder.getBorrower()), contains("Herinnering"),
-                anyString(), isNull(), anyString(), anyString());
+                eq(reminder.getBorrower()),
+                contains("Herinnering"),
+                anyString(),
+                isNull(),
+                anyString(),
+                anyString());
+
         verify(notificationService).sendNotificationAndMessage(
-                eq(late.getBorrower()), contains("Te laat"),
-                anyString(), isNull(), anyString(), anyString());
+                eq(late.getBorrower()),
+                contains("Te laat"),
+                anyString(),
+                isNull(),
+                anyString(),
+                anyString());
     }
 
     private Lending buildLending(LocalDate returnDate, User borrower) {

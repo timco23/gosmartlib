@@ -56,12 +56,12 @@ class SmartschoolNotificationServiceTest {
         User user = buildUserWithToken("jan.peeters", "valid-token", null);
         when(mockRestTemplate.getForEntity(anyString(), eq(Map.class)))
                 .thenReturn(new ResponseEntity<>(Map.of("username", "jan.peeters"), HttpStatus.OK));
-        when(mockRestTemplate.getForEntity(contains("sendnotif"), eq(String.class)))
+        when(mockRestTemplate.postForEntity(contains("sendnotif"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("ok", HttpStatus.OK));
 
         service.sendNotification(user, "Herinnering", "Boek inleveren", "/dashboard");
 
-        verify(mockRestTemplate).getForEntity(contains("sendnotif"), eq(String.class));
+        verify(mockRestTemplate).postForEntity(contains("sendnotif"), any(), eq(String.class));
     }
 
     @Test
@@ -77,13 +77,13 @@ class SmartschoolNotificationServiceTest {
                         Map.of("access_token", "new-token", "refresh_token", "new-refresh"),
                         HttpStatus.OK));
 
-        when(mockRestTemplate.getForEntity(contains("sendnotif"), eq(String.class)))
+        when(mockRestTemplate.postForEntity(contains("sendnotif"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("ok", HttpStatus.OK));
 
         service.sendNotification(user, "Herinnering", "Boek inleveren", "/dashboard");
 
         verify(userRepository).save(user);
-        verify(mockRestTemplate).getForEntity(contains("sendnotif"), eq(String.class));
+        verify(mockRestTemplate).postForEntity(contains("sendnotif"), any(), eq(String.class));
     }
 
     @Test
@@ -94,7 +94,7 @@ class SmartschoolNotificationServiceTest {
 
         service.sendNotification(user, "Titel", "Beschrijving", "/dashboard");
 
-        verify(mockRestTemplate, never()).getForEntity(contains("sendnotif"), eq(String.class));
+        verify(mockRestTemplate, never()).postForEntity(contains("sendnotif"), any(), eq(String.class));
     }
 
     @Test
@@ -109,7 +109,7 @@ class SmartschoolNotificationServiceTest {
 
         service.sendNotification(user, "Titel", "Beschrijving", "/dashboard");
 
-        verify(mockRestTemplate, never()).getForEntity(contains("sendnotif"), eq(String.class));
+        verify(mockRestTemplate, never()).postForEntity(contains("sendnotif"), any(), eq(String.class));
     }
 
     @Test
@@ -119,12 +119,12 @@ class SmartschoolNotificationServiceTest {
 
         when(mockRestTemplate.getForEntity(anyString(), eq(Map.class)))
                 .thenReturn(new ResponseEntity<>(Map.of("username", "jan.peeters"), HttpStatus.OK));
-        when(mockRestTemplate.getForEntity(contains("sendmsg"), eq(String.class)))
+        when(mockRestTemplate.postForEntity(contains("sendmsg"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("ok", HttpStatus.OK));
 
         service.sendMessage(user, "Boek uitgeleend", "<p>Veel leesplezier!</p>");
 
-        verify(mockRestTemplate).getForEntity(contains("sendmsg"), eq(String.class));
+        verify(mockRestTemplate).postForEntity(contains("sendmsg"), any(), eq(String.class));
     }
 
     @Test
@@ -144,9 +144,9 @@ class SmartschoolNotificationServiceTest {
 
         when(mockRestTemplate.getForEntity(anyString(), eq(Map.class)))
                 .thenReturn(new ResponseEntity<>(Map.of("username", "jan.peeters"), HttpStatus.OK));
-        when(mockRestTemplate.getForEntity(contains("sendnotif"), eq(String.class)))
+        when(mockRestTemplate.postForEntity(contains("sendnotif"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("ok", HttpStatus.OK));
-        when(mockRestTemplate.getForEntity(contains("sendmsg"), eq(String.class)))
+        when(mockRestTemplate.postForEntity(contains("sendmsg"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("ok", HttpStatus.OK));
 
         service.sendNotificationAndMessage(
@@ -154,8 +154,8 @@ class SmartschoolNotificationServiceTest {
                 "Notif titel", "Notif desc", "/dashboard",
                 "Msg titel", "Msg body");
 
-        verify(mockRestTemplate).getForEntity(contains("sendnotif"), eq(String.class));
-        verify(mockRestTemplate).getForEntity(contains("sendmsg"), eq(String.class));
+        verify(mockRestTemplate).postForEntity(contains("sendnotif"), any(), eq(String.class));
+        verify(mockRestTemplate).postForEntity(contains("sendmsg"), any(), eq(String.class));
     }
 
     private User buildUserWithToken(String username, String accessToken, String refreshToken) {
