@@ -33,6 +33,7 @@ export class LendingHistoryComponent implements OnChanges {
   pageSize = 10;
   
   @Input() preloadedLendings?: Lending[];
+  @Input() showTitle: boolean = true;
 
   get totalPages(): number {
     return Math.ceil(this.lendings.length / this.pageSize);
@@ -119,13 +120,13 @@ export class LendingHistoryComponent implements OnChanges {
 
   coverSrcFromLending(lending: Lending): string | null {
     const id = Number(lending.itemId);
-    if (!Number.isFinite(id) || id <= 0 || this.failedCoverIds.has(id)) return null;
+    if (id <= 0 || this.failedCoverIds.has(id)) return null;
     return this.bookApi.getBookCoverUrl(id);
   }
 
   onCoverError(_event: Event, lending: Lending): void {
     const id = Number(lending.itemId);
-    if (Number.isFinite(id) && id > 0) {
+    if (id > 0) {
       this.failedCoverIds.add(id);
       this.cdr.detectChanges();
     }

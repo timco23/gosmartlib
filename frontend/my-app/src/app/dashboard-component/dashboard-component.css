@@ -99,7 +99,8 @@
 }
 
 .section-title,
-.grid {
+.grid,
+.state {
   margin-inline: clamp(var(--space-3), 2.5vw, var(--space-6));
 }
 
@@ -324,13 +325,17 @@
   }
 }
 
-.profile-wrapper,
-.history-wrapper {
+.profile-wrapper {
   margin-inline: clamp(var(--space-3), 2.5vw, var(--space-6));
   margin-bottom: var(--space-6);
   padding: var(--space-6);
   background: var(--color-surface-1);
-  border: 1px solid var(--color-border-active);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+}
+
+.history-wrapper {
+  margin-inline: clamp(var(--space-3), 2.5vw, var(--space-6));
+  margin-bottom: var(--space-6);
 }
