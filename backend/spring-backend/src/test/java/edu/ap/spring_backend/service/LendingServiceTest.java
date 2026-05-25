@@ -30,7 +30,9 @@ import java.util.Optional;
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class LendingServiceTest {
@@ -149,11 +151,10 @@ class LendingServiceTest {
 
         service.addLending(req);
 
-        verify(notificationService).sendPersonalNotification(
+        verify(notificationService).sendNotificationAndMessage(
                 eq(user),
-                contains("uitgeleend"),
-                anyString(),
-                eq("/dashboard"));
+                anyString(), anyString(), eq("/dashboard"),
+                anyString(), anyString());
     }
 
     @Test
@@ -184,11 +185,10 @@ class LendingServiceTest {
 
         service.updateLending(10L, dto);
 
-        verify(notificationService).sendPersonalNotification(
+        verify(notificationService).sendNotificationAndMessage(
                 eq(user),
-                anyString(),
-                anyString(),
-                eq("/dashboard"));
+                anyString(), anyString(), eq("/dashboard"),
+                anyString(), anyString());
     }
 
     @Test
@@ -204,8 +204,8 @@ class LendingServiceTest {
 
         service.updateLending(10L, dto);
 
-        verify(notificationService, never()).sendPersonalNotification(
-                any(), anyString(), anyString(), anyString());
+        verify(notificationService, never()).sendNotificationAndMessage(
+                any(), anyString(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -226,11 +226,10 @@ class LendingServiceTest {
 
         service.extendLending(10L);
 
-        verify(notificationService).sendPersonalNotification(
+        verify(notificationService).sendNotificationAndMessage(
                 eq(user),
-                contains("verlengd"),
-                anyString(),
-                eq("/dashboard"));
+                anyString(), anyString(), eq("/dashboard"),
+                anyString(), anyString());
     }
 
     @Test

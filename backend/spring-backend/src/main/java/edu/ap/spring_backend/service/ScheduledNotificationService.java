@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -27,7 +27,7 @@ import java.util.List;
 public class ScheduledNotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(ScheduledNotificationService.class);
-
+        private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private final LendingRepository lendingRepository;
     private final UserRepository userRepository;
     private final SmartschoolNotificationService notificationService;
@@ -93,12 +93,13 @@ public class ScheduledNotificationService {
 
         String bookTitle = lending.getBook().getItem().getTitle();
         String notifTitle = "Herinnering: boek inleveren";
-        String notifDesc  = String.format("'%s' moet over %d dag(en) ingeleverd worden.", bookTitle, daysLeft);
+        String notifDesc  = String.format("“%s” moet over %d dag(en) ingeleverd worden.", bookTitle, daysLeft);
 
-        // Message body — parents will also receive this via co-account delivery
-        String msgBody = buildReminderBody(borrower, bookTitle, daysLeft, lending.getReturnDate());
+        boolean isStudent = borrower.getRole() == Role.LEERLING;
+        String msgBody = isStudent
+                ? buildReminderBodyForStudent(borrower, bookTitle, daysLeft, lending.getReturnDate())
+                : buildReminderBodyForTeacher(borrower, bookTitle, daysLeft, lending.getReturnDate());
 
-        // sendNotificationAndMessage: notif (student only) + message (student + parents)
         notificationService.sendNotificationAndMessage(
                 borrower,
                 notifTitle, notifDesc, "/dashboard",
@@ -139,7 +140,6 @@ public class ScheduledNotificationService {
 
     /**
      * Alert to librarians when a book is not returned after X days.
-     * No student or parent notification here -> librarians handle follow-up.
      */
     private void sendLibrarianAlert(Lending lending, School school, int daysOverdue) {
         List<User> librarians = userRepository.findBySchool_IdAndRoleIn(
@@ -152,16 +152,16 @@ public class ScheduledNotificationService {
 
         for (User librarian : librarians) {
             String title   = "Niet-teruggebracht boek";
-            String desc    = String.format("'%s' — %s — %d dagen te laat.", bookTitle, borrower, daysOverdue);
+            String desc    = String.format("“%s” — %s — %d dagen te laat.", bookTitle, borrower, daysOverdue);
             String msgBody = String.format(
-                    "Beste bibliotheekbeheerder,<br><br>" +
-                    "Het boek <strong>%s</strong> (barcode: %s) geleend door <strong>%s</strong> " +
-                    "is al <strong>%d dag(en)</strong> te laat (uiterste datum: %s).<br><br>" +
-                    "Gelieve actie te ondernemen.<br><br>" +
-                    "Met vriendelijke groeten,<br>Het bibliotheeksysteem",
-                    bookTitle, barcode, borrower, daysOverdue, lending.getReturnDate());
+                    "Beste bibliotheekbeheerder,\n" +
+                    "Het boek “%s” (barcode: %s) geleend door %s is %d dag(en) te laat " +
+                    "(uiterste datum: %s).\n" +
+                    "Gelieve actie te ondernemen.\n" +
+                    "Met vriendelijke groeten,\n" +
+                    "De bibliotheek GoSmartLib",
+                    bookTitle, barcode, borrower, daysOverdue, formatDate(lending.getReturnDate()));
 
-            // sendNotificationAndMessage: librarians are main accounts, no co-accounts relevant
             notificationService.sendNotificationAndMessage(
                     librarian,
                     title, desc, "/lendings",
@@ -169,42 +169,52 @@ public class ScheduledNotificationService {
         }
     }
 
-    private String buildReminderBody(User borrower, String bookTitle, int daysLeft, Object returnDate) {
+    private String buildReminderBodyForStudent(User borrower, String bookTitle, int daysLeft, LocalDate returnDate) {
         return String.format(
-                "Beste %s,<br><br>" +
-                "Dit is een herinnering dat het boek <strong>%s</strong> over " +
-                "<strong>%d dag(en)</strong> ingeleverd moet worden " +
-                "(uiterlijk <strong>%s</strong>).<br><br>" +
-                "Gelieve het boek tijdig terug te brengen naar de bibliotheek.<br><br>" +
-                "Met vriendelijke groeten,<br>De bibliotheek",
-                displayName(borrower), bookTitle, daysLeft, returnDate);
+                "Beste %s en ouders/voogd,\n" +
+                "Dit is een herinnering dat het boek “%s” uiterlijk op %s ingeleverd moet worden " +
+                "(nog %d dag(en)).\n" +
+                "Gelieve het boek tijdig terug te brengen naar de bibliotheek.\n" +
+                "Met vriendelijke groeten,\n" +
+                "De bibliotheek GoSmartLib",
+                displayName(borrower), bookTitle, formatDate(returnDate), daysLeft);
     }
 
-    /**
-     * Late notice for a student. Smartschool will also deliver this to
-     * the student's co-accounts (parents) automatically.
-     */
-    private String buildLateNoticeBodyForStudent(User borrower, String bookTitle,
-                                                  int daysOverdue, Object returnDate) {
+    private String buildReminderBodyForTeacher(User borrower, String bookTitle, int daysLeft, LocalDate returnDate) {
         return String.format(
-                "Beste %s,<br><br>" +
-                "Het boek <strong>%s</strong> had <strong>%d dag(en)</strong> geleden " +
-                "ingeleverd moeten worden (uiterste datum: <strong>%s</strong>).<br><br>" +
-                "Gelieve het boek zo snel mogelijk terug te brengen naar de bibliotheek.<br><br>" +
-                "<em>Dit bericht is ook bezorgd aan de ouders/voogd.</em><br><br>" +
-                "Met vriendelijke groeten,<br>De bibliotheek",
-                displayName(borrower), bookTitle, daysOverdue, returnDate);
+                "Beste %s,\n" +
+                "Dit is een herinnering dat het boek “%s” uiterlijk op %s ingeleverd moet worden " +
+                "(nog %d dag(en)).\n" +
+                "Gelieve het boek tijdig terug te brengen naar de bibliotheek.\n" +
+                "Met vriendelijke groeten,\n" +
+                "De bibliotheek GoSmartLib",
+                displayName(borrower), bookTitle, formatDate(returnDate), daysLeft);
     }
 
-    private String buildLateNoticeBodyForTeacher(User borrower, String bookTitle,
-                                                  int daysOverdue, Object returnDate) {
+    private String buildLateNoticeBodyForStudent(User borrower, String bookTitle, int daysOverdue, LocalDate returnDate) {
         return String.format(
-                "Beste %s,<br><br>" +
-                "Het boek <strong>%s</strong> had <strong>%d dag(en)</strong> geleden " +
-                "ingeleverd moeten worden (uiterste datum: <strong>%s</strong>).<br><br>" +
-                "Gelieve het boek zo snel mogelijk terug te brengen naar de bibliotheek.<br><br>" +
-                "Met vriendelijke groeten,<br>De bibliotheek",
-                displayName(borrower), bookTitle, daysOverdue, returnDate);
+                "Beste %s en ouders/voogd,\n" +
+                "Ons systeem geeft aan dat het boek “%s” sinds %d dag(en) te laat is. " +
+                "Uiterste datum: %s.\n" +
+                "Gelieve het boek zo snel mogelijk terug te brengen naar de bibliotheek.\n" +
+                "Met vriendelijke groeten,\n" +
+                "De bibliotheek GoSmartLib",
+                displayName(borrower), bookTitle, daysOverdue, formatDate(returnDate));
+    }
+
+    private String buildLateNoticeBodyForTeacher(User borrower, String bookTitle, int daysOverdue, LocalDate returnDate) {
+        return String.format(
+                "Beste %s,\n" +
+                "Ons systeem geeft aan dat het boek “%s” sinds %d dag(en) te laat is. " +
+                "Uiterste datum: %s.\n" +
+                "Gelieve het boek zo snel mogelijk terug te brengen naar de bibliotheek.\n" +
+                "Met vriendelijke groeten,\n" +
+                "De bibliotheek GoSmartLib",
+                displayName(borrower), bookTitle, daysOverdue, formatDate(returnDate));
+    }
+
+    private String formatDate(LocalDate date) {
+        return date != null ? date.format(DATE_FMT) : "onbekend";
     }
 
     private String displayName(User user) {

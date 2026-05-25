@@ -275,34 +275,40 @@ public class LendingService {
 
     private void sendLendingConfirmation(User borrower, Lending lending) {
         if (borrower == null) return;
-        String title   = "Boek uitgeleend";
-        String desc    = String.format("'%s' is uitgeleend tot %s.",
-                lending.getBook().getItem().getTitle(), lending.getReturnDate());
+        String title   = lending.getBook().getItem().getTitle();
+        String desc    = String.format("Uitgeleend tot %s.", lending.getReturnDate());
         String msgBody = String.format(
-                "Beste %s,<br><br>" +
-                "Het boek <strong>%s</strong> is succesvol uitgeleend.<br>" +
-                "Gelieve het terug te brengen vóór <strong>%s</strong>.<br><br>" +
-                "Met vriendelijke groeten,<br>De bibliotheek",
+                "Beste %s,\n" +
+                "Het boek “%s” is uitgeleend tot %s.\n" +
+                "Met vriendelijke groeten,\n" +
+                "De bibliotheek GoSmartLib",
                 displayName(borrower),
                 lending.getBook().getItem().getTitle(),
                 lending.getReturnDate());
-        notificationService.sendPersonalNotification(borrower, title, desc, "/dashboard");
+
+        notificationService.sendNotificationAndMessage(
+                borrower,
+                title, desc, "/dashboard",
+                title, msgBody);
     }
 
     private void sendExtensionConfirmation(User borrower, Lending lending) {
         if (borrower == null) return;
-        String title   = "Uitlening verlengd";
-        String desc    = String.format("'%s' is verlengd tot %s.",
-                lending.getBook().getItem().getTitle(), lending.getReturnDate());
+        String title   = lending.getBook().getItem().getTitle();
+        String desc    = String.format("Uitlening verlengd tot %s.", lending.getReturnDate());
         String msgBody = String.format(
-                "Beste %s,<br><br>" +
-                "De uitlening van <strong>%s</strong> is verlengd.<br>" +
-                "Nieuwe uiterste inleverdatum: <strong>%s</strong>.<br><br>" +
-                "Met vriendelijke groeten,<br>De bibliotheek",
+                "Beste %s,\n" +
+                "De uitlening van “%s” is verlengd tot %s.\n" +
+                "Met vriendelijke groeten,\n" +
+                "De bibliotheek GoSmartLib",
                 displayName(borrower),
                 lending.getBook().getItem().getTitle(),
                 lending.getReturnDate());
-        notificationService.sendPersonalNotification(borrower, title, desc, "/dashboard");
+
+        notificationService.sendNotificationAndMessage(
+                borrower,
+                title, desc, "/dashboard",
+                title, msgBody);
     }
 
     private void sendReturnNotification(Lending lending) {
@@ -313,29 +319,32 @@ public class LendingService {
 
         String title, desc, msgBody;
         if (onTime) {
-            title   = "Boek teruggebracht";
-            desc    = String.format("'%s' is op tijd teruggebracht. Bedankt!",
-                    lending.getBook().getItem().getTitle());
+            title   = lending.getBook().getItem().getTitle();
+            desc    = "Teruggebracht. Bedankt!";
             msgBody = String.format(
-                    "Beste %s,<br><br>" +
-                    "Bedankt! Het boek <strong>%s</strong> is op tijd teruggebracht.<br><br>" +
-                    "Met vriendelijke groeten,<br>De bibliotheek",
+                    "Beste %s,\n" +
+                    "Bedankt. Het boek “%s” is op tijd teruggebracht.\n" +
+                    "Met vriendelijke groeten,\n" +
+                    "De bibliotheek GoSmartLib",
                     displayName(borrower),
                     lending.getBook().getItem().getTitle());
         } else {
-            title   = "Boek te laat teruggebracht";
-            desc    = String.format("'%s' is te laat teruggebracht.",
-                    lending.getBook().getItem().getTitle());
+            title   = lending.getBook().getItem().getTitle();
+            desc    = String.format("Te laat teruggebracht (uiterste datum %s).", lending.getReturnDate());
             msgBody = String.format(
-                    "Beste %s,<br><br>" +
-                    "Het boek <strong>%s</strong> is te laat teruggebracht " +
-                    "(uiterste datum was %s).<br><br>" +
-                    "Met vriendelijke groeten,<br>De bibliotheek",
+                    "Beste %s,\n" +
+                    "Het boek “%s” is te laat teruggebracht. Uiterste datum was %s.\n" +
+                    "Met vriendelijke groeten,\n" +
+                    "De bibliotheek GoSmartLib",
                     displayName(borrower),
                     lending.getBook().getItem().getTitle(),
                     lending.getReturnDate());
         }
-        notificationService.sendPersonalNotification(borrower, title, desc, "/dashboard");
+
+        notificationService.sendNotificationAndMessage(
+                borrower,
+                title, desc, "/dashboard",
+                title, msgBody);
     }
 
     private String displayName(User user) {

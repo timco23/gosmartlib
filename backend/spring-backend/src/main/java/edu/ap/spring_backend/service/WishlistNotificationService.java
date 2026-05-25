@@ -49,17 +49,16 @@ public class WishlistNotificationService {
         List<User> wishlisted = userRepository.findBySchool_IdAndWishlistedBooks_Id(schoolId, item.getId());
 
         for (User user : wishlisted) {
-            String title = "Boek beschikbaar";
-            String desc  = String.format("'%s' is nu beschikbaar in de bibliotheek.", item.getTitle());
+            String title = "Boek beschikbaar op uw verlanglijst";
+            String desc  = String.format("“%s” is nu beschikbaar.", item.getTitle());
             String msgBody = String.format(
-                    "Beste %s,<br><br>" +
-                    "Goed nieuws! Het boek <strong>%s</strong> van %s staat nu in uw verlanglijst " +
-                    "en is nu beschikbaar in de bibliotheek.<br><br>" +
-                    "Bezoek snel de bibliotheek om het uit te lenen, want het is op = op!<br><br>" +
-                    "Met vriendelijke groeten,<br>De bibliotheek",
+                    "Beste %s,\n" +
+                    "Het boek “%s” staat nu op uw verlanglijst en is beschikbaar in de bibliotheek. " +
+                    "Bezoek snel de bibliotheek om het uit te lenen.\n" +
+                    "Met vriendelijke groeten,\n" +
+                    "De bibliotheek GoSmartLib",
                     displayName(user),
-                    item.getTitle(),
-                    item.getAuthor() != null ? item.getAuthor() : "onbekende auteur");
+                    item.getTitle());
 
             notificationService.sendNotificationAndMessage(
                     user,
