@@ -65,7 +65,7 @@ public class User {
      * Smartschool OAuth access token.
      * Short-lived (1 hour). Used to call /Api/V1/sendnotif and /Api/V1/sendmsg.
      */
-    @Column(name = "smartschool_access_token", length = 512)
+    @Column(name = "smartschool_access_token", length = 2048)
     private String smartschoolAccessToken;
 
     public User() {}
