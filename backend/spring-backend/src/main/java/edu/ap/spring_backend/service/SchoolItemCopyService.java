@@ -1,7 +1,6 @@
 package edu.ap.spring_backend.service;
 
 import java.util.List;
-
 import edu.ap.spring_backend.dao.CampusRepository;
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
@@ -28,14 +27,20 @@ public class SchoolItemCopyService {
     private final SchoolRepository schoolRepository;
     private final CampusRepository campusRepository;
     private final LendingRepository lendingRepository;
+    private final WishlistNotificationService wishlistNotificationService;
 
-    public SchoolItemCopyService(SchoolItemCopyRepository schoolItemCopyRepository, ItemRepository itemRepository,
-            SchoolRepository schoolRepository, CampusRepository campusRepository, LendingRepository lendingRepository) {
-        this.schoolItemCopyRepository = schoolItemCopyRepository;
-        this.itemRepository = itemRepository;
-        this.schoolRepository = schoolRepository;
-        this.campusRepository = campusRepository;
-        this.lendingRepository = lendingRepository;
+    public SchoolItemCopyService(SchoolItemCopyRepository schoolItemCopyRepository,
+            ItemRepository itemRepository,
+            SchoolRepository schoolRepository,
+            CampusRepository campusRepository,
+            LendingRepository lendingRepository,
+            WishlistNotificationService wishlistNotificationService) {
+        this.schoolItemCopyRepository    = schoolItemCopyRepository;
+        this.itemRepository              = itemRepository;
+        this.schoolRepository            = schoolRepository;
+        this.campusRepository            = campusRepository;
+        this.lendingRepository           = lendingRepository;
+        this.wishlistNotificationService = wishlistNotificationService;
     }
 
     public List<SchoolItemCopyDTO> getCopiesByIds(List<Integer> ids) {
@@ -48,7 +53,7 @@ public class SchoolItemCopyService {
     public List<SchoolItemCopyDTO> getCopiesByItemIdAndSchoolId(Long itemId, Long schoolId) {
         return schoolItemCopyRepository.findByItemIdAndSchoolId(itemId, schoolId)
                 .stream()
-                .map((copy) -> mapToDTO(copy)).toList();
+                .map(this::mapToDTO).toList();
     }
 
     public SchoolItemCopyDTO addCopy(CreateSchoolItemCopyDTO copyDTO) {
@@ -147,12 +152,19 @@ public class SchoolItemCopyService {
         return mapToDTO(copy);
     }
 
+    // When status becomes BESCHIKBAAR, notifies all users who have this book on their wishlist.
     public SchoolItemCopyDTO updateCopyStatus(int copyId, String status) {
         SchoolItemCopy copy = schoolItemCopyRepository.findById(copyId)
                 .orElseThrow(EntityNotFoundException::new);
         copy.setCopy_status(CopyStatus.valueOf(status));
-        schoolItemCopyRepository.save(copy);
-        return mapToDTO(copy);
+        SchoolItemCopy saved = schoolItemCopyRepository.save(copy);
+
+        // Trigger wishlist notifications when a book becomes available
+        if (saved.getCopy_status() == CopyStatus.BESCHIKBAAR) {
+            wishlistNotificationService.notifyWishlistersIfAvailable(saved);
+        }
+
+        return mapToDTO(saved);
     }
 
     public SchoolItemCopyDTO updateCopyCondition(int copyId, String condition) {

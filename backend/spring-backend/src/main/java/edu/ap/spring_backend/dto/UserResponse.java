@@ -20,7 +20,7 @@ public class UserResponse {
     private ItemDTO[] favoriteBooks;
     private Integer itemsBorrowed;
     private LocalDateTime deletionRequestedAt;
-
+        
     /**
      * Constructor for user profile response.
      * @param id user ID
@@ -33,11 +33,11 @@ public class UserResponse {
      * @param schoolName school name (null for admins)
      * @param schoolId school ID (null for admins)
      * @param favoriteBooks list of user's favorite books
-     * @param items_borrowed list of user's borrowed books
+     * @param itemsBorrowed list of user's borrowed books
      * @param deletionRequestedAt requested deletion of information at a specific time
      */
     public UserResponse(Integer id, String name, String firstName, String email, String role,
-                       String studentNumber, List<ClassDTO> classes, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer items_borrowed, LocalDateTime deletionRequestedAt) {
+                       String studentNumber, List<ClassDTO> classes, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer itemsBorrowed, LocalDateTime deletionRequestedAt) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
@@ -48,7 +48,7 @@ public class UserResponse {
         this.schoolName = schoolName;
         this.schoolId = schoolId;
         this.favoriteBooks = favoriteBooks;
-        this.itemsBorrowed = items_borrowed;
+        this.itemsBorrowed = itemsBorrowed;
         this.deletionRequestedAt = deletionRequestedAt;
     }
     
@@ -62,7 +62,7 @@ public class UserResponse {
     public String getSchoolName() { return schoolName; }
     public Long getSchoolId() { return schoolId; }
     public ItemDTO[] getFavoriteBooks() { return favoriteBooks; }
-    public Integer getItems_borrowed() { return itemsBorrowed; }
+    public Integer getItemsBorrowed() { return itemsBorrowed; }
     public LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
     
     public void setId(Integer id) { this.id = id; }
@@ -75,5 +75,6 @@ public class UserResponse {
     public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
     public void setSchoolId(Long schoolId) { this.schoolId = schoolId; }
     public void setFavoriteBooks(ItemDTO[] favoriteBooks) { this.favoriteBooks = favoriteBooks; }
-    public void setItems_borrowed(Integer items_borrowed) { this.itemsBorrowed = items_borrowed; }
+    public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
+    public void setDeletionRequestedAt(LocalDateTime deletionRequestedAt) {this.deletionRequestedAt = deletionRequestedAt; }
 }

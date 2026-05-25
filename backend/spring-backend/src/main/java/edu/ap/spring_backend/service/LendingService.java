@@ -40,17 +40,20 @@ public class LendingService {
     private final SchoolItemCopyRepository copyRepository;
     private final SchoolRepository schoolRepository;
     private final ItemMapper itemMapper;
+    private final SmartschoolNotificationService notificationService;
 
     public LendingService(LendingRepository repository,
             UserRepository userRepository,
             SchoolItemCopyRepository copyRepository,
             SchoolRepository schoolRepository,
-            ItemMapper itemMapper) {
-        this.lendingRepository = repository;
-        this.userRepository = userRepository;
-        this.copyRepository = copyRepository;
-        this.schoolRepository = schoolRepository;
-        this.itemMapper = itemMapper;
+            ItemMapper itemMapper,
+            SmartschoolNotificationService notificationService) {
+        this.lendingRepository   = repository;
+        this.userRepository      = userRepository;
+        this.copyRepository      = copyRepository;
+        this.schoolRepository    = schoolRepository;
+        this.itemMapper          = itemMapper;
+        this.notificationService = notificationService;
     }
 
     private String getBorrowerName(Lending lending) {
@@ -88,7 +91,7 @@ public class LendingService {
 
         SchoolItemCopy copy = copyRepository.findByBarcode(request.copyBarcode()).orElseThrow();
 
-        lending.setBorrower(borrower); 
+        lending.setBorrower(borrower);
         lending.setBook(copy);
         lending.setSchool(schoolRepository.findById(request.schoolId()).orElseThrow());
         lending.setLendingDate(request.lendingDate());
@@ -100,6 +103,10 @@ public class LendingService {
         fillSnapshot(lending, borrower, copy);
 
         Lending saved = lendingRepository.save(lending);
+
+        // Notify borrower that the book has been lent
+        sendLendingConfirmation(borrower, saved);
+
         return toDTO(saved);
     }
 
@@ -133,13 +140,22 @@ public class LendingService {
 
     public LendingDTO updateLending(Long id, LendingDTO dto) {
         Lending lending = lendingRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+
+        boolean wasReturned = lending.isReturned();
         lending.setReturned(dto.returned());
         lending.setDateReturned(
                 dto.dateReturned() != null
                         ? java.time.LocalDate.parse(dto.dateReturned().substring(0, 10))
                         : null);
 
-        return toDTO(lendingRepository.save(lending));
+        Lending saved = lendingRepository.save(lending);
+
+        // If the book was just marked as returned, send the appropriate notification
+        if (!wasReturned && saved.isReturned()) {
+            sendReturnNotification(saved);
+        }
+
+        return toDTO(saved);
     }
 
     public void deleteLending(Long id) {
@@ -177,7 +193,12 @@ public class LendingService {
         lending.setExtendCount(lending.getExtendCount() + 1);
         lending.setExtended(true);
 
-        return toDTO(lendingRepository.save(lending));
+        Lending saved = lendingRepository.save(lending);
+
+        // Notify borrower of the extension
+        sendExtensionConfirmation(saved.getBorrower(), saved);
+
+        return toDTO(saved);
     }
 
     public List<LendingDTO> getAllByUser(String email) {
@@ -250,5 +271,77 @@ public class LendingService {
             .orElseThrow(EntityNotFoundException::new);
         return lendingRepository.findTopByBorrower_IdOrderByLendingDateDesc(user.getId())
             .map(l -> itemMapper.toItemDTO(l.getBook().getItem()));
+    }
+
+    private void sendLendingConfirmation(User borrower, Lending lending) {
+        if (borrower == null) return;
+        String title   = "Boek uitgeleend";
+        String desc    = String.format("'%s' is uitgeleend tot %s.",
+                lending.getBook().getItem().getTitle(), lending.getReturnDate());
+        String msgBody = String.format(
+                "Beste %s,<br><br>" +
+                "Het boek <strong>%s</strong> is succesvol uitgeleend.<br>" +
+                "Gelieve het terug te brengen vóór <strong>%s</strong>.<br><br>" +
+                "Met vriendelijke groeten,<br>De bibliotheek",
+                displayName(borrower),
+                lending.getBook().getItem().getTitle(),
+                lending.getReturnDate());
+        notificationService.sendPersonalNotification(borrower, title, desc, "/dashboard");
+    }
+
+    private void sendExtensionConfirmation(User borrower, Lending lending) {
+        if (borrower == null) return;
+        String title   = "Uitlening verlengd";
+        String desc    = String.format("'%s' is verlengd tot %s.",
+                lending.getBook().getItem().getTitle(), lending.getReturnDate());
+        String msgBody = String.format(
+                "Beste %s,<br><br>" +
+                "De uitlening van <strong>%s</strong> is verlengd.<br>" +
+                "Nieuwe uiterste inleverdatum: <strong>%s</strong>.<br><br>" +
+                "Met vriendelijke groeten,<br>De bibliotheek",
+                displayName(borrower),
+                lending.getBook().getItem().getTitle(),
+                lending.getReturnDate());
+        notificationService.sendPersonalNotification(borrower, title, desc, "/dashboard");
+    }
+
+    private void sendReturnNotification(Lending lending) {
+        User borrower = lending.getBorrower();
+        if (borrower == null) return;
+
+        boolean onTime = !lending.getReturnDate().isBefore(lending.getDateReturned());
+
+        String title, desc, msgBody;
+        if (onTime) {
+            title   = "Boek teruggebracht";
+            desc    = String.format("'%s' is op tijd teruggebracht. Bedankt!",
+                    lending.getBook().getItem().getTitle());
+            msgBody = String.format(
+                    "Beste %s,<br><br>" +
+                    "Bedankt! Het boek <strong>%s</strong> is op tijd teruggebracht.<br><br>" +
+                    "Met vriendelijke groeten,<br>De bibliotheek",
+                    displayName(borrower),
+                    lending.getBook().getItem().getTitle());
+        } else {
+            title   = "Boek te laat teruggebracht";
+            desc    = String.format("'%s' is te laat teruggebracht.",
+                    lending.getBook().getItem().getTitle());
+            msgBody = String.format(
+                    "Beste %s,<br><br>" +
+                    "Het boek <strong>%s</strong> is te laat teruggebracht " +
+                    "(uiterste datum was %s).<br><br>" +
+                    "Met vriendelijke groeten,<br>De bibliotheek",
+                    displayName(borrower),
+                    lending.getBook().getItem().getTitle(),
+                    lending.getReturnDate());
+        }
+        notificationService.sendPersonalNotification(borrower, title, desc, "/dashboard");
+    }
+
+    private String displayName(User user) {
+        if (user == null) return "Gebruiker";
+        return user.getFirstName() != null
+                ? user.getFirstName() + " " + user.getName()
+                : user.getName();
     }
 }

@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.dao;
 
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.jpa.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,4 +29,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Modifying
     @Query(value = "DELETE FROM user WHERE id = :id", nativeQuery = true)
     void deleteUserByIdNative(@Param("id") Integer id);
+     
+    List<User> findBySchool_IdAndRoleIn(Long schoolId, List<Role> roles);
+
+    List<User> findBySchool_IdAndWishlistedBooks_Id(Long schoolId, Long itemId);
+
+    List<User> findBySmartschoolUsernameStartingWith(String prefix);
 }

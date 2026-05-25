@@ -16,6 +16,7 @@ import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.mappers.ItemMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -38,6 +39,8 @@ class LendingServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private SchoolItemCopyRepository copyRepository;
     @Mock private SchoolRepository schoolRepository;
+    @Mock private ItemMapper itemMapper;
+    @Mock private SmartschoolNotificationService notificationService; 
 
     @InjectMocks
     private LendingService service;
@@ -61,7 +64,7 @@ class LendingServiceTest {
         school = new School();
         school.setId(1L);
         school.setExtendPeriodDays(7);
-        school.setMaxExtends(2); 
+        school.setMaxExtends(2);
 
         item = new Item();
         item.setId(9L);
@@ -126,6 +129,34 @@ class LendingServiceTest {
     }
 
     @Test
+    void addLending_sendsConfirmationNotification() {
+        LendingRequestDTO req = buildRecord(LendingRequestDTO.class, Map.of(
+                "borrowerId", 1,
+                "copyBarcode", "BC001",
+                "schoolId", 1L,
+                "lendingDate", LocalDate.of(2024, 1, 1),
+                "returnDate", LocalDate.of(2024, 1, 10)
+        ));
+
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(copyRepository.findByBarcode("BC001")).thenReturn(Optional.of(copy));
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(school));
+        when(lendingRepository.save(any(Lending.class))).thenAnswer(inv -> {
+            Lending l = inv.getArgument(0);
+            l.setId(10L);
+            return l;
+        });
+
+        service.addLending(req);
+
+        verify(notificationService).sendPersonalNotification(
+                eq(user),
+                contains("uitgeleend"),
+                anyString(),
+                eq("/dashboard"));
+    }
+
+    @Test
     void updateLending_updatesReturnedAndDate() {
         LendingDTO dto = buildRecord(LendingDTO.class, Map.of(
                 "returned", true,
@@ -142,6 +173,42 @@ class LendingServiceTest {
     }
 
     @Test
+    void updateLending_whenMarkedReturned_sendsReturnNotification() {
+        LendingDTO dto = buildRecord(LendingDTO.class, Map.of(
+                "returned", true,
+                "dateReturned", "2024-01-15T10:00:00"
+        ));
+
+        when(lendingRepository.findById(10L)).thenReturn(Optional.of(lending));
+        when(lendingRepository.save(any(Lending.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.updateLending(10L, dto);
+
+        verify(notificationService).sendPersonalNotification(
+                eq(user),
+                anyString(),
+                anyString(),
+                eq("/dashboard"));
+    }
+
+    @Test
+    void updateLending_whenAlreadyReturned_doesNotSendNotificationAgain() {
+        lending.setReturned(true); // already returned
+        LendingDTO dto = buildRecord(LendingDTO.class, Map.of(
+                "returned", true,
+                "dateReturned", "2024-01-15T10:00:00"
+        ));
+
+        when(lendingRepository.findById(10L)).thenReturn(Optional.of(lending));
+        when(lendingRepository.save(any(Lending.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.updateLending(10L, dto);
+
+        verify(notificationService, never()).sendPersonalNotification(
+                any(), anyString(), anyString(), anyString());
+    }
+
+    @Test
     void extendLending_whenNotExtended_thenExtends() {
         when(lendingRepository.findById(10L)).thenReturn(Optional.of(lending));
         when(lendingRepository.save(any(Lending.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -153,12 +220,36 @@ class LendingServiceTest {
     }
 
     @Test
+    void extendLending_sendsExtensionNotification() {
+        when(lendingRepository.findById(10L)).thenReturn(Optional.of(lending));
+        when(lendingRepository.save(any(Lending.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.extendLending(10L);
+
+        verify(notificationService).sendPersonalNotification(
+                eq(user),
+                contains("verlengd"),
+                anyString(),
+                eq("/dashboard"));
+    }
+
+    @Test
     void extendLending_whenAlreadyExtended_thenThrows() {
         lending.setExtended(true);
         lending.setExtendCount(2);
         when(lendingRepository.findById(10L)).thenReturn(Optional.of(lending));
 
         assertThrows(ResponseStatusException.class, () -> service.extendLending(10L));
+    }
+
+    @Test
+    void extendLending_whenAtMaxExtends_doesNotSendNotification() {
+        lending.setExtendCount(2);
+        when(lendingRepository.findById(10L)).thenReturn(Optional.of(lending));
+
+        assertThrows(ResponseStatusException.class, () -> service.extendLending(10L));
+
+        verifyNoInteractions(notificationService);
     }
 
     @Test
@@ -424,7 +515,8 @@ class LendingServiceTest {
             if (type == int.class) return ((Number) value).intValue();
             if (type == long.class) return ((Number) value).longValue();
             if (type == double.class) return ((Number) value).doubleValue();
-            if (type == boolean.class) return (value instanceof Boolean) ? value : Boolean.parseBoolean(value.toString());
+            if (type == boolean.class) return (value instanceof Boolean) ? value
+                    : Boolean.parseBoolean(value.toString());
         }
 
         if (Number.class.isAssignableFrom(type) && value instanceof Number n) {
@@ -451,7 +543,7 @@ class LendingServiceTest {
 
     private Lending lendingForSnapshot() {
         Lending l = new Lending();
-        l.setLendingDate(LocalDate.of(2024, 10, 1)); // school year 2024-2025
+        l.setLendingDate(LocalDate.of(2024, 10, 1));
         return l;
     }
 }

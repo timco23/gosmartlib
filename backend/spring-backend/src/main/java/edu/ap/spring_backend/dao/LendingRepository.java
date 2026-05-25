@@ -53,4 +53,10 @@ public interface LendingRepository extends JpaRepository<Lending, Long> {
 
     @Query("SELECT DISTINCT l.snapSchoolYear FROM Lending l WHERE l.school.id = :schoolId AND l.snapSchoolYear IS NOT NULL ORDER BY l.snapSchoolYear DESC")
     List<String> findDistinctSchoolYearsBySchoolId(@Param("schoolId") Long schoolId);
+
+    /**
+     * Returns all lendings that have not been returned yet.
+     * Used by the daily notification scheduler to check due dates.
+     */
+    List<Lending> findByReturnedFalse();
 }

@@ -17,18 +17,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_ADMIN     = "ADMIN";
     private static final String ROLE_LIBRARIAN = "BIBLIOTHEEKBEHEERDER";
-    private static final String ROLE_TEACHER = "LEERKRACHT";
-    private static final String ROLE_STUDENT = "LEERLING";
+    private static final String ROLE_TEACHER   = "LEERKRACHT";
+    private static final String ROLE_STUDENT   = "LEERLING";
 
-    private static final String[] ALL_USERS = {ROLE_STUDENT, ROLE_TEACHER, ROLE_LIBRARIAN, ROLE_ADMIN};
-    private static final String[] TEACHER_PLUS = {ROLE_TEACHER, ROLE_LIBRARIAN, ROLE_ADMIN};
+    private static final String[] ALL_USERS      = {ROLE_STUDENT, ROLE_TEACHER, ROLE_LIBRARIAN, ROLE_ADMIN};
+    private static final String[] TEACHER_PLUS   = {ROLE_TEACHER, ROLE_LIBRARIAN, ROLE_ADMIN};
     private static final String[] LIBRARIAN_PLUS = {ROLE_LIBRARIAN, ROLE_ADMIN};
 
     private static final String PATH_BOOKS_ALL = "/books/**";
     private static final String PATH_ITEMS_ALL = "/items/**";
-    private static final String PATH_TAGS_ALL = "/tags/**";
+    private static final String PATH_TAGS_ALL  = "/tags/**";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -55,6 +55,7 @@ public class WebSecurityConfig {
                     "/api/books/*/cover"
                 ).permitAll()
 
+                // ALL USERS: general reads
                 .requestMatchers(HttpMethod.GET,
                     "/collections/global/featured",
                     "/collections/school/*/featured",
@@ -78,13 +79,13 @@ public class WebSecurityConfig {
                     PATH_TAGS_ALL,
                     "/schools/search",
                     "/schools/search/**",
-                    "/lendingHistory**",  
+                    "/lendingHistory**",
                     "/dashboard**",
-                    "/lendings/last-borrowed/*",          
-                    "/lendings/most-borrowed-this-month/*" 
+                    "/lendings/last-borrowed/*",
+                    "/lendings/most-borrowed-this-month/*"
                 ).hasAnyAuthority(ALL_USERS)
 
-                // ALL USERS: POST /books/{id}/reviews
+                // ALL USERS: reviews
                 .requestMatchers(HttpMethod.POST,
                     "/books/*/reviews",
                     "/books/*/reviews/**",
@@ -99,7 +100,6 @@ public class WebSecurityConfig {
                     "/api/books/*/reviews/**"
                 ).hasAnyAuthority(ALL_USERS)
 
-                // ALL USERS
                 .requestMatchers("/favorites/**", "/wishlist/**", "/profile/**", "/reviews/**")
                 .hasAnyAuthority(ALL_USERS)
 
@@ -108,49 +108,78 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/user/cancel-deletion")
                 .hasAnyAuthority(ALL_USERS)
 
-                //Reading list access for all users
+                // Reading list: all users can read
                 .requestMatchers(HttpMethod.GET, "/lists/{id}")
                 .hasAnyAuthority(ALL_USERS)
 
-                // TEACHER
-                .requestMatchers("/lists/**")
-                .hasAnyAuthority(TEACHER_PLUS)
-                .requestMatchers("/statistics", "/statistics/**")
-                .hasAnyAuthority(TEACHER_PLUS)
-                .requestMatchers("/didactic-books")
-                .hasAnyAuthority(TEACHER_PLUS)
-                .requestMatchers(
-                    "/books/*/report",
-                    "/api/books/*/report"
-                ).hasAnyAuthority(TEACHER_PLUS)
+                // TEACHER+
+                .requestMatchers("/lists/**").hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/statistics", "/statistics/**").hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/didactic-books").hasAnyAuthority(TEACHER_PLUS)
+                .requestMatchers("/books/*/report", "/api/books/*/report").hasAnyAuthority(TEACHER_PLUS)
                 .requestMatchers("/classes").hasAnyAuthority(TEACHER_PLUS)
 
-                // BIBLIOTHEEKBEHEERDER
-                .requestMatchers(HttpMethod.GET, "/lendings", "/lendings/**", "/collections", "/collections/**", "/book-lending-history/**", "/api/book-lending-history/**")
-                .hasAnyAuthority(LIBRARIAN_PLUS)
+                // BIBLIOTHEEKBEHEERDER+
+                .requestMatchers(HttpMethod.GET,
+                    "/lendings", "/lendings/**",
+                    "/collections", "/collections/**",
+                    "/book-lending-history/**", "/api/book-lending-history/**"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
                 .requestMatchers(HttpMethod.GET, "/books/import/history")
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.POST, "/lendings", "/lendings/**", "/collections", "/collections/**")
-                .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.PUT, "/lendings", "/lendings/**", "/collections", "/collections/**")
-                .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.DELETE, "/lendings", "/lendings/**", "/collections", "/collections/**")
-                .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.GET, "/schools/current", "/schools/users", "/user/school-users", "/user/profile/*")
-                .hasAnyAuthority(LIBRARIAN_PLUS)
+
+                .requestMatchers(HttpMethod.POST,
+                    "/lendings", "/lendings/**",
+                    "/collections", "/collections/**"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
+                .requestMatchers(HttpMethod.PUT,
+                    "/lendings", "/lendings/**",
+                    "/collections", "/collections/**"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
+                .requestMatchers(HttpMethod.DELETE,
+                    "/lendings", "/lendings/**",
+                    "/collections", "/collections/**"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
+                .requestMatchers(HttpMethod.GET,
+                    "/schools/current", "/schools/users",
+                    "/user/school-users", "/user/profile/*"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
                 .requestMatchers(HttpMethod.POST, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL)
                 .hasAnyAuthority(LIBRARIAN_PLUS)
-                .requestMatchers(HttpMethod.PUT, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL, "/schools/current/settings", "/user/role")
-                .hasAnyAuthority(LIBRARIAN_PLUS)
+
+                .requestMatchers(HttpMethod.PUT,
+                    PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL,
+                    "/schools/current/settings", "/user/role"
+                ).hasAnyAuthority(LIBRARIAN_PLUS)
+
                 .requestMatchers(HttpMethod.PATCH, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL)
                 .hasAnyAuthority(LIBRARIAN_PLUS)
+
                 .requestMatchers(HttpMethod.DELETE, PATH_BOOKS_ALL, PATH_ITEMS_ALL, PATH_TAGS_ALL)
                 .hasAnyAuthority(LIBRARIAN_PLUS)
+
+                .requestMatchers(HttpMethod.POST, "/genres/**", "/subgenres/**").hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.PUT, "/genres/**", "/subgenres/**").hasAnyAuthority(LIBRARIAN_PLUS)
+                .requestMatchers(HttpMethod.DELETE, "/genres/**", "/subgenres/**").hasAnyAuthority(LIBRARIAN_PLUS)
+
+                // Librarian can manually trigger a notification for a specific lending
+                // POST /notifications/lending/{id}/reminder
+                .requestMatchers(HttpMethod.POST, "/notifications/lending/*/reminder")
+                .hasAnyAuthority(LIBRARIAN_PLUS)
+
+                // Internal: triggered by scheduler
+                .requestMatchers(HttpMethod.POST, "/notifications/run-daily")
+                .hasAuthority(ROLE_ADMIN)
 
                 // ADMIN
                 .requestMatchers("/schools/**", "/users/**").hasAuthority(ROLE_ADMIN)
                 .requestMatchers(HttpMethod.PUT, "/user/school").hasAuthority(ROLE_ADMIN)
-                .requestMatchers(HttpMethod.DELETE, "/user/delete").hasAuthority(ROLE_ADMIN) 
+                .requestMatchers(HttpMethod.DELETE, "/user/delete").hasAuthority(ROLE_ADMIN)
 
                 .anyRequest().authenticated()
             )

@@ -341,7 +341,7 @@ class UserServiceTest {
 
         UserResponse response = userService.addToItemsBorrowed(3);
 
-        assertThat(response.getItems_borrowed()).isEqualTo(1);
+        assertThat(response.getItemsBorrowed()).isEqualTo(1);
         verify(userRepository).save(leerlingUser);
     }
 
@@ -360,7 +360,7 @@ class UserServiceTest {
 
         UserResponse response = userService.removeFromItemsBorrowed(3);
 
-        assertThat(response.getItems_borrowed()).isEqualTo(1);
+        assertThat(response.getItemsBorrowed()).isEqualTo(1);
     }
 
     @Test
@@ -369,7 +369,7 @@ class UserServiceTest {
 
         UserResponse response = userService.removeFromItemsBorrowed(3);
 
-        assertThat(response.getItems_borrowed()).isEqualTo(0);
+        assertThat(response.getItemsBorrowed()).isEqualTo(0);
     }
 
      @Test
