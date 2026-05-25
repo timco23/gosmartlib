@@ -53,9 +53,7 @@ export const routes: Routes = [
   { path: 'books', component: BookListPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'books/:id', component: BookDetailPage, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'favorites', component: FavoritesComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
-  { path: 'profile', component: Profile, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
-  { path: 'lendingHistory', component: LendingHistoryComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard], data: { roles: ALL_USERS } },
 
   // LEERKRACHT +
@@ -78,6 +76,7 @@ export const routes: Routes = [
   { path: 'lendings', component: LendingManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'lendings/lend', component: LendBookComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'lendings/return', component: ReturnBookComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'lendingHistory', component: LendingHistoryComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'collections', component: CollectionListPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'collections/add', component: CreateCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'collections/global', component: GlobalCollectionPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
@@ -85,6 +84,7 @@ export const routes: Routes = [
   { path: 'school-settings', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'book-lending-history/:bookId', component: BookLendingHistoryComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'accounts', component: ProfileSelectionComponent, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
+  { path: 'profile', component: Profile, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
   { path: 'statistics/school', component: SchoolStatisticsPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
 
   // ADMIN

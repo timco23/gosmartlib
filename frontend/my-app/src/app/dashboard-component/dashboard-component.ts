@@ -3,16 +3,18 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LendingService } from '../services/lending.service';
-import { Lending, LoginResponse, Role, LendingStatus, Book, School } from '../../types/types';
+import { Lending, LoginResponse, Role, LendingStatus, Book, School, UserProfile } from '../../types/types';
 import { UserService } from '../services/user.service';
 import { SchoolService } from '../services/school.service';
 import { BookService } from '../services/book-service';
 import { RouterModule } from '@angular/router';
+import { ProfileCardComponent } from '../widgets/profile-card/profile-card.component';
+import { LendingHistoryComponent } from '../lending-history/lending-history.component';
 
 @Component({
   selector: 'app-dashboard-component',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ProfileCardComponent, LendingHistoryComponent],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })
@@ -26,6 +28,9 @@ export class DashboardComponent implements OnInit {
   mostBorrowedBook: Book | null = null;
   lastBorrowedBook: Book | null = null;
   school: School | null = null;
+
+  profile: UserProfile | null = null;
+  profileLoading = true;
 
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -46,6 +51,7 @@ export class DashboardComponent implements OnInit {
       .subscribe((user) => {
         this.currentUser = user;
         this.loadLendings(user.email);
+        this.loadOwnProfile();
 
         this.userService.getUser(user.email).subscribe((userData) => {
           if (!userData.schoolName) return;
@@ -74,6 +80,20 @@ export class DashboardComponent implements OnInit {
       });
   }
 
+  loadOwnProfile(): void {
+    this.userService.getUser().subscribe({
+      next: (data) => {
+        this.profile = data;
+        this.profileLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load profile', err);
+        this.profileLoading = false;
+      },
+    });
+  }
+
   private loadLendings(email: string) {
     this.loading = true;
     this.error = null;
@@ -85,7 +105,7 @@ export class DashboardComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.error = 'Uitleningen konden niet geladen worden.';
+        this.error = 'Uitleeningen konden niet geladen worden.';
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -102,6 +122,11 @@ export class DashboardComponent implements OnInit {
     return [...this.lendings.filter((l) => !l.returned)].sort((a, b) =>
       this.compareLendings(a, b),
     );
+  }
+
+  /** Teruggebrachte leningen — worden doorgegeven aan LendingHistoryComponent */
+  get lendingHistory(): Lending[] {
+    return this.lendings.filter((l) => l.returned || !!l.dateReturned);
   }
 
   private compareLendings(a: Lending, b: Lending): number {

@@ -19,6 +19,13 @@
     </div>
   </div>
 
+  @if (!profileLoading && profile) {
+    <p class="section-title">Mijn gegevens</p>
+    <div class="profile-wrapper">
+      <app-profile-card [profile]="profile" />
+    </div>
+  }
+
   <p class="section-title">Actieve ontleningen</p>
 
   @if (loading) {
@@ -71,4 +78,8 @@
       }
     </div>
   }
+
+  <div class="history-wrapper">
+    <app-lending-history [preloadedLendings]="lendingHistory" />
+  </div>
 </section>

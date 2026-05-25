@@ -8,70 +8,38 @@
   }
 
   @if (profile && !loading) {
-    <div class="profile-header">
-      <div class="profile-avatar">
-        {{ (profile.firstName?.[0] ?? '') + (profile.name?.[0] ?? '') }}
-      </div>
-      <div class="profile-header-info">
-        <h2>{{ profile.firstName }} {{ profile.name }}</h2>
-        <span class="profile-email">{{ profile.email }}</span>
-        @if (canSeeRole) {
-          <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">{{
-            profile.role
-          }}</span>
+    <app-profile-card [profile]="profile" />
+
+    @if (canSeeRole) {
+      <div class="profile-content">
+        <div class="profile-item">
+          <label>Rol</label>
+          <span class="role-badge" [class.admin]="profile.role === 'ADMIN'">{{ profile.role }}</span>
+        </div>
+
+        @if (canEditRole) {
+          <div class="profile-item">
+            <label>Rol aanpassen</label>
+            <div class="role-edit-container">
+              <div class="role-edit">
+                <select [(ngModel)]="selectedRole" class="role-select">
+                  @for (role of availableRoles; track role) {
+                    <option [value]="role">{{ role }}</option>
+                  }
+                </select>
+                <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
+              </div>
+              @if (roleUpdateSuccess) {
+                <span class="role-success">{{ roleUpdateSuccess }}</span>
+              }
+              @if (roleUpdateError) {
+                <span class="role-error">{{ roleUpdateError }}</span>
+              }
+            </div>
+          </div>
         }
       </div>
-    </div>
-
-    <div class="profile-content">
-      @if (profile.schoolName) {
-        <div class="profile-item">
-          <label>School</label>
-          <span>{{ profile.schoolName }}</span>
-        </div>
-      }
-
-      @if (profile.classes.length > 0) {
-        <div class="profile-item">
-          <label>Klas</label>
-          <span>{{ classNames }}</span>
-        </div>
-      }
-
-      @if (profile.studentNumber) {
-        <div class="profile-item">
-          <label>Studentnummer</label>
-          <span>{{ profile.studentNumber }}</span>
-        </div>
-      }
-
-      <div class="profile-item">
-        <label>Boeken geleend</label>
-        <span>{{ profile.items_borrowed ?? 0 }}</span>
-      </div>
-
-      @if (canSeeRole && canEditRole) {
-        <div class="profile-item">
-          <label>Rol aanpassen</label>
-          <div class="role-edit-container">
-            <div class="role-edit">
-              <select [(ngModel)]="selectedRole" class="role-select">
-                @for (role of availableRoles; track role) {
-                  <option [value]="role">{{ role }}</option>
-                }
-              </select>
-              <button class="btn-save-role" (click)="updateRole()">Opslaan</button>
-            </div>
-            @if (roleUpdateSuccess) {
-              <span class="role-success">{{ roleUpdateSuccess }}</span>
-            }
-            @if (roleUpdateError) {
-              <span class="role-error">{{ roleUpdateError }}</span>
-            }
-          </div>
-        </div>
-      }
-    </div>
+    }
 
     <div class="lendings-card">
       <h3>Recente leningen</h3>
