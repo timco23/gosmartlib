@@ -12,8 +12,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -50,14 +48,6 @@ public class SmartschoolNotificationService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Sends a bell notification (quick popup) to the user ONLY.
-     * Co-accounts (parents) do NOT receive this 
-     * @param user       recipient
-     * @param title      short title
-     * @param description one-sentence description
-     * @param relativeUrl relative frontend path (e.g. "/dashboard")
-     */
     public void sendNotification(User user, String title, String description, String relativeUrl) {
         if (!hasSmartschoolAccount(user)) return;
 
@@ -67,31 +57,27 @@ public class SmartschoolNotificationService {
             return;
         }
 
-        String url = UriComponentsBuilder
+        UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl("https://" + platform + NOTIF_PATH)
                 .queryParam("access_token", token)
-                .queryParam("notifTitle",   encode(title))
-                .queryParam("notifDesc",    encode(description))
-                .queryParam("notifUrl",     encode(frontendBaseUrl + relativeUrl))
-                .toUriString();
+                .queryParam("notifTitle", title)
+                .queryParam("notifDesc", description);
+
+        String notifUrl = buildFrontendUrl(relativeUrl);
+        if (notifUrl != null) {
+            builder.queryParam("notifUrl", notifUrl);
+        }
+
+        String url = builder.build().encode().toUriString();
 
         try {
-            restTemplate.getForObject(url, String.class);
+            restTemplate.getForEntity(url, String.class);
             log.debug("Notification sent to {}: {}", user.getEmail(), title);
         } catch (Exception e) {
             log.error("Failed to send notification to {}: {}", user.getEmail(), e.getMessage());
         }
     }
 
-    /**
-     * Sends a full Smartschool message to the user's inbox.
-     * Smartschool automatically delivers this to ALL co-accounts
-     * (parents) of the user as well. This is the correct channel for anything
-     * parents should also see (reminders, late notices).
-     * @param user   recipient (message also goes to their co-accounts/parents)
-     * @param title  message subject
-     * @param body   HTML or plain-text body
-     */
     public void sendMessage(User user, String title, String body) {
         if (!hasSmartschoolAccount(user)) return;
 
@@ -104,12 +90,14 @@ public class SmartschoolNotificationService {
         String url = UriComponentsBuilder
                 .fromHttpUrl("https://" + platform + MSG_PATH)
                 .queryParam("access_token", token)
-                .queryParam("messageTitle", encode(title))
-                .queryParam("messageBody",  encode(body))
+                .queryParam("messageTitle", title)
+                .queryParam("messageBody", body)
+                .build()
+                .encode()
                 .toUriString();
 
         try {
-            restTemplate.getForObject(url, String.class);
+            restTemplate.getForEntity(url, String.class);
             log.debug("Message sent to {}: {}", user.getEmail(), title);
         } catch (Exception e) {
             log.error("Failed to send message to {}: {}", user.getEmail(), e.getMessage());
@@ -142,7 +130,12 @@ public class SmartschoolNotificationService {
     @SuppressWarnings("unchecked")
     private boolean isTokenValid(String token) {
         try {
-            String url = "https://" + platform + "/Api/V1/userinfo?access_token=" + encode(token);
+            String url = UriComponentsBuilder
+                    .fromHttpUrl("https://" + platform + "/Api/V1/userinfo")
+                    .queryParam("access_token", token)
+                    .build()
+                    .encode()
+                    .toUriString();
             ResponseEntity<Map> resp = restTemplate.getForEntity(url, Map.class);
             return resp.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
@@ -193,8 +186,16 @@ public class SmartschoolNotificationService {
         return user != null && user.getSmartschoolUsername() != null;
     }
 
-    private static String encode(String value) {
-        if (value == null) return "";
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    private String normalizeRelativeUrl(String relativeUrl) {
+        if (relativeUrl == null || relativeUrl.isBlank()) return null;
+        return relativeUrl.startsWith("/") ? relativeUrl : "/" + relativeUrl;
+    }
+
+    private String buildFrontendUrl(String relativeUrl) {
+        String rel = normalizeRelativeUrl(relativeUrl);
+        if (rel == null) return null;
+        String base = frontendBaseUrl == null ? "" : frontendBaseUrl.trim();
+        if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
+        return base + rel;
     }
 }

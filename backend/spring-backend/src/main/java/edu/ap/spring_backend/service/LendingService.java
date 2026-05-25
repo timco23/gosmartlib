@@ -278,17 +278,14 @@ public class LendingService {
         String title   = lending.getBook().getItem().getTitle();
         String desc    = String.format("Uitgeleend tot %s.", lending.getReturnDate());
         String msgBody = String.format(
-                "Beste %s,\n" +
-                "Het boek “%s” is uitgeleend tot %s.\n" +
-                "Met vriendelijke groeten,\n" +
-                "De bibliotheek GoSmartLib",
+                "Beste %s, het boek \"%s\" is uitgeleend tot %s. Met vriendelijke groeten, De bibliotheek GoSmartLib",
                 displayName(borrower),
                 lending.getBook().getItem().getTitle(),
                 lending.getReturnDate());
 
         notificationService.sendNotificationAndMessage(
                 borrower,
-                title, desc, "/dashboard",
+                title, desc, null,
                 title, msgBody);
     }
 
@@ -297,17 +294,14 @@ public class LendingService {
         String title   = lending.getBook().getItem().getTitle();
         String desc    = String.format("Uitlening verlengd tot %s.", lending.getReturnDate());
         String msgBody = String.format(
-                "Beste %s,\n" +
-                "De uitlening van “%s” is verlengd tot %s.\n" +
-                "Met vriendelijke groeten,\n" +
-                "De bibliotheek GoSmartLib",
+                "Beste %s, de uitlening van \"%s\" is verlengd tot %s. Met vriendelijke groeten, De bibliotheek GoSmartLib",
                 displayName(borrower),
                 lending.getBook().getItem().getTitle(),
                 lending.getReturnDate());
 
         notificationService.sendNotificationAndMessage(
                 borrower,
-                title, desc, "/dashboard",
+                title, desc, null,
                 title, msgBody);
     }
 
@@ -322,20 +316,14 @@ public class LendingService {
             title   = lending.getBook().getItem().getTitle();
             desc    = "Teruggebracht. Bedankt!";
             msgBody = String.format(
-                    "Beste %s,\n" +
-                    "Bedankt. Het boek “%s” is op tijd teruggebracht.\n" +
-                    "Met vriendelijke groeten,\n" +
-                    "De bibliotheek GoSmartLib",
+                    "Beste %s, bedankt. Het boek \"%s\" is op tijd teruggebracht. Met vriendelijke groeten, De bibliotheek GoSmartLib",
                     displayName(borrower),
                     lending.getBook().getItem().getTitle());
         } else {
             title   = lending.getBook().getItem().getTitle();
             desc    = String.format("Te laat teruggebracht (uiterste datum %s).", lending.getReturnDate());
             msgBody = String.format(
-                    "Beste %s,\n" +
-                    "Het boek “%s” is te laat teruggebracht. Uiterste datum was %s.\n" +
-                    "Met vriendelijke groeten,\n" +
-                    "De bibliotheek GoSmartLib",
+                    "Beste %s, het boek \"%s\" is te laat teruggebracht. Uiterste datum was %s. Met vriendelijke groeten, De bibliotheek GoSmartLib",
                     displayName(borrower),
                     lending.getBook().getItem().getTitle(),
                     lending.getReturnDate());
@@ -343,7 +331,7 @@ public class LendingService {
 
         notificationService.sendNotificationAndMessage(
                 borrower,
-                title, desc, "/dashboard",
+                title, desc, null,
                 title, msgBody);
     }
 

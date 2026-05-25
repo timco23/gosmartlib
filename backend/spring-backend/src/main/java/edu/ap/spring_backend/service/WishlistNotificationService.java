@@ -7,8 +7,6 @@ import edu.ap.spring_backend.jpa.CopyStatus;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.SchoolItemCopy;
 import edu.ap.spring_backend.jpa.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +18,6 @@ import java.util.List;
  */
 @Service
 public class WishlistNotificationService {
-
-    private static final Logger log = LoggerFactory.getLogger(WishlistNotificationService.class);
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -50,22 +46,17 @@ public class WishlistNotificationService {
 
         for (User user : wishlisted) {
             String title = "Boek beschikbaar op uw verlanglijst";
-            String desc  = String.format("“%s” is nu beschikbaar.", item.getTitle());
+            String desc  = "Het boek \"" + item.getTitle() + "\" is nu beschikbaar.";
             String msgBody = String.format(
-                    "Beste %s,\n" +
-                    "Het boek “%s” staat nu op uw verlanglijst en is beschikbaar in de bibliotheek. " +
-                    "Bezoek snel de bibliotheek om het uit te lenen.\n" +
-                    "Met vriendelijke groeten,\n" +
-                    "De bibliotheek GoSmartLib",
+                    "Beste %s, het boek \"%s\" staat nu op uw verlanglijst en is beschikbaar in de bibliotheek. " +
+                    "Bezoek snel de bibliotheek om het uit te lenen. Met vriendelijke groeten, De bibliotheek GoSmartLib",
                     displayName(user),
                     item.getTitle());
 
             notificationService.sendNotificationAndMessage(
                     user,
-                    title, desc, "/books/" + item.getId(),
+                    title, desc, null,
                     title, msgBody);
-
-            log.debug("Wishlist notification sent to {} for book '{}'", user.getEmail(), item.getTitle());
         }
     }
 

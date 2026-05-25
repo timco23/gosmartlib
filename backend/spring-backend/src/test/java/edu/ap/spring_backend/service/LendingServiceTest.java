@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 class LendingServiceTest {
@@ -153,7 +154,7 @@ class LendingServiceTest {
 
         verify(notificationService).sendNotificationAndMessage(
                 eq(user),
-                anyString(), anyString(), eq("/dashboard"),
+                anyString(), anyString(), isNull(),
                 anyString(), anyString());
     }
 
@@ -187,7 +188,7 @@ class LendingServiceTest {
 
         verify(notificationService).sendNotificationAndMessage(
                 eq(user),
-                anyString(), anyString(), eq("/dashboard"),
+                anyString(), anyString(), isNull(),
                 anyString(), anyString());
     }
 
@@ -205,7 +206,7 @@ class LendingServiceTest {
         service.updateLending(10L, dto);
 
         verify(notificationService, never()).sendNotificationAndMessage(
-                any(), anyString(), anyString(), anyString(), anyString(), anyString());
+                any(), anyString(), anyString(), any(), anyString(), anyString());
     }
 
     @Test
@@ -228,7 +229,7 @@ class LendingServiceTest {
 
         verify(notificationService).sendNotificationAndMessage(
                 eq(user),
-                anyString(), anyString(), eq("/dashboard"),
+                anyString(), anyString(), isNull(),
                 anyString(), anyString());
     }
 

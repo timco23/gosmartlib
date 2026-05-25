@@ -58,7 +58,7 @@ class ScheduledNotificationServiceTest {
                 eq(lending.getBorrower()),
                 contains("Herinnering"),
                 anyString(),
-                eq("/dashboard"),
+                isNull(),
                 anyString(),
                 anyString());
     }
@@ -73,7 +73,7 @@ class ScheduledNotificationServiceTest {
         scheduledService.runDailyNotifications();
 
         verify(notificationService, never()).sendNotificationAndMessage(
-                any(), contains("Herinnering"), anyString(), anyString(), anyString(), anyString());
+                any(), contains("Herinnering"), anyString(), any(), anyString(), anyString());
     }
 
     @Test
@@ -89,7 +89,7 @@ class ScheduledNotificationServiceTest {
                 eq(lending.getBorrower()),
                 contains("Te laat"),
                 anyString(),
-                eq("/dashboard"),
+                isNull(),
                 anyString(),
                 anyString());
     }
@@ -108,7 +108,7 @@ class ScheduledNotificationServiceTest {
                 eq(student),
                 contains("Te laat"),
                 anyString(),
-                eq("/dashboard"),
+                isNull(),
                 anyString(),
                 contains("ouders/voogd"));
     }
@@ -150,7 +150,7 @@ class ScheduledNotificationServiceTest {
                 eq(librarian),
                 contains("Niet-teruggebracht"),
                 anyString(),
-                eq("/lendings"),
+                isNull(),
                 anyString(),
                 anyString());
     }
@@ -232,10 +232,10 @@ class ScheduledNotificationServiceTest {
 
         verify(notificationService).sendNotificationAndMessage(
                 eq(reminder.getBorrower()), contains("Herinnering"),
-                anyString(), anyString(), anyString(), anyString());
+                anyString(), isNull(), anyString(), anyString());
         verify(notificationService).sendNotificationAndMessage(
                 eq(late.getBorrower()), contains("Te laat"),
-                anyString(), anyString(), anyString(), anyString());
+                anyString(), isNull(), anyString(), anyString());
     }
 
     private Lending buildLending(LocalDate returnDate, User borrower) {
