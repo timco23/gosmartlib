@@ -20,6 +20,7 @@ import { LendingHistoryComponent } from '../lending-history/lending-history.comp
 })
 export class DashboardComponent implements OnInit {
   lendings: Lending[] = [];
+  lendingHistory: Lending[] = [];
   loading = true;
   error: string | null = null;
   currentUser: LoginResponse | null = null;
@@ -101,6 +102,7 @@ export class DashboardComponent implements OnInit {
     this.lendingApi.getLendingsByUser(email).subscribe({
       next: (data) => {
         this.lendings = data ?? [];
+        this.lendingHistory = this.lendings.filter((l) => l.returned || !!l.dateReturned);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -122,11 +124,6 @@ export class DashboardComponent implements OnInit {
     return [...this.lendings.filter((l) => !l.returned)].sort((a, b) =>
       this.compareLendings(a, b),
     );
-  }
-
-  /** Teruggebrachte leningen — worden doorgegeven aan LendingHistoryComponent */
-  get lendingHistory(): Lending[] {
-    return this.lendings.filter((l) => l.returned || !!l.dateReturned);
   }
 
   private compareLendings(a: Lending, b: Lending): number {
@@ -232,6 +229,7 @@ export class DashboardComponent implements OnInit {
 
   private replace(updated: Lending) {
     this.lendings = this.lendings.map((l) => (l.id === updated.id ? updated : l));
+    this.lendingHistory = this.lendings.filter((l) => l.returned || !!l.dateReturned);
   }
 
   private todayString(): string {

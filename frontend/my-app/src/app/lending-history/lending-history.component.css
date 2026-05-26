@@ -1,4 +1,8 @@
 .lendings-container {
+  width: 100%;
+}
+
+.lendings-container--page {
   max-width: 90rem;
   margin: 0 auto;
   padding: var(--space-8) var(--space-6);

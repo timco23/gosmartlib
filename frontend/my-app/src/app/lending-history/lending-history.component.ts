@@ -34,6 +34,7 @@ export class LendingHistoryComponent implements OnChanges {
   
   @Input() preloadedLendings?: Lending[];
   @Input() showTitle: boolean = true;
+  @Input() withPageLayout: boolean = true;
 
   get totalPages(): number {
     return Math.ceil(this.lendings.length / this.pageSize);
