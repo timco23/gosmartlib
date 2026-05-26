@@ -49,6 +49,31 @@ public class School {
     public School() {
     }
 
+    public School(String name, String address,
+                  int lendingPeriodDays, int extendPeriodDays, int maxExtends,
+                  int maxLendsStudent, int maxLendTeacher,
+                  int lenderNotificationPeriod, int lenderLateNotificationPeriod,
+                  int librarianNotificationNotReturned,
+                  boolean librarianRequestNotification,
+                  boolean externalVisibility, boolean externalLending,
+                  boolean reviews, boolean reviewModeration) {
+        this.name = name;
+        this.address = address;
+        this.lendingPeriodDays = lendingPeriodDays;
+        this.extendPeriodDays = extendPeriodDays;
+        this.maxExtends = maxExtends;
+        this.maxLendsStudent = maxLendsStudent;
+        this.maxLendTeacher = maxLendTeacher;
+        this.lenderNotificationPeriod = lenderNotificationPeriod;
+        this.lenderLateNotificationPeriod = lenderLateNotificationPeriod;
+        this.librarianNotificationNotReturned = librarianNotificationNotReturned;
+        this.librarianRequestNotification = librarianRequestNotification;
+        this.externalVisibility = externalVisibility;
+        this.externalLending = externalLending;
+        this.reviews = reviews;
+        this.reviewModeration = reviewModeration;
+    }
+
     public void addCampus(Campus campus) {
         campuses.add(campus);
         campus.setSchool(this);
