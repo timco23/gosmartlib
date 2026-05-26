@@ -196,6 +196,7 @@ public class SmartschoolOAuthController {
         }
 
         Map<String, Object> body = tokenResponse.getBody();
+        System.out.println("Smartschool token response: " + body);
         Object accessTokenObj  = body.get(ACCESS_TOKEN_PARAM);
         Object refreshTokenObj = body.get("refresh_token");
 
