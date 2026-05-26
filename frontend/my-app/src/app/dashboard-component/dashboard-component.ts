@@ -3,10 +3,11 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LendingService } from '../services/lending.service';
-import { Lending, LoginResponse, Role, LendingStatus, Book, School, UserProfile } from '../../types/types';
+import { Lending, LoginResponse, Role, LendingStatus, Book, School, UserProfile, StudentStatisticsDTO } from '../../types/types';
 import { UserService } from '../services/user.service';
 import { SchoolService } from '../services/school.service';
 import { BookService } from '../services/book-service';
+import { StatisticsService } from '../services/statistics.service';
 import { RouterModule } from '@angular/router';
 import { ProfileCardComponent } from '../widgets/profile-card/profile-card.component';
 import { LendingHistoryComponent } from '../lending-history/lending-history.component';
@@ -32,6 +33,7 @@ export class DashboardComponent implements OnInit {
 
   profile: UserProfile | null = null;
   profileLoading = true;
+  ownStats: StudentStatisticsDTO | null = null;
 
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -41,6 +43,7 @@ export class DashboardComponent implements OnInit {
     private userService: UserService,
     private schoolService: SchoolService,
     private bookService: BookService,
+    private statisticsService: StatisticsService,
   ) {}
 
   ngOnInit() {
@@ -86,6 +89,14 @@ export class DashboardComponent implements OnInit {
       next: (data) => {
         this.profile = data;
         this.profileLoading = false;
+        if (this.authService.atLeastHasRole(Role.LEERLING) && !this.authService.atLeastHasRole(Role.LEERKRACHT)) {
+          this.statisticsService.getOwnStatistics().subscribe({
+            next: (stats) => {
+              this.ownStats = stats;
+              this.cdr.detectChanges();
+            },
+          });
+        }
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -107,7 +118,7 @@ export class DashboardComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.error = 'Uitleeningen konden niet geladen worden.';
+        this.error = 'Ontleningen konden niet geladen worden.';
         this.loading = false;
         this.cdr.detectChanges();
       },

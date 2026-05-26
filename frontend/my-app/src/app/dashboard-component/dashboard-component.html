@@ -26,7 +26,7 @@
             loading="lazy"
           />
           <div class="info-card-body">
-            <span class="info-card-label">🕐 Laatst ontleend</span>
+            <span class="info-card-label">🕐 Laatst ontleend in de bib</span>
             <span class="info-card-title">{{ lastBorrowedBook.title }}</span>
             <span class="info-card-sub">{{ lastBorrowedBook.author }}</span>
           </div>
@@ -37,8 +37,44 @@
 
   @if (!profileLoading && profile) {
     <p class="section-title">Mijn gegevens</p>
-    <div class="profile-wrapper">
-      <app-profile-card [profile]="profile" />
+    <div class="profile-stats-grid">
+      <div class="profile-card-wrapper">
+        <app-profile-card [profile]="profile" />
+      </div>
+      @if (ownStats) {
+        <div class="stats-panel">
+          <div class="stats-panel__inner">
+            <div class="stat-chips">
+              <div class="stat-chip">
+                <span class="stat-chip__value">{{ ownStats.totalLendings }}</span>
+                <span class="stat-chip__label">Totaal ontleend</span>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-chip__value">{{ ownStats.activeLendings }}</span>
+                <span class="stat-chip__label">Momenteel actief</span>
+              </div>
+              <div class="stat-chip" [class.stat-chip--warn]="ownStats.lateReturnPercent > 20">
+                <span class="stat-chip__value">{{ ownStats.lateReturnPercent }}%</span>
+                <span class="stat-chip__label">Te laat %</span>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-chip__value">{{ ownStats.reviewCount }}</span>
+                <span class="stat-chip__label">Reviews</span>
+              </div>
+            </div>
+            @if (ownStats.topGenres.length > 0) {
+              <div class="genres-section">
+                <p class="genres-title">Lievelingsgenres</p>
+                <ol class="genre-list">
+                  @for (genre of ownStats.topGenres; track genre) {
+                    <li class="genre-item">{{ genre }}</li>
+                  }
+                </ol>
+              </div>
+            }
+          </div>
+        </div>
+      }
     </div>
   }
 
