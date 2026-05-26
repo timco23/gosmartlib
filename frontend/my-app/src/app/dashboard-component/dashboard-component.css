@@ -38,8 +38,9 @@
 }
 
 .info-card {
-  display: grid;
-  gap: 0.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--color-surface-1);
@@ -50,6 +51,23 @@
   transition:
     transform var(--transition-fast),
     box-shadow var(--transition-fast);
+}
+
+.info-card-cover {
+  width: 52px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-sm);
+}
+
+.info-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
 .info-card:hover {

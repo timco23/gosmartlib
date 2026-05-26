@@ -4,16 +4,32 @@
     <div class="info-cards">
       @if (mostBorrowedBook) {
         <a class="info-card" [routerLink]="['/books', mostBorrowedBook.id]">
-          <span class="info-card-label">📚 Boek van de maand</span>
-          <span class="info-card-title">{{ mostBorrowedBook.title }}</span>
-          <span class="info-card-sub">{{ mostBorrowedBook.author }}</span>
+          <img
+            class="info-card-cover"
+            [src]="coverUrl(mostBorrowedBook.id)"
+            [alt]="mostBorrowedBook.title"
+            loading="lazy"
+          />
+          <div class="info-card-body">
+            <span class="info-card-label">📚 Boek van de maand</span>
+            <span class="info-card-title">{{ mostBorrowedBook.title }}</span>
+            <span class="info-card-sub">{{ mostBorrowedBook.author }}</span>
+          </div>
         </a>
       }
       @if (lastBorrowedBook) {
         <a class="info-card" [routerLink]="['/books', lastBorrowedBook.id]">
-          <span class="info-card-label">🕐 Laatst ontleend</span>
-          <span class="info-card-title">{{ lastBorrowedBook.title }}</span>
-          <span class="info-card-sub">{{ lastBorrowedBook.author }}</span>
+          <img
+            class="info-card-cover"
+            [src]="coverUrl(lastBorrowedBook.id)"
+            [alt]="lastBorrowedBook.title"
+            loading="lazy"
+          />
+          <div class="info-card-body">
+            <span class="info-card-label">🕐 Laatst ontleend</span>
+            <span class="info-card-title">{{ lastBorrowedBook.title }}</span>
+            <span class="info-card-sub">{{ lastBorrowedBook.author }}</span>
+          </div>
         </a>
       }
     </div>

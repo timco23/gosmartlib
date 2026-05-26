@@ -233,7 +233,7 @@ public class LendingService {
                         : null,
                 lending.isReturned(),
                 lending.getBook().getBarcode(),
-                lending.isReturned(),
+                lending.isExtended(),
                 lending.getExtendCount()
         );
     }
