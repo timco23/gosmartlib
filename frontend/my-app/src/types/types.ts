@@ -64,6 +64,8 @@ export interface School {
   reviewModeration: boolean;
   dashboardShowBookOfMonth: boolean;
   dashboardShowLastBorrowed: boolean;
+  dashboardShowAnnouncement: boolean;
+  dashboardAnnouncement?: string;
   campuses: Campus[];
 }
 

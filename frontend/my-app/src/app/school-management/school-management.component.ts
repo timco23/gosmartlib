@@ -78,6 +78,8 @@ export class SchoolManagementComponent {
       reviewModeration: [false],
       dashboardShowBookOfMonth: [true],
       dashboardShowLastBorrowed: [true],
+      dashboardShowAnnouncement: [false],
+      dashboardAnnouncement: ['', Validators.maxLength(500)],
     });
   }
 

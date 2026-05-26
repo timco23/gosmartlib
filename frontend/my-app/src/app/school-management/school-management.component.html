@@ -144,6 +144,19 @@
           <input type="checkbox" formControlName="dashboardShowLastBorrowed" />
           Laatst ontleend tonen
         </label>
+        <label>
+          <input type="checkbox" formControlName="dashboardShowAnnouncement" />
+          Aankondiging tonen
+        </label>
+        @if (schoolForm.get('dashboardShowAnnouncement')?.value) {
+          <label>Tekst aankondiging</label>
+          <textarea
+            formControlName="dashboardAnnouncement"
+            placeholder="Bijv. 'De bib is gesloten op vrijdag 30 mei.'"
+            rows="3"
+            maxlength="500"
+          ></textarea>
+        }
 
         <div class="button-row">
           <button type="button" class="cancel-button" (click)="cancelForm()">Terug</button>

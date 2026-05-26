@@ -1,6 +1,13 @@
 <section class="dashboard">
   <div class="header">
     <h1>Dashboard</h1>
+    @if (school?.dashboardShowAnnouncement && school?.dashboardAnnouncement) {
+      <div class="announcement">
+        <span class="announcement__icon">📢</span>
+        <p class="announcement__text">{{ school!.dashboardAnnouncement }}</p>
+      </div>
+    }
+
     <div class="info-cards">
       @if (mostBorrowedBook) {
         <a class="info-card" [routerLink]="['/books', mostBorrowedBook.id]">
@@ -51,11 +58,11 @@
               </div>
               <div class="stat-chip">
                 <span class="stat-chip__value">{{ ownStats.activeLendings }}</span>
-                <span class="stat-chip__label">Momenteel actief</span>
+                <span class="stat-chip__label">Momenteel ontleend</span>
               </div>
               <div class="stat-chip" [class.stat-chip--warn]="ownStats.lateReturnPercent > 20">
                 <span class="stat-chip__value">{{ ownStats.lateReturnPercent }}%</span>
-                <span class="stat-chip__label">Te laat %</span>
+                <span class="stat-chip__label">Te laat ingeleverd</span>
               </div>
               <div class="stat-chip">
                 <span class="stat-chip__value">{{ ownStats.reviewCount }}</span>
@@ -106,7 +113,7 @@
               </div>
               <div class="meta">{{ lending.bookAuthor }}</div>
               <div class="meta">Ontleendatum: {{ formatDate(lending.lendingDate) }}</div>
-              <div class="meta">Vervaldatum: {{ formatDate(lending.returnDate) }} <span class="days-left">({{ daysLeftLabel(lending) }})</span></div>
+              <div class="meta">Inleverdatum: {{ formatDate(lending.returnDate) }} <span class="days-left">({{ daysLeftLabel(lending) }})</span></div>
             </div>
           </div>
 

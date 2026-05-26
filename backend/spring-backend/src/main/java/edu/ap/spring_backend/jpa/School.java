@@ -39,6 +39,8 @@ public class School {
     private boolean reviewModeration;
     private boolean dashboardShowBookOfMonth = true;
     private boolean dashboardShowLastBorrowed = true;
+    private boolean dashboardShowAnnouncement = false;
+    private String dashboardAnnouncement;
 
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

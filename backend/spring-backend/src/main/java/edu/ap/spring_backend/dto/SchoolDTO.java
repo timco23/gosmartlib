@@ -25,6 +25,8 @@ public record SchoolDTO(
         boolean reviewModeration,
         boolean dashboardShowBookOfMonth,
         boolean dashboardShowLastBorrowed,
+        boolean dashboardShowAnnouncement,
+        String dashboardAnnouncement,
         List<CampusDTO> campuses
 ) {
     public record CampusDTO(Long id, String name) {}
@@ -53,6 +55,8 @@ public record SchoolDTO(
                 school.isReviewModeration(),
                 school.isDashboardShowBookOfMonth(),
                 school.isDashboardShowLastBorrowed(),
+                school.isDashboardShowAnnouncement(),
+                school.getDashboardAnnouncement(),
                 campusDTOs
         );
     }

@@ -36,6 +36,8 @@ public class SchoolService {
         existing.setReviewModeration(updated.isReviewModeration());
         existing.setDashboardShowBookOfMonth(updated.isDashboardShowBookOfMonth());
         existing.setDashboardShowLastBorrowed(updated.isDashboardShowLastBorrowed());
+        existing.setDashboardShowAnnouncement(updated.isDashboardShowAnnouncement());
+        existing.setDashboardAnnouncement(updated.getDashboardAnnouncement());
     }
 
     public List<School> getAllSchools() {
