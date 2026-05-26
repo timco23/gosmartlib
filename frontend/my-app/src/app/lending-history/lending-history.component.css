@@ -1,11 +1,13 @@
-/* Container */
 .lendings-container {
+  width: 100%;
+}
+
+.lendings-container--page {
   max-width: 90rem;
   margin: 0 auto;
   padding: var(--space-8) var(--space-6);
 }
 
-/* Header */
 .lendings-header {
   margin-bottom: var(--space-6);
 }
@@ -23,7 +25,6 @@
 }
 .back-link:hover { color: var(--color-primary); }
 
-/* Search bar */
 .search-bar {
   margin-bottom: var(--space-5);
 }
@@ -49,12 +50,12 @@
   box-shadow: 0 0 0 3px var(--color-primary-tint);
 }
 
-/* Outer card */
 .lendings-card {
   background: var(--color-surface-1);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
+  box-shadow: var(--shadow-md);
 }
 
 .lendings-card h3 {
@@ -66,7 +67,6 @@
   margin: 0 0 var(--space-5);
 }
 
-/* List */
 .lending-list {
   list-style: none;
   padding: 0;
@@ -76,7 +76,6 @@
   gap: var(--space-3);
 }
 
-/* Each lending row */
 .lending-item {
   display: flex;
   align-items: center;
@@ -97,7 +96,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Book cover thumbnail */
 .cover-img {
   width: 48px;
   height: 68px;
@@ -122,7 +120,6 @@
   font-size: 1.25rem;
 }
 
-/* Individual field */
 .lending-field {
   display: flex;
   flex-direction: column;
@@ -192,7 +189,6 @@
   letter-spacing: 0.01em;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .lending-item {
     flex-wrap: wrap;

@@ -96,7 +96,7 @@
 
         <h3>Bibliotheekinstellingen</h3>
 
-        <label>Uitleenperiode (dagen)</label>
+        <label>Ontleenperiode (dagen)</label>
         <input type="number" min="0" formControlName="lendingPeriodDays" />
         <label>Verlengperiode (dagen)</label>
         <input type="number" min="0" formControlName="extendPeriodDays" />
@@ -134,6 +134,29 @@
           <input type="checkbox" formControlName="reviewModeration" />
           Recensies modereren
         </label>
+
+        <h3>Dashboardinstellingen</h3>
+        <label>
+          <input type="checkbox" formControlName="dashboardShowBookOfMonth" />
+          Boek van de maand tonen
+        </label>
+        <label>
+          <input type="checkbox" formControlName="dashboardShowLastBorrowed" />
+          Laatst ontleend tonen
+        </label>
+        <label>
+          <input type="checkbox" formControlName="dashboardShowAnnouncement" />
+          Aankondiging tonen
+        </label>
+        @if (schoolForm.get('dashboardShowAnnouncement')?.value) {
+          <label>Tekst aankondiging</label>
+          <textarea
+            formControlName="dashboardAnnouncement"
+            placeholder="Bijv. 'De bib is gesloten op vrijdag 30 mei.'"
+            rows="3"
+            maxlength="500"
+          ></textarea>
+        }
 
         <div class="button-row">
           <button type="button" class="cancel-button" (click)="cancelForm()">Terug</button>

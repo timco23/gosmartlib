@@ -7,11 +7,12 @@ import { Lending, LoginResponse, Role, UserProfile } from '../../types/types';
 import { UserService } from '../services/user.service';
 import { LendingService } from '../services/lending.service';
 import { BookService } from '../services/book-service';
+import { ProfileCardComponent } from '../widgets/profile-card/profile-card.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ProfileCardComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

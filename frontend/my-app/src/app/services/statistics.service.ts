@@ -23,6 +23,12 @@ export class StatisticsService {
     });
   }
 
+  getOwnStatistics(schoolYear?: string): Observable<StudentStatisticsDTO> {
+    const params: Record<string, string> = {};
+    if (schoolYear !== undefined) params['schoolYear'] = schoolYear;
+    return this.http.get<StudentStatisticsDTO>(`${this.apiUrl}/me`, { params });
+  }
+
   getStudentStatistics(userId: number, schoolId: number, schoolYear?: string): Observable<StudentStatisticsDTO> {
     const params: Record<string, string | number> = { schoolId };
     if (schoolYear !== undefined) params['schoolYear'] = schoolYear;

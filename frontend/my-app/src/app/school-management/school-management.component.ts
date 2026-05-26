@@ -75,7 +75,11 @@ export class SchoolManagementComponent {
       externalVisibility: [false],
       externalLending: [false],
       reviews: [false],
-      reviewModeration: [false]
+      reviewModeration: [false],
+      dashboardShowBookOfMonth: [true],
+      dashboardShowLastBorrowed: [true],
+      dashboardShowAnnouncement: [false],
+      dashboardAnnouncement: ['', Validators.maxLength(500)],
     });
   }
 

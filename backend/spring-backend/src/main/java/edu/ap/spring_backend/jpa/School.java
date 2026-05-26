@@ -31,115 +31,22 @@ public class School {
     private int lenderNotificationPeriod;
     private int lenderLateNotificationPeriod;
     private int librarianNotificationNotReturned;
-    
+
     private boolean librarianRequestNotification;
     private boolean externalVisibility;
     private boolean externalLending;
     private boolean reviews;
     private boolean reviewModeration;
+    private boolean dashboardShowBookOfMonth = true;
+    private boolean dashboardShowLastBorrowed = true;
+    private boolean dashboardShowAnnouncement = false;
+    private String dashboardAnnouncement;
 
     @OneToMany(mappedBy = "school", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Campus> campuses = new ArrayList<>();
 
-
     public School() {
-    }
-
-    public School(String name, String address,
-            int lendingPeriodDays,
-            int extendPeriodDays,
-            int maxExtends,
-            int maxLendsStudent,
-            int maxLendTeacher,
-            int lenderNotificationPeriod,
-            int lenderLateNotificationPeriod,
-            int librarianNotificationNotReturned,
-            boolean librarianRequestNotification,
-            boolean externalVisibility,
-            boolean externalLending,
-            boolean reviews,
-            boolean reviewModeration) {
-
-        this.name = name;
-        this.address = address;
-        this.lendingPeriodDays = lendingPeriodDays;
-        this.extendPeriodDays = extendPeriodDays;
-        this.maxExtends = maxExtends;
-        this.maxLendsStudent = maxLendsStudent;
-        this.maxLendTeacher = maxLendTeacher;
-        this.lenderNotificationPeriod = lenderNotificationPeriod;
-        this.lenderLateNotificationPeriod = lenderLateNotificationPeriod;
-        this.librarianNotificationNotReturned = librarianNotificationNotReturned;
-        this.librarianRequestNotification = librarianRequestNotification;
-        this.externalVisibility = externalVisibility;
-        this.externalLending = externalLending;
-        this.reviews = reviews;
-        this.reviewModeration = reviewModeration;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public int getLendingPeriodDays() {
-        return lendingPeriodDays;
-    }
-
-    public int getExtendPeriodDays() {
-        return extendPeriodDays;
-    }
-
-    public int getMaxExtends() {
-        return maxExtends;
-    }
-
-    public int getMaxLendsStudent() {
-        return maxLendsStudent;
-    }
-
-    public int getMaxLendTeacher() {
-        return maxLendTeacher;
-    }
-
-    public int getLenderNotificationPeriod() {
-        return lenderNotificationPeriod;
-    }
-
-    public int getLenderLateNotificationPeriod() {
-        return lenderLateNotificationPeriod;
-    }
-
-    public int getLibrarianNotificationNotReturned() {
-        return librarianNotificationNotReturned;
-    }
-
-    public boolean getLibrarianRequestNotification() {
-        return librarianRequestNotification;
-    }
-
-    public boolean isExternalVisibility() {
-        return externalVisibility;
-    }
-
-    public boolean isExternalLending() {
-        return externalLending;
-    }
-
-    public boolean isReviews() {
-        return reviews;
-    }
-
-    public boolean isReviewModeration() {
-        return reviewModeration;
     }
 
     public void addCampus(Campus campus) {
