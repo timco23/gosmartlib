@@ -13,6 +13,9 @@ public class EncryptedStringConverter implements AttributeConverter<String, Stri
         if (encryptor == null) {
             String secret = System.getenv("ENCRYPTION_SECRET");
             if (secret == null || secret.isBlank()) {
+                secret = System.getProperty("ENCRYPTION_SECRET");
+            }
+            if (secret == null || secret.isBlank()) {
                 secret = System.getProperty("app.encryption.secret");
             }
             if (secret == null || secret.isBlank()) {
