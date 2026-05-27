@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LendingService } from '../services/lending.service';
@@ -8,7 +8,7 @@ import { UserService } from '../services/user.service';
 import { SchoolService } from '../services/school.service';
 import { BookService } from '../services/book-service';
 import { StatisticsService } from '../services/statistics.service';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProfileCardComponent } from '../widgets/profile-card/profile-card.component';
 import { LendingHistoryComponent } from '../lending-history/lending-history.component';
 
@@ -19,7 +19,7 @@ import { LendingHistoryComponent } from '../lending-history/lending-history.comp
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   lendings: Lending[] = [];
   lendingHistory: Lending[] = [];
   loading = true;
@@ -35,6 +35,11 @@ export class DashboardComponent implements OnInit {
   profileLoading = true;
   ownStats: StudentStatisticsDTO | null = null;
 
+  showDeleteConfirm = false;
+  showCancelConfirm = false;
+  deletionCountdown: string = '';
+  private countdownInterval: any;
+
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   constructor(
@@ -44,6 +49,7 @@ export class DashboardComponent implements OnInit {
     private schoolService: SchoolService,
     private bookService: BookService,
     private statisticsService: StatisticsService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -88,6 +94,7 @@ export class DashboardComponent implements OnInit {
     this.userService.getUser().subscribe({
       next: (data) => {
         this.profile = data;
+        if (this.profile.deletionRequestedAt) this.startDeletionCountdown();
         this.profileLoading = false;
         if (this.authService.atLeastHasRole(Role.LEERLING) && !this.authService.atLeastHasRole(Role.LEERKRACHT)) {
           this.statisticsService.getOwnStatistics().subscribe({
@@ -259,5 +266,101 @@ export class DashboardComponent implements OnInit {
 
   coverUrl(itemId: number): string {
     return this.bookService.getBookCoverUrl(itemId);
+  }
+
+  get isDeletionStudent(): boolean {
+    return this.profile?.role === 'LEERLING';
+  }
+
+  get hasPendingDeletion(): boolean {
+    return !!this.profile?.deletionRequestedAt;
+  }
+
+  get hasActiveLendingsCurrent(): boolean {
+    return this.filteredAndSortedLendings.length > 0;
+  }
+
+  openDeleteConfirm(): void {
+    if (this.hasActiveLendingsCurrent) return;
+    this.showDeleteConfirm = true;
+  }
+
+  closeDeleteConfirm(): void {
+    this.showDeleteConfirm = false;
+  }
+
+  confirmDeletion(): void {
+    this.showDeleteConfirm = false;
+    this.userService.requestDeletion().subscribe({
+      next: (updated) => {
+        this.profile = updated;
+        this.startDeletionCountdown();
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to request deletion', err),
+    });
+  }
+
+  openCancelConfirm(): void {
+    this.showCancelConfirm = true;
+  }
+
+  closeCancelConfirm(): void {
+    this.showCancelConfirm = false;
+  }
+
+  confirmCancelDeletion(): void {
+    this.showCancelConfirm = false;
+    this.userService.cancelDeletion().subscribe({
+      next: (updated) => {
+        this.profile = updated;
+        this.stopDeletionCountdown();
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to cancel deletion', err),
+    });
+  }
+
+  startDeletionCountdown(): void {
+    this.stopDeletionCountdown();
+    this.updateDeletionCountdown();
+    this.countdownInterval = setInterval(() => {
+      this.updateDeletionCountdown();
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  stopDeletionCountdown(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+    this.deletionCountdown = '';
+  }
+
+  updateDeletionCountdown(): void {
+    if (!this.profile?.deletionRequestedAt) return;
+    const rawDate = this.profile.deletionRequestedAt;
+    const utcString = rawDate.endsWith('Z') ? rawDate : rawDate + 'Z';
+    const requestedAt = new Date(utcString);
+    const deleteAt = new Date(requestedAt.getTime() + 24 * 60 * 60 * 1000);
+    const diff = deleteAt.getTime() - Date.now();
+    if (diff <= 0) {
+      this.deletionCountdown = 'Wordt verwijderd...';
+      this.stopDeletionCountdown();
+      setTimeout(() => {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      }, 5000);
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    this.deletionCountdown = `${h}u ${m}m ${s}s`;
+  }
+
+  ngOnDestroy(): void {
+    this.stopDeletionCountdown();
   }
 }
