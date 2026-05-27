@@ -28,7 +28,7 @@ export class SchoolWizard {
     { title: 'Schoolgegevens',      fields: ['name', 'address'] },
     { title: 'Ontleeninstellingen', fields: ['lendingPeriodDays', 'extendPeriodDays', 'maxExtends', 'maxLendsStudent', 'maxLendTeacher'] },
     { title: 'Meldingen',           fields: ['lenderNotificationPeriod', 'lenderLateNotificationPeriod', 'librarianNotificationNotReturned'] },
-    { title: 'Extra opties',        fields: ['reviews', 'reviewModeration'] },
+    { title: 'Reviews',             fields: ['reviews', 'reviewModeration'] },
     { title: 'Dashboard',           fields: ['dashboardShowBookOfMonth', 'dashboardShowLastBorrowed', 'dashboardShowAnnouncement', 'dashboardAnnouncement'] },
     { title: 'Samenvatting',        fields: [] },
   ];

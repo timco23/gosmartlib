@@ -249,15 +249,9 @@ export class SchoolManagementComponent {
     }
   }
 
-  onWizardSchoolCreated(saved: School): void {
+  onWizardSchoolCreated(_saved: School): void {
     this.addingSchool = false;
-    this.editingSchool = saved;
-    this.schoolForm.patchValue(saved);
-    this.campuses = saved.campuses ? [...saved.campuses] : [];
-    this.schoolForm.markAsPristine();
-    this.campusesModified = false;
     this.loadSchools();
-    this.showSaveStatus('success');
     this.cdr.detectChanges();
   }
 
