@@ -14,4 +14,4 @@ public class EncryptionConfig {
     public void init() {
         EncryptedStringConverter.setSecret(encryptionSecret);
     }
-}
+} 
