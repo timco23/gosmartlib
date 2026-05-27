@@ -26,7 +26,7 @@ export class SchoolWizard {
 
   readonly steps: WizardStep[] = [
     { title: 'Schoolgegevens',      fields: ['name', 'address'] },
-    { title: 'Uitleeninstellingen', fields: ['lendingPeriodDays', 'extendPeriodDays', 'maxExtends', 'maxLendsStudent', 'maxLendTeacher'] },
+    { title: 'Ontleeninstellingen', fields: ['lendingPeriodDays', 'extendPeriodDays', 'maxExtends', 'maxLendsStudent', 'maxLendTeacher'] },
     { title: 'Meldingen',           fields: ['lenderNotificationPeriod', 'lenderLateNotificationPeriod', 'librarianNotificationNotReturned'] },
     { title: 'Extra opties',        fields: ['externalVisibility', 'externalLending', 'reviews', 'reviewModeration'] },
     { title: 'Dashboard',           fields: ['dashboardShowBookOfMonth', 'dashboardShowLastBorrowed', 'dashboardShowAnnouncement', 'dashboardAnnouncement'] },

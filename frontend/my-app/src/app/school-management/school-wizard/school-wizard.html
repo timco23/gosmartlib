@@ -1,4 +1,4 @@
-<div class="wizard-container">
+<div class="wizard-container" [class.summary-step]="currentStep === 5">
 
   <aside class="wizard-sidebar">
     <h2>School toevoegen</h2>
@@ -164,124 +164,134 @@
         <h3>Samenvatting</h3>
         <p class="summary-intro">Controleer de gegevens voor u de school aanmaakt.</p>
 
-        <div class="summary-section">
-          <div class="summary-section-header">
-            <span>Schoolgegevens</span>
-            <button type="button" class="btn-edit-section" (click)="goToStep(0)">Aanpassen</button>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Naam</span>
-            <span class="summary-val">{{ form.get('name')?.value }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Adres</span>
-            <span class="summary-val">{{ form.get('address')?.value }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Campussen</span>
-            <span class="summary-val">
-              @if (campuses.length > 0) { {{ campusNames }} }
-              @else { <em class="summary-empty">Geen</em> }
-            </span>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-section-header">
-            <span>Ontleeninstellingen</span>
-            <button type="button" class="btn-edit-section" (click)="goToStep(1)">Aanpassen</button>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Ontleenperiode</span>
-            <span class="summary-val">{{ form.get('lendingPeriodDays')?.value }} dagen</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Verlengperiode</span>
-            <span class="summary-val">{{ form.get('extendPeriodDays')?.value }} dagen</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Max. verlengingen</span>
-            <span class="summary-val">{{ form.get('maxExtends')?.value }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Max. ontleningen leerling</span>
-            <span class="summary-val">{{ form.get('maxLendsStudent')?.value }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Max. ontleningen leerkracht</span>
-            <span class="summary-val">{{ form.get('maxLendTeacher')?.value }}</span>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-section-header">
-            <span>Meldingen</span>
-            <button type="button" class="btn-edit-section" (click)="goToStep(2)">Aanpassen</button>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Herinnering lener</span>
-            <span class="summary-val">{{ form.get('lenderNotificationPeriod')?.value }} dagen voor inleverdatum</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Te-laat melding lener</span>
-            <span class="summary-val">{{ form.get('lenderLateNotificationPeriod')?.value }} dagen na inleverdatum</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Melding beheerder</span>
-            <span class="summary-val">{{ form.get('librarianNotificationNotReturned')?.value }} dagen na inleverdatum</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Melding bij verzoek</span>
-            <span class="summary-val">{{ yesNo(form.get('librarianRequestNotification')?.value) }}</span>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-section-header">
-            <span>Extra opties</span>
-            <button type="button" class="btn-edit-section" (click)="goToStep(3)">Aanpassen</button>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Zichtbaar voor externen</span>
-            <span class="summary-val">{{ yesNo(form.get('externalVisibility')?.value) }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Ontlenen aan externen</span>
-            <span class="summary-val">{{ yesNo(form.get('externalLending')?.value) }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Recensies</span>
-            <span class="summary-val">{{ yesNo(form.get('reviews')?.value) }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Recensies modereren</span>
-            <span class="summary-val">{{ yesNo(form.get('reviewModeration')?.value) }}</span>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-section-header">
-            <span>Dashboard</span>
-            <button type="button" class="btn-edit-section" (click)="goToStep(4)">Aanpassen</button>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Boek van de maand</span>
-            <span class="summary-val">{{ yesNo(form.get('dashboardShowBookOfMonth')?.value) }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Laatst ontleend</span>
-            <span class="summary-val">{{ yesNo(form.get('dashboardShowLastBorrowed')?.value) }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-key">Aankondiging tonen</span>
-            <span class="summary-val">{{ yesNo(form.get('dashboardShowAnnouncement')?.value) }}</span>
-          </div>
-          @if (form.get('dashboardShowAnnouncement')?.value && form.get('dashboardAnnouncement')?.value) {
-            <div class="summary-row">
-              <span class="summary-key">Aankondigingstekst</span>
-              <span class="summary-val">{{ form.get('dashboardAnnouncement')?.value }}</span>
+        <div class="summary-grid">
+          <div class="summary-section">
+            <div class="summary-section-header">
+              <span>Schoolgegevens</span>
+              <button type="button" class="btn-edit-section" (click)="goToStep(0)">Aanpassen</button>
             </div>
-          }
+            <div class="summary-row">
+              <span class="summary-key">Naam</span>
+              <span class="summary-val">{{ form.get('name')?.value }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Adres</span>
+              <span class="summary-val">{{ form.get('address')?.value }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Campussen</span>
+              <span class="summary-val">
+                @if (campuses.length > 0) {
+                  <ul class="summary-campus-list">
+                    @for (campus of campuses; track campus.name) {
+                      <li>{{ campus.name }}</li>
+                    }
+                  </ul>
+                } @else {
+                  <em class="summary-empty">Geen</em>
+                }
+              </span>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <div class="summary-section-header">
+              <span>Ontleeninstellingen</span>
+              <button type="button" class="btn-edit-section" (click)="goToStep(1)">Aanpassen</button>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Ontleenperiode</span>
+              <span class="summary-val">{{ form.get('lendingPeriodDays')?.value }} dagen</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Verlengperiode</span>
+              <span class="summary-val">{{ form.get('extendPeriodDays')?.value }} dagen</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Max. verlengingen</span>
+              <span class="summary-val">{{ form.get('maxExtends')?.value }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Max. ontleningen leerling</span>
+              <span class="summary-val">{{ form.get('maxLendsStudent')?.value }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Max. ontleningen leerkracht</span>
+              <span class="summary-val">{{ form.get('maxLendTeacher')?.value }}</span>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <div class="summary-section-header">
+              <span>Meldingen</span>
+              <button type="button" class="btn-edit-section" (click)="goToStep(2)">Aanpassen</button>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Herinnering lener</span>
+              <span class="summary-val">{{ form.get('lenderNotificationPeriod')?.value }} d. voor inleverdatum</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Te-laat melding</span>
+              <span class="summary-val">{{ form.get('lenderLateNotificationPeriod')?.value }} d. na inleverdatum</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Melding beheerder</span>
+              <span class="summary-val">{{ form.get('librarianNotificationNotReturned')?.value }} d. na inleverdatum</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Melding verzoek</span>
+              <span class="summary-val">{{ yesNo(form.get('librarianRequestNotification')?.value) }}</span>
+            </div>
+          </div>
+
+          <div class="summary-section">
+            <div class="summary-section-header">
+              <span>Extra opties</span>
+              <button type="button" class="btn-edit-section" (click)="goToStep(3)">Aanpassen</button>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Extern zichtbaar</span>
+              <span class="summary-val">{{ yesNo(form.get('externalVisibility')?.value) }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Extern ontlenen</span>
+              <span class="summary-val">{{ yesNo(form.get('externalLending')?.value) }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Recensies</span>
+              <span class="summary-val">{{ yesNo(form.get('reviews')?.value) }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Moderatie</span>
+              <span class="summary-val">{{ yesNo(form.get('reviewModeration')?.value) }}</span>
+            </div>
+          </div>
+
+          <div class="summary-section summary-wide">
+            <div class="summary-section-header">
+              <span>Dashboard</span>
+              <button type="button" class="btn-edit-section" (click)="goToStep(4)">Aanpassen</button>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Boek v/d maand</span>
+              <span class="summary-val">{{ yesNo(form.get('dashboardShowBookOfMonth')?.value) }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Laatst ontleend</span>
+              <span class="summary-val">{{ yesNo(form.get('dashboardShowLastBorrowed')?.value) }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Aankondiging</span>
+              <span class="summary-val">{{ yesNo(form.get('dashboardShowAnnouncement')?.value) }}</span>
+            </div>
+            @if (form.get('dashboardShowAnnouncement')?.value && form.get('dashboardAnnouncement')?.value) {
+              <div class="summary-row">
+                <span class="summary-key">Tekst</span>
+                <span class="summary-val">{{ form.get('dashboardAnnouncement')?.value }}</span>
+              </div>
+            }
+          </div>
+
         </div>
 
         @if (submitError) {

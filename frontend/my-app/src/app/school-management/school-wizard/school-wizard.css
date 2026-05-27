@@ -1,9 +1,13 @@
-/* ── Outer: centreert het formulier ── */
 .wizard-container {
   position: relative;
   max-width: 600px;
   margin: 0 auto;
   padding: var(--space-8) var(--space-6);
+  transition: max-width var(--transition-base);
+}
+
+.wizard-container.summary-step {
+  max-width: 940px;
 }
 
 .wizard-sidebar {
@@ -298,12 +302,25 @@ input[type='checkbox'] {
   margin: 0 0 var(--space-5);
 }
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  align-items: stretch;
+}
+
 .summary-section {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
-  margin-bottom: var(--space-4);
+  margin-bottom: 0;
 }
+
+.summary-wide {
+  grid-column: 1 / -1;
+}
+
 
 .summary-section-header {
   display: flex;
@@ -355,7 +372,7 @@ input[type='checkbox'] {
 }
 
 .summary-key {
-  width: 200px;
+  width: 130px;
   flex-shrink: 0;
   color: var(--color-text-3);
   font-weight: 600;
@@ -370,6 +387,20 @@ input[type='checkbox'] {
 .summary-empty {
   color: var(--color-text-3);
   font-style: italic;
+}
+
+.summary-campus-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.summary-campus-list li::before {
+  content: '–\00a0';
+  color: var(--color-text-3);
 }
 
 .save-status {
@@ -450,6 +481,10 @@ input[type='checkbox'] {
     padding: var(--space-5) var(--space-4);
   }
 
+  .wizard-container.summary-step {
+    max-width: 100%;
+  }
+
   .wizard-sidebar {
     position: static;
     width: 100%;
@@ -506,7 +541,16 @@ input[type='checkbox'] {
     flex-direction: column;
   }
 
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-wide {
+    grid-column: 1;
+  }
+
+
   .summary-key {
-    width: 140px;
+    width: 120px;
   }
 }
