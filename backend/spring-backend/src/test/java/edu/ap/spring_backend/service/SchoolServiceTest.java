@@ -84,8 +84,6 @@ class SchoolServiceTest {
         updated.setMaxExtends(2);
         updated.setMaxLendsStudent(5);
         updated.setMaxLendTeacher(10);
-        updated.setExternalVisibility(true);
-        updated.setExternalLending(true);
         updated.setReviews(true);
         updated.setReviewModeration(true);
 
@@ -95,7 +93,6 @@ class SchoolServiceTest {
         School result = service.updateSchoolSettings(1L, updated);
 
         assertEquals(14, result.getLendingPeriodDays());
-        assertTrue(result.isExternalVisibility());
         assertTrue(result.isReviews());
     }
 

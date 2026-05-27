@@ -28,7 +28,7 @@ export class SchoolWizard {
     { title: 'Schoolgegevens',      fields: ['name', 'address'] },
     { title: 'Ontleeninstellingen', fields: ['lendingPeriodDays', 'extendPeriodDays', 'maxExtends', 'maxLendsStudent', 'maxLendTeacher'] },
     { title: 'Meldingen',           fields: ['lenderNotificationPeriod', 'lenderLateNotificationPeriod', 'librarianNotificationNotReturned'] },
-    { title: 'Extra opties',        fields: ['externalVisibility', 'externalLending', 'reviews', 'reviewModeration'] },
+    { title: 'Extra opties',        fields: ['reviews', 'reviewModeration'] },
     { title: 'Dashboard',           fields: ['dashboardShowBookOfMonth', 'dashboardShowLastBorrowed', 'dashboardShowAnnouncement', 'dashboardAnnouncement'] },
     { title: 'Samenvatting',        fields: [] },
   ];
@@ -51,9 +51,6 @@ export class SchoolWizard {
       lenderNotificationPeriod:        ['',  [Validators.required, Validators.min(0)]],
       lenderLateNotificationPeriod:    ['',  [Validators.required, Validators.min(0)]],
       librarianNotificationNotReturned:['',  [Validators.required, Validators.min(0)]],
-      librarianRequestNotification:    [false],
-      externalVisibility:              [false],
-      externalLending:                 [false],
       reviews:                         [false],
       reviewModeration:                [false],
       dashboardShowBookOfMonth:        [true],

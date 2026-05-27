@@ -106,31 +106,24 @@
 
         <label>Melding beheerder bij niet terugbrengen (dagen ná inleverdatum)</label>
         <input type="number" min="0" formControlName="librarianNotificationNotReturned" />
-
-        <label class="checkbox-label">
-          <input type="checkbox" formControlName="librarianRequestNotification" />
-          Melding voor bibliotheekbeheerder bij verzoek
-        </label>
       }
 
       @if (currentStep === 3) {
         <h3>Extra opties</h3>
 
         <label class="checkbox-label">
-          <input type="checkbox" formControlName="externalVisibility" />
-          Collectie zichtbaar voor externen
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" formControlName="externalLending" />
-          Ontlenen aan externen toegestaan
-        </label>
-        <label class="checkbox-label">
           <input type="checkbox" formControlName="reviews" />
-          Recensies inschakelen
+          <span class="checkbox-content">
+            <span class="checkbox-title">Reviews inschakelen</span>
+            <span class="checkbox-hint">Leerlingen en leerkrachten kunnen boeken beoordelen met een score en tekst.</span>
+          </span>
         </label>
         <label class="checkbox-label">
           <input type="checkbox" formControlName="reviewModeration" />
-          Recensies modereren
+          <span class="checkbox-content">
+            <span class="checkbox-title">Reviews modereren</span>
+            <span class="checkbox-hint">Nieuwe reviews worden eerst goedgekeurd door een beheerder voor ze zichtbaar zijn voor andere gebruikers.</span>
+          </span>
         </label>
       }
 
@@ -139,15 +132,24 @@
 
         <label class="checkbox-label">
           <input type="checkbox" formControlName="dashboardShowBookOfMonth" />
-          Boek van de maand tonen
+          <span class="checkbox-content">
+            <span class="checkbox-title">Boek van de maand tonen</span>
+            <span class="checkbox-hint">Toont het meest ontleende boek van deze maand.</span>
+          </span>
         </label>
         <label class="checkbox-label">
           <input type="checkbox" formControlName="dashboardShowLastBorrowed" />
-          Laatst ontleend tonen
+          <span class="checkbox-content">
+            <span class="checkbox-title">Laatst ontleend tonen</span>
+            <span class="checkbox-hint">Toont het meest recent ontleende boek op het dashboard.</span>
+          </span>
         </label>
         <label class="checkbox-label">
           <input type="checkbox" formControlName="dashboardShowAnnouncement" />
-          Aankondiging tonen
+          <span class="checkbox-content">
+            <span class="checkbox-title">Aankondiging tonen</span>
+            <span class="checkbox-hint">Toont een instelbare tekst bovenaan het dashboard, zichtbaar voor alle gebruikers.</span>
+          </span>
         </label>
         @if (form.get('dashboardShowAnnouncement')?.value) {
           <label>Tekst aankondiging</label>
@@ -238,10 +240,6 @@
               <span class="summary-key">Melding beheerder</span>
               <span class="summary-val">{{ form.get('librarianNotificationNotReturned')?.value }} d. na inleverdatum</span>
             </div>
-            <div class="summary-row">
-              <span class="summary-key">Melding verzoek</span>
-              <span class="summary-val">{{ yesNo(form.get('librarianRequestNotification')?.value) }}</span>
-            </div>
           </div>
 
           <div class="summary-section">
@@ -250,19 +248,11 @@
               <button type="button" class="btn-edit-section" (click)="goToStep(3)">Aanpassen</button>
             </div>
             <div class="summary-row">
-              <span class="summary-key">Extern zichtbaar</span>
-              <span class="summary-val">{{ yesNo(form.get('externalVisibility')?.value) }}</span>
-            </div>
-            <div class="summary-row">
-              <span class="summary-key">Extern ontlenen</span>
-              <span class="summary-val">{{ yesNo(form.get('externalLending')?.value) }}</span>
-            </div>
-            <div class="summary-row">
-              <span class="summary-key">Recensies</span>
+              <span class="summary-key">Reviews</span>
               <span class="summary-val">{{ yesNo(form.get('reviews')?.value) }}</span>
             </div>
             <div class="summary-row">
-              <span class="summary-key">Moderatie</span>
+              <span class="summary-key">Review moderatie</span>
               <span class="summary-val">{{ yesNo(form.get('reviewModeration')?.value) }}</span>
             </div>
           </div>
