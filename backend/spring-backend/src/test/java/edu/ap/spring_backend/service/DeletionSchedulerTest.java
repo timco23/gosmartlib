@@ -17,7 +17,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class) //use mockito
+@ExtendWith(MockitoExtension.class)
 class DeletionSchedulerTest {
 
     @Mock
