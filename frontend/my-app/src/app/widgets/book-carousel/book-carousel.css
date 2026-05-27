@@ -317,7 +317,9 @@ main.detailed .card-description {
   color: var(--color-text-2);
   line-height: 1.65;
   overflow: hidden;
-  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
 }
 
 main.detailed .details-button {
