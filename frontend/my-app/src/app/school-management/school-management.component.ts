@@ -7,10 +7,11 @@ import { CommonModule, Location } from '@angular/common';
 import { Campus, School, UserProfile } from '../../types/types';
 import { FormsModule } from '@angular/forms';
 import { PopUpComponent } from "../widgets/pop-up/pop-up.component";
+import { SchoolWizard } from './school-wizard/school-wizard';
 
 @Component({
   selector: 'app-school-management',
-  imports: [ReactiveFormsModule, CommonModule, FormsModule, PopUpComponent],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, PopUpComponent, SchoolWizard],
   standalone: true,
   templateUrl: './school-management.component.html',
   styleUrl: './school-management.component.css'
@@ -71,9 +72,6 @@ export class SchoolManagementComponent {
       lenderNotificationPeriod: [0, [Validators.required, Validators.min(0)]],
       lenderLateNotificationPeriod: [0, [Validators.required, Validators.min(0)]],
       librarianNotificationNotReturned: [0, [Validators.required, Validators.min(0)]],
-      librarianRequestNotification: [false],
-      externalVisibility: [false],
-      externalLending: [false],
       reviews: [false],
       reviewModeration: [false],
       dashboardShowBookOfMonth: [true],
@@ -248,24 +246,18 @@ export class SchoolManagementComponent {
           this.showSaveStatus('error');
         }
       });
-    } else {
-      this.schoolService.create(schoolData).subscribe({
-        next: (saved) => {
-          this.addingSchool = false;
-          this.editingSchool = saved;
-          this.schoolForm.patchValue(saved);
-          this.campuses = saved.campuses ? [...saved.campuses] : [];
-          this.schoolForm.markAsPristine();
-          this.campusesModified = false;
-          this.loadSchools();
-          this.showSaveStatus('success');
-        },
-        error: (err) => {
-          console.error('error:', err);
-          this.showSaveStatus('error');
-        }
-      });
     }
+  }
+
+  onWizardSchoolCreated(_saved: School): void {
+    this.addingSchool = false;
+    this.loadSchools();
+    this.cdr.detectChanges();
+  }
+
+  onWizardCancelled(): void {
+    this.addingSchool = false;
+    this.cdr.detectChanges();
   }
 
   private showSaveStatus(status: 'success' | 'error') {

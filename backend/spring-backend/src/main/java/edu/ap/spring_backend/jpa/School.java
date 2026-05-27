@@ -32,9 +32,6 @@ public class School {
     private int lenderLateNotificationPeriod;
     private int librarianNotificationNotReturned;
 
-    private boolean librarianRequestNotification;
-    private boolean externalVisibility;
-    private boolean externalLending;
     private boolean reviews;
     private boolean reviewModeration;
     private boolean dashboardShowBookOfMonth = true;
@@ -54,8 +51,6 @@ public class School {
                   int maxLendsStudent, int maxLendTeacher,
                   int lenderNotificationPeriod, int lenderLateNotificationPeriod,
                   int librarianNotificationNotReturned,
-                  boolean librarianRequestNotification,
-                  boolean externalVisibility, boolean externalLending,
                   boolean reviews, boolean reviewModeration) {
         this.name = name;
         this.address = address;
@@ -67,9 +62,6 @@ public class School {
         this.lenderNotificationPeriod = lenderNotificationPeriod;
         this.lenderLateNotificationPeriod = lenderLateNotificationPeriod;
         this.librarianNotificationNotReturned = librarianNotificationNotReturned;
-        this.librarianRequestNotification = librarianRequestNotification;
-        this.externalVisibility = externalVisibility;
-        this.externalLending = externalLending;
         this.reviews = reviews;
         this.reviewModeration = reviewModeration;
     }

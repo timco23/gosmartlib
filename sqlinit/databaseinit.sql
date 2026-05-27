@@ -15,9 +15,6 @@ CREATE TABLE IF NOT EXISTS school (
     lender_notification_period INT NOT NULL,
     lender_late_notification_period INT NOT NULL,
     librarian_notification_not_returned INT NOT NULL,
-    librarian_request_notification INT NOT NULL,
-    external_visibility BOOLEAN NOT NULL,
-    external_lending BOOLEAN NOT NULL,
     reviews BOOLEAN NOT NULL,
     review_moderation BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -29,16 +26,14 @@ INSERT INTO school (
     lending_period_days, extend_period_days, max_extends,
     max_lends_student, max_lend_teacher,
     lender_notification_period, lender_late_notification_period,
-    librarian_notification_not_returned, librarian_request_notification,
-    external_visibility, external_lending,
+    librarian_notification_not_returned,
     reviews, review_moderation
     ) VALUES (
     'AP Hogeschool Antwerpen', 'Noorderplaats 2',
     14, 7, 2,
     5, 10,
     3, 1,
-    2, 1,
-    true, true,
+    2,
     true, false
 );
 

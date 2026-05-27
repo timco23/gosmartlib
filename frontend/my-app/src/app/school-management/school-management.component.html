@@ -53,9 +53,16 @@
     </div>
   }
 
-  @if (addingSchool || editingSchool) {
+  @if (addingSchool) {
+    <app-school-wizard
+      (schoolCreated)="onWizardSchoolCreated($event)"
+      (cancelled)="onWizardCancelled()"
+    />
+  }
+
+  @if (editingSchool) {
     <div class="form-wrapper">
-      <h2>{{ editingSchool ? 'School bewerken' : 'School toevoegen' }}</h2>
+      <h2>School bewerken</h2>
       <form [formGroup]="schoolForm" (ngSubmit)="onSubmit()">
         <h3>Schoolinformatie</h3>
 
@@ -84,7 +91,11 @@
               <li>
                 {{ campus.name }}
                 @if (!isLibrarian) {
-                  <button type="button" class="remove-btn" (click)="removeCampus(i)">x</button>
+                  <button type="button" class="remove-btn" (click)="removeCampus(i)">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                  </button>
                 }
               </li>
             }
@@ -114,18 +125,6 @@
           >Melding voor bibliotheekbeheerder bij niet terugbrengen (dagen na inleverdatum)</label
         >
         <input type="number" min="0" formControlName="librarianNotificationNotReturned" />
-        <label>
-          <input type="checkbox" formControlName="librarianRequestNotification" />
-          Melding voor bibliotheekbeheerder bij verzoek
-        </label>
-        <label>
-          <input type="checkbox" formControlName="externalVisibility" />
-          Collectie zichtbaar voor externen
-        </label>
-        <label>
-          <input type="checkbox" formControlName="externalLending" />
-          Uitlenen aan externen toegestaan
-        </label>
         <label>
           <input type="checkbox" formControlName="reviews" />
           Recensies inschakelen
