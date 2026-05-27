@@ -14,6 +14,7 @@ import java.util.List;
 public class EncryptionMigrationRunner implements ApplicationRunner {
 
     private final UserRepository userRepository;
+    private File flagFile = new File("/tmp/encryption_migration_done");
 
     public EncryptionMigrationRunner(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -22,23 +23,21 @@ public class EncryptionMigrationRunner implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) throws Exception {
-        File flag = new File("/tmp/encryption_migration_done");
-        if (flag.exists()) return;
+        if (flagFile.exists()) return;
 
         EncryptedStringConverter converter = new EncryptedStringConverter();
         List<User> users = userRepository.findAll();
-
         for (User user : users) {
-            String encryptedName = user.getName() != null 
-                ? converter.convertToDatabaseColumn(user.getName()) 
+            String encryptedName = user.getName() != null
+                ? converter.convertToDatabaseColumn(user.getName())
                 : null;
-            String encryptedFirstName = user.getFirstName() != null 
-                ? converter.convertToDatabaseColumn(user.getFirstName()) 
+            String encryptedFirstName = user.getFirstName() != null
+                ? converter.convertToDatabaseColumn(user.getFirstName())
                 : null;
             userRepository.updateNamesDirect(user.getId(), encryptedName, encryptedFirstName);
         }
 
-        flag.createNewFile();
+        flagFile.createNewFile();
         System.out.println("Encryption migration done for " + users.size() + " users.");
     }
 }
