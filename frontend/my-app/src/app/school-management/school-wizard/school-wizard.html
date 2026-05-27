@@ -1,0 +1,321 @@
+<div class="wizard-container">
+
+  <aside class="wizard-sidebar">
+    <h2>School toevoegen</h2>
+    <ol class="stepper">
+      @for (step of steps; track step.title; let i = $index) {
+        <li
+          class="stepper-item"
+          [class.active]="i === currentStep"
+          [class.completed]="i < currentStep"
+          (click)="goToStep(i)"
+        >
+          <div class="stepper-node">
+            <div class="stepper-dot">
+              @if (i < currentStep) {
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6L5 9L10 3" stroke="white" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              } @else {
+                {{ i + 1 }}
+              }
+            </div>
+            @if (i < steps.length - 1) {
+              <div class="stepper-line"></div>
+            }
+          </div>
+          <span class="stepper-label">{{ step.title }}</span>
+        </li>
+      }
+    </ol>
+  </aside>
+
+  <div class="wizard-content">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      @if (currentStep === 0) {
+        <h3>Schoolgegevens</h3>
+
+        <label>Naam</label>
+        <input placeholder="Naam van de school" formControlName="name" />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <p class="field-error">Naam is verplicht.</p>
+        }
+
+        <label>Adres / Gemeente</label>
+        <input placeholder="Adres of gemeente" formControlName="address" />
+        @if (form.get('address')?.invalid && form.get('address')?.touched) {
+          <p class="field-error">Adres is verplicht.</p>
+        }
+
+        <label>Campussen</label>
+        <div class="campus-input-row">
+          <input
+            type="text"
+            placeholder="Campus naam"
+            [(ngModel)]="campusInput"
+            [ngModelOptions]="{ standalone: true }"
+            (keyup.enter)="addCampus()"
+          />
+          <button type="button" class="btn-add-campus" (click)="addCampus()">Toevoegen</button>
+        </div>
+        @if (campuses.length > 0) {
+          <ul class="campus-list">
+            @for (campus of campuses; track campus.name; let i = $index) {
+              <li>
+                {{ campus.name }}
+                <button type="button" class="remove-btn" (click)="removeCampus(i)" aria-label="Verwijder campus">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      @if (currentStep === 1) {
+        <h3>Ontleeninstellingen</h3>
+
+        <label>Ontleenperiode (dagen)</label>
+        <input type="number" min="0" formControlName="lendingPeriodDays" />
+
+        <label>Verlengperiode (dagen)</label>
+        <input type="number" min="0" formControlName="extendPeriodDays" />
+
+        <label>Maximum aantal verlengingen</label>
+        <input type="number" min="0" formControlName="maxExtends" />
+
+        <label>Maximum aantal ontleningen per leerling</label>
+        <input type="number" min="0" formControlName="maxLendsStudent" />
+
+        <label>Maximum aantal ontleningen per leerkracht</label>
+        <input type="number" min="0" formControlName="maxLendTeacher" />
+      }
+
+      @if (currentStep === 2) {
+        <h3>Meldingen</h3>
+
+        <label>Herinnering lener (dagen vóór inleverdatum)</label>
+        <input type="number" min="0" formControlName="lenderNotificationPeriod" />
+
+        <label>Te-laat melding lener (dagen ná inleverdatum)</label>
+        <input type="number" min="0" formControlName="lenderLateNotificationPeriod" />
+
+        <label>Melding beheerder bij niet terugbrengen (dagen ná inleverdatum)</label>
+        <input type="number" min="0" formControlName="librarianNotificationNotReturned" />
+
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="librarianRequestNotification" />
+          Melding voor bibliotheekbeheerder bij verzoek
+        </label>
+      }
+
+      @if (currentStep === 3) {
+        <h3>Extra opties</h3>
+
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="externalVisibility" />
+          Collectie zichtbaar voor externen
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="externalLending" />
+          Ontlenen aan externen toegestaan
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="reviews" />
+          Recensies inschakelen
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="reviewModeration" />
+          Recensies modereren
+        </label>
+      }
+
+      @if (currentStep === 4) {
+        <h3>Dashboardinstellingen</h3>
+
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="dashboardShowBookOfMonth" />
+          Boek van de maand tonen
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="dashboardShowLastBorrowed" />
+          Laatst ontleend tonen
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="dashboardShowAnnouncement" />
+          Aankondiging tonen
+        </label>
+        @if (form.get('dashboardShowAnnouncement')?.value) {
+          <label>Tekst aankondiging</label>
+          <textarea
+            formControlName="dashboardAnnouncement"
+            placeholder="Bijv. 'De bib is gesloten op vrijdag 30 mei.'"
+            rows="3"
+            maxlength="500"
+          ></textarea>
+        }
+      }
+
+      @if (currentStep === 5) {
+        <h3>Samenvatting</h3>
+        <p class="summary-intro">Controleer de gegevens voor u de school aanmaakt.</p>
+
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <span>Schoolgegevens</span>
+            <button type="button" class="btn-edit-section" (click)="goToStep(0)">Aanpassen</button>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Naam</span>
+            <span class="summary-val">{{ form.get('name')?.value }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Adres</span>
+            <span class="summary-val">{{ form.get('address')?.value }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Campussen</span>
+            <span class="summary-val">
+              @if (campuses.length > 0) { {{ campusNames }} }
+              @else { <em class="summary-empty">Geen</em> }
+            </span>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <span>Ontleeninstellingen</span>
+            <button type="button" class="btn-edit-section" (click)="goToStep(1)">Aanpassen</button>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Ontleenperiode</span>
+            <span class="summary-val">{{ form.get('lendingPeriodDays')?.value }} dagen</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Verlengperiode</span>
+            <span class="summary-val">{{ form.get('extendPeriodDays')?.value }} dagen</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Max. verlengingen</span>
+            <span class="summary-val">{{ form.get('maxExtends')?.value }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Max. ontleningen leerling</span>
+            <span class="summary-val">{{ form.get('maxLendsStudent')?.value }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Max. ontleningen leerkracht</span>
+            <span class="summary-val">{{ form.get('maxLendTeacher')?.value }}</span>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <span>Meldingen</span>
+            <button type="button" class="btn-edit-section" (click)="goToStep(2)">Aanpassen</button>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Herinnering lener</span>
+            <span class="summary-val">{{ form.get('lenderNotificationPeriod')?.value }} dagen voor inleverdatum</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Te-laat melding lener</span>
+            <span class="summary-val">{{ form.get('lenderLateNotificationPeriod')?.value }} dagen na inleverdatum</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Melding beheerder</span>
+            <span class="summary-val">{{ form.get('librarianNotificationNotReturned')?.value }} dagen na inleverdatum</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Melding bij verzoek</span>
+            <span class="summary-val">{{ yesNo(form.get('librarianRequestNotification')?.value) }}</span>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <span>Extra opties</span>
+            <button type="button" class="btn-edit-section" (click)="goToStep(3)">Aanpassen</button>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Zichtbaar voor externen</span>
+            <span class="summary-val">{{ yesNo(form.get('externalVisibility')?.value) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Ontlenen aan externen</span>
+            <span class="summary-val">{{ yesNo(form.get('externalLending')?.value) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Recensies</span>
+            <span class="summary-val">{{ yesNo(form.get('reviews')?.value) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Recensies modereren</span>
+            <span class="summary-val">{{ yesNo(form.get('reviewModeration')?.value) }}</span>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-section-header">
+            <span>Dashboard</span>
+            <button type="button" class="btn-edit-section" (click)="goToStep(4)">Aanpassen</button>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Boek van de maand</span>
+            <span class="summary-val">{{ yesNo(form.get('dashboardShowBookOfMonth')?.value) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Laatst ontleend</span>
+            <span class="summary-val">{{ yesNo(form.get('dashboardShowLastBorrowed')?.value) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Aankondiging tonen</span>
+            <span class="summary-val">{{ yesNo(form.get('dashboardShowAnnouncement')?.value) }}</span>
+          </div>
+          @if (form.get('dashboardShowAnnouncement')?.value && form.get('dashboardAnnouncement')?.value) {
+            <div class="summary-row">
+              <span class="summary-key">Aankondigingstekst</span>
+              <span class="summary-val">{{ form.get('dashboardAnnouncement')?.value }}</span>
+            </div>
+          }
+        </div>
+
+        @if (submitError) {
+          <p class="save-status save-status--error">Aanmaken mislukt. Probeer opnieuw.</p>
+        }
+      }
+
+      <div class="button-row">
+        @if (!isFirstStep) {
+          <button type="button" class="btn-back" (click)="goPrevious()">← Vorige</button>
+        } @else {
+          <button type="button" class="btn-back" (click)="requestCancel()">Annuleren</button>
+        }
+
+        @if (!isLastStep) {
+          <button type="button" class="btn-next" (click)="goNext()">Volgende →</button>
+        } @else {
+          <button type="submit" class="btn-submit" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Bezig...' : 'School aanmaken' }}
+          </button>
+        }
+      </div>
+
+    </form>
+  </div>
+</div>
+
+@if (showCancelConfirm) {
+  <app-pop-up
+    message="Je hebt al gegevens ingevuld. Weet je zeker dat je wil annuleren?"
+    [actions]="[
+      { label: 'Terug naar wizard', type: 'cancel',  value: 'cancel'  },
+      { label: 'Annuleren',         type: 'danger',  value: 'confirm' },
+    ]"
+    (actionClicked)="onCancelConfirm($event)"
+  />
+}

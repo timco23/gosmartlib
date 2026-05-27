@@ -543,3 +543,8 @@ export interface ReviewReport {
   reviewId: number,
   reporter: UserProfile
 }
+
+export interface WizardStep {
+  title: string;
+  fields: string[];
+}
