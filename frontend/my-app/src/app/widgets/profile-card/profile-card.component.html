@@ -1,6 +1,6 @@
 <div class="profile-header">
   <div class="profile-avatar">
-    {{ (profile.firstName?.[0] ?? '') + (profile.name?.[0] ?? '') }}
+    {{ (profile.firstName[0] ?? '') + (profile.name[0] ?? '') }}
   </div>
   <div class="profile-header-info">
     <h2>{{ profile.firstName }} {{ profile.name }}</h2>
@@ -29,6 +29,6 @@
   }
   <div class="profile-item">
     <label>Boeken geleend</label>
-    <span>{{ activeLendingsCount ?? profile.items_borrowed ?? 0 }}</span>
+    <span>{{ activeLendingsCount ?? 0 }}</span>
   </div>
 </div>
