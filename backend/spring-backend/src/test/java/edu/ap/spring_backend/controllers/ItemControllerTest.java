@@ -1,8 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
-import edu.ap.spring_backend.dto.ItemDTO;
-import edu.ap.spring_backend.dto.ItemRequestDTO;
-import edu.ap.spring_backend.dto.TagDTO;
+import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.service.BarcodeService;
 import edu.ap.spring_backend.service.BookCoverCacheService;
 import edu.ap.spring_backend.service.BookCsvImportService;
@@ -19,7 +17,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -130,6 +133,26 @@ class ItemControllerTest extends BaseControllerTest {
         mockMvc.perform(get("/books/1/cover"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.IMAGE_JPEG));
+    }
+
+    @Test
+    void downloadCopyExcel_returnsExcelAndDeletesFile() throws Exception {
+        SchoolItemCopyExcelDTO dto = new SchoolItemCopyExcelDTO(new SchoolItemCopyExcelRowDTO[0]);
+        Path tempFile = Files.createTempFile("test-copies", ".xls");
+        Files.writeString(tempFile, "fake excel content");
+        Path absolutePath = tempFile.toAbsolutePath();
+
+        when(schoolItemCopyService.generateExcel(any())).thenReturn(absolutePath);
+
+        mockMvc.perform(get("/books/copies/download")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("fake excel content"))
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"copies.xlsx\""))
+                .andExpect(header().string("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+
+        assertFalse(Files.exists(tempFile), "File should be deleted after download");
     }
 
     private ItemDTO item() {

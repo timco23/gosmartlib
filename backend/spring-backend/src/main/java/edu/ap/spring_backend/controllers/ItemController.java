@@ -6,6 +6,9 @@ import edu.ap.spring_backend.service.BookCsvImportService;
 import edu.ap.spring_backend.service.ItemService;
 import jakarta.validation.constraints.*;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 import edu.ap.spring_backend.jpa.Role;
 import edu.ap.spring_backend.service.BookCoverCacheService;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -379,5 +388,27 @@ public class ItemController {
     public ResponseEntity<SchoolItemCopyDTO> deleteCopy(@PathVariable int id) {
         schoolItemCopyService.deleteCopy(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/books/copies/download")
+    public ResponseEntity<Resource> downloadCopyExcel(@RequestBody SchoolItemCopyExcelDTO schoolItemCopyExcelDTO)
+            throws IOException {
+        Path excelLocation = this.schoolItemCopyService.generateExcel(schoolItemCopyExcelDTO);
+        if (excelLocation == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        File file = excelLocation.toFile();
+
+        try {
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(excelLocation));
+
+            return ResponseEntity.ok()
+                    .contentLength(file.length())
+                    .header("Content-Disposition", "attachment; filename=\"copies.xlsx\"")
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+        } finally {
+            Files.deleteIfExists(excelLocation);
+        }
     }
 }

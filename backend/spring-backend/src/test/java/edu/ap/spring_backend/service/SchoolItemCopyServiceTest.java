@@ -5,6 +5,8 @@ import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolItemCopyRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.SchoolItemCopyDTO;
+import edu.ap.spring_backend.dto.SchoolItemCopyExcelDTO;
+import edu.ap.spring_backend.dto.SchoolItemCopyExcelRowDTO;
 import edu.ap.spring_backend.jpa.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -114,5 +124,42 @@ class SchoolItemCopyServiceTest {
         // Then
         assertEquals(1, result.size());
         assertEquals("BC000001", result.get(0).barcode());
+    }
+
+    @Test
+    void givenSchoolItemCopyExcelDTO_whenGenerateExcel_thenReturnExcelWithCorrectData() throws IOException {
+        // Given
+        SchoolItemCopyExcelRowDTO row1 = new SchoolItemCopyExcelRowDTO("testBook1", "0001");
+        SchoolItemCopyExcelRowDTO row2 = new SchoolItemCopyExcelRowDTO("testBook2", "0002");
+        SchoolItemCopyExcelDTO excelDTO = new SchoolItemCopyExcelDTO(new SchoolItemCopyExcelRowDTO[]{row1, row2});
+
+        // When
+        Path excelLocation = service.generateExcel(excelDTO);
+
+        // Then
+        assertNotNull(excelLocation);
+        assertTrue(Files.exists(excelLocation));
+
+        try (Workbook workbook = WorkbookFactory.create(excelLocation.toFile())) {
+            Sheet sheet = workbook.getSheet("copies");
+            assertNotNull(sheet);
+
+            // Header row
+            Row headerRow = sheet.getRow(0);
+            assertEquals("bookName", headerRow.getCell(0).getStringCellValue());
+            assertEquals("copyId", headerRow.getCell(1).getStringCellValue());
+
+            // Data row 1
+            Row dataRow1 = sheet.getRow(1);
+            assertEquals("testBook1", dataRow1.getCell(0).getStringCellValue());
+            assertEquals("0001", dataRow1.getCell(1).getStringCellValue());
+
+            // Data row 2
+            Row dataRow2 = sheet.getRow(2);
+            assertEquals("testBook2", dataRow2.getCell(0).getStringCellValue());
+            assertEquals("0002", dataRow2.getCell(1).getStringCellValue());
+        } finally {
+            Files.deleteIfExists(excelLocation);
+        }
     }
 }

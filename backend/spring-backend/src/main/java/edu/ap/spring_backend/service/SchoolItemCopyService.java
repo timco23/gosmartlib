@@ -1,17 +1,27 @@
 package edu.ap.spring_backend.service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 import edu.ap.spring_backend.dao.CampusRepository;
 import edu.ap.spring_backend.dao.ItemRepository;
 import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.CreateSchoolItemCopyDTO;
 import edu.ap.spring_backend.dto.SchoolItemCopyDTO;
+import edu.ap.spring_backend.dto.SchoolItemCopyExcelDTO;
 import edu.ap.spring_backend.exception.EntityNotFoundException;
 import edu.ap.spring_backend.jpa.Campus;
 import edu.ap.spring_backend.jpa.CopyStatus;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.ItemCondition;
 import edu.ap.spring_backend.jpa.School;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import edu.ap.spring_backend.dao.LendingRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -173,5 +183,35 @@ public class SchoolItemCopyService {
         copy.setCondition(ItemCondition.valueOf(condition));
         schoolItemCopyRepository.save(copy);
         return mapToDTO(copy);
+    }
+
+    public Path generateExcel(SchoolItemCopyExcelDTO schoolItemCopyExcelDTO) {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("copies");
+            Row header = sheet.createRow(0);
+
+            Cell headerCell = header.createCell(0);
+            headerCell.setCellValue("bookName");
+
+            headerCell = header.createCell(1);
+            headerCell.setCellValue("copyId");
+
+            for (int i = 0; i < schoolItemCopyExcelDTO.rows().length; i++) {
+                Row row = sheet.createRow(i + 1);
+                Cell bookNameCell = row.createCell(0);
+                Cell copyIdCell = row.createCell(1);
+                bookNameCell.setCellValue(schoolItemCopyExcelDTO.rows()[i].itemName());
+                copyIdCell.setCellValue(schoolItemCopyExcelDTO.rows()[i].copyId());
+            }
+
+            Path tempFile = Files.createTempFile("copies-", ".xlsx");
+            try (FileOutputStream outputStream = new FileOutputStream(tempFile.toFile())) {
+                workbook.write(outputStream);
+            }
+            return tempFile.toAbsolutePath();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

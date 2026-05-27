@@ -65,10 +65,11 @@ public class WebSecurityConfig {
                     "/api/lendings/user"
                 ).hasAnyAuthority(ALL_USERS)
 
-                // Restrict review reports and school reviews to librarians
+                // Restrict review reports, school reviews and downloading Excel sheets to librarians
                 .requestMatchers(HttpMethod.GET,
                     "/reviews/schools/**",
-                    "/reviews/*/reports"
+                    "/reviews/*/reports",
+                    "/books/copies/download"
                 ).hasAnyAuthority(LIBRARIAN_PLUS)
 
                 .requestMatchers(HttpMethod.GET,
