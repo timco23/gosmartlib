@@ -46,7 +46,7 @@
     <p class="section-title">Mijn gegevens</p>
     <div class="profile-stats-grid">
       <div class="profile-card-wrapper">
-        <app-profile-card [profile]="profile" />
+        <app-profile-card [profile]="profile" [activeLendingsCount]="filteredAndSortedLendings.length" />
       </div>
       @if (ownStats) {
         <div class="stats-panel">

@@ -8,7 +8,7 @@
   }
 
   @if (profile && !loading) {
-    <app-profile-card [profile]="profile" />
+    <app-profile-card [profile]="profile" [activeLendingsCount]="activeLendings.length" />
 
     @if (canSeeRole) {
       <div class="profile-content">

@@ -11,6 +11,7 @@ import { UserProfile } from '../../../types/types';
 })
 export class ProfileCardComponent {
   @Input() profile!: UserProfile;
+  @Input() activeLendingsCount: number | null = null;
 
   get classNames(): string {
     return this.profile?.classes.map((c) => c.className).join(', ') ?? '';

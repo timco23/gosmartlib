@@ -156,8 +156,8 @@ export class Profile implements OnInit, OnDestroy {
     this.lendingService.getLendingsByUser(email).subscribe({
       next: (data) => {
         const all = data ?? [];
-        this.activeLendings = all.filter((l) => !l.returned && !l.dateReturned);
-        this.lendings = all.filter((l) => l.returned || !!l.dateReturned);
+        this.activeLendings = all.filter((l) => !l.returned);
+        this.lendings = all.filter((l) => l.returned);
         this.cdr.detectChanges();
       },
       error: (err) => console.error('Failed to load lendings', err),
