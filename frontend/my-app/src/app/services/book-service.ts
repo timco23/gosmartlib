@@ -16,6 +16,7 @@ import {
   BookMetadata,
   SchoolItemCopy,
   CreateSchoolItemCopyPayload,
+  SchoolItemCopyExcelPayload,
 } from '../../types/types';
 
 @Injectable({
@@ -255,5 +256,11 @@ export class BookService {
 
   getBookUpdatingStatus(bookId: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiBaseUrl}/books/${bookId}/mark-for-update`);
+  }
+
+  downloadImportExcelSheet(excelPayload: SchoolItemCopyExcelPayload): Observable<Blob> {
+    return this.http.post(`${this.apiBaseUrl}/books/copies/download`, excelPayload, {
+      responseType: 'blob',
+    });
   }
 }

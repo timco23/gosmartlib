@@ -539,3 +539,10 @@ export interface ReviewReport {
   reviewId: number,
   reporter: UserProfile
 }
+
+export interface SchoolItemCopyExcelPayload {
+  rows: {
+    itemName: string,
+    copyId: string
+  }[]
+}

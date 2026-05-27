@@ -38,6 +38,14 @@
       <button
         type="button"
         class="btn-primary"
+        (click)="generateExcel()"
+        [disabled]="selectedItems.length === 0"
+      >
+        Download als Excel ({{ selectedItems.length }})
+      </button>
+      <button
+        type="button"
+        class="btn-primary"
         (click)="print()"
         [disabled]="selectedItems.length === 0"
       >

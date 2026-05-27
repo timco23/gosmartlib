@@ -7,7 +7,13 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SchoolService } from '../../services/school.service';
 import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
-import { BarcodePrintItem, BulkImportHistoryEntry, ConfirmDialogAction, SchoolItemCopy } from '../../../types/types';
+import {
+  BarcodePrintItem,
+  BulkImportHistoryEntry,
+  ConfirmDialogAction,
+  SchoolItemCopy,
+  SchoolItemCopyExcelPayload,
+} from '../../../types/types';
 
 @Component({
   selector: 'app-barcode-print-page',
@@ -202,6 +208,26 @@ export class BarcodePrintPage implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/books/add']);
     }
+  }
+
+  generateExcel() {
+    const payload: SchoolItemCopyExcelPayload = {
+      rows: this.selectedItems.map((item) => ({
+        itemName: this.bookTitles.get(item.copy.itemId) || '',
+        copyId: item.copy.barcode,
+      })),
+    };
+
+    this.api.downloadImportExcelSheet(payload).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `barcodes_${new Date().getTime()}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+    });
   }
 
   ngOnDestroy(): void {

@@ -390,7 +390,7 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/books/copies/download")
+    @PostMapping("/books/copies/download")
     public ResponseEntity<Resource> downloadCopyExcel(@RequestBody SchoolItemCopyExcelDTO schoolItemCopyExcelDTO)
             throws IOException {
         Path excelLocation = this.schoolItemCopyService.generateExcel(schoolItemCopyExcelDTO);
