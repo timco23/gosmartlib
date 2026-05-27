@@ -1,27 +1,49 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SchoolStatisticsDTO, UserProfile } from '../../types/types';
-import { BaseStatisticsPage } from '../shared/base-statistics-page';
+import { StatisticsService } from '../services/statistics.service';
+import { UserService } from '../services/user.service';
 import { formatChartLabel, formatDate, lendingStatus, lendingStatusLabel } from '../shared/statistics-utils';
+import { SchoolYearSelectorComponent } from '../widgets/school-year-selector/school-year-selector';
 
 @Component({
   selector: 'app-school-statistics-page',
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, SchoolYearSelectorComponent],
   templateUrl: './school-statistics-page.html',
   styleUrl: './school-statistics-page.css',
 })
-export class SchoolStatisticsPage extends BaseStatisticsPage {
+export class SchoolStatisticsPage {
+  private statisticsApi = inject(StatisticsService);
+  private userApi = inject(UserService);
+  private cdr = inject(ChangeDetectorRef);
+
+  schoolId!: number;
+  selectedYear: string | null = null;
   stats: SchoolStatisticsDTO | null = null;
   schoolName = '';
+  loading = true;
 
   readonly lendingStatus = lendingStatus;
   readonly lendingStatusLabel = lendingStatusLabel;
   readonly formatDate = formatDate;
   readonly formatChartLabel = formatChartLabel;
 
-  protected override onUserLoaded(user: UserProfile): void {
-    this.schoolName = user.schoolName ?? '';
+  constructor() {
+    this.userApi.getUser().subscribe((user: UserProfile) => {
+      if (user.schoolId) {
+        this.schoolId = user.schoolId;
+        this.schoolName = user.schoolName ?? '';
+        this.loadStats();
+      }
+    });
+  }
+
+  get yearLabel(): string {
+    if (this.selectedYear === 'all') return 'Alle jaren';
+    const now = new Date();
+    const year = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+    return this.selectedYear ?? `${year}-${year + 1}`;
   }
 
   get chartTitle(): string {
@@ -45,7 +67,12 @@ export class SchoolStatisticsPage extends BaseStatisticsPage {
     return Math.max(...this.filteredLendingsTrend.map(d => d.count), 1);
   }
 
-  protected override loadStats(): void {
+  onYearChange(year: string | null): void {
+    this.selectedYear = year;
+    this.loadStats();
+  }
+
+  private loadStats(): void {
     this.loading = true;
     this.statisticsApi.getSchoolStatistics(this.schoolId, this.selectedYear ?? undefined).subscribe((s) => {
       this.stats = s;

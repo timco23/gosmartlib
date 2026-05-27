@@ -62,6 +62,10 @@ export interface School {
   externalLending: boolean;
   reviews: boolean;
   reviewModeration: boolean;
+  dashboardShowBookOfMonth: boolean;
+  dashboardShowLastBorrowed: boolean;
+  dashboardShowAnnouncement: boolean;
+  dashboardAnnouncement?: string;
   campuses: Campus[];
 }
 
@@ -545,4 +549,9 @@ export interface SchoolItemCopyExcelPayload {
     itemName: string,
     copyId: string
   }[]
+}
+
+export interface WizardStep {
+  title: string;
+  fields: string[];
 }

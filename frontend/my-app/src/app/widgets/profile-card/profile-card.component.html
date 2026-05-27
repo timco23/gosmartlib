@@ -1,0 +1,34 @@
+<div class="profile-header">
+  <div class="profile-avatar">
+    {{ (profile.firstName[0] ?? '') + (profile.name[0] ?? '') }}
+  </div>
+  <div class="profile-header-info">
+    <h2>{{ profile.firstName }} {{ profile.name }}</h2>
+    <span class="profile-email">{{ profile.email }}</span>
+  </div>
+</div>
+
+<div class="profile-content">
+  @if (profile.schoolName) {
+    <div class="profile-item">
+      <label>School</label>
+      <span>{{ profile.schoolName }}</span>
+    </div>
+  }
+  @if (profile.classes.length > 0) {
+    <div class="profile-item">
+      <label>Klas</label>
+      <span>{{ classNames }}</span>
+    </div>
+  }
+  @if (profile.studentNumber) {
+    <div class="profile-item">
+      <label>Studentnummer</label>
+      <span>{{ profile.studentNumber }}</span>
+    </div>
+  }
+  <div class="profile-item">
+    <label>Boeken geleend</label>
+    <span>{{ activeLendingsCount ?? 0 }}</span>
+  </div>
+</div>

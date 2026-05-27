@@ -120,6 +120,8 @@ public class WebSecurityConfig {
 
                 .requestMatchers("/favorites/**", "/wishlist/**", "/profile/**", "/reviews/**")
                 .hasAnyAuthority(ALL_USERS)
+                .requestMatchers(HttpMethod.GET, "/statistics/me")
+                .hasAnyAuthority(ALL_USERS)
 
                 .requestMatchers(HttpMethod.POST, "/user/request-deletion")
                 .hasAnyAuthority(ALL_USERS)

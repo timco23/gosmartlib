@@ -25,6 +25,9 @@ JWT_SECRET=your32characterlongsecrethere1234
 JWT_EXPIRES_MINUTES=15
 OAUTH_DEFAULT_SCHOOL_ID=1
 
+# For name encryption
+ENCRYPTION_SECRET=eenLangeWillekeurigeSleutel123!@#
+
 # External metadata APIs
 HARDCOVER_API_KEY=yourApiKey
 GOOGLE_BOOKS_API_KEY=yourApiKey

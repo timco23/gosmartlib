@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LendingService } from '../services/lending.service';
 import { Lending, LoginResponse } from '../../types/types';
@@ -14,7 +14,7 @@ import { UserService } from '../services/user.service';
   templateUrl: './lending-history.component.html',
   styleUrl: './lending-history.component.css',
 })
-export class LendingHistoryComponent {
+export class LendingHistoryComponent implements OnChanges {
   api: LendingService = inject(LendingService);
   lendings: Lending[] = [];
   currentUser: LoginResponse | null = null;
@@ -31,6 +31,10 @@ export class LendingHistoryComponent {
 
   currentPage = 0;
   pageSize = 10;
+  
+  @Input() preloadedLendings?: Lending[];
+  @Input() showTitle: boolean = true;
+  @Input() withPageLayout: boolean = true;
 
   get totalPages(): number {
     return Math.ceil(this.lendings.length / this.pageSize);
@@ -42,8 +46,18 @@ export class LendingHistoryComponent {
   }
 
   constructor(private authService: AuthService, private route: ActivatedRoute) {}
-  
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('preloadedLendings' in changes && this.preloadedLendings !== undefined) {
+      this.lendings = this.preloadedLendings;
+      this.currentPage = 0;
+      this.cdr.detectChanges();
+    }
+  }
+
   ngOnInit(): void {
+    if (this.preloadedLendings !== undefined) return;
+
     this.route.queryParams.subscribe(params => {
       const userId = params['userId'];
       const userEmail = params['userEmail']
@@ -107,13 +121,13 @@ export class LendingHistoryComponent {
 
   coverSrcFromLending(lending: Lending): string | null {
     const id = Number(lending.itemId);
-    if (!Number.isFinite(id) || id <= 0 || this.failedCoverIds.has(id)) return null;
+    if (id <= 0 || this.failedCoverIds.has(id)) return null;
     return this.bookApi.getBookCoverUrl(id);
   }
 
   onCoverError(_event: Event, lending: Lending): void {
     const id = Number(lending.itemId);
-    if (Number.isFinite(id) && id > 0) {
+    if (id > 0) {
       this.failedCoverIds.add(id);
       this.cdr.detectChanges();
     }

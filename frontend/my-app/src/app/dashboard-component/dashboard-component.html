@@ -1,103 +1,151 @@
 <section class="dashboard">
   <div class="header">
     <h1>Dashboard</h1>
+    @if (school?.dashboardShowAnnouncement && school?.dashboardAnnouncement) {
+      <div class="announcement">
+        <span class="announcement__icon">📢</span>
+        <p class="announcement__text">{{ school!.dashboardAnnouncement }}</p>
+      </div>
+    }
+
     <div class="info-cards">
       @if (mostBorrowedBook) {
         <a class="info-card" [routerLink]="['/books', mostBorrowedBook.id]">
-          <span class="info-card-label">📚 Boek van de maand</span>
-          <span class="info-card-title">{{ mostBorrowedBook.title }}</span>
-          <span class="info-card-sub">{{ mostBorrowedBook.author }}</span>
+          <img
+            class="info-card-cover"
+            [src]="coverUrl(mostBorrowedBook.id)"
+            [alt]="mostBorrowedBook.title"
+            loading="lazy"
+          />
+          <div class="info-card-body">
+            <span class="info-card-label">📚 Boek van de maand</span>
+            <span class="info-card-title">{{ mostBorrowedBook.title }}</span>
+            <span class="info-card-sub">{{ mostBorrowedBook.author }}</span>
+          </div>
         </a>
       }
       @if (lastBorrowedBook) {
         <a class="info-card" [routerLink]="['/books', lastBorrowedBook.id]">
-          <span class="info-card-label">🕐 Laatst ontleend</span>
-          <span class="info-card-title">{{ lastBorrowedBook.title }}</span>
-          <span class="info-card-sub">{{ lastBorrowedBook.author }}</span>
+          <img
+            class="info-card-cover"
+            [src]="coverUrl(lastBorrowedBook.id)"
+            [alt]="lastBorrowedBook.title"
+            loading="lazy"
+          />
+          <div class="info-card-body">
+            <span class="info-card-label">🕐 Laatst ontleend in de bib</span>
+            <span class="info-card-title">{{ lastBorrowedBook.title }}</span>
+            <span class="info-card-sub">{{ lastBorrowedBook.author }}</span>
+          </div>
         </a>
       }
     </div>
   </div>
 
-  <p class="section-title">Uitleningen</p>
-  <div class="legend">
-    <button
-      type="button"
-      class="legend-item all"
-      [class.active]="selectedFilter === 'ALL'"
-      (click)="setFilter('ALL')"
-    >
-      Alles
-    </button>
-    <button
-      type="button"
-      class="legend-item ok"
-      [class.active]="selectedFilter === 'OK'"
-      (click)="setFilter('OK')"
-    >
-      Op tijd
-    </button>
-    <button
-      type="button"
-      class="legend-item due-soon"
-      [class.active]="selectedFilter === 'DUE_SOON'"
-      (click)="setFilter('DUE_SOON')"
-    >
-      Bijna verlopen
-    </button>
-    <button
-      type="button"
-      class="legend-item overdue"
-      [class.active]="selectedFilter === 'OVERDUE'"
-      (click)="setFilter('OVERDUE')"
-    >
-      Te laat
-    </button>
-    <button
-      type="button"
-      class="legend-item returned"
-      [class.active]="selectedFilter === 'RETURNED'"
-      (click)="setFilter('RETURNED')"
-    >
-      Teruggebracht
-    </button>
-
-    <div class="legend-search">
-      <input
-        type="search"
-        class="search-input"
-        placeholder="Zoek op titel..."
-        [value]="searchTerm"
-        (input)="searchTerm = $any($event.target).value"
-      />
+  @if (!profileLoading && profile) {
+    <p class="section-title">Mijn gegevens</p>
+    <div class="profile-stats-grid">
+      <div class="profile-card-wrapper">
+        <app-profile-card [profile]="profile" [activeLendingsCount]="filteredAndSortedLendings.length" />
+      </div>
+      @if (ownStats) {
+        <div class="stats-panel">
+          <div class="stats-panel__inner">
+            <div class="stat-chips">
+              <div class="stat-chip">
+                <span class="stat-chip__value">{{ ownStats.totalLendings }}</span>
+                <span class="stat-chip__label">Totaal ontleend</span>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-chip__value">{{ ownStats.activeLendings }}</span>
+                <span class="stat-chip__label">Momenteel ontleend</span>
+              </div>
+              <div class="stat-chip" [class.stat-chip--warn]="ownStats.lateReturnPercent > 20">
+                <span class="stat-chip__value">{{ ownStats.lateReturnPercent }}%</span>
+                <span class="stat-chip__label">Te laat ingeleverd</span>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-chip__value">{{ ownStats.reviewCount }}</span>
+                <span class="stat-chip__label">Reviews</span>
+              </div>
+            </div>
+            <div class="stats-panel__right">
+              @if (ownStats.topGenres.length > 0) {
+                <div class="genres-section">
+                  <p class="genres-title">Lievelingsgenres</p>
+                  <ol class="genre-list">
+                    @for (genre of ownStats.topGenres; track genre) {
+                      <li class="genre-item">{{ genre }}</li>
+                    }
+                  </ol>
+                </div>
+              }
+              @if (isDeletionStudent) {
+                <div class="deletion-zone">
+                  @if (!hasPendingDeletion) {
+                    <button
+                      class="btn-request-deletion"
+                      [class.disabled]="hasActiveLendingsCurrent"
+                      [disabled]="hasActiveLendingsCurrent"
+                      (click)="openDeleteConfirm()"
+                    >
+                      Aanvraag om mijn gegevens te verwijderen
+                    </button>
+                    @if (hasActiveLendingsCurrent) {
+                      <p class="deletion-blocked-msg">
+                        Gegevens verwijderen is niet mogelijk omdat je nog boek(en) aan het uitlenen bent.
+                      </p>
+                    }
+                  } @else {
+                    <div class="deletion-pending">
+                      <p class="deletion-warning">
+                        Uw profiel wordt over <strong>{{ deletionCountdown }}</strong> verwijderd.
+                      </p>
+                      <button class="btn-cancel-deletion" (click)="openCancelConfirm()">
+                        Mijn keuze wissen
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
     </div>
-  </div>
+  }
+
+  <p class="section-title">Actieve ontleningen</p>
 
   @if (loading) {
     <div class="state">Laden...</div>
   } @else if (error) {
     <div class="state error">{{ error }}</div>
   } @else if (!filteredAndSortedLendings.length) {
-    <div class="state">Geen uitleningen voor deze filter.</div>
+    <div class="state">Geen actieve ontleningen.</div>
   } @else {
     <div class="grid">
       @for (lending of filteredAndSortedLendings; track lending.id) {
         <div class="tile" [ngClass]="tileClass(lending)">
           <div class="tile-header">
-            <h3 class="title">{{ lending.bookTitle }}</h3>
-            <span class="status">{{ statusLabel(lending) }}</span>
+            @if (lending.itemId) {
+              <img
+                class="tile-cover"
+                [src]="coverUrl(lending.itemId)"
+                [alt]="lending.bookTitle"
+                loading="lazy"
+              />
+            }
+            <div class="tile-title-group">
+              <div class="title-status-row">
+                <h3 class="title">{{ lending.bookTitle }}</h3>
+                <span class="status">{{ statusLabel(lending) }}</span>
+              </div>
+              <div class="meta">{{ lending.bookAuthor }}</div>
+              <div class="meta">Ontleendatum: {{ formatDate(lending.lendingDate) }}</div>
+              <div class="meta">Inleverdatum: {{ formatDate(lending.returnDate) }} <span class="days-left">({{ daysLeftLabel(lending) }})</span></div>
+            </div>
           </div>
-
-          <div class="meta">Auteur: {{ lending.bookAuthor }}</div>
-          <div class="meta">Uitgeleend aan: {{ lending.borrowerName }}</div>
-          <div class="meta">Uitleendatum: {{ formatDate(lending.lendingDate) }}</div>
-          <div class="meta">Vervaldatum: {{ formatDate(lending.returnDate) }}</div>
-
-          @if (!lending.returned) {
-            <div class="meta strong">Nog: {{ daysLeftLabel(lending) }}</div>
-          } @else {
-            <div class="meta">Teruggebracht op: {{ formatDate(lending.dateReturned) }}</div>
-          }
 
           @if (lending.extended) {
             <div class="badge">Verlengd</div>
@@ -108,21 +156,47 @@
               <button
                 class="btn"
                 (click)="extend(lending)"
-                [disabled]="lending.returned || lending.extended"
+                [disabled]="lending.extended"
               >
                 Verlengen
               </button>
-              <button
-                class="btn danger"
-                (click)="returnBook(lending)"
-                [disabled]="lending.returned"
-              >
-                Terugbrengen
-              </button>
+              <button class="btn danger" (click)="returnBook(lending)">Terugbrengen</button>
             </div>
           }
         </div>
       }
     </div>
   }
+
+  <p class="section-title">Mijn uitleenhistoriek</p>
+  <div class="history-wrapper">
+    <app-lending-history [preloadedLendings]="lendingHistory" [showTitle]="false" [withPageLayout]="false" />
+  </div>
 </section>
+
+@if (showDeleteConfirm) {
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3>Profiel verwijderen</h3>
+      <p>Bent u zeker dat u uw profiel/gegevens wilt verwijderen?</p>
+      <p class="modal-note">U heeft 24 uur om deze keuze te annuleren.</p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="closeDeleteConfirm()">Annuleer</button>
+        <button class="btn-modal-confirm" (click)="confirmDeletion()">Ja, verwijderen</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showCancelConfirm) {
+  <div class="modal-overlay" (click)="closeCancelConfirm()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <h3>Keuze wissen</h3>
+      <p>Wilt u zeker dat u uw keuze wilt wissen?</p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="closeCancelConfirm()">Annuleer</button>
+        <button class="btn-modal-confirm" (click)="confirmCancelDeletion()">Ja, wissen</button>
+      </div>
+    </div>
+  </div>
+}

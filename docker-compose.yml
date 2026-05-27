@@ -47,6 +47,7 @@ services:
       - GOOGLE_BOOKS_API_KEY=${GOOGLE_BOOKS_API_KEY:-}
       - HARDCOVER_API_KEY=${HARDCOVER_API_KEY:-}
       - MODERATION_API_KEY=${MODERATION_API_KEY:-}
+      - ENCRYPTION_SECRET=${ENCRYPTION_SECRET} 
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"

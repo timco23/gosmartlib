@@ -1,40 +1,44 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LendingService } from '../services/lending.service';
-import {
-  Lending,
-  LoginResponse,
-  Role,
-  LendingStatus,
-  LendingFilter,
-  Book,
-  School,
-} from '../../types/types';
+import { Lending, LoginResponse, Role, LendingStatus, Book, School, UserProfile, StudentStatisticsDTO } from '../../types/types';
 import { UserService } from '../services/user.service';
 import { SchoolService } from '../services/school.service';
-import { RouterModule } from '@angular/router';
+import { BookService } from '../services/book-service';
+import { StatisticsService } from '../services/statistics.service';
+import { Router, RouterModule } from '@angular/router';
+import { ProfileCardComponent } from '../widgets/profile-card/profile-card.component';
+import { LendingHistoryComponent } from '../lending-history/lending-history.component';
 
 @Component({
   selector: 'app-dashboard-component',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ProfileCardComponent, LendingHistoryComponent],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   lendings: Lending[] = [];
+  lendingHistory: Lending[] = [];
   loading = true;
   error: string | null = null;
   currentUser: LoginResponse | null = null;
   readonly dueSoonDays = 3;
-  selectedFilter: LendingFilter = 'ALL';
-  searchTerm = '';
 
   mostBorrowedBook: Book | null = null;
   lastBorrowedBook: Book | null = null;
   school: School | null = null;
+
+  profile: UserProfile | null = null;
+  profileLoading = true;
+  ownStats: StudentStatisticsDTO | null = null;
+
+  showDeleteConfirm = false;
+  showCancelConfirm = false;
+  deletionCountdown: string = '';
+  private countdownInterval: any;
 
   cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -43,6 +47,9 @@ export class DashboardComponent implements OnInit {
     public authService: AuthService,
     private userService: UserService,
     private schoolService: SchoolService,
+    private bookService: BookService,
+    private statisticsService: StatisticsService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -54,27 +61,56 @@ export class DashboardComponent implements OnInit {
       .subscribe((user) => {
         this.currentUser = user;
         this.loadLendings(user.email);
+        this.loadOwnProfile();
 
         this.userService.getUser(user.email).subscribe((userData) => {
           if (!userData.schoolName) return;
           this.schoolService.getByName(userData.schoolName).subscribe((school) => {
             this.school = school;
-            this.lendingApi.getMostBorrowedThisMonth(school.id!).subscribe({
-              next: (book) => {
-                this.mostBorrowedBook = book;
-                this.cdr.detectChanges();
-              },
-            });
+
+            if (school.dashboardShowBookOfMonth) {
+              this.lendingApi.getMostBorrowedThisMonth(school.id!).subscribe({
+                next: (book) => {
+                  this.mostBorrowedBook = book;
+                  this.cdr.detectChanges();
+                },
+              });
+            }
+
+            if (school.dashboardShowLastBorrowed) {
+              this.lendingApi.getLastBorrowedBook(user.email).subscribe({
+                next: (book) => {
+                  this.lastBorrowedBook = book;
+                  this.cdr.detectChanges();
+                },
+              });
+            }
           });
         });
-
-        this.lendingApi.getLastBorrowedBook(user.email).subscribe({
-          next: (book) => {
-            this.lastBorrowedBook = book;
-            this.cdr.detectChanges();
-          },
-        });
       });
+  }
+
+  loadOwnProfile(): void {
+    this.userService.getUser().subscribe({
+      next: (data) => {
+        this.profile = data;
+        if (this.profile.deletionRequestedAt) this.startDeletionCountdown();
+        this.profileLoading = false;
+        if (this.authService.atLeastHasRole(Role.LEERLING) && !this.authService.atLeastHasRole(Role.LEERKRACHT)) {
+          this.statisticsService.getOwnStatistics().subscribe({
+            next: (stats) => {
+              this.ownStats = stats;
+              this.cdr.detectChanges();
+            },
+          });
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load profile', err);
+        this.profileLoading = false;
+      },
+    });
   }
 
   private loadLendings(email: string) {
@@ -84,11 +120,12 @@ export class DashboardComponent implements OnInit {
     this.lendingApi.getLendingsByUser(email).subscribe({
       next: (data) => {
         this.lendings = data ?? [];
+        this.lendingHistory = this.lendings.filter((l) => l.returned || !!l.dateReturned);
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => {
-        this.error = 'Uitleningen konden niet geladen worden.';
+        this.error = 'Ontleningen konden niet geladen worden.';
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -101,18 +138,10 @@ export class DashboardComponent implements OnInit {
     return this.authService.atLeastHasRole(Role.BIBLIOTHEEKBEHEERDER);
   }
 
-  setFilter(filter: LendingFilter) {
-    this.selectedFilter = filter;
-  }
-
   get filteredAndSortedLendings(): Lending[] {
-    const filtered = this.lendings.filter((l) => this.matchesFilter(l) && this.matchesSearch(l));
-    return [...filtered].sort((a, b) => this.compareLendings(a, b));
-  }
-
-  private matchesFilter(lending: Lending): boolean {
-    if (this.selectedFilter === 'ALL') return true;
-    return this.getStatus(lending) === this.selectedFilter;
+    return [...this.lendings.filter((l) => !l.returned)].sort((a, b) =>
+      this.compareLendings(a, b),
+    );
   }
 
   private compareLendings(a: Lending, b: Lending): number {
@@ -218,6 +247,7 @@ export class DashboardComponent implements OnInit {
 
   private replace(updated: Lending) {
     this.lendings = this.lendings.map((l) => (l.id === updated.id ? updated : l));
+    this.lendingHistory = this.lendings.filter((l) => l.returned || !!l.dateReturned);
   }
 
   private todayString(): string {
@@ -234,10 +264,103 @@ export class DashboardComponent implements OnInit {
     return isNaN(date.getTime()) ? null : date;
   }
 
-  private matchesSearch(lending: Lending): boolean {
-    const query = this.searchTerm.trim().toLowerCase();
-    if (!query) return true;
-    const title = (lending.bookTitle ?? '').toLowerCase();
-    return title.includes(query);
+  coverUrl(itemId: number): string {
+    return this.bookService.getBookCoverUrl(itemId);
+  }
+
+  get isDeletionStudent(): boolean {
+    return this.profile?.role === 'LEERLING';
+  }
+
+  get hasPendingDeletion(): boolean {
+    return !!this.profile?.deletionRequestedAt;
+  }
+
+  get hasActiveLendingsCurrent(): boolean {
+    return this.filteredAndSortedLendings.length > 0;
+  }
+
+  openDeleteConfirm(): void {
+    if (this.hasActiveLendingsCurrent) return;
+    this.showDeleteConfirm = true;
+  }
+
+  closeDeleteConfirm(): void {
+    this.showDeleteConfirm = false;
+  }
+
+  confirmDeletion(): void {
+    this.showDeleteConfirm = false;
+    this.userService.requestDeletion().subscribe({
+      next: (updated) => {
+        this.profile = updated;
+        this.startDeletionCountdown();
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to request deletion', err),
+    });
+  }
+
+  openCancelConfirm(): void {
+    this.showCancelConfirm = true;
+  }
+
+  closeCancelConfirm(): void {
+    this.showCancelConfirm = false;
+  }
+
+  confirmCancelDeletion(): void {
+    this.showCancelConfirm = false;
+    this.userService.cancelDeletion().subscribe({
+      next: (updated) => {
+        this.profile = updated;
+        this.stopDeletionCountdown();
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to cancel deletion', err),
+    });
+  }
+
+  startDeletionCountdown(): void {
+    this.stopDeletionCountdown();
+    this.updateDeletionCountdown();
+    this.countdownInterval = setInterval(() => {
+      this.updateDeletionCountdown();
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  stopDeletionCountdown(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+    this.deletionCountdown = '';
+  }
+
+  updateDeletionCountdown(): void {
+    if (!this.profile?.deletionRequestedAt) return;
+    const rawDate = this.profile.deletionRequestedAt;
+    const utcString = rawDate.endsWith('Z') ? rawDate : rawDate + 'Z';
+    const requestedAt = new Date(utcString);
+    const deleteAt = new Date(requestedAt.getTime() + 24 * 60 * 60 * 1000);
+    const diff = deleteAt.getTime() - Date.now();
+    if (diff <= 0) {
+      this.deletionCountdown = 'Wordt verwijderd...';
+      this.stopDeletionCountdown();
+      setTimeout(() => {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      }, 5000);
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    this.deletionCountdown = `${h}u ${m}m ${s}s`;
+  }
+
+  ngOnDestroy(): void {
+    this.stopDeletionCountdown();
   }
 }

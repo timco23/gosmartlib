@@ -29,11 +29,12 @@ public class SchoolService {
         existing.setLenderNotificationPeriod(updated.getLenderNotificationPeriod());
         existing.setLenderLateNotificationPeriod(updated.getLenderLateNotificationPeriod());
         existing.setLibrarianNotificationNotReturned(updated.getLibrarianNotificationNotReturned());
-        existing.setLibrarianRequestNotification(updated.getLibrarianRequestNotification());
-        existing.setExternalVisibility(updated.isExternalVisibility());
-        existing.setExternalLending(updated.isExternalLending());
         existing.setReviews(updated.isReviews());
         existing.setReviewModeration(updated.isReviewModeration());
+        existing.setDashboardShowBookOfMonth(updated.isDashboardShowBookOfMonth());
+        existing.setDashboardShowLastBorrowed(updated.isDashboardShowLastBorrowed());
+        existing.setDashboardShowAnnouncement(updated.isDashboardShowAnnouncement());
+        existing.setDashboardAnnouncement(updated.getDashboardAnnouncement());
     }
 
     public List<School> getAllSchools() {

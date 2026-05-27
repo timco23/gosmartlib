@@ -180,18 +180,45 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-4) var(--space-4);
+  padding: var(--space-3) var(--space-4);
   color: rgba(255, 255, 255, 0.82);
   font-family: var(--font-body);
   font-weight: 600;
   font-size: var(--text-sm);
   user-select: none;
-  transition:
-    color var(--transition-fast),
-    background var(--transition-fast);
   white-space: nowrap;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.12);
+}
+
+.user-info__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-pill);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.7);
 }
 
 
@@ -402,41 +429,6 @@
     padding-top: 0;
     min-height: auto;
   }
-}
-.nav-section-bottom .dropdown-item {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.nav-section-bottom .dropdown-item:hover {
-  background: rgba(0, 0, 0, 0.12);
-  color: #fff;
-}
-
-.nav-section-bottom .btn-logout {
-  color: rgba(255, 255, 255, 0.75);
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
-}
-
-.nav-section-bottom .btn-logout:hover {
-  background: rgba(0, 0, 0, 0.12);
-  color: #fff;
-}
-
-.nav-link-logout {
-  background: none;
-  border: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font-family: var(--font-body);
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 600;
-  border-left: 3px solid transparent;
-}
-
-.nav-link-logout:hover {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.12);
 }
 
 .no-school-banner {

@@ -53,7 +53,8 @@
 
   <div class="nav-links">
     <div class="nav-section">
-      <a routerLink="/books" class="nav-link">Boeken</a>
+      <a routerLink="/dashboard" class="nav-link" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/books" class="nav-link">Catalogus</a>
       @if (authService.atLeastHasRole(role.LEERKRACHT)) {
       <a routerLink="/didactic-books" class="nav-link" routerLinkActive="active">Didactische collectie</a>
       }
@@ -99,23 +100,16 @@
     </div>
   }
 
-    <div class="nav-section-bottom">
-      <a routerLink="/profile" class="nav-link" routerLinkActive="active">
-        Mijn gegevens
-      </a>
-      <a routerLink="/lendingHistory" class="nav-link" routerLinkActive="active">
-        Mijn uitleenhistoriek
-      </a>
-      <a routerLink="/dashboard" class="nav-link" routerLinkActive="active">
-        Dashboard
-      </a>
-      <button (click)="logout()" class="nav-link nav-link-logout">Uitloggen</button>
-    </div>
   </div>
 
   <div class="user-menu">
     <div class="user-info">
-      <strong>{{ currentUser.name }}</strong>
+      <strong class="user-info__name">{{ currentUser.name }}</strong>
+      <button class="logout-btn" (click)="logout()" title="Uitloggen" aria-label="Uitloggen">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
