@@ -3,6 +3,9 @@ package edu.ap.spring_backend.jpa;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.ap.spring_backend.util.EncryptedStringConverter;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,9 +15,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(nullable = false, name = "name")
     private String name;
-
+    
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "first_name")
     private String firstName;
 

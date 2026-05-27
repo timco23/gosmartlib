@@ -44,4 +44,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findBySchool_IdAndWishlistedBooks_Id(Long schoolId, Long itemId);
 
     List<User> findBySmartschoolUsernameStartingWith(String prefix);
+
+    @Modifying
+    @Query(value = "UPDATE user SET name = :name, first_name = :firstName WHERE id = :id", nativeQuery = true)
+    void updateNamesDirect(@Param("id") Integer id, @Param("name") String name, @Param("firstName") String firstName);
 }

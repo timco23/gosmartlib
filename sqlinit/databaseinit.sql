@@ -569,4 +569,3 @@ VALUES
 
 -- Kopiestatus bijwerken voor actieve uitleningen
 UPDATE school_item_copy SET copy_status = 'UITGELEEND' WHERE id IN (21, 11, 9);
-
