@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { PopUpComponent } from '../../widgets/pop-up/pop-up.component';
   styleUrl: './school-wizard.css',
 })
 export class SchoolWizard {
+  @Input() isSetupMode = false;
   @Output() schoolCreated = new EventEmitter<School>();
   @Output() cancelled = new EventEmitter<void>();
 
@@ -103,7 +104,7 @@ export class SchoolWizard {
     const schoolData = { ...this.form.value, campuses: this.campuses };
     this.schoolService.create(schoolData).subscribe({
       next: (saved) => {
-        this.isSubmitting = false;
+        // Keep isSubmitting true so the button stays disabled until the parent removes the wizard
         this.schoolCreated.emit(saved);
         this.cdr.detectChanges();
       },

@@ -292,7 +292,7 @@
       <div class="button-row">
         @if (!isFirstStep) {
           <button type="button" class="btn-back" (click)="goPrevious()">← Vorige</button>
-        } @else {
+        } @else if (!isSetupMode) {
           <button type="button" class="btn-back" (click)="requestCancel()">Annuleren</button>
         }
 

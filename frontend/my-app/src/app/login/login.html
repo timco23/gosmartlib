@@ -10,7 +10,45 @@
       <span class="btn-smartschool__text">Aanmelden met Smartschool</span>
     </button>
     <p class="login-tagline">GO!SmartLib - AP Hogeschool</p>
-    <br />
+
+    <div class="admin-login-section">
+      <button class="btn-admin-toggle" (click)="showAdminForm = !showAdminForm">
+        <span class="btn-admin-toggle__text">Aanmelden als administrator</span>
+        <span class="toggle-arrow" [class.open]="showAdminForm">▾</span>
+      </button>
+
+      @if (showAdminForm) {
+        <div class="admin-form">
+          @if (adminLoginError) {
+            <p class="admin-error">{{ adminLoginError }}</p>
+          }
+          <label for="admin-email">E-mailadres</label>
+          <input
+            id="admin-email"
+            type="email"
+            [(ngModel)]="adminEmail"
+            placeholder="admin@school.be"
+            (keyup.enter)="loginWithCredentials()"
+          />
+          <label for="admin-password">Wachtwoord</label>
+          <input
+            id="admin-password"
+            type="password"
+            [(ngModel)]="adminPassword"
+            placeholder="Wachtwoord"
+            (keyup.enter)="loginWithCredentials()"
+          />
+          <button
+            class="btn-admin-login"
+            (click)="loginWithCredentials()"
+            [disabled]="adminLoginLoading"
+          >
+            {{ adminLoginLoading ? 'Aanmelden...' : 'Aanmelden' }}
+          </button>
+        </div>
+      }
+    </div>
+
     <div class="dev-login">
       <button (click)="loginAsAdmin()">Dev: Admin</button>
     </div>

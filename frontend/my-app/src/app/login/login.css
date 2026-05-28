@@ -128,6 +128,92 @@ input:focus {
   margin-bottom: 0;
 }
 
+.admin-login-section {
+  margin-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1rem;
+}
+
+.btn-admin-toggle {
+  background: none;
+  border: none;
+  color: #8c1b3f;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: auto;
+  margin: 0 auto;
+}
+
+.btn-admin-toggle:hover .btn-admin-toggle__text {
+  text-decoration: underline;
+}
+
+.toggle-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.admin-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-form label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #555;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.admin-form input {
+  margin-bottom: 0;
+}
+
+.btn-admin-login {
+  margin-top: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: #8c1b3f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s ease;
+}
+
+.btn-admin-login:hover:not(:disabled) {
+  background: #6e1531;
+}
+
+.btn-admin-login:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+
+.admin-error {
+  font-size: 0.8rem;
+  color: #dc3545;
+  background: #f8d7da;
+  padding: 0.5rem 0.75rem;
+  border-radius: 5px;
+  margin: 0;
+  text-align: center;
+}
+
 .dev-login {
   margin-top: 1rem;
 }
