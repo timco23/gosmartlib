@@ -93,6 +93,25 @@ export class AuthService {
     return this.me();
   }
 
+  //manual login with email and password
+  login(email: string, password: string): Observable<{ token: string; refreshToken: string }> {
+    return this.http
+      .post<{ token: string; refreshToken: string }>(`${environment.apiUrl}/auth/login`, { email, password })
+      .pipe(
+        tap((res) => {
+          this.setToken(res.token);
+          if (res.refreshToken) this.setRefreshToken(res.refreshToken);
+        }),
+      );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/change-password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
+
   /**
    * Refreshes the JWT token using the refresh token.
    * Called when JWT is expired or about to expire.

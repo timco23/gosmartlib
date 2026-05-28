@@ -26,6 +26,10 @@ export class App implements OnInit {
     return this.sidebarRight;
   }
 
+  get hideNav(): boolean {
+    return this.router.url.split('?')[0] === '/setup';
+  }
+
   constructor(
     public authService: AuthService,
     private router: Router,

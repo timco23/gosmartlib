@@ -1,4 +1,4 @@
-@if (currentUser) {
+@if (currentUser && !hideNav) {
 <button class="mobile-nav-toggle" (click)="toggleMobileNav()"
   [attr.aria-label]="mobileNavOpen ? 'Menu sluiten' : 'Menu openen'">
   @if (mobileNavOpen) {

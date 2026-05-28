@@ -1,0 +1,86 @@
+<div class="setup-page">
+
+  @if (phase === 'welcome') {
+    <div class="setup-card">
+      <img src="logo_go_antwerpen.svg" alt="GO! Antwerpen" class="setup-logo" />
+      <h1>Welkom bij GO!SmartLib</h1>
+      <p class="setup-intro">
+        Voordat u de applicatie kan gebruiken, moet u uw account wachtwoord wijzigen en een eerste school instellen. Dit duurt slechts een paar minuten.
+      </p>
+      <button class="btn-primary" (click)="startSetup()">Starten →</button>
+    </div>
+  }
+
+  @if (phase === 'password') {
+    <div class="setup-card">
+      <p class="setup-context-label">Stap 1 — Wachtwoord instellen</p>
+      <h1>Nieuw wachtwoord instellen</h1>
+      <p class="setup-intro">
+        Stel een persoonlijk wachtwoord in voor uw beheerdersaccount.
+      </p>
+      <form [formGroup]="passwordForm" (ngSubmit)="submitPassword()" class="setup-password-form">
+        <div class="form-field">
+          <label for="currentPassword">Huidig wachtwoord</label>
+          <input id="currentPassword" type="password" formControlName="currentPassword" autocomplete="current-password" />
+          @if (passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.hasError('required')) {
+            <span class="field-error">Verplicht veld</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="newPassword">Nieuw wachtwoord</label>
+          <input id="newPassword" type="password" formControlName="newPassword" autocomplete="new-password" />
+          @if (passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.hasError('required')) {
+            <span class="field-error">Verplicht veld</span>
+          }
+          @if (passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.hasError('minlength')) {
+            <span class="field-error">Minimaal 8 tekens</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="confirmPassword">Wachtwoord bevestigen</label>
+          <input id="confirmPassword" type="password" formControlName="confirmPassword" autocomplete="new-password" />
+          @if (passwordForm.get('confirmPassword')?.touched && passwordForm.hasError('mismatch')) {
+            <span class="field-error">Wachtwoorden komen niet overeen</span>
+          }
+        </div>
+        @if (passwordError) {
+          <p class="setup-link-error">{{ passwordError }}</p>
+        }
+        <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid || passwordLoading">
+          {{ passwordLoading ? 'Bezig...' : 'Wachtwoord instellen →' }}
+        </button>
+      </form>
+    </div>
+  }
+
+  @if (phase === 'school') {
+    <div class="setup-school-wrapper">
+      <p class="setup-context-label">Stap 2 — School aanmaken</p>
+      @if (linkError) {
+        <p class="setup-link-error">
+          School aangemaakt, maar koppeling mislukt. Probeer opnieuw of neem contact op met support.
+        </p>
+      }
+      @if (isLinking) {
+        <p class="setup-linking">School koppelen...</p>
+      } @else {
+        <app-school-wizard
+          [isSetupMode]="true"
+          (schoolCreated)="onSchoolCreated($event)"
+        />
+      }
+    </div>
+  }
+
+  @if (phase === 'done') {
+    <div class="setup-card">
+      <div class="setup-done-icon">✓</div>
+      <h1>Configuratie voltooid</h1>
+      <p class="setup-intro">
+        Uw school is aangemaakt. GO!SmartLib is klaar voor gebruik.
+      </p>
+      <button class="btn-primary" (click)="goToApp()">Ga naar de app →</button>
+    </div>
+  }
+
+</div>

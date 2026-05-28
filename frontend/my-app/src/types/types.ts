@@ -2,6 +2,7 @@ export interface LoginResponse {
   name: string;
   role: string;
   email: string;
+  schoolId?: number | null;
 }
 
 export interface UserProfile {

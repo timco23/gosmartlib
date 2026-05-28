@@ -82,6 +82,12 @@ export const authGuard: CanActivateFn = (route, state) => {
     return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
   }
 
+  const user = authService.getCurrentUser();
+
+  if (user?.role === 'ADMIN' && user.schoolId === null && !state.url.startsWith('/setup')) {
+    return router.createUrlTree(['/setup']);
+  }
+
   const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
   if (allowedRoles.length === 0) return true;
 

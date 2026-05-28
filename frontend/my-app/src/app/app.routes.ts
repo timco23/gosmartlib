@@ -37,12 +37,14 @@ import { ClassStatisticsPage } from './class-statistics-page/class-statistics-pa
 import { StudentStatisticsPage } from './student-statistics-page/student-statistics-page';
 import { ClassListPage } from './class-list-page/class-list-page';
 import { SchoolStatisticsPage } from './school-statistics-page/school-statistics-page';
+import { InitialSetupComponent } from './initial-setup/initial-setup';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'oauth-callback', component: OauthCallback },
   { path: 'forbidden', component: ForbiddenComponent },
+  { path: 'setup', component: InitialSetupComponent, canActivate: [authGuard] },
 
 
   { path: 'books/add', component: AddBookPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },

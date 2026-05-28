@@ -11,6 +11,7 @@ import org.mockito.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Map;
 import java.util.Optional;
@@ -22,13 +23,14 @@ class AuthControllerTest {
 
     @Mock private UserRepository userRepository;
     @Mock private JwtService jwtService;
+    @Mock private PasswordEncoder passwordEncoder;
 
     private AuthController controller;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        controller = new AuthController(userRepository, jwtService);
+        controller = new AuthController(userRepository, jwtService, passwordEncoder);
     }
 
     private User mockUser(String name, String email, Role role) {
@@ -36,6 +38,7 @@ class AuthControllerTest {
         when(user.getName()).thenReturn(name);
         when(user.getEmail()).thenReturn(email);
         when(user.getRole()).thenReturn(role);
+        when(user.getSchool()).thenReturn(null);
         return user;
     }
 
