@@ -89,7 +89,8 @@ CREATE TABLE IF NOT EXISTS user (
     smartschool_access_token VARCHAR(2048),
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
     items_borrowed INT NOT NULL DEFAULT 0,
-    deletion_requested_at TIMESTAMP NULL DEFAULT NULL
+    deletion_requested_at TIMESTAMP NULL DEFAULT NULL,
+    needs_password_change BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 
@@ -114,9 +115,12 @@ CREATE TABLE IF NOT EXISTS review (
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
--- Admin user (default password: admin321 — change on first login via the setup wizard)
-INSERT INTO user (name, email, password, role, school_id, smartschool_username, refresh_token)
-VALUES ('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin', NULL);
+-- Admin users (default password: admin321 — change on first login via the setup wizard)
+INSERT INTO user (name, email, password, role, school_id, smartschool_username, refresh_token, needs_password_change)
+VALUES
+('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin', NULL, TRUE),
+('Admin2', 'admin2@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin2', NULL, TRUE),
+('Admin3', 'admin3@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin3', NULL, TRUE);
 
 INSERT INTO user (name, first_name, email, password, role, school_id, smartschool_username, refresh_token)
 VALUES

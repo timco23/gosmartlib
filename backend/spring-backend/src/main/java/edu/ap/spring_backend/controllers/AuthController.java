@@ -139,6 +139,7 @@ public class AuthController {
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setNeedsPasswordChange(false);
         userRepository.save(user);
 
         return ResponseEntity.ok().build();
@@ -174,7 +175,7 @@ public class AuthController {
      */
     private LoginResponse toLoginResponse(User user) {
         Long schoolId = user.getSchool() != null ? user.getSchool().getId() : null;
-        return new LoginResponse(user.getName(), user.getRole().name(), user.getEmail(), schoolId);
+        return new LoginResponse(user.getName(), user.getRole().name(), user.getEmail(), schoolId, user.isNeedsPasswordChange());
     }
 
     /**

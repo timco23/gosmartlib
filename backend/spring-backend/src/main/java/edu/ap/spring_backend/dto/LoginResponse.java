@@ -5,12 +5,14 @@ public class LoginResponse {
     private String role;
     private String email;
     private Long schoolId;
+    private boolean needsPasswordChange;
 
-    public LoginResponse(String name, String role, String email, Long schoolId) {
+    public LoginResponse(String name, String role, String email, Long schoolId, boolean needsPasswordChange) {
         this.name = name;
         this.role = role;
         this.email = email;
         this.schoolId = schoolId;
+        this.needsPasswordChange = needsPasswordChange;
     }
 
     public String getName() { return name; }
@@ -24,4 +26,7 @@ public class LoginResponse {
 
     public Long getSchoolId() { return schoolId; }
     public void setSchoolId(Long schoolId) { this.schoolId = schoolId; }
+
+    public boolean isNeedsPasswordChange() { return needsPasswordChange; }
+    public void setNeedsPasswordChange(boolean needsPasswordChange) { this.needsPasswordChange = needsPasswordChange; }
 }

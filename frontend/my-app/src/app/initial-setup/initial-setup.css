@@ -82,6 +82,17 @@ h1 {
   margin-bottom: var(--space-4);
 }
 
+.setup-security-notice {
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+  background: var(--color-warning-bg, #fffbeb);
+  border: 1px solid var(--color-warning-border, #fcd34d);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  text-align: left;
+}
+
 .setup-linking {
   text-align: center;
   font-size: var(--text-sm);

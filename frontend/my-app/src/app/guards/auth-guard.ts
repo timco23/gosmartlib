@@ -83,9 +83,13 @@ export const authGuard: CanActivateFn = async (route, state) => {
 
   const user = authService.getCurrentUser();
 
-  if (user?.role === 'ADMIN' && user.schoolId === null && !state.url.startsWith('/setup')) {
-    const required = await authService.setupRequired();
-    return required ? router.createUrlTree(['/setup']) : true;
+  if (user?.role === 'ADMIN') {
+    if (user.needsPasswordChange === true && !state.url.startsWith('/setup')) {
+      return router.createUrlTree(['/setup']);
+    }
+    if (user.needsPasswordChange === false && state.url.startsWith('/setup')) {
+      return router.createUrlTree(['/schools']);
+    }
   }
 
   const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];

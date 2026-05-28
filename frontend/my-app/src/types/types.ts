@@ -3,6 +3,7 @@ export interface LoginResponse {
   role: string;
   email: string;
   schoolId?: number | null;
+  needsPasswordChange?: boolean;
 }
 
 export interface UserProfile {
