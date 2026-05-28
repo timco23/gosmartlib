@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginResponse, Role } from '../../types/types';
 
@@ -110,6 +110,10 @@ export class AuthService {
       currentPassword,
       newPassword,
     });
+  }
+
+  setupRequired(): Promise<boolean> {
+    return firstValueFrom(this.http.get<boolean>(`${environment.apiUrl}/auth/setup-required`));
   }
 
   /**

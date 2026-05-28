@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.LoginResponse;
 import edu.ap.spring_backend.jpa.User;
@@ -22,11 +23,13 @@ import java.util.UUID;
 @RequestMapping("/auth")
 public class AuthController {
     private final UserRepository userRepository;
+    private final SchoolRepository schoolRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
+    public AuthController(UserRepository userRepository, SchoolRepository schoolRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.schoolRepository = schoolRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -70,7 +73,17 @@ public class AuthController {
     }
 
     /**
+     * Returns whether the initial setup still needs to be completed.
+     * Setup is required when no school exists in the system yet.
+     */
+    @GetMapping("/setup-required")
+    public ResponseEntity<Boolean> setupRequired() {
+        return ResponseEntity.ok(schoolRepository.count() == 0);
+    }
+
+    /**
      * Email/password login for initial setup admin user.
+     * Disabled once a school exists in the system (setup complete).
      * Returns a JWT and refresh token on valid credentials.
      */
     @PostMapping("/login")

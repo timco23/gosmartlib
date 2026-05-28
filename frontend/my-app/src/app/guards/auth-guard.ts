@@ -72,8 +72,7 @@ function getRoleFromToken(token: string): AppRole | null {
  * - Verifies if the role is allowed for the route
  * - Redirects to /forbidden if access is denied
  */
-
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -85,20 +84,16 @@ export const authGuard: CanActivateFn = (route, state) => {
   const user = authService.getCurrentUser();
 
   if (user?.role === 'ADMIN' && user.schoolId === null && !state.url.startsWith('/setup')) {
-    return router.createUrlTree(['/setup']);
+    const required = await authService.setupRequired();
+    return required ? router.createUrlTree(['/setup']) : true;
   }
 
   const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
   if (allowedRoles.length === 0) return true;
 
   const role = getRoleFromCurrentUser(authService) ?? getRoleFromToken(token);
-  if (!role) {
-    return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
-  }
-
-  if (allowedRoles.includes(role)) {
-    return true;
-  }
+  if (!role) return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
+  if (allowedRoles.includes(role)) return true;
 
   return router.createUrlTree(['/forbidden'], { queryParams: { from: state.url } });
 };

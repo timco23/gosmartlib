@@ -48,7 +48,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 // Public auth endpoints
-                .requestMatchers("/auth/login", "/auth/refresh", "/oauth/**", "/error").permitAll()
+                .requestMatchers("/auth/login", "/auth/refresh", "/auth/setup-required", "/oauth/**", "/error").permitAll()
                 .requestMatchers("/auth/me", "/auth/change-password").authenticated()
 
                 // Cover/image endpoints
