@@ -149,7 +149,7 @@ input:focus {
   margin: 0 auto;
 }
 
-.btn-admin-toggle:hover {
+.btn-admin-toggle:hover .btn-admin-toggle__text {
   text-decoration: underline;
 }
 

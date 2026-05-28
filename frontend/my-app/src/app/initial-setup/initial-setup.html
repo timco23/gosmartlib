@@ -20,7 +20,7 @@
 
   @if (phase === 'school') {
     <div class="setup-school-wrapper">
-      <p class="setup-context-label">Stap 2 — School aanmaken</p>
+      <p class="setup-context-label">Stap 2 — Eerste school aanmaken</p>
       @if (linkError) {
         <p class="setup-link-error">
           School aangemaakt, maar koppeling mislukt. Probeer opnieuw of neem contact op met support.
@@ -42,7 +42,10 @@
       <div class="setup-done-icon">✓</div>
       <h1>Configuratie voltooid</h1>
       <p class="setup-intro">
-        Uw school is aangemaakt. GO!SmartLib is klaar voor gebruik.
+        Uw school is aangemaakt. GO! SmartLib is klaar voor gebruik.
+      </p>
+      <p class="setup-intro">
+        Via accountbeheer kan de eerste bibliotheekbeheerder worden aangesteld. Dit kan op elk moment gebeuren.
       </p>
       <button class="btn-primary" (click)="goToApp()">Ga naar de app →</button>
     </div>
