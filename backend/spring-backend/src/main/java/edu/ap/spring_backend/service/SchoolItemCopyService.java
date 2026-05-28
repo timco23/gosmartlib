@@ -2,7 +2,6 @@ package edu.ap.spring_backend.service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 import edu.ap.spring_backend.dao.CampusRepository;

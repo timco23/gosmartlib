@@ -46,14 +46,6 @@ export class App implements OnInit {
       this.currentUser = user;
       this.authService.currentUser$.subscribe((user) => {
         this.currentUser = user;
-        if (user?.email) {
-          this.userService.hasSchool(user.email).subscribe({
-            next: (result) => this.hasSchool = result,
-            error: () => this.hasSchool = false,
-          });
-        } else {
-          this.hasSchool = false;
-        }
       });
     });
 
