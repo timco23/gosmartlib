@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,6 +58,8 @@ public class Item {
     private String description;
 
     private boolean updating;
+
+    private LocalDateTime updatingAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "item_tag", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))

@@ -10,8 +10,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -288,10 +290,24 @@ public class ItemService {
         Item item = itemRepository.findById(bookId)
                 .orElseThrow(EntityNotFoundException::new);
         item.setUpdating(value);
+        item.setUpdatingAt(value ? LocalDateTime.now() : null);
         itemRepository.save(item);
         return mapToItemDTO(item);
     }
     
+    @Scheduled(fixedRate = 60 * 1000)
+    public void resetStaleUpdatingFlags() {
+        System.out.println("Scheduler draait: " + LocalDateTime.now());
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(10);
+        itemRepository.findByUpdatingTrueAndUpdatingAtBefore(cutoff)
+            .forEach(book -> {
+                System.out.println("Resetting book: " + book.getId());
+                book.setUpdating(false);
+                book.setUpdatingAt(null);
+                itemRepository.save(book);
+            });
+    }
+
     public boolean isBookMarkedForUpdate(Long bookId) throws EntityNotFoundException {
         Item item = itemRepository.findById(bookId)
                 .orElseThrow(EntityNotFoundException::new);
