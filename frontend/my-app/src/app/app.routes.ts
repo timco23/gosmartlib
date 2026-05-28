@@ -38,6 +38,7 @@ import { StudentStatisticsPage } from './student-statistics-page/student-statist
 import { ClassListPage } from './class-list-page/class-list-page';
 import { SchoolStatisticsPage } from './school-statistics-page/school-statistics-page';
 import { InitialSetupComponent } from './initial-setup/initial-setup';
+import { ChangePasswordComponent } from './change-password/change-password';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -92,6 +93,7 @@ export const routes: Routes = [
   { path: 'reviews', component: ReviewModerationPage, canActivate: [authGuard], data: { roles: LIBRARIAN_PLUS } },
 
   // ADMIN
+  { path: 'change-password', component: ChangePasswordComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
   { path: 'schools', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
   { path: 'schools/add', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
   { path: 'schools/:id/edit', component: SchoolManagementComponent, canActivate: [authGuard], data: { roles: ADMIN_ONLY } },
