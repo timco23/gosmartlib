@@ -1,6 +1,7 @@
 package edu.ap.spring_backend.service;
 
 import edu.ap.spring_backend.dto.OneRosterEnrollmentsResponseDTO;
+import edu.ap.spring_backend.dto.OneRosterSingleUserResponseDTO;
 import edu.ap.spring_backend.dto.OneRosterUserDTO;
 import edu.ap.spring_backend.dto.OneRosterUserResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,22 @@ public class OneRosterOAuthService {
                 uri(baseUrl + "/ims/oneroster/v1p1/schools/" + schoolId + "/enrollments")
                 .retrieve()
                 .bodyToMono(OneRosterEnrollmentsResponseDTO.class)
+                .block();
+    }
+
+    public OneRosterSingleUserResponseDTO getStudentById(String studentId) {
+        return webClient.get().
+                uri(baseUrl + "/ims/oneroster/v1p1/students/" + studentId)
+                .retrieve()
+                .bodyToMono(OneRosterSingleUserResponseDTO.class)
+                .block();
+    }
+
+    public OneRosterSingleUserResponseDTO getTeacherById(String teacherId) {
+        return webClient.get().
+                uri(baseUrl + "/ims/oneroster/v1p1/teachers/" + teacherId)
+                .retrieve()
+                .bodyToMono(OneRosterSingleUserResponseDTO.class)
                 .block();
     }
 }

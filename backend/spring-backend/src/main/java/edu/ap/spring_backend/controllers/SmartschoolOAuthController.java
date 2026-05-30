@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dto.OneRosterSingleUserResponseDTO;
 import edu.ap.spring_backend.dto.OneRosterUserDTO;
 import edu.ap.spring_backend.dto.OneRosterEnrollmentDTO;
 import edu.ap.spring_backend.dto.OneRosterEnrollmentsResponseDTO;
@@ -173,10 +174,9 @@ public class SmartschoolOAuthController {
             user.setRefreshToken(generateRefreshToken());
         }
 
-        //If user doesn't have their OneRoster id linked, link it
-        if(user.getOnerosterId() == null) {
-            linkOneRosterId(user, groupInfo, info);
-        }
+        // Always synchronize OneRoster ID and school in case user changes schools
+        linkOneRosterId(user, groupInfo, info);
+        linkSchool(user);
 
         userRepository.save(user);
         syncUserClasses(user, defaultSchool, groupInfo);
@@ -370,6 +370,35 @@ public class SmartschoolOAuthController {
                 }
             }
         }
+    }
+
+    private void linkSchool(User user) {
+        if (user.getOnerosterId() == null) return;
+
+        OneRosterSingleUserResponseDTO response = (user.getRole() == Role.LEERLING)
+                ? oneRosterOAuthService.getStudentById(user.getOnerosterId())
+                : oneRosterOAuthService.getTeacherById(user.getOnerosterId());
+
+        if (response != null && response.user() != null) {
+            OneRosterUserDTO orUser = response.user();
+            if (orUser.orgs() != null && orUser.orgs().length > 0) {
+                String orSchoolName = orUser.orgs()[0].name();
+                String normalizedOrName = normalizeSchoolName(orSchoolName);
+
+                if (user.getSchool() == null || !normalizeSchoolName(user.getSchool().getName()).equals(normalizedOrName)) {
+                    schoolRepository.findAll().stream()
+                            .filter(s -> normalizeSchoolName(s.getName()).equals(normalizedOrName))
+                            .findFirst()
+                            .ifPresent(user::setSchool);
+                }
+            }
+        }
+    }
+
+    //Makes school name lowercase, removes all special characters and spaces
+    private String normalizeSchoolName(String name) {
+        if (name == null) return "";
+        return name.toLowerCase().replaceAll("[^a-z0-9]", "");
     }
 
     private void redirectToLogin(HttpServletResponse response, String reason) throws IOException {
