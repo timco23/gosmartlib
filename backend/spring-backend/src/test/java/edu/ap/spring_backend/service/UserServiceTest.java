@@ -88,7 +88,8 @@ class UserServiceTest {
                 school != null ? getField(school, "id", Long.class) : null,
                 new ItemDTO[0],
                 itemsBorrowed,
-                null
+                null,
+                "orid"
         );
     }
 

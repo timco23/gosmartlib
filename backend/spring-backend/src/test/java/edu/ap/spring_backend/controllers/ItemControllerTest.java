@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ItemController.class)
@@ -144,7 +145,7 @@ class ItemControllerTest extends BaseControllerTest {
 
         when(schoolItemCopyService.generateExcel(any())).thenReturn(absolutePath);
 
-        mockMvc.perform(get("/books/copies/download")
+        mockMvc.perform(post("/books/copies/download")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(dto)))
                 .andExpect(status().isOk())

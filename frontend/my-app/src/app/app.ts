@@ -44,22 +44,24 @@ export class App implements OnInit {
 
     this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
-      this.authService.currentUser$.subscribe((user) => {
-        this.currentUser = user;
-        if (user?.email) {
-          this.userService.hasSchool(user.email).subscribe({
-            next: (result) => this.hasSchool = result,
-            error: () => this.hasSchool = false,
-          });
-        } else {
-          this.hasSchool = false;
-        }
-      });
+      if (user?.email) {
+        this.userService.hasSchool(user.email).subscribe({
+          next: (result) => (this.hasSchool = result),
+          error: () => (this.hasSchool = false),
+        });
+      } else {
+        this.hasSchool = false;
+      }
     });
 
     const isPublicRoute = (url: string) => {
       const path = url.split('?')[0];
       return path === '/login' || path === '/oauth-callback' || path === '/oauth/callback';
+    };
+
+    const isLayoutLessRoute = (url: string) => {
+      const path = url.split('?')[0];
+      return isPublicRoute(url) || path === '/noschool';
     };
 
     // Validate only if the token exists AND we are not on the OAuth callback
@@ -92,6 +94,17 @@ export class App implements OnInit {
         this.router.navigate(['/login']);
       }
     });
+  }
+
+  get showNavbar(): boolean {
+    const path = this.router.url.split('?')[0];
+    return (
+      !!this.currentUser &&
+      path !== '/login' &&
+      path !== '/oauth-callback' &&
+      path !== '/oauth/callback' &&
+      path !== '/noschool'
+    );
   }
 
   toggleTheme() {

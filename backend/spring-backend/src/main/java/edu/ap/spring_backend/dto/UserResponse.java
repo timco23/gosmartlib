@@ -20,6 +20,7 @@ public class UserResponse {
     private ItemDTO[] favoriteBooks;
     private Integer itemsBorrowed;
     private LocalDateTime deletionRequestedAt;
+    private String onerosterId;
         
     /**
      * Constructor for user profile response.
@@ -37,7 +38,7 @@ public class UserResponse {
      * @param deletionRequestedAt requested deletion of information at a specific time
      */
     public UserResponse(Integer id, String name, String firstName, String email, String role,
-                       String studentNumber, List<ClassDTO> classes, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer itemsBorrowed, LocalDateTime deletionRequestedAt) {
+                       String studentNumber, List<ClassDTO> classes, String schoolName, Long schoolId, ItemDTO[] favoriteBooks, Integer itemsBorrowed, LocalDateTime deletionRequestedAt, String onerosterId) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
@@ -50,6 +51,7 @@ public class UserResponse {
         this.favoriteBooks = favoriteBooks;
         this.itemsBorrowed = itemsBorrowed;
         this.deletionRequestedAt = deletionRequestedAt;
+        this.onerosterId = onerosterId;
     }
     
     public Integer getId() { return id; }
@@ -64,6 +66,7 @@ public class UserResponse {
     public ItemDTO[] getFavoriteBooks() { return favoriteBooks; }
     public Integer getItemsBorrowed() { return itemsBorrowed; }
     public LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
+    public  String getOnerosterId() { return onerosterId; }
     
     public void setId(Integer id) { this.id = id; }
     public void setName(String name) { this.name = name; }
@@ -77,4 +80,5 @@ public class UserResponse {
     public void setFavoriteBooks(ItemDTO[] favoriteBooks) { this.favoriteBooks = favoriteBooks; }
     public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
     public void setDeletionRequestedAt(LocalDateTime deletionRequestedAt) {this.deletionRequestedAt = deletionRequestedAt; }
+    public void setOnerosterId(String onerosterId) { this.onerosterId = onerosterId; }
 }

@@ -16,6 +16,7 @@ export interface UserProfile {
   schoolId?: number;
   items_borrowed: number;
   deletionRequestedAt?: string | null;
+  onerosterId: string;
 }
 
 export interface Tag {

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -14,12 +15,25 @@ export class Login implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
     if (this.authService.isLoggedIn()) {
       this.authService.me().subscribe({
-        next: () => this.router.navigate(['/home']),
+        next: (data) => {
+        this.userService.getUser(data.email).subscribe({
+          next: (fullData) => {
+            if (fullData.schoolId) {
+              this.router.navigate(['/home'])
+            }
+            else {
+              this.router.navigate(['/noschool'])
+            }
+          },
+          error: () => this.authService.logout()
+        })
+      },
         error: () => this.authService.logout(),
       });
     }

@@ -2,6 +2,8 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { AppRole, isAppRole } from './roles';
+import { UserService } from '../services/user.service';
+import { map } from 'rxjs';
 
 const DEV_ROLE_BY_TOKEN: Record<string, AppRole> = {
   DEV_ADMIN_TOKEN: 'ADMIN',
@@ -69,12 +71,14 @@ function getRoleFromToken(token: string): AppRole | null {
  * Route guard that checks authentication and authorization.
  * - Redirects to /login if no token is present
  * - Determines user role from AuthService or JWT
+ * - Verifies if the user has a school (redirects to /noschool if not)
  * - Verifies if the role is allowed for the route
  * - Redirects to /forbidden if access is denied
  */
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
+  const userService = inject(UserService);
   const router = inject(Router);
 
   const token = authService.getToken();
@@ -82,17 +86,35 @@ export const authGuard: CanActivateFn = (route, state) => {
     return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
   }
 
-  const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
-  if (allowedRoles.length === 0) return true;
-
   const role = getRoleFromCurrentUser(authService) ?? getRoleFromToken(token);
   if (!role) {
     return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
   }
 
-  if (allowedRoles.includes(role)) {
-    return true;
+  const currentUser = authService.getCurrentUser();
+  if (!currentUser?.email) {
+    // If we have no user info (e.g. dev tokens), skip school check and just verify roles
+    const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
+    if (allowedRoles.length === 0 || allowedRoles.includes(role)) {
+      return true;
+    }
+    return router.createUrlTree(['/forbidden'], { queryParams: { from: state.url } });
   }
 
-  return router.createUrlTree(['/forbidden'], { queryParams: { from: state.url } });
+  return userService.hasSchool(currentUser.email).pipe(
+    map((hasSchool) => {
+      if (!hasSchool) {
+        return router.createUrlTree(['/noschool']);
+      }
+
+      const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
+      if (allowedRoles.length === 0) return true;
+
+      if (allowedRoles.includes(role)) {
+        return true;
+      }
+
+      return router.createUrlTree(['/forbidden'], { queryParams: { from: state.url } });
+    })
+  );
 };

@@ -13,5 +13,6 @@ public interface UserMapper {
     @Mapping(target = "schoolId", expression = "java(user.getSchool() != null ? user.getSchool().getId() : null)")
     @Mapping(target = "itemsBorrowed", source = "itemsBorrowed")
     @Mapping(target = "deletionRequestedAt", source = "deletionRequestedAt")
+    @Mapping(target = "onerosterId", source = "onerosterId")
     UserResponse toUserResponse(User user);
 }

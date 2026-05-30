@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-oauth-callback',
@@ -15,7 +16,8 @@ export class OauthCallback implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private auth: AuthService,
-  ) {}
+    private userService: UserService
+  ) { }
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
@@ -30,7 +32,22 @@ export class OauthCallback implements OnInit {
     this.auth.setRefreshToken(refreshToken);
 
     this.auth.me().subscribe({
-      next: () => this.router.navigate(['/home']),
+      next: (data) => {
+        this.userService.getUser(data.email).subscribe({
+          next: (fullData) => {
+            if (fullData.schoolId) {
+              this.router.navigate(['/home'])
+            }
+            else {
+              this.router.navigate(['/noschool'])
+            }
+          },
+          error: () => {
+            this.auth.logout();
+            this.router.navigate(['/login'], { queryParams: { oauth: 'me_failed' } });
+          }
+        })
+      },
       error: () => {
         this.auth.logout();
         this.router.navigate(['/login'], { queryParams: { oauth: 'me_failed' } });
