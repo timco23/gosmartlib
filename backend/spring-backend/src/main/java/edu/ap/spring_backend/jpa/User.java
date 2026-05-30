@@ -73,6 +73,12 @@ public class User {
     @Column(name = "smartschool_access_token", length = 2048)
     private String smartschoolAccessToken;
 
+    /**
+     * ID that references this User in OneRoster
+     */
+    @Column(name = "oneroster_id", unique = true)
+    private String onerosterId;
+
     public User() {}
 
     public User(String name, String email, String password, Role role) {
@@ -98,6 +104,7 @@ public class User {
     public List<Item> getWishlistedBooks() { return wishlistedBooks; }
     public Integer getItemsBorrowed() { return itemsBorrowed; }
     public LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
+    public String getOnerosterId() { return onerosterId; }
 
     public void setName(String name) { this.name = name; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -114,4 +121,5 @@ public class User {
     public void setWishlistedBooks(List<Item> wishlistedBooks) { this.wishlistedBooks = wishlistedBooks; }
     public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
     public void setDeletionRequestedAt(LocalDateTime deletionRequestedAt) { this.deletionRequestedAt = deletionRequestedAt; }
+    public void  setOnerosterId(String onerosterId) { this.onerosterId = onerosterId; }
 }

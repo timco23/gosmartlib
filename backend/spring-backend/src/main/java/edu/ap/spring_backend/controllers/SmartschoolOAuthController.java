@@ -1,5 +1,9 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dto.OneRosterUserDTO;
+import edu.ap.spring_backend.dto.OneRosterEnrollmentDTO;
+import edu.ap.spring_backend.dto.OneRosterEnrollmentsResponseDTO;
+import edu.ap.spring_backend.dto.OneRosterSchoolDTO;
 import edu.ap.spring_backend.dto.SmartschoolGroupDTO;
 import edu.ap.spring_backend.dto.SmartschoolGroupInfoResponseDTO;
 import edu.ap.spring_backend.dto.SmartschoolUserInfo;
@@ -9,6 +13,7 @@ import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.security.JwtService;
 import edu.ap.spring_backend.service.ClassService;
+import edu.ap.spring_backend.service.OneRosterOAuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -28,6 +33,7 @@ import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.jpa.School;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.time.Duration;
+import java.util.stream.Collectors;
 
 /**
  * Handles the Smartschool OAuth2 login flow.
@@ -64,6 +70,7 @@ public class SmartschoolOAuthController {
     private final SecureRandom secureRandom = new SecureRandom();
     private final JwtService jwtService;
     private final ClassService classService;
+    private final OneRosterOAuthService oneRosterOAuthService;
 
     @Value("${smartschool.client-id}")
     private String clientId;
@@ -89,12 +96,14 @@ public class SmartschoolOAuthController {
             @Value("${app.jwt.expires-minutes}") long expiresMinutes,
             SchoolRepository schoolRepository,
             ClassService classService,
-            JwtService jwtService
+            JwtService jwtService,
+            OneRosterOAuthService oneRosterOAuthService
     ) {
         this.userRepository  = userRepository;
         this.jwtService      = jwtService;
         this.schoolRepository = schoolRepository;
         this.classService    = classService;
+        this.oneRosterOAuthService = oneRosterOAuthService;
     }
 
     private School resolveDefaultSchool() {
@@ -162,6 +171,11 @@ public class SmartschoolOAuthController {
         // If no refresh token came from Smartschool, keep our own UUID-based one
         if (tokens.refreshToken == null && user.getRefreshToken() == null) {
             user.setRefreshToken(generateRefreshToken());
+        }
+
+        //If user doesn't have their OneRoster id linked, link it
+        if(user.getOnerosterId() == null) {
+            linkOneRosterId(user, groupInfo, info);
         }
 
         userRepository.save(user);
@@ -302,6 +316,59 @@ public class SmartschoolOAuthController {
             if (sc == null) { sc = new SchoolClass(group.name(), defaultSchool, new ArrayList<>(List.of(user))); }
             else if (!sc.getUsers().contains(user)) { sc.getUsers().add(user); }
             classService.addClass(sc);
+        }
+    }
+
+    private void linkOneRosterId(User user, SmartschoolGroupInfoResponseDTO groupInfo, SmartschoolUserInfo scInfo) {
+        if (groupInfo == null || groupInfo.groups() == null || user == null || scInfo == null) return;
+
+        OneRosterUserDTO[] oneRosterUsers = (user.getRole() == Role.LEERLING)
+                ? oneRosterOAuthService.getAllStudents().users()
+                : oneRosterOAuthService.getAllTeachers().users();
+
+        List<OneRosterUserDTO> filteredOneRosterUsers = Arrays.stream(oneRosterUsers)
+                .filter(orUser -> orUser.givenName().equals(scInfo.getName()) && orUser.familyName().equals(scInfo.getSurname()))
+                .toList();
+
+        if (filteredOneRosterUsers.size() == 1) {
+            user.setOnerosterId(filteredOneRosterUsers.getFirst().sourcedId());
+        } else if (filteredOneRosterUsers.size() > 1) {
+            //If there are multiple users in OneRoster with the same name, check the classes they're in
+
+            //Classes that the Smartschool user is in
+            Set<String> ssGroupNames = Arrays.stream(groupInfo.groups())
+                    .map(SmartschoolGroupDTO::name)
+                    .collect(Collectors.toSet());
+
+            //SourcedIds of the schools that the OneRoster users are in
+            Set<String> schoolIds = filteredOneRosterUsers.stream()
+                    .flatMap(u -> Arrays.stream(u.orgs()))
+                    .map(OneRosterSchoolDTO::sourcedId)
+                    .collect(Collectors.toSet());
+
+            //SourcedIds of the OneRoster users
+            Set<String> filteredSourcedIds = filteredOneRosterUsers.stream()
+                    .map(OneRosterUserDTO::sourcedId)
+                    .collect(Collectors.toSet());
+
+            // Get the enrollments for each school, filter them by the sourcedIds of the OneRoster
+            // users and check if the remaining enrollments are linked to a class that has the
+            // same name as the class the Smartschool user is in, if so, link the user of that
+            // enrollment to the Smartschool user's entity
+            for (String schoolId : schoolIds) {
+                OneRosterEnrollmentsResponseDTO enrollmentsResponse = oneRosterOAuthService.getEnrollmentsForSchool(schoolId);
+                if (enrollmentsResponse == null || enrollmentsResponse.enrollments() == null) continue;
+
+                Optional<OneRosterEnrollmentDTO> match = Arrays.stream(enrollmentsResponse.enrollments())
+                        .filter(e -> filteredSourcedIds.contains(e.user().sourcedId()))
+                        .filter(e -> ssGroupNames.contains(e.enrollmentClass().title()))
+                        .findFirst();
+
+                if (match.isPresent()) {
+                    user.setOnerosterId(match.get().user().sourcedId());
+                    return;
+                }
+            }
         }
     }
 

@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS user (
     school_id BIGINT, 
     refresh_token VARCHAR(1024),
     smartschool_access_token VARCHAR(2048),
+    oneroster_id varchar(255) unique,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL,
     items_borrowed INT NOT NULL DEFAULT 0,
     deletion_requested_at TIMESTAMP NULL DEFAULT NULL

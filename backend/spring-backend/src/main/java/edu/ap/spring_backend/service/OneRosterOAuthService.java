@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.service;
 
+import edu.ap.spring_backend.dto.OneRosterEnrollmentsResponseDTO;
 import edu.ap.spring_backend.dto.OneRosterUserDTO;
 import edu.ap.spring_backend.dto.OneRosterUserResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class OneRosterOAuthService {
-    private WebClient webClient;
+    private final WebClient webClient;
 
     @Value("${smartschool.platform}")
     private String baseUrl;
@@ -29,6 +30,15 @@ public class OneRosterOAuthService {
                 uri(baseUrl + "/ims/oneroster/v1p1/teachers")
                 .retrieve()
                 .bodyToMono(OneRosterUserResponseDTO.class)
+                .block();
+    }
+
+    //Using a user's sourcedId will give the enrollments of the school they're in
+    public OneRosterEnrollmentsResponseDTO getEnrollmentsForSchool(String schoolId) {
+        return webClient.get().
+                uri(baseUrl + "/ims/oneroster/v1p1/schools/" + schoolId + "/enrollments")
+                .retrieve()
+                .bodyToMono(OneRosterEnrollmentsResponseDTO.class)
                 .block();
     }
 }

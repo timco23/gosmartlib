@@ -48,6 +48,8 @@ services:
       - HARDCOVER_API_KEY=${HARDCOVER_API_KEY:-}
       - MODERATION_API_KEY=${MODERATION_API_KEY:-}
       - ENCRYPTION_SECRET=${ENCRYPTION_SECRET} 
+      - ONEROSTER_CLIENT_ID=${ONEROSTER_CLIENT_ID}
+      - ONEROSTER_CLIENT_SECRET=${ONEROSTER_CLIENT_SECRET}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
