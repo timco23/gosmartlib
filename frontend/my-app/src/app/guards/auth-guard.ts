@@ -85,6 +85,11 @@ export const authGuard: CanActivateFn = async (route, state) => {
     return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
   }
 
+  const role = getRoleFromCurrentUser(authService) ?? getRoleFromToken(token);
+  if (!role) {
+    return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
+  }
+
   const user = authService.getCurrentUser();
 
   if (user?.role === 'ADMIN') {
@@ -98,11 +103,6 @@ export const authGuard: CanActivateFn = async (route, state) => {
 
   const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
   if (allowedRoles.length === 0) return true;
-
-  const role = getRoleFromCurrentUser(authService) ?? getRoleFromToken(token);
-  if (!role) {
-    return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
-  }
 
   if (!user?.email) {
     // If we have no user info (e.g. dev tokens), skip school check and just verify roles
