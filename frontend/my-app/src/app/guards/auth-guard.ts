@@ -97,7 +97,6 @@ export const authGuard: CanActivateFn = (route, state) => {
       return router.createUrlTree(['/setup']);
     }
     if (user.needsPasswordChange === false && state.url.startsWith('/setup')) {
-            console.log("daufda")
       return router.createUrlTree(['/schools']);
     }
   }
@@ -106,7 +105,6 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (allowedRoles.length === 0) return true;
 
   if (!user?.email) {
-    // If we have no user info (e.g. dev tokens), skip school check and just verify roles
     if (allowedRoles.includes(role)) {
       return true;
     }

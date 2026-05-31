@@ -167,7 +167,7 @@
         @if (saveStatus === 'error') {
           <p class="save-status save-status--error">Opslaan mislukt. Probeer opnieuw.</p>
         }
-        @if (editingSchool && !isLibrarian) {
+        @if (editingSchool && !isLibrarian && editingSchool.id !== currentUser?.schoolId) {
           <button
             type="button"
             class="DeleteButton"

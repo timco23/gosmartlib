@@ -21,22 +21,6 @@ CREATE TABLE IF NOT EXISTS school (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-INSERT INTO school (
-    name, address,
-    lending_period_days, extend_period_days, max_extends,
-    max_lends_student, max_lend_teacher,
-    lender_notification_period, lender_late_notification_period,
-    librarian_notification_not_returned,
-    reviews, review_moderation
-    ) VALUES (
-    'AP Hogeschool Antwerpen', 'Noorderplaats 2',
-    14, 7, 2,
-    5, 10,
-    3, 1,
-    2,
-    true, false
-);
-
 CREATE TABLE IF NOT EXISTS campus (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -69,11 +53,6 @@ create table if not exists class (
     school_id BIGINT NOT NULL,
     foreign key (school_id) references school(id) on delete cascade
 );
-
--- Testclasses
-INSERT INTO class (class_name, school_id) 
-VALUES ("KlasA", 1), ("KlasB", 1);
-
 
 CREATE TABLE IF NOT EXISTS user (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -123,39 +102,6 @@ VALUES
 ('2', "Admin" , 'admin2@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin2', NULL, TRUE),
 ('3',"Admin" , 'admin3@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin3', NULL, TRUE);
 
-INSERT INTO user (name, first_name, email, password, role, school_id, smartschool_username, refresh_token)
-VALUES
-('Test', 'Leerling', 'leerling.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERLING', 1, NULL, NULL),
-('Test', 'Leerkracht', 'leerkracht.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERKRACHT', 1, NULL, NULL),
-('Test', 'Bibliotheekbeheerder', 'bibliotheekbeheerder.dev@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'BIBLIOTHEEKBEHEERDER', 1, NULL, NULL);
-
--- Put student in classes KlasA and KlasB
-insert into class_user (class_id, user_id) values (1, 2),(2,2);
-
--- Testbooks
-insert into item(title,publisher,author,isbn,release_year,book_language,page_count,cover,review_score,review_count,book_description) values
-('Het smelt','Das Mag','Lize Spit','9789492478092',2016,'Nederlands',480,'https://covers.openlibrary.org/b/isbn/9082410613-M.jpg',0,0,'Een aangrijpende roman over trauma en jeugd.'),
-('De donkere kamer van Damokles','Em. Querido','Willem Frederik Hermans','9789023413110',1958,'Nederlands',352,'https://covers.openlibrary.org/b/isbn/9023413113-M.jpg',0,0,'Een psychologische roman over identiteit en oorlog.'),
-('De aanslag','De Bezige Bij','Harry Mulisch','9789023442448',1982,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/902344244X-M.jpg',0,0,'Een verhaal over schuld en verwerking na WOII.'),
-('Turks fruit','Bezige Bij','Jan Wolkers','9789023403975',1969,'Nederlands',192,'https://covers.openlibrary.org/b/isbn/9023403975-M.jpg',0,0,'Een rauw liefdesverhaal met tragische elementen.'),
-('De ontdekking van de hemel','De Bezige Bij','Harry Mulisch','9789023430988',1992,'Nederlands',944,'https://covers.openlibrary.org/b/isbn/9023430980-M.jpg',0,0,'Een epische roman over wetenschap, religie en lot.'),
-('Oorlogswinter','Leopold','Jan Terlouw','9789025861124',1972,'Nederlands',208,'https://covers.openlibrary.org/b/isbn/9025861121-M.jpg',0,0,'Een jongen beleeft de hongerwinter tijdens WOII.'),
-('The Great Gatsby','Scribner','F. Scott Fitzgerald','9780743273565',1925,'Engels',180,'https://covers.openlibrary.org/b/isbn/0743273567-M.jpg',0,0,'Een klassiek verhaal over rijkdom en illusies.'),
-('To Kill a Mockingbird','HarperCollins','Harper Lee','9780061935466',1960,'Engels',336,'https://covers.openlibrary.org/b/isbn/0061935468-M.jpg',0,0,'Een roman over racisme en rechtvaardigheid.'),
-('1984','Secker & Warburg','George Orwell','9780451524935',1949,'Engels',328,'https://covers.openlibrary.org/b/isbn/0451524934-M.jpg',0,0,'Een dystopisch verhaal over totalitaire controle.'),
-('The Catcher in the Rye','Little Brown','J.D. Salinger','9780316769174',1951,'Engels',224,'https://covers.openlibrary.org/b/isbn/0316769177-M.jpg',0,0,'Een coming-of-age verhaal over vervreemding.'),
-('Brave New World','Chatto & Windus','Aldous Huxley','9780060850524',1932,'Engels',311,'https://covers.openlibrary.org/b/isbn/0060850523-M.jpg',0,0,'Een dystopie over technologie en controle.'),
-('Sapiens','Harper','Yuval Noah Harari','9780062316097',2011,'Engels',443,'https://covers.openlibrary.org/b/isbn/0062316095-M.jpg',0,0,'Een overzicht van de menselijke geschiedenis.'),
-('Een kleine geschiedenis van de wereld','Lemniscaat','Ernst Gombrich','9789047700975',1935,'Nederlands',284,'https://covers.openlibrary.org/b/isbn/904770097X-M.jpg',0,0,'Een toegankelijke wereldgeschiedenis.'),
-('Het korte geheugen','Prometheus','Maarten van Rossem','9789044628180',2019,'Nederlands',256,'https://covers.openlibrary.org/b/isbn/9044628186-M.jpg',0,0,'Reflecties op geschiedenis en politiek.'),
-('Le Petit Prince','Gallimard','Antoine de Saint-Exupéry','9782070408504',1943,'Frans',96,'https://covers.openlibrary.org/b/isbn/2070408507-M.jpg',0,0,'Een filosofisch sprookje over het leven.'),
-('L''Étranger','Gallimard','Albert Camus','9782070360024',1942,'Frans',186,'https://covers.openlibrary.org/b/isbn/2070360024-M.jpg',0,0,'Een existentiële roman over absurditeit.'),
-('Der Vorleser','Diogenes','Bernhard Schlink','9783257229530',1995,'Duits',208,'https://covers.openlibrary.org/b/isbn/3257229534-M.jpg',0,0,'Een verhaal over schuld en liefde na WOII.'),
-('Die Verwandlung','Kurt Wolff Verlag','Franz Kafka','9783150090299',1915,'Duits',96,'https://covers.openlibrary.org/b/isbn/3150090296-M.jpg',0,0,'Een man verandert plots in een insect.'),
-('Het dagboek van een muts','Van Goor','Jeff Kinney','9789047514527',2007,'Nederlands',224,'https://covers.openlibrary.org/b/isbn/9047514521-M.jpg',0,0,'Humoristisch dagboek van een tiener.'),
-('Harry Potter en de Steen der Wijzen','Uitgeverij De Harmonie','J.K. Rowling','9789061699552',1997,'Nederlands',336,'https://covers.openlibrary.org/b/isbn/906169955X-M.jpg',0,0,'Een jongen ontdekt dat hij een tovenaar is.'),
-('De schuld van de sterren','Prometheus','John Green','9789044628371',2012,'Nederlands',286,'https://covers.openlibrary.org/b/isbn/9044628372-M.jpg',0,0,'Een liefdesverhaal tussen twee zieke tieners.');
-
 -- table for the physical copies of a school item, with unique barcode and status
 CREATE TABLE IF NOT EXISTS school_item_copy (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -171,9 +117,6 @@ CREATE TABLE IF NOT EXISTS school_item_copy (
     foreign key (campus_id) references campus(id) on delete set null
 );
 
-INSERT INTO school_item_copy (school_id, item_id, barcode, copy_status, item_condition, featured, campus_id)
-SELECT 1, id, CONCAT('BC', LPAD(id, 6, '0')), 'BESCHIKBAAR', 'NIEUW', FALSE, NULL
-FROM item;
 
 -- the main genre of a book
 CREATE TABLE IF NOT EXISTS genre ( 
@@ -324,64 +267,6 @@ CREATE TABLE IF NOT EXISTS item_tag (
     FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
 );
 
--- Default tags for imported books
--- Tags: 1=Liefde & relaties, 2=Vriendschap, 3=Identiteit & zelfbeeld, 4=Gender & seksualiteit,
---       5=Diversiteit & inclusie, 6=Mentale gezondheid, 7=Rouw & verlies, 8=Familie,
---       9=School & prestatiedruk, 10=Sociale media, 11=Migratie & afkomst,
---       12=Armoede & ongelijkheid, 13=Macht & onrecht, 14=Avontuur & ontdekking,
---       15=Overleven, 16=Toekomst & technologie
--- Books (by insert order): 1=Het smelt, 2=De donkere kamer van Damokles, 3=De aanslag,
---   4=Turks fruit, 5=De ontdekking van de hemel, 6=Oorlogswinter, 7=The Great Gatsby,
---   8=To Kill a Mockingbird, 9=1984, 10=The Catcher in the Rye, 11=Brave New World,
---   12=Sapiens, 13=Een kleine geschiedenis van de wereld, 14=Het korte geheugen,
---   15=Le Petit Prince, 16=L'Étranger, 17=Der Vorleser, 18=Die Verwandlung,
---   19=Het dagboek van een muts, 20=Harry Potter en de Steen der Wijzen, 21=De schuld van de sterren
-INSERT INTO item_tag (item_id, tag_id)
-SELECT i.id, t.tag_id FROM (
-    SELECT 1 AS seq, 1 AS tag_id UNION ALL  -- Het smelt: Liefde & relaties
-    SELECT 1, 7 UNION ALL
-    SELECT 1, 8 UNION ALL                    -- Familie
-    SELECT 2, 3 UNION ALL                    -- De donkere kamer: Identiteit & zelfbeeld
-    SELECT 2, 15 UNION ALL                   -- Overleven
-    SELECT 3, 7 UNION ALL                    -- De aanslag: Rouw & verlies
-    SELECT 3, 13 UNION ALL                   -- Macht & onrecht
-    SELECT 4, 1 UNION ALL                    -- Turks fruit: Liefde & relaties
-    SELECT 4, 7 UNION ALL                    -- Rouw & verlies
-    SELECT 5, 16 UNION ALL                   -- De ontdekking van de hemel: Toekomst & technologie
-    SELECT 5, 13 UNION ALL                   -- Macht & onrecht
-    SELECT 6, 15 UNION ALL                   -- Oorlogswinter: Overleven
-    SELECT 6, 8 UNION ALL                    -- Familie
-    SELECT 7, 1 UNION ALL                    -- The Great Gatsby: Liefde & relaties
-    SELECT 7, 12 UNION ALL                   -- Armoede & ongelijkheid
-    SELECT 8, 13 UNION ALL                   -- To Kill a Mockingbird: Macht & onrecht
-    SELECT 8, 5 UNION ALL                    -- Diversiteit & inclusie
-    SELECT 9, 13 UNION ALL                   -- 1984: Macht & onrecht
-    SELECT 9, 16 UNION ALL                   -- Toekomst & technologie
-    SELECT 10, 3 UNION ALL                   -- The Catcher in the Rye: Identiteit & zelfbeeld
-    SELECT 10, 9 UNION ALL                   -- School & prestatiedruk
-    SELECT 11, 13 UNION ALL                  -- Brave New World: Macht & onrecht
-    SELECT 11, 16 UNION ALL                  -- Toekomst & technologie
-    SELECT 12, 5 UNION ALL                   -- Sapiens: Diversiteit & inclusie
-    SELECT 12, 14 UNION ALL                  -- Avontuur & ontdekking
-    SELECT 13, 14 UNION ALL                  -- Een kleine geschiedenis: Avontuur & ontdekking
-    SELECT 14, 13 UNION ALL                  -- Het korte geheugen: Macht & onrecht
-    SELECT 15, 3 UNION ALL                   -- Le Petit Prince: Identiteit & zelfbeeld
-    SELECT 15, 2 UNION ALL                   -- Vriendschap
-    SELECT 16, 3 UNION ALL                   -- L'Étranger: Identiteit & zelfbeeld
-    SELECT 16, 6 UNION ALL                   -- Mentale gezondheid
-    SELECT 17, 1 UNION ALL                   -- Der Vorleser: Liefde & relaties
-    SELECT 17, 7 UNION ALL                   -- Rouw & verlies
-    SELECT 18, 3 UNION ALL                   -- Die Verwandlung: Identiteit & zelfbeeld
-    SELECT 18, 6 UNION ALL                   -- Mentale gezondheid
-    SELECT 19, 2 UNION ALL                   -- Het dagboek van een muts: Vriendschap
-    SELECT 19, 9 UNION ALL                   -- School & prestatiedruk
-    SELECT 20, 2 UNION ALL                   -- Harry Potter: Vriendschap
-    SELECT 20, 14 UNION ALL                  -- Avontuur & ontdekking
-    SELECT 21, 1 UNION ALL                   -- De schuld van de sterren: Liefde & relaties
-    SELECT 21, 7                             -- Rouw & verlies
-) AS t
-JOIN item i ON i.id = t.seq;
-
 -- reading level of a book (A, B, C or D. increasing difficulty)
 CREATE TABLE IF NOT EXISTS reading_level (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -390,10 +275,10 @@ CREATE TABLE IF NOT EXISTS reading_level (
 );
 
 INSERT INTO reading_level (name, description) VALUES 
-('A', "eenvoudig taalgebruik, korte zinnen, sterk verhalend, weinig abstractie"),
-('B', "gemiddeld taalgebruik, herkenbare structuren, beperkte complexiteit"),
-('C', "complexer, meerdere verhaallijnen of perspectieven, rijkere woordenschat"),
-('D', "literair, gelaagd, abstracte thema’s, impliciete betekenis");
+('A', "Eenvoudig taalgebruik, korte zinnen, sterk verhalend, weinig abstractie"),
+('B', "Gemiddeld taalgebruik, herkenbare structuren, beperkte complexiteit"),
+('C', "Complexer, meerdere verhaallijnen of perspectieven, rijkere woordenschat"),
+('D', "Literair, gelaagd, abstracte thema’s, impliciete betekenis");
 
 -- didactic category of a book
 CREATE TABLE IF NOT EXISTS didactic_category (
@@ -481,91 +366,3 @@ CREATE TABLE IF NOT EXISTS lending (
     FOREIGN KEY (book_id) REFERENCES school_item_copy(id) ON DELETE RESTRICT,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
 );
-
--- Extra teststudent in KlasA
-INSERT INTO user (name, first_name, email, password, role, school_id, smartschool_username, refresh_token)
-VALUES ('De Meyer', 'Lisa', 'lisa.demeyer@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'LEERLING', 1, NULL, NULL);
-
--- Lisa zit momenteel in KlasB (verplaatst vanaf 2025-2026)
-INSERT INTO class_user (class_id, user_id) VALUES (2, 5);
-
--- Testleningen met snapshotdata
-INSERT INTO lending (borrower_id, book_id, school_id, lending_date, return_date, returned, date_returned, extended,
-    snap_class_name, snap_campus_id, snap_campus_name, snap_school_year, snap_reading_level, snap_book_title, snap_book_genre, snap_book_isbn)
-VALUES
--- Leerling Test (user 2) – huidig schooljaar 2025-2026
-(2,  1, 1, '2025-10-05', '2025-10-19', TRUE,  '2025-10-18', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', 'Het smelt',                          'Literaire roman',     '9789492478092'),
-(2,  9, 1, '2025-11-12', '2025-11-26', TRUE,  '2025-11-25', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984',                               'Dystopie',            '9780451524935'),
-(2, 20, 1, '2026-01-08', '2026-01-22', TRUE,  '2026-01-20', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'B', 'Harry Potter en de Steen der Wijzen', 'Fantasy',             '9789061699552'),
-(2, 21, 1, '2026-04-20', '2026-05-20', FALSE, NULL,         FALSE, 'KlasA', NULL, NULL, '2025-2026', 'B', 'De schuld van de sterren',            'Romantiek',           '9789044628371'),
--- Leerling Test (user 2) – vorig schooljaar 2024-2025
-(2, 12, 1, '2024-09-15', '2024-09-29', TRUE,  '2024-09-28', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'D', 'Sapiens',                            'Non-fictie algemeen', '9780062316097'),
-(2, 19, 1, '2025-02-10', '2025-02-24', TRUE,  '2025-02-23', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'A', 'Het dagboek van een muts',            'Humor',               '9789047514527'),
-(2,  7, 1, '2025-04-03', '2025-04-17', TRUE,  '2025-04-17', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', 'The Great Gatsby',                   'Literaire roman',     '9780743273565'),
--- Lisa De Meyer (user 5) – huidig schooljaar 2025-2026 (al in KlasB)
-(5,  3, 1, '2025-09-10', '2025-09-24', TRUE,  '2025-09-23', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', 'De aanslag',                         'Historische roman',   '9789023442448'),
-(5,  8, 1, '2025-12-01', '2025-12-15', TRUE,  '2025-12-14', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'D', 'To Kill a Mockingbird',              'Literaire roman',     '9780061935466'),
-(5, 11, 1, '2026-03-05', '2026-03-19', FALSE, NULL,         FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', 'Brave New World',                    'Dystopie',            '9780060850524'),
-
--- Lisa De Meyer (user 5) – schooljaar 2024-2025
-(5, 12, 1, '2024-10-02', '2024-10-16', TRUE,  '2024-10-15', FALSE,
- 'KlasA', NULL, NULL, '2024-2025', 'C',
- 'Sapiens', 'Non-fictie algemeen', '9780062316097'),
-
-(5, 19, 1, '2025-01-14', '2025-01-28', TRUE,  '2025-01-27', FALSE,
- 'KlasA', NULL, NULL, '2024-2025', 'B',
- 'Het dagboek van een muts', 'Humor', '9789047514527'),
-
-(5, 7, 1, '2025-04-22', '2025-05-06', TRUE,  '2025-05-04', FALSE,
- 'KlasA', NULL, NULL, '2024-2025', 'C',
- 'The Great Gatsby', 'Literaire roman', '9780743273565'),
-
--- Lisa De Meyer (user 5) – schooljaar 2023-2024
-(5, 1, 1, '2023-09-18', '2023-10-02', TRUE,  '2023-09-30', FALSE,
- 'KlasA', NULL, NULL, '2023-2024', 'D',
- 'Het smelt', 'Literaire roman', '9789492478092'),
-
-(5, 20, 1, '2024-01-11', '2024-01-25', TRUE,  '2024-01-24', FALSE,
- 'KlasA', NULL, NULL, '2023-2024', 'B',
- 'Harry Potter en de Steen der Wijzen', 'Fantasy', '9789061699552'),
-
-(5, 9, 1, '2024-04-09', '2024-04-23', TRUE,  '2024-04-22', FALSE,
- 'KlasA', NULL, NULL, '2023-2024', 'C',
- '1984', 'Dystopie', '9780451524935');
-
--- Testleningen voor boekstatistieken (item 9 = '1984', copy id = 9)
-INSERT INTO lending (borrower_id, book_id, school_id, lending_date, return_date, returned, date_returned, extended,
-    snap_class_name, snap_campus_id, snap_campus_name, snap_school_year, snap_reading_level, snap_book_title, snap_book_genre, snap_book_isbn)
-VALUES
--- 2023-2024 (3 extra naast bestaande)
-(2, 9, 1, '2023-10-03', '2023-10-17', TRUE,  '2023-10-15', FALSE, 'KlasA', NULL, NULL, '2023-2024', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2023-12-04', '2023-12-18', TRUE,  '2023-12-20', FALSE, 'KlasA', NULL, NULL, '2023-2024', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2024-03-10', '2024-03-24', TRUE,  '2024-03-23', TRUE,  'KlasA', NULL, NULL, '2023-2024', 'C', '1984', 'Dystopie', '9780451524935'),
--- 2024-2025 (4 nieuw)
-(5, 9, 1, '2024-09-16', '2024-09-30', TRUE,  '2024-09-28', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2024-11-05', '2024-11-19', TRUE,  '2024-11-19', TRUE,  'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2025-01-20', '2025-02-03', TRUE,  '2025-02-01', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2025-04-07', '2025-04-21', TRUE,  '2025-04-28', FALSE, 'KlasA', NULL, NULL, '2024-2025', 'C', '1984', 'Dystopie', '9780451524935'),
--- 2025-2026: gevarieerde maandcijfers sep–apr voor een mooie chart
-(2, 9, 1, '2025-09-05', '2025-09-19', TRUE,  '2025-09-18', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2025-09-22', '2025-10-06', TRUE,  '2025-10-04', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2025-10-07', '2025-10-21', TRUE,  '2025-10-20', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2025-10-13', '2025-10-27', TRUE,  '2025-10-25', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2025-10-27', '2025-11-10', TRUE,  '2025-11-08', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2025-11-03', '2025-11-17', TRUE,  '2025-11-16', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2025-12-01', '2025-12-15', TRUE,  '2025-12-13', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2025-12-09', '2025-12-23', TRUE,  '2025-12-22', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2025-12-19', '2026-01-02', TRUE,  '2025-12-31', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2026-01-12', '2026-01-26', TRUE,  '2026-01-24', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2026-02-02', '2026-02-16', TRUE,  '2026-02-14', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2026-02-17', '2026-03-03', TRUE,  '2026-03-01', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2026-03-05', '2026-03-19', TRUE,  '2026-03-17', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2026-03-11', '2026-03-25', TRUE,  '2026-03-23', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2026-03-18', '2026-04-01', TRUE,  '2026-03-30', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(2, 9, 1, '2026-03-25', '2026-04-08', TRUE,  '2026-04-06', FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
-(5, 9, 1, '2026-04-03', '2026-04-17', TRUE,  '2026-04-14', FALSE, 'KlasB', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935'),
--- actief en te laat (return_date verstreken)
-(2, 9, 1, '2026-04-15', '2026-04-29', FALSE, NULL,         FALSE, 'KlasA', NULL, NULL, '2025-2026', 'C', '1984', 'Dystopie', '9780451524935');
-
--- Kopiestatus bijwerken voor actieve uitleningen
-UPDATE school_item_copy SET copy_status = 'UITGELEEND' WHERE id IN (21, 11, 9);

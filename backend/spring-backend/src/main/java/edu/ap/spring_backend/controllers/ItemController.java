@@ -411,13 +411,15 @@ public class ItemController {
 
     @GetMapping("/books/templates/download")
     public ResponseEntity<Resource> downloadTemplates() {
-        File file = new File("src/main/resources/Sjabloontjes-gosmartlib.zip");
-        
         try {
-            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
+            Resource resource = new ClassPathResource("Sjabloontjes-gosmartlib.zip");
+
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
 
             return ResponseEntity.ok()
-                    .contentLength(file.length())
+                    .contentLength(resource.contentLength())
                     .header("Content-Disposition", "attachment; filename=\"sjabloontjes-gosmartlib.zip\"")
                     .contentType(MediaType.parseMediaType("application/zip"))
                     .body(resource);

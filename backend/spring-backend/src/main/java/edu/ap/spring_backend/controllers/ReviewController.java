@@ -139,7 +139,7 @@ public class ReviewController {
    /**
      * Resolves the email/identifier of the current requester.
      * Uses Spring Security authentication if available,
-     * otherwise falls back to a Bearer token (development only).
+     * otherwise falls back to a Bearer token.
      * @param authentication current authentication object
      * @param request HTTP request
      * @return email of the requester
@@ -161,13 +161,7 @@ public class ReviewController {
         }
 
         String token = header.substring(7).trim();
-        return switch (token) {
-            case "DEV_ADMIN_TOKEN" -> "admin@gsmartlib.tech";
-            case "DEV_STUDENT_TOKEN" -> "leerling.dev@gsmartlib.tech";
-            case "DEV_TEACHER_TOKEN" -> "leerkracht.dev@gsmartlib.tech";
-            case "DEV_BIBLIOTHEEKBEHEERDER_TOKEN" -> "bibliotheekbeheerder.dev@gsmartlib.tech";
-            default -> extractPrincipalFromJwt(token);
-        };
+        return extractPrincipalFromJwt(token);
     }
 
     /**

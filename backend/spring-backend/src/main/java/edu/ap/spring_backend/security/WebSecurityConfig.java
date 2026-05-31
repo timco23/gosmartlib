@@ -71,7 +71,8 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET,
                     "/reviews/schools/**",
                     "/reviews/*/reports",
-                    "/books/copies/download"
+                    "/books/copies/download",
+                        "/books/templates/download"
                 ).hasAnyAuthority(LIBRARIAN_PLUS)
 
                 .requestMatchers(HttpMethod.GET,

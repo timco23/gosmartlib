@@ -297,7 +297,6 @@ public class ItemService {
     
     @Scheduled(fixedRate = 60 * 1000)
     public void resetStaleUpdatingFlags() {
-        System.out.println("Scheduler draait: " + LocalDateTime.now());
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(10);
         itemRepository.findByUpdatingTrueAndUpdatingAtBefore(cutoff)
             .forEach(book -> {

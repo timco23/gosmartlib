@@ -82,29 +82,5 @@ export class Login implements OnInit {
       this.router.navigate(['/home']);
     }
   }
-
-  // Dev login helpers
-  loginAsAdmin() {
-    this.authService.setToken('DEV_ADMIN_TOKEN');
-    this.authService.setCurrentUser({ name: 'Admin', role: 'ADMIN', email: 'admin@gsmartlib.tech' });
-    this.router.navigate(['/home']);
-  }
-
-  loginAsStudent() {
-    this.authService.setToken('DEV_STUDENT_TOKEN');
-    this.authService.setCurrentUser({ name: 'Test', role: 'LEERLING', email: 'leerling.dev@gsmartlib.tech' } as any);
-    this.router.navigate(['/home']);
-  }
-
-  loginAsTeacher() {
-    this.authService.setToken('DEV_TEACHER_TOKEN');
-    this.authService.setCurrentUser({ name: 'Test', role: 'LEERKRACHT', email: 'leerkracht.dev@gsmartlib.tech' } as any);
-    this.router.navigate(['/home']);
-  }
-
-  loginAsLibraryAdministrator() {
-    this.authService.setToken('DEV_BIBLIOTHEEKBEHEERDER_TOKEN');
-    this.authService.setCurrentUser({ name: 'Test', role: 'BIBLIOTHEEKBEHEERDER', email: 'bibliotheekbeheerder.dev@gsmartlib.tech' } as any);
-    this.router.navigate(['/home']);
-  }
+  
 }

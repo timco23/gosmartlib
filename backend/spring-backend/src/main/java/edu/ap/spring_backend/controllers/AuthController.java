@@ -16,7 +16,7 @@ import java.util.UUID;
 
 /**
  * REST controller responsible for authentication-related endpoints.
- * Provides user info based on JWT, dev tokens, or Spring Security context,
+ * Provides user info based on JWT or Spring Security context,
  * and supports refreshing JWT tokens.
  */
 @RestController
@@ -37,9 +37,8 @@ public class AuthController {
     /**
      * Returns the currently authenticated user.
      * Tries multiple strategies:
-     * 1) Dev token (for development use)
-     * 2) Spring Security authentication context
-     * 3) JWT parsed from Authorization header
+     * 1) Spring Security authentication context
+     * 2) JWT parsed from Authorization header
      * @param authentication Spring Security authentication object
      * @param authorizationHeader Authorization header containing Bearer token
      * @return LoginResponse with user info or 401 if not authenticated
@@ -51,19 +50,13 @@ public class AuthController {
     ) {
         String token = extractBearerToken(authorizationHeader);
 
-        // 1) DEV tokens
-        Optional<User> devUser = findDevUserByToken(token);
-        if (devUser.isPresent()) {
-            return ResponseEntity.ok(toLoginResponse(devUser.get()));
-        }
-
-        // 2) SecurityContext
+        // 1) SecurityContext
         Optional<User> authUser = findUserFromAuthentication(authentication);
         if (authUser.isPresent()) {
             return ResponseEntity.ok(toLoginResponse(authUser.get()));
         }
 
-        // 3) Fallback: parse JWT direct from Authorization header
+        // 2) Fallback: parse JWT direct from Authorization header
         Optional<User> jwtUser = findUserByJwtToken(token);
         if (jwtUser.isPresent()) {
             return ResponseEntity.ok(toLoginResponse(jwtUser.get()));
@@ -213,35 +206,6 @@ public class AuthController {
         } catch (Exception ex) {
             return Optional.empty();
         }
-    }
-
-    /**
-     * Returns a development user based on predefined dev tokens.
-     */
-    private Optional<User> findDevUserByToken(String token) {
-        if (token == null || token.isBlank()) {
-            return Optional.empty();
-        }
-
-        String email;
-        switch (token) {
-            case "DEV_ADMIN_TOKEN":
-                email = "admin@gsmartlib.tech";
-                break;
-            case "DEV_TEACHER_TOKEN":
-                email = "leerkracht.dev@gsmartlib.tech";
-                break;
-            case "DEV_BIBLIOTHEEKBEHEERDER_TOKEN":
-                email = "bibliotheekbeheerder.dev@gsmartlib.tech";
-                break;
-            case "DEV_STUDENT_TOKEN":
-                email = "leerling.dev@gsmartlib.tech";
-                break;
-            default:
-                return Optional.empty();
-        }
-
-        return userRepository.findByEmail(email);
     }
 
     /**

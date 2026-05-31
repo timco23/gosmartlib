@@ -122,6 +122,10 @@ public class OneRosterSyncScheduler {
             String normalizedOrName = normalizeSchoolName(orSchoolName);
 
             if (user.getSchool() == null || !normalizeSchoolName(user.getSchool().getName()).equals(normalizedOrName)) {
+                if (user.getRole() == Role.BIBLIOTHEEKBEHEERDER) {
+                    user.setRole(Role.LEERKRACHT);
+                }
+
                 allSchools.stream()
                         .filter(s -> normalizeSchoolName(s.getName()).equals(normalizedOrName))
                         .findFirst()

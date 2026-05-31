@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Spring Security filter that authenticates requests using JWT or dev tokens.
+ * Spring Security filter that authenticates requests using JWT tokens.
  * Sets the authentication in the SecurityContext if a valid user is found.
  */
 @Component
@@ -51,10 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7).trim();
 
-        Optional<User> userOpt = findDevUserByToken(token);
-        if (userOpt.isEmpty()) {
-            userOpt = findUserByJwtToken(token);
-        }
+        Optional<User> userOpt = findUserByJwtToken(token);;
 
         userOpt.ifPresent(user -> setAuthentication(user, request));
 
@@ -72,32 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception ex) {
             return Optional.empty();
         }
-    }
-
-    private Optional<User> findDevUserByToken(String token) {
-        if (token == null || token.isBlank()) {
-            return Optional.empty();
-        }
-
-        String email;
-        switch (token) {
-            case "DEV_ADMIN_TOKEN":
-                email = "admin@gsmartlib.tech";
-                break;
-            case "DEV_TEACHER_TOKEN":
-                email = "leerkracht.dev@gsmartlib.tech";
-                break;
-            case "DEV_BIBLIOTHEEKBEHEERDER_TOKEN":
-                email = "bibliotheekbeheerder.dev@gsmartlib.tech";
-                break;
-            case "DEV_STUDENT_TOKEN":
-                email = "leerling.dev@gsmartlib.tech";
-                break;
-            default:
-                return Optional.empty();
-        }
-
-        return userRepository.findByEmail(email);
     }
 
     /**

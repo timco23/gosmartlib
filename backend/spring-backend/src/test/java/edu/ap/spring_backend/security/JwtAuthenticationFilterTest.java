@@ -61,25 +61,6 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void givenDevToken_whenFilter_thenAuthenticationSet() throws Exception {
-        User dev = user(1, Role.LEERLING);
-
-        when(userRepository.findByEmail("leerling.dev@gsmartlib.tech")).thenReturn(Optional.of(dev));
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer DEV_STUDENT_TOKEN");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        filter.doFilter(request, response, filterChain);
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        assertNotNull(auth);
-        assertEquals("1", auth.getPrincipal());
-        assertTrue(auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(dev.getRole().name())));
-    }
-
-    @Test
     void givenJwtToken_whenFilter_thenAuthenticationSet() throws Exception {
         User u = user(2, Role.ADMIN);
 

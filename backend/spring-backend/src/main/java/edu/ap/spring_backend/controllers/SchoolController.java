@@ -53,7 +53,11 @@ public class SchoolController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSchool(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSchool(@PathVariable Long id, Authentication auth) {
+        User user = resolveUser(auth);
+        if (user.getSchool() != null && user.getSchool().getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "U kan de school waar u momenteel aan gekoppeld bent niet verwijderen.");
+        }
         schoolService.deleteSchool(id);
         return ResponseEntity.noContent().build();
     }

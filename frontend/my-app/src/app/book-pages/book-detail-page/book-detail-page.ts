@@ -400,7 +400,7 @@ export class BookDetailPage implements OnInit {
   get copiesByCampus(): { campusName: string; available: number; borrowed: number; other: number; total: number; earliestReturnDate: string | null }[] {
     const groups = new Map<string, SchoolItemCopy[]>();
     for (const copy of this.copies) {
-      const key = copy.campus?.name ?? 'Geen locatie';
+      const key = copy.campus?.name ?? 'Huidige campus';
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(copy);
     }

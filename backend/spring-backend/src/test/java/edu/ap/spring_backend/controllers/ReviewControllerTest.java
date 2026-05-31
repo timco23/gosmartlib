@@ -72,18 +72,6 @@ class ReviewControllerTest {
     }
 
     @Test
-    void givenDevToken_whenCreateReview_thenUsesDevEmail() {
-        CreateReviewDTO dto = new CreateReviewDTO("Nice", 4, false);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer DEV_STUDENT_TOKEN");
-
-        controller.createReview(1L, dto, null, request);
-
-        verify(reviewService).createReview(1L, dto, "leerling.dev@gsmartlib.tech");
-    }
-
-    @Test
     void givenJwtToken_whenCreateReview_thenUsesEmailClaim() {
         CreateReviewDTO dto = new CreateReviewDTO("Nice", 4, false);
         String token = jwtWithEmail("jwt@example.com");

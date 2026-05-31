@@ -45,19 +45,6 @@ class AuthControllerTest {
     }
 
     @Test
-    void givenDevToken_whenMe_thenReturnsUser() {
-        User user = mockUser("Admin", "admin@gsmartlib.tech", Role.ADMIN);
-        when(userRepository.findByEmail("admin@gsmartlib.tech")).thenReturn(Optional.of(user));
-
-        ResponseEntity<LoginResponse> response = controller.me(null, "Bearer DEV_ADMIN_TOKEN");
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Admin", response.getBody().getName());
-        assertEquals("ADMIN", response.getBody().getRole());
-        assertEquals("admin@gsmartlib.tech", response.getBody().getEmail());
-    }
-
-    @Test
     void givenAuthentication_whenMe_thenReturnsUser() {
         User user = mockUser("User", "user@example.com", Role.LEERLING);
 
