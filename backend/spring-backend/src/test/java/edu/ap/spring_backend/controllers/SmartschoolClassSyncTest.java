@@ -1,9 +1,7 @@
 package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dao.SchoolRepository;
-import edu.ap.spring_backend.dto.SmartschoolGroupDTO;
-import edu.ap.spring_backend.dto.SmartschoolGroupInfoResponseDTO;
-import edu.ap.spring_backend.dto.SmartschoolUserInfo;
+import edu.ap.spring_backend.dto.*;
 import edu.ap.spring_backend.jpa.Role;
 import edu.ap.spring_backend.jpa.Item;
 import edu.ap.spring_backend.jpa.School;
@@ -64,8 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "smartschool.redirect-uri=http://localhost/oauth/smartschool/callback",
         "app.frontend-base-url=http://localhost:3000",
         "app.jwt.secret=testsecret12345678901234567890ab",
-        "app.jwt.expires-minutes=60",
-        "oauth.default-school-id=1"
+        "app.jwt.expires-minutes=60"
 })
 class SmartschoolClassSyncTest extends BaseControllerTest {
 
@@ -101,9 +98,21 @@ class SmartschoolClassSyncTest extends BaseControllerTest {
         defaultSchool.setId(1L);
         defaultSchool.setName("Test School");
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(defaultSchool));
+        when(schoolRepository.findAll()).thenReturn(List.of(defaultSchool));
 
         when(mockRestTemplate.postForEntity(anyString(), any(), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(Map.of("access_token", "fake-token"), HttpStatus.OK));
+
+        stubOneRoster("Test", "User", "Test School");
+    }
+
+    private void stubOneRoster(String firstName, String familyName, String schoolName) {
+        OneRosterSchoolDTO school = new OneRosterSchoolDTO("school-1", "active", schoolName, "school", "123");
+        OneRosterUserDTO orUser = new OneRosterUserDTO("or-id-123", "id-123", "active", "username", firstName, familyName, "email", "student", "male", new OneRosterSchoolDTO[]{school});
+
+        when(oneRosterOAuthService.getAllStudents()).thenReturn(new OneRosterUserResponseDTO(new OneRosterUserDTO[]{orUser}));
+        when(oneRosterOAuthService.getStudentById("or-id-123")).thenReturn(new OneRosterSingleUserResponseDTO(orUser));
+        when(oneRosterOAuthService.getEnrollmentsForSchool(anyString())).thenReturn(new OneRosterEnrollmentsResponseDTO(new OneRosterEnrollmentDTO[0]));
     }
 
     private User buildUser(Integer id, String email, Role role) throws Exception {
@@ -257,8 +266,9 @@ class SmartschoolClassSyncTest extends BaseControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void callback_noDefaultSchool_classesNotSynced() throws Exception {
-        when(schoolRepository.findById(1L)).thenReturn(Optional.empty());
+    void callback_noMatchingOneRosterSchool_classesNotSynced() throws Exception {
+        // Stub OneRoster to return a school that doesn't exist in our DB
+        stubOneRoster("Test", "User", "Non Existent School");
 
         SmartschoolUserInfo info = buildUserInfo("jan.peeters", "jan@school.be", "leerling");
         when(mockRestTemplate.getForObject(contains("fulluserinfo"), eq(SmartschoolUserInfo.class))).thenReturn(info);
@@ -270,6 +280,7 @@ class SmartschoolClassSyncTest extends BaseControllerTest {
 
         performCallback();
 
+        // syncUserClasses should return early because user.getSchool() is null
         verify(classService, never()).addClass(any());
     }
 

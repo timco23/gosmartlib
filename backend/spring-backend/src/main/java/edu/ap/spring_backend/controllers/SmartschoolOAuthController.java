@@ -89,9 +89,6 @@ public class SmartschoolOAuthController {
     @Value("${app.frontend-base-url}")
     private String frontendBaseUrl;
 
-    @Value("${oauth.default-school-id:0}")
-    private Integer defaultSchoolId;
-
     public SmartschoolOAuthController(
             UserRepository userRepository,
             @Value("${app.jwt.secret}") String jwtSecret,
@@ -108,10 +105,6 @@ public class SmartschoolOAuthController {
         this.oneRosterOAuthService = oneRosterOAuthService;
     }
 
-    private School resolveDefaultSchool() {
-        if (defaultSchoolId == null || defaultSchoolId <= 0) return null;
-        return schoolRepository.findById(defaultSchoolId.longValue()).orElse(null);
-    }
 
     @GetMapping("/oauth/smartschool/login")
     public void login(HttpServletRequest request, HttpServletResponse response) {
@@ -159,8 +152,7 @@ public class SmartschoolOAuthController {
 
         SmartschoolGroupInfoResponseDTO groupInfo = fetchGroupInfo(tokens.accessToken);
 
-        School defaultSchool = resolveDefaultSchool();
-        User user = upsertUser(info, defaultSchool);
+        User user = upsertUser(info);
 
         // Persist Smartschool tokens so SmartschoolNotificationService can use them
         user.setSmartschoolAccessToken(tokens.accessToken);
@@ -180,7 +172,7 @@ public class SmartschoolOAuthController {
         linkSchool(user);
 
         userRepository.save(user);
-        syncUserClasses(user, defaultSchool, groupInfo);
+        syncUserClasses(user, groupInfo);
         redirectToFrontend(response, jwt, user.getRefreshToken());
     }
 
@@ -251,33 +243,31 @@ public class SmartschoolOAuthController {
         return restTemplate.getForObject(groupInfoUrl, SmartschoolGroupInfoResponseDTO.class);
     }
 
-    private User upsertUser(SmartschoolUserInfo info, School defaultSchool) {
+    private User upsertUser(SmartschoolUserInfo info) {
         User user = userRepository.findBySmartschoolUsername(info.getUsername()).orElse(null);
         String incomingEmail = normalizeEmail(info.getEmail());
         boolean hasIncomingEmail = incomingEmail != null && !incomingEmail.isBlank();
-        if (user == null) return createNewUser(info, defaultSchool, incomingEmail, hasIncomingEmail);
-        updateExistingUser(user, info, defaultSchool, incomingEmail, hasIncomingEmail);
+        if (user == null) return createNewUser(info, incomingEmail, hasIncomingEmail);
+        updateExistingUser(user, info, incomingEmail, hasIncomingEmail);
         return user;
     }
 
-    private User createNewUser(SmartschoolUserInfo info, School defaultSchool, String incomingEmail, boolean hasIncomingEmail) {
+    private User createNewUser(SmartschoolUserInfo info, String incomingEmail, boolean hasIncomingEmail) {
         User user = new User();
         user.setSmartschoolUsername(info.getUsername());
         user.setFirstName(info.getName());
         user.setName(info.getSurname());
         user.setRole(mapSmartschoolRole(info.getBasisrol()));
         user.setPassword("{noop}oauth");
-        assignDefaultSchoolIfPresent(user, defaultSchool);
         assignEmailForNewUser(user, info.getUsername(), incomingEmail, hasIncomingEmail);
         return user;
     }
 
-    private void updateExistingUser(User user, SmartschoolUserInfo info, School defaultSchool, String incomingEmail, boolean hasIncomingEmail) {
+    private void updateExistingUser(User user, SmartschoolUserInfo info, String incomingEmail, boolean hasIncomingEmail) {
         user.setFirstName(info.getName());
         user.setName(info.getSurname());
         maybeUpdateRole(user, info);
         maybeUpdateEmail(user, incomingEmail, hasIncomingEmail);
-        assignDefaultSchoolIfMissing(user, defaultSchool);
     }
 
     private void maybeUpdateRole(User user, SmartschoolUserInfo info) {
@@ -291,9 +281,6 @@ public class SmartschoolOAuthController {
             user.setEmail(incomingEmail);
     }
 
-    private void assignDefaultSchoolIfPresent(User user, School school) { if (school != null) user.setSchool(school); }
-    private void assignDefaultSchoolIfMissing(User user, School school) { if (user.getSchool() == null && school != null) user.setSchool(school); }
-
     private void assignEmailForNewUser(User user, String username, String incomingEmail, boolean hasIncomingEmail) {
         if (hasIncomingEmail && !userRepository.existsByEmail(incomingEmail)) user.setEmail(incomingEmail);
         else user.setEmail(username + "@smartschool.local");
@@ -301,8 +288,8 @@ public class SmartschoolOAuthController {
 
     private String normalizeEmail(String email) { return email == null ? null : email.trim().toLowerCase(); }
 
-    private void syncUserClasses(User user, School defaultSchool, SmartschoolGroupInfoResponseDTO groupInfo) {
-        if (groupInfo == null || groupInfo.groups() == null || defaultSchool == null) return;
+    private void syncUserClasses(User user, SmartschoolGroupInfoResponseDTO groupInfo) {
+        if (groupInfo == null || groupInfo.groups() == null || user.getSchool() == null) return;
         Set<String> smartschoolClassNames = Arrays.stream(groupInfo.groups())
                 .map(SmartschoolGroupDTO::name)
                 .collect(java.util.stream.Collectors.toSet());
@@ -313,8 +300,8 @@ public class SmartschoolOAuthController {
             }
         }
         for (SmartschoolGroupDTO group : groupInfo.groups()) {
-            SchoolClass sc = classService.getClassByNameAndSchoolId(group.name(), defaultSchool.getId());
-            if (sc == null) { sc = new SchoolClass(group.name(), defaultSchool, new ArrayList<>(List.of(user))); }
+            SchoolClass sc = classService.getClassByNameAndSchoolId(group.name(), user.getSchool().getId());
+            if (sc == null) { sc = new SchoolClass(group.name(), user.getSchool(), new ArrayList<>(List.of(user))); }
             else if (!sc.getUsers().contains(user)) { sc.getUsers().add(user); }
             classService.addClass(sc);
         }
