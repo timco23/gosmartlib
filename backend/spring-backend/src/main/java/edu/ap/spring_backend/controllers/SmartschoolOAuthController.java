@@ -2,6 +2,7 @@ package edu.ap.spring_backend.controllers;
 
 import edu.ap.spring_backend.dto.OneRosterSingleUserResponseDTO;
 import edu.ap.spring_backend.dto.OneRosterUserDTO;
+import edu.ap.spring_backend.dto.OneRosterUserResponseDTO;
 import edu.ap.spring_backend.dto.OneRosterEnrollmentDTO;
 import edu.ap.spring_backend.dto.OneRosterEnrollmentsResponseDTO;
 import edu.ap.spring_backend.dto.OneRosterSchoolDTO;
@@ -322,9 +323,13 @@ public class SmartschoolOAuthController {
     private void linkOneRosterId(User user, SmartschoolGroupInfoResponseDTO groupInfo, SmartschoolUserInfo scInfo) {
         if (groupInfo == null || groupInfo.groups() == null || user == null || scInfo == null) return;
 
-        OneRosterUserDTO[] oneRosterUsers = (user.getRole() == Role.LEERLING)
-                ? oneRosterOAuthService.getAllStudents().users()
-                : oneRosterOAuthService.getAllTeachers().users();
+        OneRosterUserResponseDTO orUserResponse = (user.getRole() == Role.LEERLING)
+                ? oneRosterOAuthService.getAllStudents()
+                : oneRosterOAuthService.getAllTeachers();
+
+        if (orUserResponse == null || orUserResponse.users() == null) return;
+
+        OneRosterUserDTO[] oneRosterUsers = orUserResponse.users();
 
         List<OneRosterUserDTO> filteredOneRosterUsers = Arrays.stream(oneRosterUsers)
                 .filter(orUser -> orUser.givenName().equals(scInfo.getName()) && orUser.familyName().equals(scInfo.getSurname()))
@@ -360,8 +365,8 @@ public class SmartschoolOAuthController {
                 if (enrollmentsResponse == null || enrollmentsResponse.enrollments() == null) continue;
 
                 Optional<OneRosterEnrollmentDTO> match = Arrays.stream(enrollmentsResponse.enrollments())
-                        .filter(e -> filteredSourcedIds.contains(e.user().sourcedId()))
-                        .filter(e -> ssGroupNames.contains(e.enrollmentClass().title()))
+                        .filter(e -> e.user() != null && filteredSourcedIds.contains(e.user().sourcedId()))
+                        .filter(e -> e.enrollmentClass() != null && ssGroupNames.contains(e.enrollmentClass().title()))
                         .findFirst();
 
                 if (match.isPresent()) {

@@ -10,6 +10,7 @@ import edu.ap.spring_backend.jpa.School;
 import edu.ap.spring_backend.jpa.SchoolClass;
 import edu.ap.spring_backend.jpa.User;
 import edu.ap.spring_backend.service.ClassService;
+import edu.ap.spring_backend.service.OneRosterOAuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -76,6 +77,9 @@ class SmartschoolClassSyncTest extends BaseControllerTest {
 
     @MockBean
     private ClassService classService;
+
+    @MockBean
+    private OneRosterOAuthService oneRosterOAuthService;
 
     @Autowired
     private SmartschoolOAuthController controller;

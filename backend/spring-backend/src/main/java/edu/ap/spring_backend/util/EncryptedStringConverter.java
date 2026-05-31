@@ -3,41 +3,46 @@ package edu.ap.spring_backend.util;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import org.jasypt.util.text.AES256TextEncryptor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
 
 @Converter
+@Component
 public class EncryptedStringConverter implements AttributeConverter<String, String> {
 
-    private static AES256TextEncryptor encryptor;
+    private final AES256TextEncryptor encryptor = new AES256TextEncryptor();
 
-    private static AES256TextEncryptor getEncryptor() {
-        if (encryptor == null) {
-            String secret = System.getenv("ENCRYPTION_SECRET");
+    @Value("${ENCRYPTION_SECRET:}")
+    private String secret;
+
+    @PostConstruct
+    public void init() {
+        if (secret == null || secret.isBlank()) {
+            // Fallback for non-Spring managed instantiation if necessary
+            secret = System.getenv("ENCRYPTION_SECRET");
             if (secret == null || secret.isBlank()) {
                 secret = System.getProperty("ENCRYPTION_SECRET");
             }
-            if (secret == null || secret.isBlank()) {
-                secret = System.getProperty("app.encryption.secret");
-            }
-            if (secret == null || secret.isBlank()) {
-                throw new IllegalStateException("ENCRYPTION_SECRET is not set");
-            }
-            encryptor = new AES256TextEncryptor();
+        }
+
+        if (secret != null && !secret.isBlank()) {
             encryptor.setPassword(secret);
         }
-        return encryptor;
     }
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
-        if (attribute == null) return null;
-        return getEncryptor().encrypt(attribute);
+        if (attribute == null || secret == null || secret.isBlank()) return attribute;
+        return encryptor.encrypt(attribute);
     }
 
     @Override
     public String convertToEntityAttribute(String dbData) {
-        if (dbData == null) return null;
+        if (dbData == null || secret == null || secret.isBlank()) return dbData;
         try {
-            return getEncryptor().decrypt(dbData);
+            return encryptor.decrypt(dbData);
         } catch (Exception e) {
             return dbData;
         }

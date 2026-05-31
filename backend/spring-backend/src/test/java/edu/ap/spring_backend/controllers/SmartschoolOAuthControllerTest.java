@@ -4,6 +4,7 @@ import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dto.SmartschoolUserInfo;
 import edu.ap.spring_backend.jpa.Role;
 import edu.ap.spring_backend.jpa.User;
+import edu.ap.spring_backend.service.OneRosterOAuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -67,6 +68,9 @@ class SmartschoolOAuthControllerTest extends BaseControllerTest {
 
     @MockBean
     private ClassService classService;
+
+    @MockBean
+    private OneRosterOAuthService oneRosterOAuthService;
 
     @Autowired
     private SmartschoolOAuthController controller;

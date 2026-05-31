@@ -27,9 +27,11 @@ class EncryptionMigrationRunnerTest {
     private UserRepository userRepository;
 
     @Mock
+    private EncryptedStringConverter converter;
+
+    @Mock
     private ApplicationArguments args;
 
-    @InjectMocks
     private EncryptionMigrationRunner runner;
 
     @TempDir
@@ -39,19 +41,12 @@ class EncryptionMigrationRunnerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        Field field = EncryptedStringConverter.class.getDeclaredField("encryptor");
-        field.setAccessible(true);
-        field.set(null, null);
-
-        System.setProperty("ENCRYPTION_SECRET", "test-secret-for-migration-tests");
-
+        runner = new EncryptionMigrationRunner(userRepository, converter);
         flagFile = tempDir.resolve("encryption_migration_done").toFile();
 
         Field flagField = EncryptionMigrationRunner.class.getDeclaredField("flagFile");
-        if (flagField != null) {
-            flagField.setAccessible(true);
-            flagField.set(runner, flagFile);
-        }
+        flagField.setAccessible(true);
+        flagField.set(runner, flagFile);
     }
 
     @Test
@@ -60,11 +55,12 @@ class EncryptionMigrationRunnerTest {
         User user2 = makeUser(2, "De Meyer", "Lisa");
 
         when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+        when(converter.convertToDatabaseColumn(anyString())).thenReturn("encrypted");
 
         runner.run(args);
 
         verify(userRepository, times(1)).findAll();
-        verify(userRepository, times(2)).updateNamesDirect(isNull(), anyString(), anyString());
+        verify(userRepository, times(2)).updateNamesDirect(isNull(), eq("encrypted"), eq("encrypted"));
     }
 
     @Test
@@ -80,10 +76,11 @@ class EncryptionMigrationRunnerTest {
     void run_handlesNullFirstName() throws Exception {
         User user = makeUser(1, "Peeters", null);
         when(userRepository.findAll()).thenReturn(List.of(user));
+        when(converter.convertToDatabaseColumn(anyString())).thenReturn("encrypted");
 
         runner.run(args);
 
-        verify(userRepository).updateNamesDirect(isNull(), anyString(), isNull());
+        verify(userRepository).updateNamesDirect(isNull(), eq("encrypted"), isNull());
     }
 
     private User makeUser(int id, String name, String firstName) {

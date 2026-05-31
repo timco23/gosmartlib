@@ -8,16 +8,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Component
 public class EncryptionMigrationRunner implements ApplicationRunner {
 
     private final UserRepository userRepository;
-    private File flagFile = new File("/tmp/encryption_migration_done");
+    private final EncryptedStringConverter converter;
+    private File flagFile = Paths.get(System.getProperty("java.io.tmpdir"), "encryption_migration_done").toFile();
 
-    public EncryptionMigrationRunner(UserRepository userRepository) {
+    public EncryptionMigrationRunner(UserRepository userRepository, EncryptedStringConverter converter) {
         this.userRepository = userRepository;
+        this.converter = converter;
     }
 
     @Override
@@ -25,7 +28,6 @@ public class EncryptionMigrationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         if (flagFile.exists()) return;
 
-        EncryptedStringConverter converter = new EncryptedStringConverter();
         List<User> users = userRepository.findAll();
         for (User user : users) {
             String encryptedName = user.getName() != null

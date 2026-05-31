@@ -13,12 +13,11 @@ class EncryptedStringConverterTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        Field field = EncryptedStringConverter.class.getDeclaredField("encryptor");
-        field.setAccessible(true);
-        field.set(null, null);
-
-        System.setProperty("ENCRYPTION_SECRET", "test-secret-for-converter-tests");
         converter = new EncryptedStringConverter();
+        Field secretField = EncryptedStringConverter.class.getDeclaredField("secret");
+        secretField.setAccessible(true);
+        secretField.set(converter, "test-secret-for-converter-tests");
+        converter.init();
     }
 
     @Test

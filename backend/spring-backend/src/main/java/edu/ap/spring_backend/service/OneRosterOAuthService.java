@@ -13,14 +13,19 @@ public class OneRosterOAuthService {
     private final WebClient webClient;
 
     @Value("${smartschool.platform}")
-    private String baseUrl;
+    private String platform;
+
+    private String getBaseUrl() {
+        return "https://" + platform;
+    }
+
     public OneRosterOAuthService(WebClient webClient) {
         this.webClient = webClient;
     }
 
     public OneRosterUserResponseDTO getAllStudents() {
         return webClient.get().
-                uri(baseUrl + "/ims/oneroster/v1p1/students")
+                uri(getBaseUrl() + "/ims/oneroster/v1p1/students")
                 .retrieve()
                 .bodyToMono(OneRosterUserResponseDTO.class)
                 .block();
@@ -28,7 +33,7 @@ public class OneRosterOAuthService {
 
     public OneRosterUserResponseDTO getAllTeachers() {
         return webClient.get().
-                uri(baseUrl + "/ims/oneroster/v1p1/teachers")
+                uri(getBaseUrl() + "/ims/oneroster/v1p1/teachers")
                 .retrieve()
                 .bodyToMono(OneRosterUserResponseDTO.class)
                 .block();
@@ -37,7 +42,7 @@ public class OneRosterOAuthService {
     //Using a user's sourcedId will give the enrollments of the school they're in
     public OneRosterEnrollmentsResponseDTO getEnrollmentsForSchool(String schoolId) {
         return webClient.get().
-                uri(baseUrl + "/ims/oneroster/v1p1/schools/" + schoolId + "/enrollments")
+                uri(getBaseUrl() + "/ims/oneroster/v1p1/schools/" + schoolId + "/enrollments")
                 .retrieve()
                 .bodyToMono(OneRosterEnrollmentsResponseDTO.class)
                 .block();
@@ -45,7 +50,7 @@ public class OneRosterOAuthService {
 
     public OneRosterSingleUserResponseDTO getStudentById(String studentId) {
         return webClient.get().
-                uri(baseUrl + "/ims/oneroster/v1p1/students/" + studentId)
+                uri(getBaseUrl() + "/ims/oneroster/v1p1/students/" + studentId)
                 .retrieve()
                 .bodyToMono(OneRosterSingleUserResponseDTO.class)
                 .block();
@@ -53,7 +58,7 @@ public class OneRosterOAuthService {
 
     public OneRosterSingleUserResponseDTO getTeacherById(String teacherId) {
         return webClient.get().
-                uri(baseUrl + "/ims/oneroster/v1p1/teachers/" + teacherId)
+                uri(getBaseUrl() + "/ims/oneroster/v1p1/teachers/" + teacherId)
                 .retrieve()
                 .bodyToMono(OneRosterSingleUserResponseDTO.class)
                 .block();
