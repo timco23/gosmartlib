@@ -1,6 +1,9 @@
-# GoSmartLib
+# Go!SmartLib
+Full-stack application using Angular, Spring Boot, MySQL, Traefik and a custom domain via get.tech.
+---
+
 ## Short description
-GoSmartLib is a school-library management platform where users can log in using Smartschool. This application is made to view and manage the lendings and the books in your school library. The application is split into different roles: student, teacher, librarian and admin. These users have different rights on the platform.
+Go!SmartLib is a school-library management platform where users can log in using Smartschool. This application is made to view and manage the lendings and the books in your school library. The application is split into different roles: student, teacher, librarian and admin. These users have different rights on the platform.
 
 ## Roles
 | Role | Description |
@@ -42,6 +45,9 @@ APP_FRONTEND_BASE_URL=https://yourdomain.tech
 JWT_SECRET=your32characterlongsecrethere1234
 JWT_EXPIRES_MINUTES=15
 OAUTH_DEFAULT_SCHOOL_ID=1
+# For OneRoster
+ONEROSTER_CLIENT_ID=yourclientid
+ONEROSTER_CLIENT_SECRET=yourclientsecret
 # For name encryption
 ENCRYPTION_SECRET=aLongRandomKey123!@#
 # External metadata APIs
