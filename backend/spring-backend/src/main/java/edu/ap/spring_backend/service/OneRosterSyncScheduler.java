@@ -106,7 +106,7 @@ public class OneRosterSyncScheduler {
                 .toList();
 
         if (matches.size() == 1) {
-            user.setOnerosterId(matches.get(0).sourcedId());
+            user.setOnerosterId(matches.getFirst().sourcedId());
         } else if (matches.size() > 1) {
             // If multiple matches by name, try to narrow down by email if possible
             matches.stream()
