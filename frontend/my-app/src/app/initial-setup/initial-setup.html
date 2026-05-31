@@ -1,0 +1,75 @@
+<div class="setup-page">
+
+  @if (phase === 'welcome') {
+    <div class="setup-card">
+      <img src="logo_go_antwerpen.svg" alt="GO! Antwerpen" class="setup-logo" />
+      <h1>Welkom bij GO!SmartLib</h1>
+      @if (!schoolExists) {
+        <p class="setup-intro">
+          Voordat u de applicatie kan gebruiken, moet u uw account wachtwoord wijzigen en een eerste school instellen. Dit duurt slechts een paar minuten.
+        </p>
+      } @else {
+        <p class="setup-intro">
+          Voordat u de applicatie kan gebruiken, moet u uw account wachtwoord wijzigen. Dit duurt slechts een paar minuten.
+        </p>
+      }
+      <button class="btn-primary" (click)="startSetup()">Starten →</button>
+    </div>
+  }
+
+  @if (phase === 'password') {
+    <div class="setup-card">
+      @if (isLinking) {
+        <p class="setup-linking">Account koppelen aan school...</p>
+      } @else {
+        @if (schoolExists) {
+          <p class="setup-context-label">Wachtwoord instellen</p>
+          <p class="setup-security-notice">Om veiligheidsredenen moet u het standaardwachtwoord verplicht wijzigen voor u de applicatie kan gebruiken.</p>
+        } @else {
+          <p class="setup-context-label">Stap 1 — Wachtwoord instellen</p>
+        }
+        <app-change-password [showCancel]="false" (passwordChanged)="onPasswordChanged()" />
+      }
+    </div>
+  }
+
+  @if (phase === 'school') {
+    <div class="setup-school-wrapper">
+      <p class="setup-context-label">Stap 2 — Eerste school aanmaken</p>
+      @if (linkError) {
+        <p class="setup-link-error">
+          School aangemaakt, maar koppeling mislukt. Probeer opnieuw of neem contact op met support.
+        </p>
+      }
+      @if (isLinking) {
+        <p class="setup-linking">School koppelen...</p>
+      } @else {
+        <app-school-wizard
+          [isSetupMode]="true"
+          (schoolCreated)="onSchoolCreated($event)"
+        />
+      }
+    </div>
+  }
+
+  @if (phase === 'done') {
+    <div class="setup-card">
+      <div class="setup-done-icon">✓</div>
+      <h1>Configuratie voltooid</h1>
+      @if (!schoolExists) {
+        <p class="setup-intro">
+          Uw school is aangemaakt. GO! SmartLib is klaar voor gebruik.
+        </p>
+        <p class="setup-intro">
+          Via accountbeheer kan de eerste bibliotheekbeheerder worden aangesteld. Dit kan op elk moment gebeuren.
+        </p>
+      } @else {
+        <p class="setup-intro">
+          Uw wachtwoord is ingesteld. GO! SmartLib is klaar voor gebruik.
+        </p>
+      }
+      <button class="btn-primary" (click)="goToApp()">Ga naar de app →</button>
+    </div>
+  }
+
+</div>

@@ -60,6 +60,9 @@ public class User {
     @Column(name = "deletion_requested_at")
     private LocalDateTime deletionRequestedAt;
 
+    @Column(name = "needs_password_change", nullable = false)
+    private boolean needsPasswordChange = false;
+
     /**
      * Refresh token for JWT session persistence (our own token, not Smartschool's).
      */
@@ -122,4 +125,6 @@ public class User {
     public void setItemsBorrowed(Integer itemsBorrowed) { this.itemsBorrowed = itemsBorrowed; }
     public void setDeletionRequestedAt(LocalDateTime deletionRequestedAt) { this.deletionRequestedAt = deletionRequestedAt; }
     public void  setOnerosterId(String onerosterId) { this.onerosterId = onerosterId; }
+    public boolean isNeedsPasswordChange() { return needsPasswordChange; }
+    public void setNeedsPasswordChange(boolean needsPasswordChange) { this.needsPasswordChange = needsPasswordChange; }
 }

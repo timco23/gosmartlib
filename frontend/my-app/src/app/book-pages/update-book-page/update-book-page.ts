@@ -156,14 +156,6 @@ export class UpdateBookPage implements OnInit {
     }
   }
 
-  @HostListener('window:beforeunload')
-  onBeforeUnload(): void {
-    if (this.book?.id) {
-      const url = `${environment.apiUrl}/books/${this.book.id}/mark-for-update?value=false`;
-      navigator.sendBeacon(url);
-    }
-  }
-
   loadBook() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;

@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

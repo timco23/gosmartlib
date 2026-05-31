@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginResponse, Role } from '../../types/types';
 
@@ -91,6 +91,29 @@ export class AuthService {
 
   fetchCurrentUser(): Observable<LoginResponse> {
     return this.me();
+  }
+
+  //manual login with email and password
+  login(email: string, password: string): Observable<{ token: string; refreshToken: string }> {
+    return this.http
+      .post<{ token: string; refreshToken: string }>(`${environment.apiUrl}/auth/login`, { email, password })
+      .pipe(
+        tap((res) => {
+          this.setToken(res.token);
+          if (res.refreshToken) this.setRefreshToken(res.refreshToken);
+        }),
+      );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/change-password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
+
+  setupRequired(): Promise<boolean> {
+    return firstValueFrom(this.http.get<boolean>(`${environment.apiUrl}/auth/setup-required`));
   }
 
   /**

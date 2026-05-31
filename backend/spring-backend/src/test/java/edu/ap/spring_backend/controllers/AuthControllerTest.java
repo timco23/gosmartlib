@@ -1,5 +1,6 @@
 package edu.ap.spring_backend.controllers;
 
+import edu.ap.spring_backend.dao.SchoolRepository;
 import edu.ap.spring_backend.dao.UserRepository;
 import edu.ap.spring_backend.dto.LoginResponse;
 import edu.ap.spring_backend.jpa.Role;
@@ -11,6 +12,7 @@ import org.mockito.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Map;
 import java.util.Optional;
@@ -21,14 +23,16 @@ import static org.mockito.Mockito.*;
 class AuthControllerTest {
 
     @Mock private UserRepository userRepository;
+    @Mock private SchoolRepository schoolRepository;
     @Mock private JwtService jwtService;
+    @Mock private PasswordEncoder passwordEncoder;
 
     private AuthController controller;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        controller = new AuthController(userRepository, jwtService);
+        controller = new AuthController(userRepository, schoolRepository, jwtService, passwordEncoder);
     }
 
     private User mockUser(String name, String email, Role role) {
@@ -36,6 +40,7 @@ class AuthControllerTest {
         when(user.getName()).thenReturn(name);
         when(user.getEmail()).thenReturn(email);
         when(user.getRole()).thenReturn(role);
+        when(user.getSchool()).thenReturn(null);
         return user;
     }
 

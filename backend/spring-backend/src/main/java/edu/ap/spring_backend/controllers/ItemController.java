@@ -7,7 +7,6 @@ import edu.ap.spring_backend.service.ItemService;
 import jakarta.validation.constraints.*;
 import edu.ap.spring_backend.service.SchoolItemCopyService;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +18,8 @@ import edu.ap.spring_backend.jpa.Role;
 import edu.ap.spring_backend.service.BookCoverCacheService;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
