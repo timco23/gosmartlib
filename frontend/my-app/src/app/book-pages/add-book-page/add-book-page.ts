@@ -652,4 +652,17 @@ export class AddBookPage implements OnInit {
 
     this.closeBookPopup();
   }
+
+  downloadTemplates() {
+      this.api.downloadBookTemplates().subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `sjabloontjes_gosmartlib.zip`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+      });
+  }
 }

@@ -263,4 +263,10 @@ export class BookService {
       responseType: 'blob',
     });
   }
+
+  downloadBookTemplates(): Observable<Blob> {
+    return this.http.get(`${this.apiBaseUrl}/books/templates/download`, {
+      responseType: 'blob',
+    });
+  }
 }

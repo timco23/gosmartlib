@@ -8,6 +8,7 @@
       (change)="onCsvFileSelected($event)"
       style="display: none"
     />
+    <button type="button" class="secondary-btn" (click)="downloadTemplates()">Download sjabloontjes</button>
     @if (importHistory.length > 0) {
       <div class="history-dropdown">
         <button type="button" class="secondary-btn history-toggle" (click)="historyOpen = !historyOpen">

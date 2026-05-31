@@ -175,7 +175,7 @@ public class AuthController {
      */
     private LoginResponse toLoginResponse(User user) {
         Long schoolId = user.getSchool() != null ? user.getSchool().getId() : null;
-        return new LoginResponse(user.getName(), user.getRole().name(), user.getEmail(), schoolId, user.isNeedsPasswordChange());
+        return new LoginResponse(user.getName(), user.getFirstName(), user.getRole().name(), user.getEmail(), schoolId, user.isNeedsPasswordChange());
     }
 
     /**

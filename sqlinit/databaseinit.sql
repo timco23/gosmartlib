@@ -117,11 +117,11 @@ CREATE TABLE IF NOT EXISTS review (
 );
 
 -- Admin users (default password: admin321 — change on first login via the setup wizard)
-INSERT INTO user (name, email, password, role, school_id, smartschool_username, refresh_token, needs_password_change)
+INSERT INTO user (name, first_name , email, password, role, school_id, smartschool_username, refresh_token, needs_password_change)
 VALUES
-('Admin', 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin', NULL, TRUE),
-('Admin2', 'admin2@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin2', NULL, TRUE),
-('Admin3', 'admin3@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin3', NULL, TRUE);
+('', "Admin" , 'admin@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin', NULL, TRUE),
+('2', "Admin" , 'admin2@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin2', NULL, TRUE),
+('3',"Admin" , 'admin3@gsmartlib.tech', '$2a$10$EsySx6V7it5x9EKH7dzU.e1ww0EZ96RwfSUwjTlpYizrjlz/AqYay', 'ADMIN', NULL, 'admin3', NULL, TRUE);
 
 INSERT INTO user (name, first_name, email, password, role, school_id, smartschool_username, refresh_token)
 VALUES

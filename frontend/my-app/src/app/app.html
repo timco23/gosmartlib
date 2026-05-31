@@ -105,7 +105,7 @@
   <div class="user-menu">
     <div class="user-info">
       @if(currentUser) {
-        <strong class="user-info__name" >{{ currentUser.name }}</strong>
+        <strong class="user-info__name" >{{ currentUser.firstName }} {{currentUser.name}}</strong>
       }
       @if (authService.atLeastHasRole(role.ADMIN)) {
       <a routerLink="/change-password" class="change-password-btn" title="Wachtwoord wijzigen" aria-label="Wachtwoord wijzigen">

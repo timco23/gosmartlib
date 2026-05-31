@@ -408,4 +408,21 @@ public class ItemController {
             Files.deleteIfExists(excelLocation);
         }
     }
+
+    @GetMapping("/books/templates/download")
+    public ResponseEntity<Resource> downloadTemplates() {
+        File file = new File("src/main/resources/Sjabloontjes-gosmartlib.zip");
+        
+        try {
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
+
+            return ResponseEntity.ok()
+                    .contentLength(file.length())
+                    .header("Content-Disposition", "attachment; filename=\"sjabloontjes-gosmartlib.zip\"")
+                    .contentType(MediaType.parseMediaType("application/zip"))
+                    .body(resource);
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }
