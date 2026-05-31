@@ -97,6 +97,7 @@ export const authGuard: CanActivateFn = (route, state) => {
       return router.createUrlTree(['/setup']);
     }
     if (user.needsPasswordChange === false && state.url.startsWith('/setup')) {
+            console.log("daufda")
       return router.createUrlTree(['/schools']);
     }
   }

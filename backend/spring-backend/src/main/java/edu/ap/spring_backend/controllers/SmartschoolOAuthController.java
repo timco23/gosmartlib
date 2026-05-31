@@ -381,7 +381,7 @@ public class SmartschoolOAuthController {
                     schoolRepository.findAll().stream()
                             .filter(s -> normalizeSchoolName(s.getName()).equals(normalizedOrName))
                             .findFirst()
-                            .ifPresent(user::setSchool);
+                            .ifPresentOrElse(user::setSchool, () -> user.setSchool(null));
                 }
             }
         }
