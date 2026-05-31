@@ -107,4 +107,8 @@ export class UserService {
       responseType: 'text' as 'json',
     });
   }
+
+  hasSchool(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${environment.apiUrl}/user/has-school`, { params: {email}});
+  }
 }

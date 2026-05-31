@@ -104,24 +104,19 @@ export const authGuard: CanActivateFn = async (route, state) => {
     return router.createUrlTree(['/login'], { queryParams: { redirect: state.url } });
   }
 
-  const currentUser = authService.getCurrentUser();
-  if (!currentUser?.email) {
+  if (!user?.email) {
     // If we have no user info (e.g. dev tokens), skip school check and just verify roles
-    const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
-    if (allowedRoles.length === 0 || allowedRoles.includes(role)) {
+    if (allowedRoles.includes(role)) {
       return true;
     }
     return router.createUrlTree(['/forbidden'], { queryParams: { from: state.url } });
   }
 
-  return userService.hasSchool(currentUser.email).pipe(
+  return userService.hasSchool(user.email).pipe(
     map((hasSchool) => {
       if (!hasSchool) {
         return router.createUrlTree(['/noschool']);
       }
-
-      const allowedRoles = (route.data?.['roles'] ?? []) as AppRole[];
-      if (allowedRoles.length === 0) return true;
 
       if (allowedRoles.includes(role)) {
         return true;
