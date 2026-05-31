@@ -75,7 +75,7 @@ function getRoleFromToken(token: string): AppRole | null {
  * - Verifies if the role is allowed for the route
  * - Redirects to /forbidden if access is denied
  */
-export const authGuard: CanActivateFn = async (route, state) => {
+export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const userService = inject(UserService);
   const router = inject(Router);

@@ -26,10 +26,6 @@ export class App implements OnInit {
     return this.sidebarRight;
   }
 
-  get hideNav(): boolean {
-    return this.router.url.split('?')[0] === '/setup';
-  }
-
   constructor(
     public authService: AuthService,
     private router: Router,
@@ -107,7 +103,8 @@ export class App implements OnInit {
       path !== '/login' &&
       path !== '/oauth-callback' &&
       path !== '/oauth/callback' &&
-      path !== '/noschool'
+      path !== '/noschool' &&
+      path !== '/setup'
     );
   }
 
