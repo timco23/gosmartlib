@@ -42,8 +42,7 @@ public abstract class BaseIntegrationTest {
         School school = new School(
                 name, "Teststraat 1",
                 14, 7, 2, 5, 10,
-                3, 1, 5,
-                true, false);
+                3, 1, 5);
         return schoolRepository.save(school);
     }
 

@@ -72,8 +72,6 @@ export class SchoolManagementComponent {
       lenderNotificationPeriod: [0, [Validators.required, Validators.min(0)]],
       lenderLateNotificationPeriod: [0, [Validators.required, Validators.min(0)]],
       librarianNotificationNotReturned: [0, [Validators.required, Validators.min(0)]],
-      reviews: [false],
-      reviewModeration: [false],
       dashboardShowBookOfMonth: [true],
       dashboardShowLastBorrowed: [true],
       dashboardShowAnnouncement: [false],

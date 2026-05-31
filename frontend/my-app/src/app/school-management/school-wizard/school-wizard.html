@@ -1,4 +1,4 @@
-<div class="wizard-container" [class.summary-step]="currentStep === 5">
+<div class="wizard-container" [class.summary-step]="currentStep === 4">
 
   <aside class="wizard-sidebar">
     <h2>School toevoegen</h2>
@@ -109,25 +109,6 @@
       }
 
       @if (currentStep === 3) {
-        <h3>Reviews</h3>
-
-        <label class="checkbox-label">
-          <input type="checkbox" formControlName="reviews" />
-          <span class="checkbox-content">
-            <span class="checkbox-title">Reviews inschakelen</span>
-            <span class="checkbox-hint">Leerlingen en leerkrachten kunnen boeken beoordelen met een score en tekst.</span>
-          </span>
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" formControlName="reviewModeration" />
-          <span class="checkbox-content">
-            <span class="checkbox-title">Reviews modereren</span>
-            <span class="checkbox-hint">Nieuwe reviews worden eerst goedgekeurd door een beheerder voor ze zichtbaar zijn voor andere gebruikers.</span>
-          </span>
-        </label>
-      }
-
-      @if (currentStep === 4) {
         <h3>Dashboardinstellingen</h3>
 
         <label class="checkbox-label">
@@ -162,7 +143,7 @@
         }
       }
 
-      @if (currentStep === 5) {
+      @if (currentStep === 4) {
         <h3>Samenvatting</h3>
         <p class="summary-intro">Controleer de gegevens voor u de school aanmaakt.</p>
 
@@ -242,25 +223,10 @@
             </div>
           </div>
 
-          <div class="summary-section">
-            <div class="summary-section-header">
-              <span>Reviews</span>
-              <button type="button" class="btn-edit-section" (click)="goToStep(3)">Aanpassen</button>
-            </div>
-            <div class="summary-row">
-              <span class="summary-key">Reviews</span>
-              <span class="summary-val">{{ yesNo(form.get('reviews')?.value) }}</span>
-            </div>
-            <div class="summary-row">
-              <span class="summary-key">Review moderatie</span>
-              <span class="summary-val">{{ yesNo(form.get('reviewModeration')?.value) }}</span>
-            </div>
-          </div>
-
           <div class="summary-section summary-wide">
             <div class="summary-section-header">
               <span>Dashboard</span>
-              <button type="button" class="btn-edit-section" (click)="goToStep(4)">Aanpassen</button>
+              <button type="button" class="btn-edit-section" (click)="goToStep(3)">Aanpassen</button>
             </div>
             <div class="summary-row">
               <span class="summary-key">Boek v/d maand</span>

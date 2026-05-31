@@ -29,8 +29,6 @@ public class SchoolService {
         existing.setLenderNotificationPeriod(updated.getLenderNotificationPeriod());
         existing.setLenderLateNotificationPeriod(updated.getLenderLateNotificationPeriod());
         existing.setLibrarianNotificationNotReturned(updated.getLibrarianNotificationNotReturned());
-        existing.setReviews(updated.isReviews());
-        existing.setReviewModeration(updated.isReviewModeration());
         existing.setDashboardShowBookOfMonth(updated.isDashboardShowBookOfMonth());
         existing.setDashboardShowLastBorrowed(updated.isDashboardShowLastBorrowed());
         existing.setDashboardShowAnnouncement(updated.isDashboardShowAnnouncement());

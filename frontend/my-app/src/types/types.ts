@@ -61,11 +61,6 @@ export interface School {
   lenderNotificationPeriod: number;
   lenderLateNotificationPeriod: number;
   librarianNotificationNotReturned: number;
-  librarianRequestNotification: boolean;
-  externalVisibility: boolean;
-  externalLending: boolean;
-  reviews: boolean;
-  reviewModeration: boolean;
   dashboardShowBookOfMonth: boolean;
   dashboardShowLastBorrowed: boolean;
   dashboardShowAnnouncement: boolean;

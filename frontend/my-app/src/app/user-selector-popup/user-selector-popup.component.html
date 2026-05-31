@@ -13,7 +13,7 @@
       <ul class="result-list">
         @for (user of users(); track trackByUser($index, user)) {
           <li class="result-item" [class.selected]="isSelected(user)" (click)="selectUser(user)">
-            <span>{{ user.name }}</span>
+            <span>{{ user.firstName }} {{user.name}}</span>
             <small>{{ user.email }}@if (getClasses(user)) { — {{ getClasses(user) }} }</small>
           </li>
         }

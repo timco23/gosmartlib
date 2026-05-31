@@ -15,8 +15,6 @@ CREATE TABLE IF NOT EXISTS school (
     lender_notification_period INT NOT NULL,
     lender_late_notification_period INT NOT NULL,
     librarian_notification_not_returned INT NOT NULL,
-    reviews BOOLEAN NOT NULL,
-    review_moderation BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

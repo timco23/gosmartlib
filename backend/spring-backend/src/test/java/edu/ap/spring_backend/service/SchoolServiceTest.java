@@ -84,8 +84,6 @@ class SchoolServiceTest {
         updated.setMaxExtends(2);
         updated.setMaxLendsStudent(5);
         updated.setMaxLendTeacher(10);
-        updated.setReviews(true);
-        updated.setReviewModeration(true);
 
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(schoolRepository.save(any(School.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -93,7 +91,6 @@ class SchoolServiceTest {
         School result = service.updateSchoolSettings(1L, updated);
 
         assertEquals(14, result.getLendingPeriodDays());
-        assertTrue(result.isReviews());
     }
 
     @Test
