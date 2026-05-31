@@ -33,6 +33,26 @@ Go!SmartLib is a school-library management platform where users can log in using
 - Docker Desktop
 - Git
 
+## Getting API credentials
+
+### Smartschool OAuth2 credentials
+
+Request your Smartschool client ID and secret via the official developer portal:
+
+1. Go to [smartschool.be/developers](https://www.smartschool.be/developers/)
+2. Register your application and fill in the required details
+3. You will receive a `SMARTSCHOOL_CLIENT_ID` and `SMARTSCHOOL_CLIENT_SECRET`
+4. Set `SMARTSCHOOL_PLATFORM` to your school's Smartschool domain (e.g. `yourschool.smartschool.be`)
+5. Set `SMARTSCHOOL_REDIRECT_URI` to `https://api.yourdomain.tech/oauth/smartschool/callback`
+
+### OneRoster credentials
+
+OneRoster credentials are also managed through Smartschool:
+
+1. Go to [smartschool.be/developers](https://www.smartschool.be/developers/)
+2. Request access to the OneRoster API for your school
+3. You will receive a `ONEROSTER_CLIENT_ID` and `ONEROSTER_CLIENT_SECRET`
+
 ## Quick setup
 
 ### 1. Create environment file
