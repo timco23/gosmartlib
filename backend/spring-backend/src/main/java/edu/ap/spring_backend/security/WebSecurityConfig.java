@@ -89,7 +89,8 @@ public class WebSecurityConfig {
                     "/lendingHistory**",
                     "/dashboard**",
                     "/lendings/last-borrowed/*",
-                    "/lendings/most-borrowed-this-month/*"
+                    "/lendings/most-borrowed-this-month/*",
+                    "/user/has-school"
                 ).hasAnyAuthority(ALL_USERS)
 
                 // ALL USERS: reviews and reports

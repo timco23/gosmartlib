@@ -63,7 +63,7 @@ public class UserController {
         return ResponseEntity.ok(favoriteBooks);
     }
 
-    @GetMapping("/user/has-school")
+    @GetMapping("/has-school")
     public ResponseEntity<Boolean> userHasSchool(@RequestParam String email) {
         return ResponseEntity.ok(userService.userHasSchool(email));
     }
